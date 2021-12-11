@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuroraScript", "AuroraScript\AuroraScript.csproj", "{AE917C75-011E-42FE-9C56-1944E724DB60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptRuner", "ScriptRuner\ScriptRuner.csproj", "{EDE1BD9C-529C-4728-BFAE-93EF5D995EC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE917C75-011E-42FE-9C56-1944E724DB60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE917C75-011E-42FE-9C56-1944E724DB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE917C75-011E-42FE-9C56-1944E724DB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE917C75-011E-42FE-9C56-1944E724DB60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDE1BD9C-529C-4728-BFAE-93EF5D995EC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDE1BD9C-529C-4728-BFAE-93EF5D995EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDE1BD9C-529C-4728-BFAE-93EF5D995EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDE1BD9C-529C-4728-BFAE-93EF5D995EC0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D112A53E-2062-49D8-AE25-4F8B02BD956E}
+	EndGlobalSection
+EndGlobal

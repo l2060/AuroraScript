@@ -1,0 +1,203 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch ArrayRunner",
+            "request": "launch",
+            "mainClass": "chap10.ArrayRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch EnvOptInterpreter",
+            "request": "launch",
+            "mainClass": "chap11.EnvOptInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch EnvOptRunner",
+            "request": "launch",
+            "mainClass": "chap11.EnvOptRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch InlineRunner",
+            "request": "launch",
+            "mainClass": "chap12.InlineRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ObjOptInterpreter",
+            "request": "launch",
+            "mainClass": "chap12.ObjOptInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ObjOptRunner",
+            "request": "launch",
+            "mainClass": "chap12.ObjOptRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch VmInterpreter",
+            "request": "launch",
+            "mainClass": "chap13.VmInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch VmRunner",
+            "request": "launch",
+            "mainClass": "chap13.VmRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch InferRunner",
+            "request": "launch",
+            "mainClass": "chap14.InferRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch JavaRunner",
+            "request": "launch",
+            "mainClass": "chap14.JavaRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch TypedInterpreter",
+            "request": "launch",
+            "mainClass": "chap14.TypedInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch TypedRunner",
+            "request": "launch",
+            "mainClass": "chap14.TypedRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch LexerRunner",
+            "request": "launch",
+            "mainClass": "chap3.LexerRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ParserRunner",
+            "request": "launch",
+            "mainClass": "chap5.ParserRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch BasicInterpreter",
+            "request": "launch",
+            "mainClass": "chap6.BasicInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch Runner",
+            "request": "launch",
+            "mainClass": "chap6.Runner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClosureInterpreter",
+            "request": "launch",
+            "mainClass": "chap7.ClosureInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClosureRunner",
+            "request": "launch",
+            "mainClass": "chap7.ClosureRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch FuncInterpreter",
+            "request": "launch",
+            "mainClass": "chap7.FuncInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch FuncRunner",
+            "request": "launch",
+            "mainClass": "chap7.FuncRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch NativeInterpreter",
+            "request": "launch",
+            "mainClass": "chap8.NativeInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch NativeRunner",
+            "request": "launch",
+            "mainClass": "chap8.NativeRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClassInterpreter",
+            "request": "launch",
+            "mainClass": "chap9.ClassInterpreter",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClassRunner",
+            "request": "launch",
+            "mainClass": "chap9.ClassRunner",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch Lexer",
+            "request": "launch",
+            "mainClass": "chapA.Lexer",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch ExprParser",
+            "request": "launch",
+            "mainClass": "chapB.ExprParser",
+            "projectName": "stone-master_95e6f968"
+        },
+        {
+            "type": "java",
+            "name": "Launch OpPrecedenceParser",
+            "request": "launch",
+            "mainClass": "chapB.OpPrecedenceParser",
+            "projectName": "stone-master_95e6f968"
+        }
+    ]
+}
