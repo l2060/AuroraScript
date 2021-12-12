@@ -1,83 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AuroraScript.common;
+using AuroraScript.Tokens;
 
 namespace AuroraScript
 {
 
     public abstract class Token
     {
-        public static Token EOF = new Token(-1); // end of file
+        public static Token EOF = new EndOfFileToken(); // end of file
 
-        public static String EOL = "\\n"; // end of line
-
- 
-
-
-
-
-
-        protected Token(UInt32 line)
-        {
-            this.LineNumber = line;
-        }
-
-
-        public Boolean isIdentifier()
-        {
-            return false;
-        }
-
-        public Boolean isNumber()
-        {
-            return false;
-        }
-
-        public Boolean isString()
-        {
-            return false;
-        }
-
-        public int getNumber()
-        {
-            throw new StoneException("not number token");
-        }
-
-        public String getText()
-        {
-            return "";
-        }
-
-
-
-
-
-
-
-
-
-        public string File
+        public Symbols Symbol
         {
             get;
-            private set;
+            internal set;
         }
 
-
-        public UInt32 LineNumber
+        public string Value
         {
             get;
-            private set;
+            internal set;
         }
 
-        public UInt32 LineOffset
+        public Int32 LineNumber
         {
             get;
-            private set;
+            internal set;
+        }
+
+        public Int32 ColumnNumber
+        {
+            get;
+            internal set;
         }
 
 
+        public override string ToString()
+        {
+            return $"LineNumber:{this.LineNumber.ToString().PadLeft(4, '0')} ColumnNumber:{this.ColumnNumber.ToString().PadLeft(3, '0')} {this.GetType().Name.PadRight(15, ' ')} {this.Value}";
+        }
 
     }
 

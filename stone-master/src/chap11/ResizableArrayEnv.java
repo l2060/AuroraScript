@@ -1,16 +1,24 @@
 package chap11;
+
 import java.util.Arrays;
 import chap6.Environment;
 import chap11.EnvOptimizer.EnvEx2;
 
 public class ResizableArrayEnv extends ArrayEnv {
     protected Symbols names;
+
     public ResizableArrayEnv() {
         super(10, null);
         names = new Symbols();
     }
-    @Override public Symbols symbols() { return names; }
-    @Override public Object get(String name) {
+
+    @Override
+    public Symbols symbols() {
+        return names;
+    }
+
+    @Override
+    public Object get(String name) {
         Integer i = names.find(name);
         if (i == null)
             if (outer == null)
@@ -20,29 +28,38 @@ public class ResizableArrayEnv extends ArrayEnv {
         else
             return values[i];
     }
-    @Override public void put(String name, Object value) {
+
+    @Override
+    public void put(String name, Object value) {
         Environment e = where(name);
         if (e == null)
             e = this;
-        ((EnvEx2)e).putNew(name, value);
+        ((EnvEx2) e).putNew(name, value);
     }
-    @Override public void putNew(String name, Object value) {
+
+    @Override
+    public void putNew(String name, Object value) {
         assign(names.putNew(name), value);
     }
-    @Override public Environment where(String name) {
+
+    @Override
+    public Environment where(String name) {
         if (names.find(name) != null)
             return this;
         else if (outer == null)
             return null;
         else
-            return ((EnvEx2)outer).where(name);
+            return ((EnvEx2) outer).where(name);
     }
-    @Override public void put(int nest, int index, Object value) {
+
+    @Override
+    public void put(int nest, int index, Object value) {
         if (nest == 0)
             assign(index, value);
         else
             super.put(nest, index, value);
     }
+
     protected void assign(int index, Object value) {
         if (index >= values.length) {
             int newLen = values.length * 2;

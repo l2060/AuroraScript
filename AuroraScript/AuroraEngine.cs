@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.analyzer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,14 +15,18 @@ namespace AuroraScript
 
         public void build(string filepath)
         {
-            var fileFullPath = Path.GetFullPath(filepath);
-            var fileName = Path.GetFileName(fileFullPath);
-            Console.WriteLine(fileFullPath);
-            Console.WriteLine(fileName);
-            var script = File.ReadAllText(fileFullPath);
-            Console.WriteLine(script);
+            var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
+            while (true)
+            {
+                var token = Lexer.Next();
+                if (token == Token.EOF) return;
 
 
+
+
+
+
+            }
         }
 
 
