@@ -1,17 +1,17 @@
 ﻿using AuroraScript.Scanning;
 
-namespace AuroraScript.common
+namespace AuroraScript.Common
 {
     internal struct RegexDefine
     {
         /// <summary>
         /// 
         /// </summary>
-        public TokenRules Regex;
+        public TokenRules Regex = null;
 
         /// <summary>
         /// 
         /// </summary>
-        public Boolean Skip;
+        public Boolean Skip = false;
     }
 }

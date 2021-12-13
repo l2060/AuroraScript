@@ -1,4 +1,4 @@
-﻿using AuroraScript.common;
+﻿using AuroraScript.Common;
 using AuroraScript.Exceptions;
 using AuroraScript.Scanning;
 using AuroraScript.Tokens;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace AuroraScript.analyzer
+namespace AuroraScript.Analyzer
 {
     public class AuroraLexer
     {
@@ -95,6 +95,48 @@ namespace AuroraScript.analyzer
             this.AddRegex(TokenRules.StringTemplate);
         }
 
+        /// <summary>
+        /// 如果是指定符号则返回否则报错
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Token NextOfKind(Symbols symbol)
+        {
+            var token = this.Next();
+            if (token.Symbol != symbol)
+            {
+                throw new InvalidOperationException("");
+            }
+            return token;
+        }
+
+
+        /// <summary>
+        /// 如果是指定Token则返回否则报错
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Token NextOfKind<T>() where T : Token
+        {
+            var token = this.Next();
+            if (token is T) return token;
+            throw new InvalidOperationException("");
+        }
+
+        private Stack<Token> tokens = new Stack<Token>();
+
+
+        /// <summary>
+        /// 返回下一个token但不取出 
+        /// </summary>
+        /// <returns></returns>
+        public Token LookAtHead()
+        {
+
+
+        }
 
         public Token Next()
         {
@@ -119,6 +161,7 @@ namespace AuroraScript.analyzer
                     this.BufferLength -= result.Value.Length;
                     this.LineNumber += result.LineCount;
                     this.ColumnNumber = result.ColumnNumber;
+                    tokens.Push();
                     return token;
                 }
             }

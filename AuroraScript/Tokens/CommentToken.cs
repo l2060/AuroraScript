@@ -1,4 +1,4 @@
-﻿using AuroraScript.common;
+﻿using AuroraScript.Common;
 
 namespace AuroraScript.Tokens
 {

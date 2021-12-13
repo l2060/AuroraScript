@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.common
+namespace AuroraScript.Common
 {
     public enum SymbolTypes
     {

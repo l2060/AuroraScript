@@ -1,4 +1,4 @@
-﻿using AuroraScript.common;
+﻿using AuroraScript.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,6 +79,10 @@ namespace AuroraScript
 
         public readonly static Symbols Dot = new Symbols(".", SymbolTypes.Punctuator);
         public readonly static Symbols Colon = new Symbols(":", SymbolTypes.Punctuator);
+
+        public readonly static Symbols Sub = Minus;
+
+        public readonly static Symbols Unm = Minus;
 
         // value
         public readonly static Symbols True = new Symbols("true", SymbolTypes.Value);

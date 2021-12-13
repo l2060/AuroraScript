@@ -1,4 +1,4 @@
-﻿using AuroraScript.common;
+﻿using AuroraScript.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
