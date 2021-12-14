@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Parser
+namespace AuroraScript.Ast
 {
-    internal class Statement : AstNode
+    internal class WhileStatement : ConditionStatement
     {
+
+
+
 
 
     }

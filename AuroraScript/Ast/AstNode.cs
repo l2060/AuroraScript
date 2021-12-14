@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Parser
+namespace AuroraScript.Ast
 {
     internal abstract class AstNode
     {

@@ -9,7 +9,8 @@ namespace AuroraScript.Common
     public enum SymbolTypes
     {
         Typed,
-        Value,
+        NullValue,
+        BooleanValue,
         KeyWord,
         Operator,
         Identifier,

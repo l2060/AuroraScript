@@ -9,24 +9,11 @@ namespace AuroraScript
 {
     public class AuroraEngine
     {
-
-
-
-
         public void build(string filepath)
         {
             var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
-            while (true)
-            {
-                var token = Lexer.Next();
-                if (token == Token.EOF) return;
-
-
-
-
-
-
-            }
+            var parser = new AuroraParser(Lexer);
+            var node = parser.Parse();
         }
 
 

@@ -1,4 +1,4 @@
-﻿using AuroraScript.Parser;
+﻿using AuroraScript.Ast;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +19,23 @@ namespace AuroraScript.Analyzer
 
         public AstNode Parse()
         {
+            AstNode result = new BlockStatement();
+            while (true)
+            {
+                var token = this.lexer.Next();
+                Console.WriteLine(token);
+
+                if (token == Token.EOF) break;
 
 
-            return null;
 
 
 
+
+            }
+
+
+            return result;
         }
 
 

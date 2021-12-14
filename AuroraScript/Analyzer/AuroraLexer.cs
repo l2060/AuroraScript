@@ -23,7 +23,7 @@ namespace AuroraScript.Analyzer
         public String FileName { get; private set; }
         public String InputData { get; private set; }
 
-
+        private Queue<Token> tokens = new Queue<Token>();
         private List<TokenRules> _TokenRules { get; set; }
 
 
@@ -38,6 +38,7 @@ namespace AuroraScript.Analyzer
             this.InputData = text.Replace("\r\n", "\n");
             this.BufferLength = this.InputData.Length;
             this.InitRegexs();
+            this.ParseTokens();
         }
 
         private void AddRegex(TokenRules rule, Boolean skip = false)
@@ -96,7 +97,7 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// 如果是指定符号则返回否则报错
+        /// If it is the specified symbol, return, otherwise report an error 
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
@@ -113,7 +114,7 @@ namespace AuroraScript.Analyzer
 
 
         /// <summary>
-        /// 如果是指定Token则返回否则报错
+        /// If it is the specified token, return, otherwise report an error  
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -125,20 +126,60 @@ namespace AuroraScript.Analyzer
             throw new InvalidOperationException("");
         }
 
-        private Stack<Token> tokens = new Stack<Token>();
+
 
 
         /// <summary>
-        /// 返回下一个token但不取出 
+        /// get next token without removing it. 
         /// </summary>
         /// <returns></returns>
         public Token LookAtHead()
         {
-
-
+            return this.tokens.Peek();
         }
 
+
+        /// <summary>
+        /// get next token
+        /// </summary>
+        /// <returns></returns>
         public Token Next()
+        {
+            return this.tokens.Dequeue();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Parse all tokens 
+        /// </summary>
+        private void ParseTokens()
+        {
+            while (true)
+            {
+                var token = this.ParseNext();
+                this.tokens.Enqueue(token);
+                if (token == Token.EOF) return;
+            }
+        }
+
+        /// <summary>
+        /// Parse next token 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="LexerException"></exception>
+        private Token ParseNext()
         {
             if (this.BufferLength <= 0) return Token.EOF;
             ReadOnlySpan<Char> span = this.InputData.AsSpan(this.ReadOffset, this.BufferLength);
@@ -147,21 +188,19 @@ namespace AuroraScript.Analyzer
                 var result = rule.Test(span, this.LineNumber, this.ColumnNumber);
                 if (result.Success)
                 {
-                    if (result.Type == TokenTypes.Comment || result.Type == TokenTypes.NewLine || result.Type == TokenTypes.WhiteSpace)
+                    if (result.Type == TokenTyped.Comment || result.Type == TokenTyped.NewLine || result.Type == TokenTyped.WhiteSpace)
                     {
-                        this.ReadOffset += result.Value.Length;
-                        this.BufferLength -= result.Value.Length;
+                        this.ReadOffset += result.Length;
+                        this.BufferLength -= result.Length;
                         this.LineNumber += result.LineCount;
                         this.ColumnNumber = result.ColumnNumber;
-                        return this.Next();
+                        return this.ParseNext();
                     }
                     var token = this.CreateToken(result);
-                    Console.WriteLine(token);
-                    this.ReadOffset += result.Value.Length;
-                    this.BufferLength -= result.Value.Length;
+                    this.ReadOffset += result.Length;
+                    this.BufferLength -= result.Length;
                     this.LineNumber += result.LineCount;
                     this.ColumnNumber = result.ColumnNumber;
-                    tokens.Push();
                     return token;
                 }
             }
@@ -170,7 +209,12 @@ namespace AuroraScript.Analyzer
 
 
 
-
+        /// <summary>
+        /// create token from rule result
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        /// <exception cref="LexerException"></exception>
         private Token CreateToken(in RuleTestResult result)
         {
             Token token = null;
@@ -181,14 +225,15 @@ namespace AuroraScript.Analyzer
                 if (symbol.Type == SymbolTypes.Punctuator) token = new PunctuatorToken();
                 if (symbol.Type == SymbolTypes.Operator) token = new OperatorToken();
                 if (symbol.Type == SymbolTypes.Typed) token = new TypedToken();
-                if (symbol.Type == SymbolTypes.Value) token = new ValueToken();
+                if (symbol.Type == SymbolTypes.NullValue) token = new NullToken();
+                if (symbol.Type == SymbolTypes.BooleanValue) token = new BooleanToken();
                 token.Symbol = symbol;
             }
             else
             {
-                if (result.Type == TokenTypes.String) token = new ValueToken();
-                if (result.Type == TokenTypes.Number) token = new ValueToken();
-                if (result.Type == TokenTypes.Identifier) token = new IdentifierToken();
+                if (result.Type == TokenTyped.String) token = new StringToken();
+                if (result.Type == TokenTyped.Number) token = new NumberToken();
+                if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
             }
             if (token == null) throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");
             token.LineNumber = this.LineNumber;

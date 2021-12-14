@@ -13,81 +13,87 @@ namespace AuroraScript
 
         // key words
 
-        public readonly static Symbols If = new Symbols("if", SymbolTypes.KeyWord);
-        public readonly static Symbols Else = new Symbols("else", SymbolTypes.KeyWord);
-        public readonly static Symbols Import = new Symbols("import", SymbolTypes.KeyWord);
-        public readonly static Symbols Export = new Symbols("export", SymbolTypes.KeyWord);
-        public readonly static Symbols Function = new Symbols("function", SymbolTypes.KeyWord);
-        public readonly static Symbols Var = new Symbols("var", SymbolTypes.KeyWord);
-        public readonly static Symbols Return = new Symbols("return", SymbolTypes.KeyWord);
-        public readonly static Symbols Break = new Symbols("break", SymbolTypes.KeyWord);
-        public readonly static Symbols Continue = new Symbols("continue", SymbolTypes.KeyWord);
-        public readonly static Symbols For = new Symbols("for", SymbolTypes.KeyWord);
-        public readonly static Symbols New = new Symbols("new", SymbolTypes.KeyWord);
-        public readonly static Symbols This = new Symbols("this", SymbolTypes.KeyWord);
-        public readonly static Symbols Void = new Symbols("void", SymbolTypes.KeyWord);
-        public readonly static Symbols While = new Symbols("while", SymbolTypes.KeyWord);
-        public readonly static Symbols Private = new Symbols("private", SymbolTypes.KeyWord);
-        public readonly static Symbols Protected = new Symbols("protected", SymbolTypes.KeyWord);
-        public readonly static Symbols Public = new Symbols("public", SymbolTypes.KeyWord);
-        public readonly static Symbols Static = new Symbols("static", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_FUNCTION = new Symbols("function", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_BREAK = new Symbols("break", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_CONTINUE = new Symbols("continue", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_FOR = new Symbols("for", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_NEW = new Symbols("new", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_THIS = new Symbols("this", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_WHILE = new Symbols("while", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_PRIVATE = new Symbols("private", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_PROTECTED = new Symbols("protected", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_PUBLIC = new Symbols("public", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
 
         // types
-        public readonly static Symbols Boolean = new Symbols("boolean", SymbolTypes.Typed);
-        public readonly static Symbols String = new Symbols("string", SymbolTypes.Typed);
-        public readonly static Symbols Number = new Symbols("number", SymbolTypes.Typed);
-        //public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
+        public readonly static Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Typed);
+        public readonly static Symbols TYPED_VOID = new Symbols("void", SymbolTypes.KeyWord);
+        public readonly static Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Typed);
+        public readonly static Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Typed);
+        public readonly static Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Typed);
+        // public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
+
+
+        // Punctuator
+        public readonly static Symbols PT_LEFTBRACE = new Symbols("{", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_RIGHTBRACE = new Symbols("}", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_LEFTPARENTHESIS = new Symbols("(", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_RIGHTPARENTHESIS = new Symbols(")", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_LEFTBRACKET = new Symbols("[", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_RIGHTBRACKET = new Symbols("]", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_SEMICOLON = new Symbols(";", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_COMMA = new Symbols(",", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_DOT = new Symbols(".", SymbolTypes.Punctuator);
+        public readonly static Symbols PT_COLON = new Symbols(":", SymbolTypes.Punctuator);
+
 
         // Operators
-        public readonly static Symbols LeftBrace = new Symbols("{", SymbolTypes.Punctuator);
-        public readonly static Symbols RightBrace = new Symbols("}", SymbolTypes.Punctuator);
-        public readonly static Symbols LeftParenthesis = new Symbols("(", SymbolTypes.Punctuator);
-        public readonly static Symbols RightParenthesis = new Symbols(")", SymbolTypes.Punctuator);
-        public readonly static Symbols LeftBracket = new Symbols("[", SymbolTypes.Punctuator);
-        public readonly static Symbols RightBracket = new Symbols("]", SymbolTypes.Punctuator);
-        public readonly static Symbols Semicolon = new Symbols(";", SymbolTypes.Punctuator);
-        public readonly static Symbols Comma = new Symbols(",", SymbolTypes.Punctuator);
-        public readonly static Symbols LessThan = new Symbols("<", SymbolTypes.Operator);
-        public readonly static Symbols GreaterThan = new Symbols(">", SymbolTypes.Operator);
-        public readonly static Symbols LessThanOrEqual = new Symbols("<=", SymbolTypes.Operator);
-        public readonly static Symbols GreaterThanOrEqual = new Symbols(">=", SymbolTypes.Operator);
-        public readonly static Symbols Equality = new Symbols("==", SymbolTypes.Operator);
-        public readonly static Symbols Inequality = new Symbols("!=", SymbolTypes.Operator);
-        public readonly static Symbols Plus = new Symbols("+", SymbolTypes.Operator);
-        public readonly static Symbols Minus = new Symbols("-", SymbolTypes.Operator);
-        public readonly static Symbols Multiply = new Symbols("*", SymbolTypes.Operator);
-        public readonly static Symbols Divide = new Symbols("/", SymbolTypes.Operator);
-        public readonly static Symbols Modulo = new Symbols("%", SymbolTypes.Operator);
-        public readonly static Symbols Increment = new Symbols("++", SymbolTypes.Operator);
-        public readonly static Symbols Decrement = new Symbols("--", SymbolTypes.Operator);
-        public readonly static Symbols LeftShift = new Symbols("<<", SymbolTypes.Operator);
-        public readonly static Symbols SignedRightShift = new Symbols(">>", SymbolTypes.Operator);
-        public readonly static Symbols BitwiseAnd = new Symbols("&", SymbolTypes.Operator);
-        public readonly static Symbols BitwiseOr = new Symbols("|", SymbolTypes.Operator);
-        public readonly static Symbols BitwiseXor = new Symbols("^", SymbolTypes.Operator);
-        public readonly static Symbols LogicalNot = new Symbols("!", SymbolTypes.Operator);
-        public readonly static Symbols BitwiseNot = new Symbols("~", SymbolTypes.Operator);
-        public readonly static Symbols LogicalAnd = new Symbols("&&", SymbolTypes.Operator);
-        public readonly static Symbols LogicalOr = new Symbols("||", SymbolTypes.Operator);
-        public readonly static Symbols Conditional = new Symbols("?", SymbolTypes.Operator);
-        public readonly static Symbols Assignment = new Symbols("=", SymbolTypes.Operator);
-        public readonly static Symbols CompoundAdd = new Symbols("+=", SymbolTypes.Operator);
-        public readonly static Symbols CompoundSubtract = new Symbols("-=", SymbolTypes.Operator);
-        public readonly static Symbols CompoundMultiply = new Symbols("*=", SymbolTypes.Operator);
-        public readonly static Symbols CompoundDivide = new Symbols("/=", SymbolTypes.Operator);
-        public readonly static Symbols CompoundModulo = new Symbols("%=", SymbolTypes.Operator);
+        public readonly static Symbols OP_LESSTHAN = new Symbols("<", SymbolTypes.Operator);
+        public readonly static Symbols OP_GREATERTHAN = new Symbols(">", SymbolTypes.Operator);
+        public readonly static Symbols OP_LESSTHANOREQUAL = new Symbols("<=", SymbolTypes.Operator);
+        public readonly static Symbols OP_GREATERTHANOREQUal = new Symbols(">=", SymbolTypes.Operator);
+        public readonly static Symbols OP_EQUALITY = new Symbols("==", SymbolTypes.Operator);
+        public readonly static Symbols OP_INEQUALITY = new Symbols("!=", SymbolTypes.Operator);
+        public readonly static Symbols OP_PLUS = new Symbols("+", SymbolTypes.Operator);
+        public readonly static Symbols OP_MINUS = new Symbols("-", SymbolTypes.Operator);
+        public readonly static Symbols OP_MULTIPLY = new Symbols("*", SymbolTypes.Operator);
+        public readonly static Symbols OP_DIVIDE = new Symbols("/", SymbolTypes.Operator);
+        public readonly static Symbols OP_MODULO = new Symbols("%", SymbolTypes.Operator);
+        public readonly static Symbols OP_INCREMENT = new Symbols("++", SymbolTypes.Operator);
+        public readonly static Symbols OP_DECREMENT = new Symbols("--", SymbolTypes.Operator);
+        public readonly static Symbols OP_LEFTSHIFT = new Symbols("<<", SymbolTypes.Operator);
+        public readonly static Symbols OP_SIGNEDRIGHTSHIFT = new Symbols(">>", SymbolTypes.Operator);
+        public readonly static Symbols OP_BITWISEAND = new Symbols("&", SymbolTypes.Operator);
+        public readonly static Symbols OP_BITWISEOR = new Symbols("|", SymbolTypes.Operator);
+        public readonly static Symbols OP_BITWISEXOR = new Symbols("^", SymbolTypes.Operator);
+        public readonly static Symbols OP_LOGICALNOT = new Symbols("!", SymbolTypes.Operator);
+        public readonly static Symbols OP_BITWISENOT = new Symbols("~", SymbolTypes.Operator);
+        public readonly static Symbols OP_LOGICALAND = new Symbols("&&", SymbolTypes.Operator);
+        public readonly static Symbols OP_LOGICALOR = new Symbols("||", SymbolTypes.Operator);
+        public readonly static Symbols OP_CONDITIONAL = new Symbols("?", SymbolTypes.Operator);
+        public readonly static Symbols OP_ASSIGNMENT = new Symbols("=", SymbolTypes.Operator);
+        public readonly static Symbols OP_COMPOUNDADD = new Symbols("+=", SymbolTypes.Operator);
+        public readonly static Symbols OP_COMPOUNDSUBTRACT = new Symbols("-=", SymbolTypes.Operator);
+        public readonly static Symbols OP_COMPOUNDMULTIPLY = new Symbols("*=", SymbolTypes.Operator);
+        public readonly static Symbols OP_COMPOUNDDIVIDE = new Symbols("/=", SymbolTypes.Operator);
+        public readonly static Symbols OP_COMPOUNDMODULO = new Symbols("%=", SymbolTypes.Operator);
 
-        public readonly static Symbols Dot = new Symbols(".", SymbolTypes.Punctuator);
-        public readonly static Symbols Colon = new Symbols(":", SymbolTypes.Punctuator);
 
-        public readonly static Symbols Sub = Minus;
 
-        public readonly static Symbols Unm = Minus;
+        //public readonly static Symbols Sub = Minus;
+
+        //public readonly static Symbols Unm = Minus;
 
         // value
-        public readonly static Symbols True = new Symbols("true", SymbolTypes.Value);
-        public readonly static Symbols False = new Symbols("false", SymbolTypes.Value);
-        public readonly static Symbols Null = new Symbols("null", SymbolTypes.Value);
+        public readonly static Symbols VALUE_TRUE = new Symbols("true", SymbolTypes.BooleanValue);
+        public readonly static Symbols VALUE_FALSE = new Symbols("false", SymbolTypes.BooleanValue);
+        public readonly static Symbols VALUE_NULL = new Symbols("null", SymbolTypes.NullValue);
 
 
         private readonly static Dictionary<string, Symbols> _SymbolMaps = new Dictionary<string, Symbols>();
@@ -105,16 +111,25 @@ namespace AuroraScript
         }
 
 
-
+        /// <summary>
+        /// prase symbol from string
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static Symbols FromString(String name)
         {
             Symbols._SymbolMaps.TryGetValue(name, out var symbol);
             return symbol;
         }
 
-
+        /// <summary>
+        /// get symbol name
+        /// </summary>
         public String Name { get; private set; }
 
+        /// <summary>
+        /// get symbol type
+        /// </summary>
         public SymbolTypes Type { get; private set; }
 
 

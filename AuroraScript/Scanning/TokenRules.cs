@@ -14,7 +14,8 @@ namespace AuroraScript.Scanning
         public Int32 LineCount;
         public Int32 ColumnNumber;
         public String Value;
-        public TokenTypes Type;
+        public Int32 Length;
+        public TokenTyped Type;
 
     }
 
@@ -71,6 +72,7 @@ namespace AuroraScript.Scanning
                     )
                 {
                     result.ColumnNumber += 2;
+                    result.Length = 2;
                     result.Value = codeSpan.Slice(0, 2).ToString();
                     result.Success = true;
                 }
@@ -84,6 +86,7 @@ namespace AuroraScript.Scanning
                     )
                 {
                     result.ColumnNumber += 1;
+                    result.Length = 1;
                     result.Value = codeSpan[0].ToString();
                     result.Success = true;
                 }
@@ -98,8 +101,9 @@ namespace AuroraScript.Scanning
                     )
             {
                 result.ColumnNumber += 1;
+                result.Length = 1;
                 result.Value = codeSpan[0].ToString();
-                result.Type = TokenTypes.Punctuator;
+                result.Type = TokenTyped.Punctuator;
                 result.Success = true;
             }
             return result;
@@ -120,14 +124,15 @@ namespace AuroraScript.Scanning
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
             if ((codeSpan[0] >= 'a' && codeSpan[0] <= 'z') ||
-                (codeSpan[0] == 'A' && codeSpan[0] == 'Z') ||
+                (codeSpan[0] >= 'A' && codeSpan[0] <= 'Z') ||
                   codeSpan[0] == '_' ||
                   codeSpan[0] == '$')
             {
                 for (int i = 1; i < codeSpan.Length; i++)
                 {
                     if ((codeSpan[i] >= 'a' && codeSpan[i] <= 'z') ||
-                        (codeSpan[i] == 'A' && codeSpan[i] == 'Z') ||
+                        (codeSpan[i] >= 'A' && codeSpan[i] <= 'Z') ||
+                        (codeSpan[i] >= '0' && codeSpan[i] <= '9') ||
                          codeSpan[i] == '_' ||
                          codeSpan[i] == '$')
                     {
@@ -136,9 +141,10 @@ namespace AuroraScript.Scanning
                     else
                     {
                         result.ColumnNumber += i;
+                        result.Length = i;
                         result.Value = codeSpan.Slice(0, i).ToString();
                         result.Success = true;
-                        result.Type = TokenTypes.Identifier;
+                        result.Type = TokenTyped.Identifier;
                         break;
                     }
                 }
@@ -172,9 +178,10 @@ namespace AuroraScript.Scanning
                         result.ColumnNumber++;
                         if (codeSpan[i] == '"')
                         {
-                            result.Value = codeSpan.Slice(0, i).ToString();
+                            result.Length = i + 1;
+                            result.Value = codeSpan.Slice(1, i - 1).ToString();
                             result.Success = true;
-                            result.Type = TokenTypes.String;
+                            result.Type = TokenTyped.String;
                             break;
                         }
                     }
@@ -210,9 +217,10 @@ namespace AuroraScript.Scanning
                         result.ColumnNumber++;
                         if (codeSpan[i] == '\'')
                         {
-                            result.Value = codeSpan.Slice(0, i + 1).ToString();
+                            result.Length = i + 1;
+                            result.Value = codeSpan.Slice(1, i - 1).ToString();
                             result.Success = true;
-                            result.Type = TokenTypes.String;
+                            result.Type = TokenTyped.String;
                             break;
                         }
                     }
@@ -247,9 +255,10 @@ namespace AuroraScript.Scanning
                         result.ColumnNumber++;
                         if (codeSpan[i] == '`')
                         {
-                            result.Value = codeSpan.Slice(0, i).ToString();
+                            result.Length = i + 1;
+                            result.Value = codeSpan.Slice(1, i - 1).ToString();
                             result.Success = true;
-                            result.Type = TokenTypes.String;
+                            result.Type = TokenTyped.String;
                             break;
                         }
                     }
@@ -286,9 +295,10 @@ namespace AuroraScript.Scanning
                     else
                     {
                         result.ColumnNumber += i;
+                        result.Length = i ;
                         result.Value = codeSpan.Slice(0, i).ToString();
                         result.Success = true;
-                        result.Type = TokenTypes.Number;
+                        result.Type = TokenTyped.Number;
                         break;
                     }
                 }
@@ -326,9 +336,10 @@ namespace AuroraScript.Scanning
                     else
                     {
                         result.ColumnNumber += i;
+                        result.Length = i;
                         result.Value = codeSpan.Slice(0, i).ToString();
                         result.Success = true;
-                        result.Type = TokenTypes.Number;
+                        result.Type = TokenTyped.Number;
                         break;
                     }
                 }
@@ -377,8 +388,9 @@ namespace AuroraScript.Scanning
                         if (codeSpan[i] == '*' && codeSpan[i + 1] == '/')
                         {
                             result.ColumnNumber++;
+                            result.Length = i + 2;
                             result.Value = codeSpan.Slice(0, i + 2).ToString();
-                            result.Type = TokenTypes.Comment;
+                            result.Type = TokenTyped.Comment;
                             result.Success = true;
                             break;
                         }
@@ -414,8 +426,9 @@ namespace AuroraScript.Scanning
                     {
                         result.ColumnNumber = 0;
                         result.LineCount = 1;
+                        result.Length = i + 1;
                         result.Value = codeSpan.Slice(0, i + 1).ToString();
-                        result.Type = TokenTypes.Comment;
+                        result.Type = TokenTyped.Comment;
                         result.Success = true;
                         break;
                     }
@@ -443,8 +456,9 @@ namespace AuroraScript.Scanning
             if (Index > 0)
             {
                 result.ColumnNumber += Index;
+                result.Length = Index;
                 result.Value = codeSpan.Slice(0, Index).ToString();
-                result.Type = TokenTypes.WhiteSpace;
+                result.Type = TokenTyped.WhiteSpace;
                 result.Success = true;
             }
             return result;
@@ -468,7 +482,8 @@ namespace AuroraScript.Scanning
                 result.Value = "\n";
                 result.LineCount = 1;
                 result.ColumnNumber = 0;
-                result.Type = TokenTypes.NewLine;
+                result.Length = 1;
+                result.Type = TokenTyped.NewLine;
                 result.Success = true;
             }
             return result;

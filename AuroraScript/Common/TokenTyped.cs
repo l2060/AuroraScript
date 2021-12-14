@@ -6,14 +6,21 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Common
 {
-    public enum TokenTypes
+    public enum TokenTyped
     {
+
         String,
+
         Number,
+
         Identifier,
+
         Punctuator,
+
         Comment,
+
         NewLine,
+
         WhiteSpace
     }
 

@@ -5,17 +5,10 @@ namespace AuroraScript.Tokens
 
     internal enum ValueType
     {
-
         String,
-        Integer,
-        Double,
+        Number,
         Boolean,
         Null,
-
-
-
-
-
     }
 
 
@@ -33,8 +26,7 @@ namespace AuroraScript.Tokens
         {
         }
 
-
-
+        public ValueType Type { get; protected set; }
 
     }
 }
