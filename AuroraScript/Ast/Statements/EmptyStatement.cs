@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Statements
 {
-    internal class Statement : AstNode
+    internal class EmptyStatement : Statement
     {
-
-
     }
 }

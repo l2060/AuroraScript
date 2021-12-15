@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
     /// 成员函数表达式
     /// </summary>
-    internal class MemberExpression
+    internal class MemberExpression : Expression
     {
         /// <summary>
         /// member name

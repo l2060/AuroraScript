@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.Ast.Expressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace AuroraScript.Ast
     /// <summary>
     /// function parameter declaration
     /// </summary>
-    internal class ParameterDeclaration
+    internal class ParameterDeclaration : AstNode
     {
         /// <summary>
         /// parameter Modifier  ....
@@ -24,7 +25,14 @@ namespace AuroraScript.Ast
         /// <summary>
         /// 
         /// </summary>
-        public AstNode DefaultValue { get; set; }
+        public Expression DefaultValue { get; set; }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Token Typed { get; set; }
+
 
 
     }

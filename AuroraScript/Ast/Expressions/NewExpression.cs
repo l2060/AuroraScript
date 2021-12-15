@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
-    internal class NewStatement
+    internal class NewExpression : Expression
     {
 
         public Token Identifier { get; set; }

@@ -107,7 +107,7 @@ namespace AuroraScript.Analyzer
             var token = this.Next();
             if (token.Symbol != symbol)
             {
-                throw new InvalidOperationException("");
+                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"Keyword “{token.Value}” appears in the wrong place.");
             }
             return token;
         }
@@ -119,10 +119,10 @@ namespace AuroraScript.Analyzer
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Token NextOfKind<T>() where T : Token
+        public T NextOfKind<T>() where T : Token
         {
             var token = this.Next();
-            if (token is T) return token;
+            if (token is T) return (T)token;
             throw new InvalidOperationException("");
         }
 

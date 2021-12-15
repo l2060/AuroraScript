@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
     /// 赋值
     /// </summary>
-    internal class AssignmentStatement : Expression
+    internal class AssignmentExpression : Expression
     {
         public List<Token> Variables { get; set; }
 

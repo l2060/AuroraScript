@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
     /// 前缀表达式
     /// </summary>
-    internal class PrefixUnaryExpression
+    internal class PrefixUnaryExpression : Expression
     {
         /// <summary>
         /// -5

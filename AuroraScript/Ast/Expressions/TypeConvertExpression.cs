@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
-    internal class BlockStatement : Statement
+    internal class TypeConvertExpression : Expression
     {
-
-
-
     }
 }

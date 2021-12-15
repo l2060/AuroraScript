@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Statements
 {
-    internal class ArrayStatement
+    internal class ContinueStatement : Statement
     {
-        public List<Expression> Elements { get; set; }
-
     }
 }

@@ -15,8 +15,7 @@ namespace AuroraScript
 
         public readonly static Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
         public readonly static Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
-        public readonly static Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
-        public readonly static Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
+
         public readonly static Symbols KW_FUNCTION = new Symbols("function", SymbolTypes.KeyWord);
         public readonly static Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
         public readonly static Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
@@ -31,9 +30,16 @@ namespace AuroraScript
         public readonly static Symbols KW_PUBLIC = new Symbols("public", SymbolTypes.KeyWord);
         public readonly static Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
 
+        public readonly static Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord); // 密封的
+
+        
+
+
         // types
         public readonly static Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Typed);
-        public readonly static Symbols TYPED_VOID = new Symbols("void", SymbolTypes.KeyWord);
+        public readonly static Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Typed);
         public readonly static Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Typed);
         public readonly static Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Typed);
         public readonly static Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Typed);

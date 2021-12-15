@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Statements
 {
-    internal class TypeConvertExpression
+    internal class ReturnStatement : Statement
     {
     }
 }

@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Statements
 {
-    internal class IfStatement : ConditionStatement
+    internal class BlockStatement : Statement
     {
 
 
-        public Statement Else { get; set; }
+
     }
 }
