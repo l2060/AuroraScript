@@ -11,7 +11,9 @@ namespace AuroraScript.Ast.Expressions
     /// </summary>
     internal class CallExpression:Expression
     {
-        public List<AstNode> Arguments { get; set; }
-        public MemberExpression Base { get; set; }
+        public List<Expression> Arguments { get; set; }
+        public Expression Base { get; set; }
+
+
     }
 }

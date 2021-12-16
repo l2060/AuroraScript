@@ -7,21 +7,27 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class ForStatement : ConditionExpression
+    internal class ForStatement : Statement
     {
+
+        public Expression Condition { get; set; }
+
+        public AstNode Body { get; set; }
+
+
         /// <summary>
         /// for initializer
         /// may be assignment
         /// may be variable declaration
         /// </summary>
-        public Expression Initializer { get; set; }
+        public AstNode Initializer { get; set; }
 
 
         /// <summary>
         /// for incrementor
         /// contains multiple sentences 
         /// </summary>
-        public BlockStatement Incrementor { get; set; }
+        public AstNode Incrementor { get; set; }
 
 
 

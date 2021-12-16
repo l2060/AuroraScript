@@ -9,6 +9,7 @@ namespace AuroraScript.Tokens
     {
         public EndOfFileToken()
         {
+            this.Symbol = Symbols.KW_EOF;
         }
 
 

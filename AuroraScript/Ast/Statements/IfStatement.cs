@@ -11,7 +11,7 @@ namespace AuroraScript.Ast.Statements
     {
         public Expression Condition { get; set; }
 
-        public BlockStatement Body { get; set; }
+        public AstNode Body { get; set; }
         public Statement Else { get; set; }
     }
 }

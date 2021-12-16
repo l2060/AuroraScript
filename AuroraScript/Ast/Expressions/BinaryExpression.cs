@@ -13,8 +13,8 @@ namespace AuroraScript.Ast.Expressions
     {
         public Token Operator { get; set; }
 
-        public AstNode Left { get; set; }
+        public Expression Left { get; set; }
 
-        public AstNode Right { get; set; }
+        public Expression Right { get; set; }
     }
 }

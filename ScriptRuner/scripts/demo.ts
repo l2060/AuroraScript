@@ -30,8 +30,10 @@ function foo(fs: number, name: string): boolean {
 
 for (var i = 0; i < 100; i++) {
     if (i == 66) break;
-    if (i > 33 && i < 55) continue;
-    console.log(i);
+    if (i > 33 && i < 55)
+        continue;
+    else
+        console.log(i);
 }
 
 
@@ -40,7 +42,7 @@ var str = `
 - line 1
 - line 2
 - line 3`;
-var str2 = <any>"abc";
+var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
 var bol = true;

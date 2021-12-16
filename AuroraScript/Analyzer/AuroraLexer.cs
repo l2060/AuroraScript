@@ -23,9 +23,10 @@ namespace AuroraScript.Analyzer
         public String FileName { get; private set; }
         public String InputData { get; private set; }
 
-        private Queue<Token> tokens = new Queue<Token>();
+        private List<Token> tokens = new List<Token>();
         private List<TokenRules> _TokenRules { get; set; }
 
+        private Int32 Position { get; set; }    
 
         public AuroraLexer(String file, Encoding encoding) : this(File.ReadAllText(file, encoding), file)
         {
@@ -39,6 +40,7 @@ namespace AuroraScript.Analyzer
             this.BufferLength = this.InputData.Length;
             this.InitRegexs();
             this.ParseTokens();
+            this.Position = 0;
         }
 
         private void AddRegex(TokenRules rule, Boolean skip = false)
@@ -135,7 +137,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         public Token LookAtHead()
         {
-            return this.tokens.Peek();
+            return this.tokens[this.Position];
         }
 
 
@@ -145,9 +147,16 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         public Token Next()
         {
-            return this.tokens.Dequeue();
+            var token = this.tokens[this.Position];
+            this.Position++;
+            return token;
         }
 
+
+        public void RollBack()
+        {
+            this.Position--;
+        }
 
 
 
@@ -169,7 +178,7 @@ namespace AuroraScript.Analyzer
             while (true)
             {
                 var token = this.ParseNext();
-                this.tokens.Enqueue(token);
+                this.tokens.Add(token);
                 if (token == Token.EOF) return;
             }
         }

@@ -10,7 +10,7 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    internal class FunctionDeclaration : AstNode
+    internal class FunctionDeclaration : Statement
     {
         /// <summary>
         /// Function Access

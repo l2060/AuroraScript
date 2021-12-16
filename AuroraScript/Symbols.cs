@@ -53,6 +53,9 @@ namespace AuroraScript
         public readonly static Symbols PT_RIGHTPARENTHESIS = new Symbols(")", SymbolTypes.Punctuator);
         public readonly static Symbols PT_LEFTBRACKET = new Symbols("[", SymbolTypes.Punctuator);
         public readonly static Symbols PT_RIGHTBRACKET = new Symbols("]", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token ;
+        /// </summary>
         public readonly static Symbols PT_SEMICOLON = new Symbols(";", SymbolTypes.Punctuator);
         public readonly static Symbols PT_COMMA = new Symbols(",", SymbolTypes.Punctuator);
         public readonly static Symbols PT_DOT = new Symbols(".", SymbolTypes.Punctuator);
@@ -91,6 +94,7 @@ namespace AuroraScript
         public readonly static Symbols OP_COMPOUNDMODULO = new Symbols("%=", SymbolTypes.Operator);
 
 
+        public readonly static Symbols KW_EOF = new Symbols("END OF FILE", SymbolTypes.Operator);
 
         //public readonly static Symbols Sub = Minus;
 

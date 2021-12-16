@@ -19,38 +19,51 @@ namespace AuroraScript.Analyzer
             this.lexer = lexer;
         }
 
-
-
-        public Statement Parse(Scope currentScope = null, Token endToken = null)
+        public AstNode Parse()
         {
-            if (endToken == null) endToken = Token.EOF;
-            if (currentScope == null) currentScope = new Scope(this, null);
+            return this.ParseBlockStatement(null, Symbols.KW_EOF);
+        }
+
+
+
+
+
+        public Statement ParseBlockStatement(Scope currentScope = null, Symbols endSymbol = null)
+        {
+            var scope = new Scope(this, currentScope);
             Statement result = new BlockStatement();
             while (true)
             {
-                var node = ParseStatement(currentScope, endToken);
+                var token = this.lexer.LookAtHead();
+                if (token.Symbol == endSymbol)
+                {
+                    this.lexer.Next();
+                    break;
+                }
+                var node = ParseStatement(scope, endSymbol);
+                result.AddNode(node);
                 if (node == null) break;
             }
             return result;
         }
 
 
-        private Statement ParseStatement(Scope currentScope, Symbols endSymbols)
+        private AstNode ParseStatement(Scope currentScope, Symbols endSymbols)
         {
             var token = this.lexer.Next();
             if (token == null) throw new ParseException(this.lexer.FullPath, token, "Invalid keywords appear in ");
-            if (token == Token.EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
+            //if (token.Symbol == Symbols.KW_EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
             if (token.Symbol == endSymbols) return null;
-       
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_SEALED);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
+            if (token.Symbol == Symbols.KW_CONTINUE) return new ContinueStatement();
 
-
-            return this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+            this.lexer.RollBack();
+            return this.ParseExpression(currentScope, Symbols.PT_SEMICOLON, endSymbols);
         }
 
 
@@ -62,23 +75,25 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseForBlock(Scope currentScope)
         {
+            //this.lexer.NextOfKind(Symbols.KW_FOR);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse for initializer
             var initializer = this.ParseStatement(currentScope, Symbols.PT_SEMICOLON);
-            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             // parse for condition
-            var condition = this.ParseStatement(currentScope, Symbols.PT_SEMICOLON);
-            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            var condition = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+            //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             // parse for incrementor
             var incrementor = this.ParseStatement(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
             var nextToken = this.lexer.LookAtHead();
             AstNode body = null;
-            if(nextToken.Symbol == Symbols.PT_LEFTBRACE)
+            if (nextToken.Symbol == Symbols.PT_LEFTBRACE)
             {
                 // parse body block
-                body = this.ParseStatement(currentScope, Symbols.PT_RIGHTBRACE);
-                this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+                this.lexer.Next();
+                body = this.ParseBlockStatement(currentScope, Symbols.PT_RIGHTBRACE);
+                //this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
             }
             else
             {
@@ -106,13 +121,22 @@ namespace AuroraScript.Analyzer
 
         private Statement ParseVariableDeclaration(Scope currentScope)
         {
+            var varName = this.lexer.NextOfKind<IdentifierToken>();
+            this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
 
-            return null;
+            var exp = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+
+            var expression = new VariableDeclaration();
+            expression.Variable = varName;
+            expression.Init = exp;
+            //this.lexer.NextOfKind(Symbols.KW_VAR);
+            return expression;
         }
 
 
         private Statement ParseIfBlock(Scope currentScope)
         {
+            //this.lexer.NextOfKind(Symbols.KW_IF);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
@@ -121,16 +145,16 @@ namespace AuroraScript.Analyzer
             if (nextToken.Symbol == Symbols.PT_LEFTBRACE)
             {
                 // parse body block
-                body = this.ParseStatement(currentScope, Symbols.PT_RIGHTBRACE);
-                this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+                body = this.ParseBlockStatement(currentScope, Symbols.PT_RIGHTBRACE);
+                //this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
             }
             else
             {
-                // parse single expression
+                // parse single-line expression
                 body = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
-                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             }
-            this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
+            //this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
             var ifStatement = new IfStatement()
             {
                 Condition = condition,
@@ -140,6 +164,7 @@ namespace AuroraScript.Analyzer
             // 处理 else
             if (nextToken.Symbol == Symbols.KW_ELSE)
             {
+
                 ifStatement.Else = this.ParseElseBlock(currentScope);
 
             }
@@ -149,74 +174,170 @@ namespace AuroraScript.Analyzer
 
         private Statement ParseElseBlock(Scope currentScope)
         {
+
+            this.lexer.NextOfKind(Symbols.KW_ELSE);
             var nextToken = this.lexer.LookAtHead();
-            Statement statement = null;
-            if(nextToken.Symbol == Symbols.KW_IF)
+            BlockStatement block = new BlockStatement();
+            if (nextToken.Symbol == Symbols.KW_IF)
             {
                 this.lexer.Next();
-                statement = this.ParseIfBlock(currentScope);
+                var statement = this.ParseIfBlock(currentScope);
+                block.AddNode(statement);
             }
             else
             {
                 if (nextToken.Symbol == Symbols.PT_LEFTBRACE)
                 {
                     // parse body block
-                    statement = this.ParseStatement(currentScope, Symbols.PT_RIGHTBRACE);
-                    this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+                    var statement = this.ParseStatement(currentScope, Symbols.PT_RIGHTBRACE);
+                    block.AddNode(statement);
+                    this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
                 }
                 else
                 {
                     // parse single expression
-                    statement = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
-                    this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                    var expression = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+                    block.AddNode(expression);
+                    //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
                 }
             }
 
-            return statement;
+            return block;
         }
 
 
 
         private Expression ParseExpression(Scope currentScope, params Symbols[] endSymbols)
         {
+            Expression expression = null;
+
+
             while (true)
             {
                 var token = this.lexer.Next();
                 // over statement
- 
-                if (endSymbols.Contains(token.Symbol)) break;
+
+                if (endSymbols.Contains(token.Symbol))
+                {
+                    break;
+                }
                 // value
                 if (token is ValueToken)
                 {
+
+                    if (expression is BinaryExpression exp)
+                    {
+                        if(exp.Right == null)
+                        {
+                            exp.Right = new Expression();
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                    }
+                    else
+                    {
+                        expression = new ValueExpression(token);
+                    }
 
                 }
                 // identifier
                 else if (token is IdentifierToken)
                 {
 
-
+                    expression = new NameExpression() { Identifier = token };
                 }
-                // punctuator
-                else if (token is PunctuatorToken)
-                {
 
-
-                }
                 // operator
                 else if (token is OperatorToken)
                 {
+                    Console.WriteLine(token);
+                    var binary = new BinaryExpression();
+                    binary.Left = expression;
+                    binary.Operator = token;
 
+                    expression = binary;
+
+                }
+
+                // punctuator
+                else if (token is PunctuatorToken)
+                {
+                    // is object member
+                    if (token.Symbol == Symbols.PT_DOT)
+                    {
+                        var memberIdentifier = this.lexer.NextOfKind<IdentifierToken>();
+                        if (expression == null) throw new InvalidOperationException();
+                        var member = new MemberExpression(memberIdentifier, expression);
+                        expression = member;
+                    }
+                    // is function call 
+                    if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
+                    {
+                        var paramlist = this.ParseCallFunctionExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+
+                        var exp = new CallExpression();
+                        exp.Arguments = paramlist;
+                        exp.Base = expression;
+
+                        expression = exp;
+                    }
+                }
+
+                // keyword
+                else if (token is KeywordToken)
+                {
+                    if (token.Symbol == Symbols.KW_BREAK)
+                    {
+                        this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                        return new BreakStatement();
+                    }
+                    if (token.Symbol == Symbols.KW_CONTINUE)
+                    {
+                        this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                        return new ContinueStatement();
+                    }
+
+                    if (token.Symbol == Symbols.KW_RETURN)
+                    {
+                        var exp = this.ParseExpression(currentScope,Symbols.PT_SEMICOLON);
+
+                        return new ReturnStatement(exp);
+                    }
+
+
+                    Console.WriteLine();
                 }
             }
 
 
             //if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             //if (token.Symbol == Symbols.KW_EXPORT) return this.ParseImport();
-            return null;
+            return expression;
         }
 
 
 
+        private List<Expression> ParseCallFunctionExpression(Scope currentScope, Symbols endSymbol)
+        {
+            List<Expression> expressions = new List<Expression>();
+            //this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+            while (this.lexer.LookAtHead().Symbol != endSymbol)
+            {
+                var exp = this.ParseExpression(currentScope, Symbols.PT_COMMA, endSymbol);
+                expressions.Add(exp);
+                var nextToken = this.lexer.LookAtHead();
+
+                if (nextToken.Symbol == Symbols.PT_COMMA) this.lexer.Next();
+                if (nextToken.Symbol == Symbols.PT_SEMICOLON)
+                {
+                    break;
+                }
+            }
+            //this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
+            return expressions;
+        }
 
 
 
@@ -252,7 +373,7 @@ namespace AuroraScript.Analyzer
                 };
                 arguments.Add(declaration);
                 nexttoken = this.lexer.LookAtHead();
-                if (nexttoken == Token.EOF) throw new LexerException(this.lexer.FullPath, nexttoken, "Parameter declaration is not closed ");
+                if (nexttoken.Symbol == Symbols.KW_EOF) throw new LexerException(this.lexer.FullPath, nexttoken, "Parameter declaration is not closed ");
                 if (nexttoken is PunctuatorToken && nexttoken.Symbol == Symbols.PT_COMMA)
                 {
                     // Drop the comma
@@ -279,7 +400,7 @@ namespace AuroraScript.Analyzer
         /// <param name="parentScope"></param>
         /// <param name="access"></param>
         /// <returns></returns>
-        private AstNode ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null)
+        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null)
         {
             // 验证 下一个Token (
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
@@ -327,7 +448,7 @@ namespace AuroraScript.Analyzer
         private Statement ParseFunctionBody(Scope currentScope)
         {
 
-            return this.Parse();
+            return this.ParseBlockStatement(currentScope, Symbols.PT_RIGHTBRACE);
         }
 
 
@@ -338,11 +459,15 @@ namespace AuroraScript.Analyzer
 
         private Statement ParseFunctionDeclaration(Scope currentScope, Symbols access = null)
         {
+            //this.lexer.NextOfKind(Symbols.KW_FUNCTION);
             var functionName = this.lexer.NextOfKind<IdentifierToken>();
             // 校验 方法名是否有效
             var func = this.ParseFunction(functionName, currentScope, access);
+
+            return func;
+
             // 添加到作用域的声明
-            return new EmptyStatement();
+            // return new EmptyStatement();
         }
 
 
@@ -360,6 +485,7 @@ namespace AuroraScript.Analyzer
         /// <exception cref="LexerException"></exception>
         private Statement ParseExportStatement(Scope currentScope)
         {
+            //this.lexer.NextOfKind(Symbols.KW_EXPORT);
             var token = this.lexer.LookAtHead();
             if (token is KeywordToken && token.Symbol == Symbols.KW_FUNCTION)
             {
@@ -376,6 +502,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseImport()
         {
+            //this.lexer.NextOfKind(Symbols.KW_IMPORT);
             var token = this.lexer.NextOfKind<StringToken>();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             return new ImportDeclaration() { File = token };

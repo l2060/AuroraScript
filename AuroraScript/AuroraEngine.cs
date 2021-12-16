@@ -13,7 +13,8 @@ namespace AuroraScript
         {
             var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
             var parser = new AuroraParser(Lexer);
-            var node = parser.Parse();
+            var node = parser.ParseBlockStatement();
+            Console.WriteLine(node);
         }
 
 
