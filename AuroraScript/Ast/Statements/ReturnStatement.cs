@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class ReturnStatement : Expression
+    internal class ReturnStatement : Statement
     {
         public ReturnStatement(Expression expression)
         {
-
+            this.expression = expression;
         }
+
+        public Expression expression;
+
     }
 }

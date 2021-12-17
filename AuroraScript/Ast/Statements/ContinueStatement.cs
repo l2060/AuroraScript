@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class ContinueStatement : Expression
+    internal class ContinueStatement : Statement
     {
     }
 }

@@ -47,53 +47,168 @@ namespace AuroraScript
 
 
         // Punctuator
+        /// <summary>
+        /// token {
+        /// </summary>
         public readonly static Symbols PT_LEFTBRACE = new Symbols("{", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token }
+        /// </summary>
         public readonly static Symbols PT_RIGHTBRACE = new Symbols("}", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token (
+        /// </summary>
         public readonly static Symbols PT_LEFTPARENTHESIS = new Symbols("(", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token )
+        /// </summary>
         public readonly static Symbols PT_RIGHTPARENTHESIS = new Symbols(")", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token [
+        /// </summary>
         public readonly static Symbols PT_LEFTBRACKET = new Symbols("[", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token ]
+        /// </summary>
         public readonly static Symbols PT_RIGHTBRACKET = new Symbols("]", SymbolTypes.Punctuator);
         /// <summary>
         /// token ;
         /// </summary>
         public readonly static Symbols PT_SEMICOLON = new Symbols(";", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token ,
+        /// </summary>
         public readonly static Symbols PT_COMMA = new Symbols(",", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token .
+        /// </summary>
         public readonly static Symbols PT_DOT = new Symbols(".", SymbolTypes.Punctuator);
+        /// <summary>
+        /// token :
+        /// </summary>
         public readonly static Symbols PT_COLON = new Symbols(":", SymbolTypes.Punctuator);
 
 
         // Operators
+        /// <summary>
+        /// token <
+        /// </summary>
         public readonly static Symbols OP_LESSTHAN = new Symbols("<", SymbolTypes.Operator);
+        /// <summary>
+        /// token >
+        /// </summary>
         public readonly static Symbols OP_GREATERTHAN = new Symbols(">", SymbolTypes.Operator);
+        /// <summary>
+        /// token <=
+        /// </summary>
         public readonly static Symbols OP_LESSTHANOREQUAL = new Symbols("<=", SymbolTypes.Operator);
+        /// <summary>
+        /// token >=
+        /// </summary>
         public readonly static Symbols OP_GREATERTHANOREQUal = new Symbols(">=", SymbolTypes.Operator);
+        /// <summary>
+        /// token ==
+        /// </summary>
         public readonly static Symbols OP_EQUALITY = new Symbols("==", SymbolTypes.Operator);
+        /// <summary>
+        /// token !=
+        /// </summary>
         public readonly static Symbols OP_INEQUALITY = new Symbols("!=", SymbolTypes.Operator);
+        /// <summary>
+        /// token +
+        /// </summary>
         public readonly static Symbols OP_PLUS = new Symbols("+", SymbolTypes.Operator);
+        /// <summary>
+        /// token -
+        /// </summary>
         public readonly static Symbols OP_MINUS = new Symbols("-", SymbolTypes.Operator);
+        /// <summary>
+        /// token *
+        /// </summary>
         public readonly static Symbols OP_MULTIPLY = new Symbols("*", SymbolTypes.Operator);
+        /// <summary>
+        /// token /
+        /// </summary>
         public readonly static Symbols OP_DIVIDE = new Symbols("/", SymbolTypes.Operator);
+        /// <summary>
+        /// token %
+        /// </summary>
         public readonly static Symbols OP_MODULO = new Symbols("%", SymbolTypes.Operator);
+        /// <summary>
+        /// token ++
+        /// </summary>
         public readonly static Symbols OP_INCREMENT = new Symbols("++", SymbolTypes.Operator);
+        /// <summary>
+        /// token --
+        /// </summary>
         public readonly static Symbols OP_DECREMENT = new Symbols("--", SymbolTypes.Operator);
+        /// <summary>
+        /// token "<<"
+        /// </summary>
         public readonly static Symbols OP_LEFTSHIFT = new Symbols("<<", SymbolTypes.Operator);
+        /// <summary>
+        /// token >>
+        /// </summary>
         public readonly static Symbols OP_SIGNEDRIGHTSHIFT = new Symbols(">>", SymbolTypes.Operator);
+        /// <summary>
+        /// token &
+        /// </summary>
         public readonly static Symbols OP_BITWISEAND = new Symbols("&", SymbolTypes.Operator);
+        /// <summary>
+        /// token |
+        /// </summary>
         public readonly static Symbols OP_BITWISEOR = new Symbols("|", SymbolTypes.Operator);
+        /// <summary>
+        /// token ^
+        /// </summary>
         public readonly static Symbols OP_BITWISEXOR = new Symbols("^", SymbolTypes.Operator);
+        /// <summary>
+        /// token !
+        /// </summary>
         public readonly static Symbols OP_LOGICALNOT = new Symbols("!", SymbolTypes.Operator);
+        /// <summary>
+        /// token ~
+        /// </summary>
         public readonly static Symbols OP_BITWISENOT = new Symbols("~", SymbolTypes.Operator);
+        /// <summary>
+        /// token &&
+        /// </summary>
         public readonly static Symbols OP_LOGICALAND = new Symbols("&&", SymbolTypes.Operator);
+        /// <summary>
+        /// token ||
+        /// </summary>
         public readonly static Symbols OP_LOGICALOR = new Symbols("||", SymbolTypes.Operator);
+        /// <summary>
+        /// token ?
+        /// </summary>
         public readonly static Symbols OP_CONDITIONAL = new Symbols("?", SymbolTypes.Operator);
+        /// <summary>
+        /// token =
+        /// </summary>
         public readonly static Symbols OP_ASSIGNMENT = new Symbols("=", SymbolTypes.Operator);
+        /// <summary>
+        /// token +=
+        /// </summary>
         public readonly static Symbols OP_COMPOUNDADD = new Symbols("+=", SymbolTypes.Operator);
+        /// <summary>
+        /// token -=
+        /// </summary>
         public readonly static Symbols OP_COMPOUNDSUBTRACT = new Symbols("-=", SymbolTypes.Operator);
+        /// <summary>
+        /// token *=
+        /// </summary>
         public readonly static Symbols OP_COMPOUNDMULTIPLY = new Symbols("*=", SymbolTypes.Operator);
+        /// <summary>
+        /// token /=
+        /// </summary>
         public readonly static Symbols OP_COMPOUNDDIVIDE = new Symbols("/=", SymbolTypes.Operator);
+        /// <summary>
+        /// token %=
+        /// </summary>
         public readonly static Symbols OP_COMPOUNDMODULO = new Symbols("%=", SymbolTypes.Operator);
-
-
+        /// <summary>
+        /// token End of File
+        /// </summary>
         public readonly static Symbols KW_EOF = new Symbols("END OF FILE", SymbolTypes.Operator);
 
         //public readonly static Symbols Sub = Minus;

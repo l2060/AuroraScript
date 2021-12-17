@@ -12,9 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="scripts\advanced.ts">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="scripts\common.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -28,6 +25,10 @@
 
   <ItemGroup>
     <Folder Include="common\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>

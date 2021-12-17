@@ -1,6 +1,5 @@
 ﻿
 
-
 /**
  * block comment
  * */
@@ -19,6 +18,9 @@ export function main(cmd:            /*
     console.log('hello wrold!');
 }
 
+function add(a: number, b: number): number {
+    return a + b;
+}
 
 function foo(fs: number, name: string): boolean {
     if (fs && name && fs > 100) {
@@ -46,16 +48,17 @@ var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
 var bol = true;
-var ary1 =  [];
+var ary1 = [];
 var ary2 = [1, 2, 3];
 var bol = ary1 == null;
 var bol2 = bol == false;
 var bol3 = !bol;
 var age = 22;
-var v = age + 1.5 - 0x36 * 2.5 / 1.2;
+var v = -age + 1.5 - 0x36 * 2.5 / 1.2;
 v += 35;
 var n = 'hello';
 var result = foo(v, n);
 console.log(result);
 main('yoyo');
 console.log(ary2[1]);
+var c = 33 + add(10, 20) * 52;

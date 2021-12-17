@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class BreakStatement : Expression
+    internal class BreakStatement : Statement
     {
     }
 }
