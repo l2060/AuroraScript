@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,47 +25,248 @@ namespace AuroraScript
     public enum OperatorPlacement
     {
         /// <summary>
-        /// Indicates that a value is consumed to the left of the primary token.
+        /// 后缀表达式
         /// </summary>
-        HasLHSOperand = 1,
         Postfix = 1,
 
         /// <summary>
-        /// Indicates that a value is consumed to the right of the primary token.
+        /// 表示在令牌左侧是操作数
         /// </summary>
-        HasRHSOperand = 2,
+        HasLHSOperand = 1,
+
+        /// <summary>
+        /// 前缀表达式
+        /// </summary>
         Prefix = 2,
 
         /// <summary>
-        /// Indicates that values to the left and right of the primary token are consumed.
+        /// 表示令牌右侧是操作数
+        /// </summary>
+        HasRHSOperand = 2,
+
+        /// <summary>
+        /// 中缀表达式
         /// </summary>
         Binary = 3,
 
         /// <summary>
-        /// Indicates that a value is consumed to the right of the secondary token.
+        /// 表示在次要令牌的右侧消耗了一个值。 
         /// </summary>
         HasSecondaryRHSOperand = 4,
 
         /// <summary>
-        /// Indicates that three values are consumed.
+        /// 表示消耗了三个值 .
         /// </summary>
         Ternary = 7,
 
         /// <summary>
-        /// Indicates the inner operand is optional.  Only used with the function call operator.
+        /// 表示内部操作数是可选的。 仅与函数调用运算符一起使用 .
         /// </summary>
         InnerOperandIsOptional = 8,
     }
 
     public sealed class Operator
     {
-        public Operator(Symbols symbol, int precedence, OperatorPlacement placement, OperatorAssociativity associativity)
+
+        // Parenthesis.
+        /// <summary>
+        /// operator (exp)
+        /// </summary>
+        public static readonly Operator Grouping = new Operator(Symbols.PT_LEFTPARENTHESIS, 19, OperatorPlacement.HasRHSOperand, OperatorAssociativity.LeftToRight,Symbols.PT_RIGHTPARENTHESIS);
+
+        /// <summary>
+        /// operator exp(
+        /// </summary>
+        public static readonly Operator FunctionCall = new Operator(Symbols.PT_LEFTPARENTHESIS, 18, OperatorPlacement.HasLHSOperand | OperatorPlacement.HasRHSOperand | OperatorPlacement.InnerOperandIsOptional, OperatorAssociativity.LeftToRight, Symbols.PT_RIGHTPARENTHESIS);
+
+        // Index operator.
+        /// <summary>
+        /// operator exp[index]
+        /// </summary>
+        public static readonly Operator Index = new Operator(Symbols.PT_LEFTBRACKET, 18, OperatorPlacement.HasLHSOperand | OperatorPlacement.HasRHSOperand, OperatorAssociativity.LeftToRight, Symbols.PT_RIGHTBRACKET);
+
+        // Member access operator and function call operator.
+        /// <summary>
+        /// operator exp.
+        /// </summary>
+        public static readonly Operator MemberAccess = new Operator(Symbols.PT_DOT, 18, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+        // New operator.
+        /// <summary>
+        /// operator new
+        /// </summary>
+        public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+
+        // Postfix operators.
+        /// <summary>
+        /// operator exp++
+        /// </summary>
+        public static readonly Operator PostIncrement = new Operator(Symbols.OP_INCREMENT, 16, OperatorPlacement.Postfix, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp--
+        /// </summary>
+        public static readonly Operator PostDecrement = new Operator(Symbols.OP_DECREMENT, 16, OperatorPlacement.Postfix, OperatorAssociativity.LeftToRight);
+
+        // Unary prefix operators.
+        /// <summary>
+        /// operator ++exp
+        /// </summary>
+        public static readonly Operator PreIncrement = new Operator(Symbols.OP_INCREMENT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator --exp
+        /// </summary>
+        public static readonly Operator PreDecrement = new Operator(Symbols.OP_DECREMENT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator !exp
+        /// </summary>
+        public static readonly Operator LogicalNot = new Operator(Symbols.OP_LOGICALNOT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator ~exp
+        /// </summary>
+        public static readonly Operator BitwiseNot = new Operator(Symbols.OP_BITWISENOT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator -exp
+        /// </summary>
+        public static readonly Operator Minus = new Operator(Symbols.OP_MINUS, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+
+        // Arithmetic operators.
+        /// <summary>
+        /// operator exp * exp
+        /// </summary>
+        public static readonly Operator Multiply = new Operator(Symbols.OP_MULTIPLY, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp / exp
+        /// </summary>
+        public static readonly Operator Divide = new Operator(Symbols.OP_DIVIDE, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp % exp
+        /// </summary>
+        public static readonly Operator Modulo = new Operator(Symbols.OP_MODULO, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp + exp
+        /// </summary>
+        public static readonly Operator Add = new Operator(Symbols.OP_PLUS, 12, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp - exp
+        /// </summary>
+        public static readonly Operator Subtract = new Operator(Symbols.OP_MINUS, 12, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+        // Shift operators.
+        /// <summary>
+        /// operator exp << exp
+        /// </summary>
+        public static readonly Operator LeftShift = new Operator(Symbols.OP_LEFTSHIFT, 11, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator exp >> exp
+        /// </summary>
+        public static readonly Operator SignedRightShift = new Operator(Symbols.OP_SIGNEDRIGHTSHIFT, 11, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+
+        // Relational operators.
+        /// <summary>
+        /// operator <
+        /// </summary>
+        public static readonly Operator LessThan = new Operator(Symbols.OP_LESSTHAN, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator <=
+        /// </summary>
+        public static readonly Operator LessThanOrEqual = new Operator(Symbols.OP_LESSTHANOREQUAL, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator >
+        /// </summary>
+        public static readonly Operator GreaterThan = new Operator(Symbols.OP_GREATERTHAN, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator >=
+        /// </summary> 
+        public static readonly Operator GreaterThanOrEqual = new Operator(Symbols.OP_GREATERTHANOREQUal, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+        // InstanceOf and In operators.
+        //public static readonly Operator InstanceOf = new Operator(KeywordToken.InstanceOf, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight, OperatorType.InstanceOf);
+        //public static readonly Operator In = new Operator(KeywordToken.In, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight, OperatorType.In);
+
+        // Relational operators.
+        /// <summary>
+        /// operator ==
+        /// </summary>
+        public static readonly Operator Equal = new Operator(Symbols.OP_EQUALITY, 9, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator !=
+        /// </summary>
+        public static readonly Operator NotEqual = new Operator(Symbols.OP_INEQUALITY, 9, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+
+        // Bitwise operators.
+        /// <summary>
+        /// operator &
+        /// </summary>
+        public static readonly Operator BitwiseAnd = new Operator(Symbols.OP_BITWISEAND, 8, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator ^
+        /// </summary>
+        public static readonly Operator BitwiseXor = new Operator(Symbols.OP_BITWISEXOR, 7, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator |
+        /// </summary>
+        public static readonly Operator BitwiseOr = new Operator(Symbols.OP_BITWISEOR, 6, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+
+        // Logical operators.
+        /// <summary>
+        /// operator &&
+        /// </summary>
+        public static readonly Operator LogicalAnd = new Operator(Symbols.OP_LOGICALAND, 5, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+        /// <summary>
+        /// operator ||
+        /// </summary>
+        public static readonly Operator LogicalOr = new Operator(Symbols.OP_LOGICALOR, 4, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
+
+        // Conditional operator.
+        //public static readonly Operator Conditional = new Operator(PunctuatorToken.Conditional, 3, OperatorPlacement.Ternary, OperatorAssociativity.RightToLeft, OperatorType.Conditional, PunctuatorToken.Colon, 2);
+
+        // Assignment operators.
+        /// <summary>
+        /// operator =
+        /// </summary>
+        public static readonly Operator Assignment = new Operator(Symbols.OP_ASSIGNMENT, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator +=
+        /// </summary>
+        public static readonly Operator CompoundAdd = new Operator(Symbols.OP_COMPOUNDADD, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+
+        /// <summary>
+        /// operator /=
+        /// </summary>
+        public static readonly Operator CompoundDivide = new Operator(Symbols.OP_COMPOUNDDIVIDE, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator %=
+        /// </summary>
+        public static readonly Operator CompoundModulo = new Operator(Symbols.OP_COMPOUNDMODULO, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator *=
+        /// </summary>
+        public static readonly Operator CompoundMultiply = new Operator(Symbols.OP_COMPOUNDMULTIPLY, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+        /// <summary>
+        /// operator -=
+        /// </summary>
+        public static readonly Operator CompoundSubtract = new Operator(Symbols.OP_COMPOUNDSUBTRACT, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
+
+
+
+        public Operator(Symbols symbol, int precedence, OperatorPlacement placement, OperatorAssociativity associativity, Symbols secondarySymbols = null)
         {
+            this.placement = placement;
+            this.Symbol = symbol; ;
+            this.Precedence = precedence;
+            this.HasLHSOperand = (placement & OperatorPlacement.HasLHSOperand) != 0;
+            this.HasRHSOperand = (placement & OperatorPlacement.HasRHSOperand) != 0;
 
         }
 
-
-
+        public OperatorPlacement placement
+        {
+            get;
+            private set;
+        }
 
         public Symbols Symbol
         {
@@ -72,6 +274,24 @@ namespace AuroraScript
             private set;
         }
 
+
+        /// <summary>
+        /// 获取一个值，该值指示是否在主令牌的左侧消耗了某个值 .
+        /// </summary>
+        public bool HasLHSOperand
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets a value that indicates whether a value is consumed to the right of the primary token.
+        /// </summary>
+        public bool HasRHSOperand
+        {
+            get;
+            private set;
+        }
 
 
         public int Precedence
@@ -81,80 +301,35 @@ namespace AuroraScript
         }
 
 
-        // Parenthesis.
-        public static readonly Operator Grouping = new Operator(Symbols.PT_LEFTPARENTHESIS, 19, OperatorPlacement.HasRHSOperand, OperatorAssociativity.LeftToRight);
+        private readonly static Dictionary<string, Operator> _OperatorMaps = new Dictionary<string, Operator>();
 
-        // Index operator.
-        public static readonly Operator Index = new Operator(Symbols.PT_LEFTBRACKET, 18, OperatorPlacement.HasLHSOperand | OperatorPlacement.HasRHSOperand, OperatorAssociativity.LeftToRight);
 
-        // Member access operator and function call operator.
-        public static readonly Operator MemberAccess = new Operator(Symbols.PT_DOT, 18, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator FunctionCall = new Operator(Symbols.PT_LEFTPARENTHESIS, 18, OperatorPlacement.HasLHSOperand | OperatorPlacement.HasRHSOperand | OperatorPlacement.InnerOperandIsOptional, OperatorAssociativity.LeftToRight);
 
-        // New operator.
-        public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        static Operator()
+        {
+            var type = typeof(Operator);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(Operator));
+            foreach (var field in fields)
+            {
+                var @operator = field.GetValue(null) as Operator;
+                var HasLHSOperand = @operator.HasLHSOperand;
+                Operator._OperatorMaps.Add(@operator.Symbol.Name + "," + HasLHSOperand, @operator);
+            }
+        }
 
-        // Postfix operators.
-        public static readonly Operator PostIncrement = new Operator(Symbols.OP_INCREMENT, 16, OperatorPlacement.Postfix, OperatorAssociativity.LeftToRight);
-        public static readonly Operator PostDecrement = new Operator(Symbols.OP_DECREMENT, 16, OperatorPlacement.Postfix, OperatorAssociativity.LeftToRight);
 
-        // Unary prefix operators.
-        public static readonly Operator PreIncrement = new Operator(Symbols.OP_INCREMENT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
-        public static readonly Operator PreDecrement = new Operator(Symbols.OP_DECREMENT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
-        public static readonly Operator LogicalNot = new Operator(Symbols.OP_LOGICALNOT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
-        public static readonly Operator BitwiseNot = new Operator(Symbols.OP_BITWISENOT, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
         /// <summary>
-        /// 负数
+        /// prase symbol from string
         /// </summary>
-        public static readonly Operator Minus = new Operator(Symbols.OP_MINUS, 15, OperatorPlacement.Prefix, OperatorAssociativity.RightToLeft);
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static Operator FromSymbols(Symbols symbols, bool hasLHSOperand)
+        {
+            var key = symbols.Name + "," + hasLHSOperand;
+            Operator._OperatorMaps.TryGetValue(key, out var symbol);
+            return symbol;
+        }
 
-        // Arithmetic operators.
-        public static readonly Operator Multiply = new Operator(Symbols.OP_MULTIPLY, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator Divide = new Operator(Symbols.OP_DIVIDE, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator Modulo = new Operator(Symbols.OP_MODULO, 13, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator Add = new Operator(Symbols.OP_PLUS, 12, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator Subtract = new Operator(Symbols.OP_MINUS, 12, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-        // Shift operators.
-        public static readonly Operator LeftShift = new Operator(Symbols.OP_LEFTSHIFT, 11, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator SignedRightShift = new Operator(Symbols.OP_SIGNEDRIGHTSHIFT, 11, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-
-        // Relational operators.
-        public static readonly Operator LessThan = new Operator(Symbols.OP_LESSTHAN, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator LessThanOrEqual = new Operator(Symbols.OP_LESSTHANOREQUAL, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator GreaterThan = new Operator(Symbols.OP_GREATERTHAN, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator GreaterThanOrEqual = new Operator(Symbols.OP_GREATERTHANOREQUal, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-        // InstanceOf and In operators.
-        //public static readonly Operator InstanceOf = new Operator(KeywordToken.InstanceOf, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight, OperatorType.InstanceOf);
-        //public static readonly Operator In = new Operator(KeywordToken.In, 10, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight, OperatorType.In);
-
-        // Relational operators.
-        public static readonly Operator Equal = new Operator(Symbols.OP_EQUALITY, 9, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator NotEqual = new Operator(Symbols.OP_INEQUALITY, 9, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-
-        // Bitwise operators.
-        public static readonly Operator BitwiseAnd = new Operator(Symbols.OP_BITWISEAND, 8, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator BitwiseXor = new Operator(Symbols.OP_BITWISEXOR, 7, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator BitwiseOr = new Operator(Symbols.OP_BITWISEOR, 6, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-        // Logical operators.
-        public static readonly Operator LogicalAnd = new Operator(Symbols.OP_LOGICALAND, 5, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-        public static readonly Operator LogicalOr = new Operator(Symbols.OP_LOGICALOR, 4, OperatorPlacement.Binary, OperatorAssociativity.LeftToRight);
-
-        // Conditional operator.
-        //public static readonly Operator Conditional = new Operator(PunctuatorToken.Conditional, 3, OperatorPlacement.Ternary, OperatorAssociativity.RightToLeft, OperatorType.Conditional, PunctuatorToken.Colon, 2);
-
-        // Assignment operators.
-        public static readonly Operator Assignment = new Operator(Symbols.OP_ASSIGNMENT, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
-        public static readonly Operator CompoundAdd = new Operator(Symbols.OP_COMPOUNDADD, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
-
-        public static readonly Operator CompoundDivide = new Operator(Symbols.OP_COMPOUNDDIVIDE, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
-        public static readonly Operator CompoundModulo = new Operator(Symbols.OP_COMPOUNDMODULO, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
-        public static readonly Operator CompoundMultiply = new Operator(Symbols.OP_COMPOUNDMULTIPLY, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
-        public static readonly Operator CompoundSubtract = new Operator(Symbols.OP_COMPOUNDSUBTRACT, 2, OperatorPlacement.Binary, OperatorAssociativity.RightToLeft);
 
 
 

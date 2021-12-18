@@ -10,8 +10,8 @@ using System.Text.RegularExpressions;
 
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
-var engine = new AuroraEngine();
-engine.build("./scripts/demo.ts");
+var compiler = new AuroraCompiler();
+compiler.build("./scripts/demo.ts");
 stopwatch.Stop();
 
 

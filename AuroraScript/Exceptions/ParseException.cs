@@ -6,26 +6,29 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Exceptions
 {
-    internal class ParseException: Exception
+    internal class ParseException : Exception
     {
-        public String FileName { get; private set; }
-        public Int32 LineNumber { get; private set; }
-        public Int32 ColumnNumber { get; private set; }
-
-
-        public ParseException(String fileName, Int32 lineNumber, Int32 columnNumber, String message) : base(message)
-        {
-            this.ColumnNumber = columnNumber;
-            this.FileName = fileName;
-            this.LineNumber = lineNumber;
-        }
+        public String fileName { get; private set; }
+        public Int32 lineNumber { get; private set; }
+        public Int32 columnNumber { get; private set; }
+        public Token token { get; private set; }
 
 
         public ParseException(String fileName, Token token, String message) : base(message)
         {
-            this.ColumnNumber = token.ColumnNumber;
-            this.FileName = fileName;
-            this.LineNumber = token.LineNumber;
+            this.columnNumber = token.ColumnNumber;
+            this.fileName = fileName;
+            this.lineNumber = token.LineNumber;
+            this.token = token;
         }
+
+
+
+        public override string ToString()
+        {
+            return $"Line:{this.lineNumber} Column:{this.columnNumber} {this.GetType().Name.PadRight(15, ' ')} {this.token.Value} ${this.Message}";
+        }
+
+
     }
 }

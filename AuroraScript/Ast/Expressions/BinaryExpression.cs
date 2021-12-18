@@ -9,9 +9,13 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 二元表达式
     /// </summary>
-    internal class BinaryExpression : Expression
+    internal class BinaryExpression : OperatorExpression
     {
-        public Token Operator { get; set; }
+        public BinaryExpression(Operator @operator) : base(@operator)
+        {
+        }
+
+        //public Token Operator { get; set; }
 
         public Expression Left { get; set; }
 

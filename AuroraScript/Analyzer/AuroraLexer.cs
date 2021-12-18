@@ -146,7 +146,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         public Token Previous()
         {
-            return this.tokens[this.Position - 1];
+            return this.tokens[this.Position - 2];
         }
 
 

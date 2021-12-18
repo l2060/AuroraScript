@@ -9,9 +9,9 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 前缀表达式
     /// </summary>
-    internal class PrefixUnaryExpression : OperatorExpression
+    internal class PostfixExpression : OperatorExpression
     {
-        public PrefixUnaryExpression(Operator @operator) : base(@operator)
+        public PostfixExpression(Operator @operator) : base(@operator)
         {
         }
 

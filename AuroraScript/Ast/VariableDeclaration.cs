@@ -13,11 +13,14 @@ namespace AuroraScript.Ast
     /// </summary>
     internal class VariableDeclaration : Statement
     {
+        public VariableDeclaration()
+        {
+            this.Variables = new List<Token>();
+        }
+        public List<Token> Variables { get; set; }
 
-        public Token Variable { get; set; }
 
-
-        public Expression Init { get; set; }
+        public Expression Initializer { get; set; }
 
 
 

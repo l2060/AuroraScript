@@ -75,6 +75,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseReturnStatement(Scope currentScope)
         {
+            this.lexer.NextOfKind(Symbols.KW_RETURN);
             var exp = this.ParseExpression(currentScope);
             return new ReturnStatement(exp);
         }
@@ -177,18 +178,54 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseVariableDeclaration(Scope currentScope)
         {
+            Expression initializer = null;
             this.lexer.NextOfKind(Symbols.KW_VAR);
             var varName = this.lexer.NextOfKind<IdentifierToken>();
-            this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
+            List<Token> varNames = new List<Token>() { varName };
 
-            var exp = this.ParseExpression(currentScope);
+            while (true)
+            {
+                var nextToken = this.lexer.Next();
+                // ;
+                if (nextToken.Symbol == Symbols.PT_SEMICOLON)
+                {
+                    break;
+                }
+                // =
+                else if (nextToken.Symbol == Symbols.OP_ASSIGNMENT)
+                {
+                    initializer = this.ParseExpression(currentScope);
+                    break;
+                }
+                // ,
+                else if (nextToken.Symbol == Symbols.PT_COMMA)
+                {
+                    varName = this.lexer.NextOfKind<IdentifierToken>();
+                    varNames.Add(varName);
+                }
+                else
+                {
+                    throw this.InitLexerException("Invalid keywords appear in var declaration.", nextToken);
+                }
 
+            }
+            //this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
             var expression = new VariableDeclaration();
-            expression.Variable = varName;
-            expression.Init = exp;
+            expression.Variables.AddRange(varNames);
+            expression.Initializer = initializer;
             //this.lexer.NextOfKind(Symbols.KW_VAR);
             return expression;
         }
+
+
+        private Exception InitLexerException(String message, Token token)
+        {
+            return new ParseException(this.lexer.FullPath, token, message);
+        }
+
+
+
+
 
         /// <summary>
         /// parse if block
@@ -248,6 +285,7 @@ namespace AuroraScript.Analyzer
         /// <exception cref="InvalidOperationException"></exception>
         private Expression ParseExpression(Scope currentScope, params Symbols[] endSymbols)
         {
+            OperatorExpression currentOperator = null;
             Expression expression = null;
             while (true)
             {
@@ -262,7 +300,7 @@ namespace AuroraScript.Analyzer
                     break;
                 }
 
-                // value
+                // value Operand
                 if (token is ValueToken)
                 {
 
@@ -283,28 +321,110 @@ namespace AuroraScript.Analyzer
                     }
 
                 }
-                // identifier
+                // identifier  Operand
                 else if (token is IdentifierToken)
                 {
+                    var exp = new NameExpression() { Identifier = token };
 
-                    expression = new NameExpression() { Identifier = token };
+                    if (expression == null)
+                    {
+                        expression = new NameExpression() { Identifier = token };
+                    }
+                    else if (expression is BinaryExpression exp2)
+                    {
+                        exp2.Right = exp;
+                    }
                 }
 
                 // operator
-                else if (token is OperatorToken)
-                {
-                    
+                //else if (token is OperatorToken)
+                //{
 
-
-                    var binary = new BinaryExpression();
-                    binary.Left = expression;
-                    binary.Operator = token;
-                    expression = binary;
-                }
+                //    var binary = new BinaryExpression();
+                //    binary.Left = expression;
+                //    binary.Operator = token;
+                //    expression = binary;
+                //}
 
                 // punctuator
                 else if (token is PunctuatorToken)
                 {
+
+                    //  Operator newOperator = OperatorFromToken(this.nextToken, postfixOrInfix: this.expressionState == ParserExpressionState.Operator);
+                    var previousToken = this.lexer.Previous();
+
+                    var _operator = Operator.FromSymbols(token.Symbol, previousToken is IdentifierToken || previousToken is ValueToken);
+
+                    if(_operator == null)
+                    {
+                        if (endSymbols.Contains(token.Symbol))
+                        {
+                            break;
+                        }
+                        if (endSymbols.Contains(Symbols.PT_SEMICOLON))
+                        {
+                            break;
+                        }
+                        throw this.InitLexerException("Invalid token appears in expression", token);
+                    }
+
+                    if (_operator == Operator.FunctionCall)
+                    {
+
+                    }
+
+
+
+
+                    OperatorExpression curExpression = null;
+                    if((_operator.placement & OperatorPlacement.Prefix) == OperatorPlacement.Prefix)
+                    {
+                        curExpression = new PrefixUnaryExpression(_operator);
+                    }else if((_operator.placement & OperatorPlacement.Binary) == OperatorPlacement.Binary)
+                    {
+                        curExpression = new BinaryExpression(_operator);
+                    }
+                    else if ((_operator.placement & OperatorPlacement.Postfix) == OperatorPlacement.Postfix)
+                    {
+                        curExpression = new PostfixExpression(_operator);
+                    }
+
+                    if(curExpression == null)
+                    {
+                        throw new Exception("asdad");
+                    }
+
+
+                    expression = new OperatorExpression(_operator);
+
+
+
+
+                    
+
+                    //currentOperator = expression;
+                    Console.WriteLine(token);
+
+
+
+
+                    if (_operator == Operator.MemberAccess)
+                    {
+                        var memberIdentifier = this.lexer.NextOfKind<IdentifierToken>();
+                        if (expression == null) throw new InvalidOperationException();
+                        var member = new MemberExpression(memberIdentifier, expression);
+                        expression = member;
+                    }
+                    if (_operator == Operator.FunctionCall)
+                    {
+                        var paramlist = this.ParseCallFunctionExpression(currentScope);
+                        var exp = new CallExpression();
+                        exp.Arguments = paramlist;
+                        exp.Base = expression;
+                        expression = exp;
+                    }
+
+
                     // is object member
                     if (token.Symbol == Symbols.PT_DOT)
                     {
@@ -317,11 +437,9 @@ namespace AuroraScript.Analyzer
                     if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
                     {
                         var paramlist = this.ParseCallFunctionExpression(currentScope);
-
                         var exp = new CallExpression();
                         exp.Arguments = paramlist;
                         exp.Base = expression;
-
                         expression = exp;
                     }
                 }
@@ -329,9 +447,14 @@ namespace AuroraScript.Analyzer
                 // keyword
                 else if (token is KeywordToken)
                 {
-                    Console.WriteLine();
+                    Console.WriteLine(token);
                 }
+
+                if (expression == null) throw this.InitLexerException("Invalid keywords appear in .", token);
             }
+
+
+
             return expression;
         }
 
@@ -399,7 +522,10 @@ namespace AuroraScript.Analyzer
                 };
                 arguments.Add(declaration);
                 nexttoken = this.lexer.LookAtHead();
-                if (nexttoken.Symbol == Symbols.KW_EOF) throw new LexerException(this.lexer.FullPath, nexttoken, "Parameter declaration is not closed ");
+                if (nexttoken.Symbol == Symbols.KW_EOF)
+                {
+                    throw this.InitLexerException("Parameter declaration is not closed ", nexttoken);
+                }
                 if (nexttoken is PunctuatorToken && nexttoken.Symbol == Symbols.PT_COMMA)
                 {
                     // Drop the comma
@@ -487,7 +613,7 @@ namespace AuroraScript.Analyzer
                 //this.lexer.NextOfKind(Symbols.KW_FUNCTION);
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
-            throw new LexerException(this.lexer.FullPath, token, "Wrong export target.");
+            throw this.InitLexerException("Invalid keywords appear in export declaration .", token);
         }
 
 

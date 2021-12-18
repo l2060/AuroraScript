@@ -9,8 +9,12 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 函数调用
     /// </summary>
-    internal class CallExpression:Expression
+    internal class CallExpression: OperatorExpression
     {
+        public CallExpression() : base(Operator.FunctionCall)
+        {
+        }
+
         public List<Expression> Arguments { get; set; }
         public Expression Base { get; set; }
 
