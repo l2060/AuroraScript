@@ -33,7 +33,7 @@ namespace AuroraScript
             var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
             var parser = new AuroraParser(Lexer);
             var node = parser.Parse();
-            Console.WriteLine(node);
+            Console.WriteLine(node.ChildNodes.Count());
             //string str = JsonConvert.SerializeObject(node,Formatting.Indented);
             //Console.WriteLine(str);
         }

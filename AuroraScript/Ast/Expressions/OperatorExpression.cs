@@ -11,9 +11,31 @@ namespace AuroraScript.Ast.Expressions
         public OperatorExpression(Operator @operator)
         {
             this.Operator = @operator;
+            this.operands = new List<Expression>();
+            this.Precedence = this.Operator.Precedence;
         }
 
-        private Expression[] operands;
+        private List<Expression> operands;
+
+
+
+
+
+
+        /// <summary>
+        /// 操作符优先级
+        /// </summary>
+        public int Precedence
+        {
+            get;
+            private set;
+        }
+
+
+        public void Push(Expression expression)
+        {
+            operands.Add(expression);
+        }
 
 
 

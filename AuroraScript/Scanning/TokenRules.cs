@@ -281,18 +281,21 @@ namespace AuroraScript.Scanning
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
             Int32 dot = 0;
-            if (codeSpan[0] >= '0' && codeSpan[0] <= '9')
+            if ((codeSpan[0] >= '0' && codeSpan[0] <= '9') || codeSpan[0] == '-')
             {
                 for (int i = 1; i < codeSpan.Length; i++)
                 {
                     if (codeSpan[i] >= '0' && codeSpan[i] <= '9')
                     {
                     }
-                    else if (codeSpan[i] == '.' && dot == 0)
+                    else if (codeSpan[i] == '.' && dot == 0 && !(codeSpan[0] == '-' && i == 1) )
                     {
                         dot++;
                     }
-                    else
+                    else if(codeSpan[0] == '-' && i == 1)
+                    {
+                        return result;
+                    }else
                     {
                         result.ColumnNumber += i;
                         result.Length = i ;

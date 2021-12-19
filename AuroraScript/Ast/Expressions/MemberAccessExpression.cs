@@ -10,13 +10,16 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 成员函数表达式
     /// </summary>
-    internal class MemberExpression : NameExpression
+    internal class MemberAccessExpression : OperatorExpression
     {
-        public MemberExpression(IdentifierToken identifierToken, Expression _base)
+        public MemberAccessExpression(Operator @operator) : base(@operator)
         {
-            this.Base = _base;
-            this.Identifier = identifierToken;
+
         }
+
+
+
+
         /// <summary>
         /// super object name
         /// </summary>

@@ -1,5 +1,38 @@
 ﻿
 
+var fff = -33 * 0.25 + 55;
+
+
+var TRUE = true;
+var FALSE = !TRUE;
+
+function fo(): number {
+    return 3.1415926;
+}
+
+var fox = fo();
+
+var psff = Math.max(
+    5, 32 * 0.5
+) / 20;
+
+for (var l = 0; i < 100; i++) fox++;
+
+
+var c, d, r = (
+    33 + 66)
+    /
+    add(
+        10 *
+        (
+            10 + 20)
+        ,
+        50 + Math.max(
+            5, 32 * 0.5
+        ) / 20)
+    + 3.1415 * 52;
+
+
 /**
  * block comment
  * */
@@ -7,11 +40,17 @@
 import 'common';
 
 // sdfsdf
+var len = 50;
+var fd = 15 + 25 *
+    55 + 33 * 55 + 22;
+var os = 25 + 15 *
+    (15 + len);
+var ls = add(0x55, 0x33) / 2;
 
+var sss = Math.max(5, 32 * 0.5) / 20;
+var px = len * (-len + add(0x22 + (33 + 0x5), 0xff)) / (6 + 5);
 
-var px = -5 * add(0x22 + (33 + 0x5), 0xff) / (6 + 5);
-
-
+console.log(c + d + r);
 
 // 上一个Token是否是操作数
 
@@ -61,10 +100,10 @@ var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
 var bol = true;
-var ary1 = [];
-var ary2 = [1, 2, 3];
-var bol = ary1 == null;
-var bol2 = bol == false;
+//var ary1 = [];
+//var ary2 = [1, 2, 3];
+var bol1 = bol == null;
+var bol2 = bol1 == false;
 var bol3 = !bol;
 var age = 22;
 var v = -age + 1.5 - 0x36 * 2.5 / 1.2;
@@ -73,5 +112,4 @@ var n = 'hello';
 var result = foo(v, n);
 console.log(result);
 main('yoyo');
-console.log(ary2[1]);
-var c, d, r = (33 + 66) / add(10 * (10 + 20), 50 + Math.max(5, 32 * 0.5) / 20) + 3.1415 * 52;
+//console.log(ary2[1]);

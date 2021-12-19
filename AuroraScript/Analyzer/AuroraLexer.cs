@@ -144,9 +144,9 @@ namespace AuroraScript.Analyzer
         /// get next token without removing it. 
         /// </summary>
         /// <returns></returns>
-        public Token Previous()
+        public Token Previous(Int32 offset = 2)
         {
-            return this.tokens[this.Position - 2];
+            return this.tokens[this.Position - offset];
         }
 
 

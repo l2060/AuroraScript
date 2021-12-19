@@ -11,8 +11,9 @@ namespace AuroraScript.Ast.Expressions
     /// </summary>
     internal class CallExpression: OperatorExpression
     {
-        public CallExpression() : base(Operator.FunctionCall)
+        public CallExpression(Operator @operator) : base(@operator)
         {
+            this.Arguments = new List<Expression>();
         }
 
         public List<Expression> Arguments { get; set; }

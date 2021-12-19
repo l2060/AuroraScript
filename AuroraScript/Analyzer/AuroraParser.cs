@@ -41,7 +41,7 @@ namespace AuroraScript.Analyzer
 
 
         /// <summary>
-        /// parse single statement or block statement
+        /// Parse a statement ending in “;” or a statement block wrapped by “{}”
         /// </summary>
         /// <param name="currentScope"></param>
         /// <param name="endSymbols"></param>
@@ -136,6 +136,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// parse for block
+        /// starting with “for”
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
@@ -145,15 +146,12 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse for initializer
             var initializer = this.ParseStatement(currentScope);
-            //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             // parse for condition
             var condition = this.ParseExpression(currentScope);
-            //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             // parse for incrementor
             var incrementor = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
-            //var nextToken = this.lexer.LookAtHead();
-            AstNode body = this.ParseBlock(currentScope);
+            AstNode body = this.ParseStatement(currentScope);
             // parse for body
             return new ForStatement()
             {
@@ -173,6 +171,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// parse variable declaration
+        /// starting with “var”
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
@@ -194,7 +193,7 @@ namespace AuroraScript.Analyzer
                 // =
                 else if (nextToken.Symbol == Symbols.OP_ASSIGNMENT)
                 {
-                    initializer = this.ParseExpression(currentScope);
+                    initializer = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
                     break;
                 }
                 // ,
@@ -205,7 +204,7 @@ namespace AuroraScript.Analyzer
                 }
                 else
                 {
-                    throw this.InitLexerException("Invalid keywords appear in var declaration.", nextToken);
+                    throw this.InitParseException("Invalid keywords appear in var declaration.", nextToken);
                 }
 
             }
@@ -218,8 +217,9 @@ namespace AuroraScript.Analyzer
         }
 
 
-        private Exception InitLexerException(String message, Token token)
+        private Exception InitParseException(String message, Token token)
         {
+            Console.WriteLine($"{token} {message}");
             return new ParseException(this.lexer.FullPath, token, message);
         }
 
@@ -229,6 +229,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// parse if block
+        /// starting with “if”
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
@@ -253,6 +254,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// parse else block
+        /// starting with “else”
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
@@ -277,7 +279,8 @@ namespace AuroraScript.Analyzer
 
 
         /// <summary>
-        /// parse an expression ending in endSymbols; 
+        /// parse an expression 
+        /// ending symbol in endSymbols or “;”; 
         /// </summary>
         /// <param name="currentScope"></param>
         /// <param name="endSymbols"></param>
@@ -285,8 +288,9 @@ namespace AuroraScript.Analyzer
         /// <exception cref="InvalidOperationException"></exception>
         private Expression ParseExpression(Scope currentScope, params Symbols[] endSymbols)
         {
-            OperatorExpression currentOperator = null;
-            Expression expression = null;
+            Expression rootExpression = new Expression();
+            Expression lastExpression = null;
+            Operator lastOperator = null;
             while (true)
             {
                 var token = this.lexer.Next();
@@ -295,197 +299,193 @@ namespace AuroraScript.Analyzer
                 {
                     break;
                 }
+                // encountered the specified symbol, the analysis is complete, jump out 
                 if (token.Symbol != null && endSymbols.Contains(token.Symbol))
                 {
                     break;
                 }
-
+                // ===========================================================
+                // ==== parse begin
+                // ===========================================================
+                Expression tmpexp = null;
                 // value Operand
-                if (token is ValueToken)
-                {
-
-                    if (expression is BinaryExpression exp)
-                    {
-                        if (exp.Right == null)
-                        {
-                            exp.Right = new ValueExpression(token);
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException();
-                        }
-                    }
-                    else
-                    {
-                        expression = new ValueExpression(token);
-                    }
-
-                }
-                // identifier  Operand
-                else if (token is IdentifierToken)
-                {
-                    var exp = new NameExpression() { Identifier = token };
-
-                    if (expression == null)
-                    {
-                        expression = new NameExpression() { Identifier = token };
-                    }
-                    else if (expression is BinaryExpression exp2)
-                    {
-                        exp2.Right = exp;
-                    }
-                }
-
-                // operator
-                //else if (token is OperatorToken)
-                //{
-
-                //    var binary = new BinaryExpression();
-                //    binary.Left = expression;
-                //    binary.Operator = token;
-                //    expression = binary;
-                //}
-
+                if (token is ValueToken) tmpexp = new ValueExpression(token);
+                // identifier Operand
+                if (token is IdentifierToken) tmpexp = new NameExpression() { Identifier = token };
+                // keywords should not appear here 
+                if (token is KeywordToken) throw this.InitParseException("Keyword appears in the wrong place ", token);
                 // punctuator
-                else if (token is PunctuatorToken)
+                if (token is PunctuatorToken)
                 {
-
-                    //  Operator newOperator = OperatorFromToken(this.nextToken, postfixOrInfix: this.expressionState == ParserExpressionState.Operator);
                     var previousToken = this.lexer.Previous();
-
-                    var _operator = Operator.FromSymbols(token.Symbol, previousToken is IdentifierToken || previousToken is ValueToken);
-
-                    if(_operator == null)
+                    //                   
+                    var leftIsOperand = (lastOperator != null && lastOperator.IsOperand) || previousToken is IdentifierToken || previousToken is ValueToken; // 
+                    var _operator = Operator.FromSymbols(token.Symbol, leftIsOperand);
+                    if (_operator == null)
                     {
                         if (endSymbols.Contains(token.Symbol))
                         {
                             break;
                         }
-                        if (endSymbols.Contains(Symbols.PT_SEMICOLON))
-                        {
-                            break;
-                        }
-                        throw this.InitLexerException("Invalid token appears in expression", token);
+                        //if (endSymbols.Contains(Symbols.PT_SEMICOLON))
+                        //{
+                        //    break;
+                        //}
+                    }
+                    else
+                    {
+                        tmpexp = this.createExpression(_operator, previousToken);
                     }
 
-                    if (_operator == Operator.FunctionCall)
-                    {
-
-                    }
-
-
-
-
-                    OperatorExpression curExpression = null;
-                    if((_operator.placement & OperatorPlacement.Prefix) == OperatorPlacement.Prefix)
-                    {
-                        curExpression = new PrefixUnaryExpression(_operator);
-                    }else if((_operator.placement & OperatorPlacement.Binary) == OperatorPlacement.Binary)
-                    {
-                        curExpression = new BinaryExpression(_operator);
-                    }
-                    else if ((_operator.placement & OperatorPlacement.Postfix) == OperatorPlacement.Postfix)
-                    {
-                        curExpression = new PostfixExpression(_operator);
-                    }
-
-                    if(curExpression == null)
-                    {
-                        throw new Exception("asdad");
-                    }
-
-
-                    expression = new OperatorExpression(_operator);
-
-
-
-
-                    
-
-                    //currentOperator = expression;
-                    Console.WriteLine(token);
-
-
-
-
-                    if (_operator == Operator.MemberAccess)
-                    {
-                        var memberIdentifier = this.lexer.NextOfKind<IdentifierToken>();
-                        if (expression == null) throw new InvalidOperationException();
-                        var member = new MemberExpression(memberIdentifier, expression);
-                        expression = member;
-                    }
-                    if (_operator == Operator.FunctionCall)
-                    {
-                        var paramlist = this.ParseCallFunctionExpression(currentScope);
-                        var exp = new CallExpression();
-                        exp.Arguments = paramlist;
-                        exp.Base = expression;
-                        expression = exp;
-                    }
-
-
-                    // is object member
-                    if (token.Symbol == Symbols.PT_DOT)
-                    {
-                        var memberIdentifier = this.lexer.NextOfKind<IdentifierToken>();
-                        if (expression == null) throw new InvalidOperationException();
-                        var member = new MemberExpression(memberIdentifier, expression);
-                        expression = member;
-                    }
-                    // is function call 
-                    if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
-                    {
-                        var paramlist = this.ParseCallFunctionExpression(currentScope);
-                        var exp = new CallExpression();
-                        exp.Arguments = paramlist;
-                        exp.Base = expression;
-                        expression = exp;
-                    }
                 }
-
-                // keyword
-                else if (token is KeywordToken)
+                if (tmpexp == null) throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
+                // ==============================================
+                // 
+                // ==============================================
+                // this is Operator
+                if (tmpexp is OperatorExpression operatorExpression)
                 {
-                    Console.WriteLine(token);
+                    // this operator has secondary sybmol
+                    if (operatorExpression.Operator.SecondarySymbols != null)
+                    {
+                        // this operator is function call
+                        if (tmpexp is CallExpression callExpression)
+                        {
+                            while (true)
+                            {
+                                // parse function call arguments
+                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (argument != null) callExpression.Arguments.Add(argument);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete 
+                                if (last.Symbol == Symbols.PT_RIGHTPARENTHESIS) break;
+                            }
+                        }
+                        // expressions wrapped in parentheses 
+                        else if (tmpexp is GroupExpression groupExpression)
+                        {
+                            // Parse() block, from here recursively parse expressions to minor symbols 
+                            tmpexp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
+
+                            var group = new GroupExpression(Operator.Grouping);
+                            group.AddNode(tmpexp);
+                            tmpexp = group;
+                        }
+                    }
+                    //else
+                    //{
+                    //    // this is Ordinary operation operator + - * / ....
+                    //    tmpexp.AddNode(tmpexp);
+                    //}
+                }
+                // token is not an operator, that is the operand 
+                else if (lastOperator != null)
+                {
+                    // 添加操作数到操作符表达式中
+                    lastExpression.AddNode(tmpexp);
+
+                    // 前缀表达式操作符
+                    if (lastOperator.placement == OperatorPlacement.Prefix)
+                    {
+
+
+                    }
+
+                }
+                // 不是操作符 且 上一个 Token也不是操作符
+                else
+                {
+                    if (rootExpression.ChildNodes.Count() > 0)
+                        throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 }
 
-                if (expression == null) throw this.InitLexerException("Invalid keywords appear in .", token);
+                if (tmpexp is OperatorExpression)
+                {
+                    // 查找操作符优先级 更新树位置
+                    if(lastExpression != null)
+                    {
+                        var node = lastExpression;
+                        while (node.)
+                        {
+
+                        }
+
+
+
+
+
+
+                        var parent = lastExpression.Parent;
+                        lastExpression.Remove();
+                        tmpexp.AddNode(lastExpression);
+                        parent.AddNode(tmpexp);
+                    }
+                }
+                lastOperator = (tmpexp is OperatorExpression f) ? f.Operator : null;
+                lastExpression = tmpexp;
+                if (rootExpression.ChildNodes.Count() == 0) rootExpression.AddNode(tmpexp);
             }
 
 
-
-            return expression;
+            return rootExpression.Length > 0 ? rootExpression.Pop() : null ;
         }
 
 
-        /// <summary>
-        /// parse function call
-        /// </summary>
-        /// <param name="currentScope"></param>
-        /// <returns></returns>
-        private List<Expression> ParseCallFunctionExpression(Scope currentScope)
-        {
-            List<Expression> expressions = new List<Expression>();
-            //this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
-            while (this.lexer.LookAtHead().Symbol != Symbols.PT_RIGHTPARENTHESIS)
-            {
-                var exp = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
-                expressions.Add(exp);
-                var nextToken = this.lexer.LookAtHead();
 
-                if (this.lexer.Previous().Symbol == Symbols.PT_RIGHTPARENTHESIS)
-                {
-                    break;
-                }
-                if (nextToken.Symbol == Symbols.PT_COMMA) this.lexer.Next();
-                if (nextToken.Symbol == Symbols.PT_RIGHTPARENTHESIS)
-                {
-                    this.lexer.Next();
-                    break;
-                }
-            }
-            return expressions;
+
+        private Expression createExpression(Operator _operator, Token previousToken)
+        {
+            // Assignment Expression
+            if (_operator == Operator.Assignment) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundAdd) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundSubtract) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundDivide) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundModulo) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundMultiply) return new AssignmentExpression(_operator);
+
+            // new expression
+            if (_operator == Operator.New) return new BinaryExpression(_operator);
+
+            // function call expression
+            if (_operator == Operator.FunctionCall && !(previousToken is PunctuatorToken)) return new CallExpression(_operator);
+            // Grouping expression
+            if (_operator == Operator.Grouping && previousToken is PunctuatorToken) return new GroupExpression(_operator);
+            // member access expression
+            if (_operator == Operator.Index) return new MemberAccessExpression(_operator);
+            // member access expression
+            if (_operator == Operator.MemberAccess) return new MemberAccessExpression(_operator);
+
+            // binary expression
+            if (_operator == Operator.Add) return new BinaryExpression(_operator);
+            if (_operator == Operator.Divide) return new BinaryExpression(_operator);
+            if (_operator == Operator.Equal) return new BinaryExpression(_operator);
+            if (_operator == Operator.LeftShift) return new BinaryExpression(_operator);
+            if (_operator == Operator.LessThan) return new BinaryExpression(_operator);
+            if (_operator == Operator.LessThanOrEqual) return new BinaryExpression(_operator);
+            if (_operator == Operator.GreaterThan) return new BinaryExpression(_operator);
+            if (_operator == Operator.GreaterThanOrEqual) return new BinaryExpression(_operator);
+            if (_operator == Operator.BitwiseAnd) return new BinaryExpression(_operator);
+            if (_operator == Operator.BitwiseOr) return new BinaryExpression(_operator);
+            if (_operator == Operator.BitwiseXor) return new BinaryExpression(_operator);
+            if (_operator == Operator.LogicalAnd) return new BinaryExpression(_operator);
+            if (_operator == Operator.LogicalNot) return new BinaryExpression(_operator);
+            if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
+            if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
+            if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
+            if (_operator == Operator.NotEqual) return new BinaryExpression(_operator);
+            if (_operator == Operator.SignedRightShift) return new BinaryExpression(_operator);
+            if (_operator == Operator.Subtract) return new BinaryExpression(_operator);
+
+            // Prefix expression
+            if (_operator == Operator.BitwiseNot) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.Minus) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.PreDecrement) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.PreIncrement) return new PrefixUnaryExpression(_operator);
+
+            // Postfix expression
+            if (_operator == Operator.PostDecrement) return new PostfixExpression(_operator);
+            if (_operator == Operator.PostIncrement) return new PostfixExpression(_operator);
+            return null;
         }
 
 
@@ -493,7 +493,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// Parse Function Arguments
-        /// start => fs: number, name: string)
+        /// starting with “arg1: number, argn: string)”
         /// </summary>
         /// <returns></returns>
         private List<ParameterDeclaration> ParseFunctionArguments(Scope currentScope)
@@ -504,6 +504,12 @@ namespace AuroraScript.Analyzer
                 // Parsing modifier 
                 // .......
                 // ==================
+                var nextToken = this.lexer.LookAtHead();
+                if (nextToken.Symbol == Symbols.PT_RIGHTPARENTHESIS)
+                {
+                    this.lexer.Next();
+                    break;
+                }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.PT_COLON);
                 var typed = this.lexer.NextOfKind<TypedToken>();
@@ -524,7 +530,7 @@ namespace AuroraScript.Analyzer
                 nexttoken = this.lexer.LookAtHead();
                 if (nexttoken.Symbol == Symbols.KW_EOF)
                 {
-                    throw this.InitLexerException("Parameter declaration is not closed ", nexttoken);
+                    throw this.InitParseException("Parameter declaration is not closed ", nexttoken);
                 }
                 if (nexttoken is PunctuatorToken && nexttoken.Symbol == Symbols.PT_COMMA)
                 {
@@ -547,6 +553,7 @@ namespace AuroraScript.Analyzer
 
         /// <summary>
         /// parse function block
+        /// starting with “(” arguments declarations
         /// </summary>
         /// <param name="functionName"></param>
         /// <param name="parentScope"></param>
@@ -554,33 +561,19 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null)
         {
-            // 验证 下一个Token (
+            // next token (
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
-
-            // 解析方法参数
+            // parse arguments
             var arguments = this.ParseFunctionArguments(currentScope);
-
-            // 验证参数
-            // ........
-
-            // 验证 下一个Token :
+            // next token : Typed
             this.lexer.NextOfKind(Symbols.PT_COLON);
-
-            // 验证 下一个Token Typed
             var returnType = this.lexer.NextOfKind<TypedToken>();
-
-            // 验证 下一个Token {
-            //this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
-
             // create function scope
             var scope = new Scope(this, currentScope);
-
             // declare arguments variable
             scope.DeclareVariable(arguments);
-
             // parse function body
             var body = this.ParseBlock(scope);
-
             return new FunctionDeclaration()
             {
                 Access = access,
@@ -591,6 +584,13 @@ namespace AuroraScript.Analyzer
             };
         }
 
+        /// <summary>
+        /// analyze function declarations 
+        /// starting with “function” 
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
         private Statement ParseFunctionDeclaration(Scope currentScope, Symbols access = null)
         {
             this.lexer.NextOfKind(Symbols.KW_FUNCTION);
@@ -600,7 +600,8 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// parse export target
+        /// parse export object
+        /// starting with “export”
         /// </summary>
         /// <returns></returns>
         /// <exception cref="LexerException"></exception>
@@ -613,12 +614,13 @@ namespace AuroraScript.Analyzer
                 //this.lexer.NextOfKind(Symbols.KW_FUNCTION);
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
-            throw this.InitLexerException("Invalid keywords appear in export declaration .", token);
+            throw this.InitParseException("Invalid keywords appear in export declaration .", token);
         }
 
 
         /// <summary>
         /// parse import module
+        /// starting with “import”
         /// </summary>
         /// <returns></returns>
         private Statement ParseImport()
