@@ -1,8 +1,9 @@
 ﻿
 
-var fff = -33 * 0.25 + 55;
-var fff = -33 + 0.25 * 55;
+var fff = 33 * 25 + 55 * 33 + 55;
+var fff = 33 + 25 - 55 * 33 / 55;
 
+var fff = 55 + -fff ;
 
 var TRUE = true;
 var FALSE = !TRUE;

@@ -29,7 +29,6 @@ namespace AuroraScript
             //var array = new Int32[] { 0,1,2,3,4,5,6,7,8,9};
             //ShuffleArray(array);
             //Console.WriteLine(array);
-
             var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
             var parser = new AuroraParser(Lexer);
             var node = parser.Parse();

@@ -6,8 +6,6 @@ using System.Text.RegularExpressions;
 
 
 
-
-
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 var compiler = new AuroraCompiler();

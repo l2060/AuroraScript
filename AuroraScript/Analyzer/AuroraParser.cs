@@ -366,31 +366,91 @@ namespace AuroraScript.Analyzer
                         {
                             // Parse() block, from here recursively parse expressions to minor symbols 
                             tmpexp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
-
                             var group = new GroupExpression(Operator.Grouping);
                             group.AddNode(tmpexp);
                             tmpexp = group;
                         }
                     }
-                    //else
-                    //{
-                    //    // this is Ordinary operation operator + - * / ....
-                    //    tmpexp.AddNode(tmpexp);
-                    //}
+
+                    /*
+                       *  if(如果是前缀操作符){
+                       *      if(preexp.Length >= 2) throw ;
+                       *      preexp.addNode(exp);
+                       *  }else{
+                       *      var node = preexp;
+                       *      while(true){
+                       *          if(exp.precedence >= node.precedence && node.parent != null){
+                       *              node = node.parent;
+                       *          }else break;
+                       *      }
+                       *      var pnode = node.parent;
+                       *      node.remove();
+                       *      exp.addNode(node);
+                       *      pnode.addNode(exp);
+                       *  }
+                       */
+                    /**
+                     * 判断当前表达式运算符
+                     * 如果目标优先级小于等于自己，往上爬
+                     * 如果目标优先级大于自己，新建节点替换右侧操作数
+                     * ==================================================== *
+                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55   *
+                     * ==================================================== *
+                     *             [+]          |           [-]             *
+                     *             / \          |           / \             *
+                     *            /   \         |          /   \            *
+                     *          [+]    55       |         /     \           *
+                     *          / \             |        /       \          *
+                     *         /   \            |      [+]       [/]        *
+                     *        /     \           |      / \       / \        *
+                     *       /       \          |     /   \     /   \       *
+                     *     [*]       [*]        |    11   22  [*]   [-]     *
+                     *     / \       / \        |             / \     \     *
+                     *    /   \     /   \       |            /   \     55   *
+                     *   11   22   33   44      |           33   44         *
+                     * =====================================================*
+                     */
+                    if (operatorExpression.Operator.placement == OperatorPlacement.Prefix)
+                    {
+                        if (lastExpression != null)
+                        {
+                            if (lastExpression.Length >= 2) throw this.InitParseException("", token);
+                            lastExpression.AddNode(tmpexp);
+                        }
+                    }
+                    else
+                    {
+                        // lastExpression is operand
+                        if (lastExpression == null) throw this.InitParseException("", token);
+                        Expression node;
+                        if (lastExpression.Parent is OperatorExpression)
+                        {
+                            node = lastExpression;
+                            while (true)
+                            {
+                                if (node.Parent == rootExpression) break;
+                                var parent = node.Parent as OperatorExpression;
+                                if (parent == null) throw this.InitParseException("", token);
+                                if (operatorExpression.Precedence > parent.Precedence) break;
+                                node = parent;
+                            }
+                        }
+                        else
+                        {
+                            node = lastExpression;
+                        }
+                        var pNode = node.Parent;
+                        node.Remove();
+                        tmpexp.AddNode(node);
+                        pNode.AddNode(tmpexp);
+                    }
+                    // == operator the end ==
                 }
                 // token is not an operator, that is the operand 
                 else if (lastOperator != null)
                 {
                     // 添加操作数到操作符表达式中
                     lastExpression.AddNode(tmpexp);
-
-                    // 前缀表达式操作符
-                    if (lastOperator.placement == OperatorPlacement.Prefix)
-                    {
-
-
-                    }
-
                 }
                 // 不是操作符 且 上一个 Token也不是操作符
                 else
@@ -398,60 +458,13 @@ namespace AuroraScript.Analyzer
                     if (rootExpression.ChildNodes.Count() > 0)
                         throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 }
-
-                if (tmpexp is OperatorExpression tmpExpOperator)
-                {
-                    // 查找操作符优先级 更新树位置
-                    if(lastExpression != null)
-                    {
-
-                        if(lastExpression.Parent is OperatorExpression dd)
-                        {
-                            if (tmpExpOperator.Precedence < dd.Precedence)
-                            {
-
-                            }
-
-                        }
-
-
-
-                        var node = lastExpression;
-                        while (node != null)
-                        {
-                            if(node is OperatorExpression ntOperatorExpression)
-                            {
-                                if(ntOperatorExpression.Precedence > tmpExpOperator.Precedence)
-                                {
-                                    break;
-                                }
-                            }
-                            node = node.Parent as Expression;
-                        }
-                        /**
-                         *            *             +
-                         *          /   \
-                         *       -33    0.25
-                         *       
-                         *            +             *
-                         *          /   \
-                         *       -33    0.25
-                         */
-
-
-                        var parent = lastExpression.Parent;
-                        lastExpression.Remove();
-                        tmpexp.AddNode(lastExpression);
-                        parent.AddNode(tmpexp);
-                    }
-                }
                 lastOperator = (tmpexp is OperatorExpression f) ? f.Operator : null;
                 lastExpression = tmpexp;
                 if (rootExpression.ChildNodes.Count() == 0) rootExpression.AddNode(tmpexp);
             }
 
 
-            return rootExpression.Length > 0 ? rootExpression.Pop() : null ;
+            return rootExpression.Length > 0 ? rootExpression.Pop() : null;
         }
 
 
