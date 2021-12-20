@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace AuroraScript.Ast
 {
@@ -10,7 +6,7 @@ namespace AuroraScript.Ast
     {
         protected List<AstNode> childrens = new List<AstNode>();
 
-        public AstNode Parent { get; private set; }
+        internal AstNode Parent { get; private set; }
         public AstNode()
         {
 

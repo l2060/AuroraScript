@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace AuroraScript.Exceptions
 {
     internal class LexerException : Exception
     {
-
         public String fileName { get; private set; }
         public Int32 lineNumber { get; private set; }
         public Int32 columnNumber { get; private set; }

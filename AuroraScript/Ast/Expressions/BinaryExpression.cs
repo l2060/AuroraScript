@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
@@ -17,8 +12,21 @@ namespace AuroraScript.Ast.Expressions
 
         //public Token Operator { get; set; }
 
-        public Expression Left { get; set; }
+        public Expression Left
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
 
-        public Expression Right { get; set; }
+
+        public Expression Right
+        {
+            get
+            {
+                return this.childrens[1] as Expression;
+            }
+        }
     }
 }

@@ -1,10 +1,6 @@
 ﻿using AuroraScript.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace AuroraScript
 {
@@ -46,6 +42,10 @@ namespace AuroraScript
         // public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
 
 
+        /// <summary>
+        /// token typeof 
+        /// </summary>
+        public readonly static Symbols OP_TYPEOF = new Symbols("typeof", SymbolTypes.Punctuator);
         // Punctuator
         /// <summary>
         /// token {
@@ -219,6 +219,9 @@ namespace AuroraScript
         public readonly static Symbols VALUE_TRUE = new Symbols("true", SymbolTypes.BooleanValue);
         public readonly static Symbols VALUE_FALSE = new Symbols("false", SymbolTypes.BooleanValue);
         public readonly static Symbols VALUE_NULL = new Symbols("null", SymbolTypes.NullValue);
+
+
+
 
 
         private readonly static Dictionary<string, Symbols> _SymbolMaps = new Dictionary<string, Symbols>();

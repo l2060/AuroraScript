@@ -1,9 +1,8 @@
 ﻿using AuroraScript.Analyzer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using AuroraScript.Ast;
+using AuroraScript.Uilty;
+using Newtonsoft.Json;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraScript
 {
@@ -26,15 +25,22 @@ namespace AuroraScript
 
         public void build(string filepath)
         {
-            //var array = new Int32[] { 0,1,2,3,4,5,6,7,8,9};
-            //ShuffleArray(array);
-            //Console.WriteLine(array);
-            var Lexer = new AuroraLexer(filepath, Encoding.UTF8);
-            var parser = new AuroraParser(Lexer);
-            var node = parser.Parse();
-            Console.WriteLine(node.ChildNodes.Count());
-            //string str = JsonConvert.SerializeObject(node,Formatting.Indented);
-            //Console.WriteLine(str);
+            AuroraLexer lexer;
+            AuroraParser parser;
+            AstNode root;
+            using (var time = new WitchTimer("lexer"))
+            {
+                lexer = new AuroraLexer(filepath, Encoding.UTF8);
+            }
+            using (var time = new WitchTimer("parser"))
+            {
+                parser = new AuroraParser(lexer);
+                root = parser.Parse();
+            }
+
+            //Console.WriteLine(root.ChildNodes.Count());
+            string str = JsonConvert.SerializeObject(root, Formatting.Indented);
+            Console.WriteLine(str);
         }
     }
 

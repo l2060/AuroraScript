@@ -1,8 +1,7 @@
-﻿using AuroraScript.Common;
+﻿
 
 namespace AuroraScript.Tokens
 {
-
     internal enum ValueType
     {
         String,
@@ -10,12 +9,6 @@ namespace AuroraScript.Tokens
         Boolean,
         Null,
     }
-
-
-
-
-
-
 
     /// <summary>
     /// value string boolean number null

@@ -3,11 +3,7 @@ using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace AuroraScript.Analyzer
 {
@@ -318,8 +314,10 @@ namespace AuroraScript.Analyzer
                 if (token is PunctuatorToken)
                 {
                     var previousToken = this.lexer.Previous();
+
+                    var iss = lastExpression != null ?  (previousToken is IdentifierToken || previousToken is ValueToken) : false;
                     //                   
-                    var leftIsOperand = (lastOperator != null && lastOperator.IsOperand) || previousToken is IdentifierToken || previousToken is ValueToken; // 
+                    var leftIsOperand = (lastOperator != null && lastOperator.IsOperand) || iss; // 
                     var _operator = Operator.FromSymbols(token.Symbol, leftIsOperand);
                     if (_operator == null)
                     {
@@ -410,7 +408,7 @@ namespace AuroraScript.Analyzer
                      *   11   22   33   44      |           33   44         *
                      * =====================================================*
                      */
-                    if (operatorExpression.Operator.placement == OperatorPlacement.Prefix)
+                    if (operatorExpression.Operator.Placement == OperatorPlacement.Prefix)
                     {
                         if (lastExpression != null)
                         {
@@ -505,7 +503,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.BitwiseOr) return new BinaryExpression(_operator);
             if (_operator == Operator.BitwiseXor) return new BinaryExpression(_operator);
             if (_operator == Operator.LogicalAnd) return new BinaryExpression(_operator);
-            if (_operator == Operator.LogicalNot) return new BinaryExpression(_operator);
+
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
             if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
@@ -518,7 +516,8 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Minus) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreDecrement) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreIncrement) return new PrefixUnaryExpression(_operator);
-
+            if (_operator == Operator.TypeOf) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.LogicalNot) return new PrefixUnaryExpression(_operator);
             // Postfix expression
             if (_operator == Operator.PostDecrement) return new PostfixExpression(_operator);
             if (_operator == Operator.PostIncrement) return new PostfixExpression(_operator);

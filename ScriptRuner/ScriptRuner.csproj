@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="common\**" />
+    <EmbeddedResource Remove="common\**" />
+    <None Remove="common\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AuroraScript\AuroraScript.csproj" />
   </ItemGroup>
 
@@ -21,10 +27,6 @@
     <None Update="scripts\demo.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="common\" />
   </ItemGroup>
 
   <ItemGroup>

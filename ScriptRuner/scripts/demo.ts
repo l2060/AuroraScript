@@ -2,10 +2,10 @@
 
 var fff = 33 * 25 + 55 * 33 + 55;
 var fff = 33 + 25 - 55 * 33 / 55;
-
+var ff = (fff += 33) * 3;
 var fff = 55 + -fff ;
-
-var TRUE = true;
+var fff = 111 * (22*33);
+var TRUE = typeof true;
 var FALSE = !TRUE;
 
 function fo(): number {
@@ -95,9 +95,9 @@ for (var i = 0; i < 100; i++) {
 
 var nil;
 var str = `
-- line 1
-- line 2
-- line 3`;
+this is line 1
+this is line 2
+this is line 3`;
 var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
