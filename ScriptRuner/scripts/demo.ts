@@ -1,6 +1,7 @@
 ﻿
 
 var fff = -33 * 0.25 + 55;
+var fff = -33 + 0.25 * 55;
 
 
 var TRUE = true;

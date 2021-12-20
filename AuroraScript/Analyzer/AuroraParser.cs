@@ -399,20 +399,44 @@ namespace AuroraScript.Analyzer
                         throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 }
 
-                if (tmpexp is OperatorExpression)
+                if (tmpexp is OperatorExpression tmpExpOperator)
                 {
                     // 查找操作符优先级 更新树位置
                     if(lastExpression != null)
                     {
-                        var node = lastExpression;
-                        while (node.)
+
+                        if(lastExpression.Parent is OperatorExpression dd)
                         {
+                            if (tmpExpOperator.Precedence < dd.Precedence)
+                            {
+
+                            }
 
                         }
 
 
 
-
+                        var node = lastExpression;
+                        while (node != null)
+                        {
+                            if(node is OperatorExpression ntOperatorExpression)
+                            {
+                                if(ntOperatorExpression.Precedence > tmpExpOperator.Precedence)
+                                {
+                                    break;
+                                }
+                            }
+                            node = node.Parent as Expression;
+                        }
+                        /**
+                         *            *             +
+                         *          /   \
+                         *       -33    0.25
+                         *       
+                         *            +             *
+                         *          /   \
+                         *       -33    0.25
+                         */
 
 
                         var parent = lastExpression.Parent;
