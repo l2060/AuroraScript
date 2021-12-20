@@ -11,7 +11,8 @@ and the goal is to use the stack virtual machine to run
 Development Progress  
 --------------
 - [x] Lexical Analyzer
-- [x] Parser Tree
+- [x] Parser Syntax Tree 
+- [ ] Optimize Syntax Tree 
 - [ ] IL Generation 
 - [ ] Virtual Machine
 
