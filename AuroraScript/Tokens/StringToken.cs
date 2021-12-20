@@ -1,9 +1,9 @@
 ﻿
 namespace AuroraScript.Tokens
 {
-    internal class StringToken: ValueToken
+    public class StringToken: ValueToken
     {
-        public StringToken()
+        internal StringToken()
         {
             this.Type = ValueType.String;
         }

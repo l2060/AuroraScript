@@ -1,14 +1,18 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    internal class Expression : AstNode
+    public class Expression : AstNode
     {
+        internal Expression()
+        {
+
+        }
         /// <summary>
         /// function result types
         /// </summary>
         public List<Token> Types { get; set; }
 
-        public new Expression this[Int32 index]
+        internal new Expression this[Int32 index]
         {
             get
             {
@@ -17,7 +21,7 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-        public Expression Pop()
+        internal Expression Pop()
         {
             var node = this.childrens[0];
             node.Remove();

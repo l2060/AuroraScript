@@ -1,9 +1,9 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    internal class GroupExpression : OperatorExpression
+    public class GroupExpression : OperatorExpression
     {
-        public GroupExpression(Operator @operator) : base(@operator)
+        internal GroupExpression(Operator @operator) : base(@operator)
         {
         }
     }

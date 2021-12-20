@@ -2,14 +2,14 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class ReturnStatement : Statement
+    public class ReturnStatement : Statement
     {
-        public ReturnStatement(Expression expression)
+        internal ReturnStatement(Expression expression)
         {
-            this.expression = expression;
+            this.Expression = expression;
         }
 
-        public Expression expression;
+        public Expression Expression { get; private set; }
 
     }
 }

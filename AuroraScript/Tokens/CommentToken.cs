@@ -5,8 +5,11 @@ namespace AuroraScript.Tokens
     /// <summary>
     /// comment
     /// </summary>
-    internal class CommentToken : Token
+    public class CommentToken : Token
     {
+        internal CommentToken()
+        {
 
+        }
     }
 }

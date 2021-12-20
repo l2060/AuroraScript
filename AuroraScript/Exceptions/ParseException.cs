@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Exceptions
 {
-    internal class ParseException : Exception
+    public class ParseException : Exception
     {
         public String fileName { get; private set; }
         public Int32 lineNumber { get; private set; }
@@ -14,7 +14,7 @@ namespace AuroraScript.Exceptions
         public Token token { get; private set; }
 
 
-        public ParseException(String fileName, Token token, String message) : base(message)
+        internal ParseException(String fileName, Token token, String message) : base(message)
         {
             this.columnNumber = token.ColumnNumber;
             this.fileName = fileName;

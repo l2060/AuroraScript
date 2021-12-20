@@ -6,8 +6,12 @@ namespace AuroraScript.Ast
     /// <summary>
     /// function parameter declaration
     /// </summary>
-    internal class ParameterDeclaration : AstNode
+    public class ParameterDeclaration : AstNode
     {
+        internal ParameterDeclaration()
+        {
+
+        }
         /// <summary>
         /// parameter Modifier  ....
         /// </summary>

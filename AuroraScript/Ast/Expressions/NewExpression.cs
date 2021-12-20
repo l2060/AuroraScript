@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class NewExpression : Expression
+    public class NewExpression : Expression
     {
 
         public Token Identifier { get; set; }

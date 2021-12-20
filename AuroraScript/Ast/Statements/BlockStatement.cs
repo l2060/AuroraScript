@@ -2,10 +2,10 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class BlockStatement : Statement
+    public class BlockStatement : Statement
     {
-        Scope currentScope;
-        public BlockStatement(Scope currentScope)
+        public Scope currentScope { get; private set; }
+        internal BlockStatement(Scope currentScope)
         {
             this.currentScope = currentScope;
         }

@@ -3,8 +3,12 @@
 
 namespace AuroraScript.Ast
 {
-    internal class ImportDeclaration: Statement
+    public class ImportDeclaration: Statement
     {
+        internal ImportDeclaration()
+        {
+
+        }
         public Token File { get; set; }
     }
 }

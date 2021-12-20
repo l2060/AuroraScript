@@ -6,8 +6,12 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    internal class FunctionDeclaration : Statement
+    public class FunctionDeclaration : Statement
     {
+        internal FunctionDeclaration()
+        {
+
+        }
         /// <summary>
         /// Function Access
         /// </summary>

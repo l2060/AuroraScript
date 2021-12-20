@@ -2,7 +2,11 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class TypeConvertExpression : Expression
+    public class TypeConvertExpression : Expression
     {
+        internal TypeConvertExpression()
+        {
+
+        }
     }
 }

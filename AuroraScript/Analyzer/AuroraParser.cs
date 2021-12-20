@@ -7,7 +7,7 @@ using AuroraScript.Tokens;
 
 namespace AuroraScript.Analyzer
 {
-    internal class AuroraParser
+    public class AuroraParser
     {
         public AuroraLexer lexer { get; private set; }
         public AuroraParser(AuroraLexer lexer)
@@ -21,12 +21,7 @@ namespace AuroraScript.Analyzer
             Statement result = new BlockStatement(scope);
             while (true)
             {
-                var token = this.lexer.LookAtHead();
-                if (token.Symbol == Symbols.KW_EOF)
-                {
-                    this.lexer.Next();
-                    break;
-                }
+                if (this.lexer.TestNext(Symbols.KW_EOF)) break;
                 var node = ParseStatement(scope);
                 result.AddNode(node);
                 if (node == null) break;
@@ -177,7 +172,12 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.KW_VAR);
             var varName = this.lexer.NextOfKind<IdentifierToken>();
             List<Token> varNames = new List<Token>() { varName };
-
+            var expression = new VariableDeclaration();
+            // next token is : define var typed
+            if (this.lexer.TestNext(Symbols.PT_COLON))
+            {
+                expression.Typed = this.lexer.NextOfKind<TypedToken>();
+            }
             while (true)
             {
                 var nextToken = this.lexer.Next();
@@ -205,7 +205,7 @@ namespace AuroraScript.Analyzer
 
             }
             //this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
-            var expression = new VariableDeclaration();
+
             expression.Variables.AddRange(varNames);
             expression.Initializer = initializer;
             //this.lexer.NextOfKind(Symbols.KW_VAR);
@@ -238,11 +238,11 @@ namespace AuroraScript.Analyzer
             // parse if body
             Statement body = this.ParseStatement(currentScope);
             var ifStatement = new IfStatement() { Condition = condition };
-            ifStatement.Body.Add(body);
+            ifStatement.Body = body;
             var nextToken = this.lexer.LookAtHead();
-            // 处理 else
             if (nextToken.Symbol == Symbols.KW_ELSE)
             {
+                // parse else
                 ifStatement.Else = this.ParseElseBlock(currentScope);
             }
             return ifStatement;
@@ -257,11 +257,9 @@ namespace AuroraScript.Analyzer
         private Statement ParseElseBlock(Scope currentScope)
         {
             this.lexer.NextOfKind(Symbols.KW_ELSE);
-            var nextToken = this.lexer.LookAtHead();
             BlockStatement block = new BlockStatement(currentScope);
-            if (nextToken.Symbol == Symbols.KW_IF)
+            if (this.lexer.TestNext(Symbols.KW_IF))
             {
-                this.lexer.Next();
                 var statement = this.ParseIfBlock(currentScope);
                 block.AddNode(statement);
             }
@@ -540,20 +538,18 @@ namespace AuroraScript.Analyzer
                 // Parsing modifier 
                 // .......
                 // ==================
-                var nextToken = this.lexer.LookAtHead();
-                if (nextToken.Symbol == Symbols.PT_RIGHTPARENTHESIS)
+
+                if (this.lexer.TestNext(Symbols.PT_RIGHTPARENTHESIS))
                 {
-                    this.lexer.Next();
                     break;
                 }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.PT_COLON);
                 var typed = this.lexer.NextOfKind<TypedToken>();
-                var nexttoken = this.lexer.LookAtHead();
                 Expression defaultValue = null;
-                if (nexttoken != null && nexttoken.Symbol == Symbols.OP_ASSIGNMENT)
+                // argument default value 
+                if (this.lexer.TestNext(Symbols.OP_ASSIGNMENT))
                 {
-                    this.lexer.Next();
                     defaultValue = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                 }
                 var declaration = new ParameterDeclaration()
@@ -563,22 +559,10 @@ namespace AuroraScript.Analyzer
                     Typed = typed
                 };
                 arguments.Add(declaration);
-                nexttoken = this.lexer.LookAtHead();
-                if (nexttoken.Symbol == Symbols.KW_EOF)
-                {
-                    throw this.InitParseException("Parameter declaration is not closed ", nexttoken);
-                }
-                if (nexttoken is PunctuatorToken && nexttoken.Symbol == Symbols.PT_COMMA)
-                {
-                    // Drop the comma
-                    this.lexer.Next();
-                }
-                if (nexttoken is PunctuatorToken && nexttoken.Symbol == Symbols.PT_RIGHTPARENTHESIS)
-                {
-                    this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
-                    // Parameter parsing is complete 
-                    break;
-                }
+                // Encountered comma break ;
+                this.lexer.TestNext(Symbols.PT_COMMA);
+                // Encountered closing parenthesis break ;
+                if (this.lexer.TestNext(Symbols.PT_RIGHTPARENTHESIS)) break;
             }
             return arguments;
         }
@@ -647,7 +631,6 @@ namespace AuroraScript.Analyzer
             var token = this.lexer.LookAtHead();
             if (token is KeywordToken && token.Symbol == Symbols.KW_FUNCTION)
             {
-                //this.lexer.NextOfKind(Symbols.KW_FUNCTION);
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             throw this.InitParseException("Invalid keywords appear in export declaration .", token);

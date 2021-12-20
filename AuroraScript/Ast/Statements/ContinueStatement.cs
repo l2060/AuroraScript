@@ -1,7 +1,11 @@
 ﻿
 namespace AuroraScript.Ast.Statements
 {
-    internal class ContinueStatement : Statement
+    public class ContinueStatement : Statement
     {
+        internal ContinueStatement()
+        {
+
+        }
     }
 }

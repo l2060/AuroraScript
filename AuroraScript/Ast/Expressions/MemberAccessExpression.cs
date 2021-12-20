@@ -5,9 +5,9 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 成员函数表达式
     /// </summary>
-    internal class MemberAccessExpression : OperatorExpression
+    public class MemberAccessExpression : OperatorExpression
     {
-        public MemberAccessExpression(Operator @operator) : base(@operator)
+        internal MemberAccessExpression(Operator @operator) : base(@operator)
         {
 
         }

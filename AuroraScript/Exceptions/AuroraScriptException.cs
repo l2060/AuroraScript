@@ -1,9 +1,9 @@
 ﻿
 namespace AuroraScript.Exceptions
 {
-    internal class AuroraScriptException : Exception
+    public class AuroraScriptException : Exception
     {
-        public AuroraScriptException(String message) : base(message)
+        internal AuroraScriptException(String message) : base(message)
         {
 
         }

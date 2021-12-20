@@ -211,13 +211,17 @@ namespace AuroraScript
         /// </summary>
         public readonly static Symbols KW_EOF = new Symbols("END OF FILE", SymbolTypes.Operator);
 
-        //public readonly static Symbols Sub = Minus;
-
-        //public readonly static Symbols Unm = Minus;
-
-        // value
+        /// <summary>
+        /// token true
+        /// </summary>
         public readonly static Symbols VALUE_TRUE = new Symbols("true", SymbolTypes.BooleanValue);
+        /// <summary>
+        /// token false
+        /// </summary>
         public readonly static Symbols VALUE_FALSE = new Symbols("false", SymbolTypes.BooleanValue);
+        /// <summary>
+        /// token null
+        /// </summary>
         public readonly static Symbols VALUE_NULL = new Symbols("null", SymbolTypes.NullValue);
 
 
@@ -258,7 +262,7 @@ namespace AuroraScript
         /// <summary>
         /// get symbol type
         /// </summary>
-        public SymbolTypes Type { get; private set; }
+        internal SymbolTypes Type { get; private set; }
 
 
 

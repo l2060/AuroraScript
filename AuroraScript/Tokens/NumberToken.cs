@@ -1,9 +1,9 @@
 ﻿
 namespace AuroraScript.Tokens
 {
-    internal class NumberToken:ValueToken
+    public class NumberToken:ValueToken
     {
-        public NumberToken()
+        internal NumberToken()
         {
             this.Type = ValueType.Number;
         }

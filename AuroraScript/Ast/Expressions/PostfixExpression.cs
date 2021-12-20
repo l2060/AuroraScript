@@ -5,9 +5,9 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 前缀表达式
     /// </summary>
-    internal class PostfixExpression : OperatorExpression
+    public class PostfixExpression : OperatorExpression
     {
-        public PostfixExpression(Operator @operator) : base(@operator)
+        internal PostfixExpression(Operator @operator) : base(@operator)
         {
         }
 

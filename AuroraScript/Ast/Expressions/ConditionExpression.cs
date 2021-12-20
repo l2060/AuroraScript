@@ -2,8 +2,12 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class ConditionExpression : Expression
+    public class ConditionExpression : Expression
     {
+        internal ConditionExpression()
+        {
+
+        }
         public Expression Condition { get; set; }
 
         public BlockStatement Body { get; set; }

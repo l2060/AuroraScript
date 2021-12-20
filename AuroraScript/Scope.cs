@@ -4,14 +4,13 @@ using AuroraScript.Exceptions;
 
 namespace AuroraScript
 {
-    internal class Scope
+    public class Scope
     {
         public Scope Parent { get; private set; }
 
-        public AuroraParser Parser { get; private set; }
+        internal AuroraParser Parser { get; private set; }
 
-
-        public Scope(AuroraParser parser,  Scope parent )
+        internal Scope(AuroraParser parser,  Scope parent )
         {
             this.Parent = parent;
             this.Parser = parser;
@@ -19,8 +18,6 @@ namespace AuroraScript
         }
 
         public Dictionary<string, ParameterDeclaration> Variables { get; private set; }
-
-
 
         public void DeclareVariable(List<ParameterDeclaration> parameters)
         {

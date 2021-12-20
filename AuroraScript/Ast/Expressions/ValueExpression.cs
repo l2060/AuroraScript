@@ -1,10 +1,10 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    internal class ValueExpression: Expression
+    public class ValueExpression: Expression
     {
 
-        public ValueExpression(Token value)
+        internal ValueExpression(Token value)
         {
             this.Value = value;
         }

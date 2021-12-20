@@ -1,8 +1,14 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    internal class ArrayExpression : Expression
+    public class ArrayExpression : Expression
     {
+
+        internal ArrayExpression()
+        {
+
+        }
+
         public List<Expression> Elements { get; set; }
 
     }

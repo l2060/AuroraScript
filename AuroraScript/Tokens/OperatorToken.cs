@@ -1,7 +1,11 @@
 ﻿
 namespace AuroraScript.Tokens
 {
-    internal class OperatorToken : PunctuatorToken
+    public class OperatorToken : PunctuatorToken
     {
+        internal OperatorToken()
+        {
+
+        }
     }
 }

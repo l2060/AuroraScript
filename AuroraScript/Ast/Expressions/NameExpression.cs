@@ -1,7 +1,7 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    internal class NameExpression :Expression
+    public class NameExpression :Expression
     {
         /// <summary>
         /// member name

@@ -4,7 +4,11 @@ namespace AuroraScript.Tokens
     /// <summary>
     /// identifier
     /// </summary>
-    internal class IdentifierToken : Token
+    public class IdentifierToken : Token
     {
+        internal IdentifierToken()
+        {
+
+        }
     }
 }

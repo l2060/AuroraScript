@@ -5,19 +5,31 @@ using AuroraScript.Ast.Statements;
 namespace AuroraScript.Ast
 {
     /// <summary>
-    /// 变量声明
+    /// variable declaration
     /// </summary>
-    internal class VariableDeclaration : Statement
+    public class VariableDeclaration : Statement
     {
-        public VariableDeclaration()
+        internal VariableDeclaration()
         {
             this.Variables = new List<Token>();
         }
+
+        /// <summary>
+        /// variable names
+        /// </summary>
         public List<Token> Variables { get; set; }
 
 
+        /// <summary>
+        /// var initialize statement
+        /// </summary>
         public Expression Initializer { get; set; }
 
+
+        /// <summary>
+        /// get / set variable typed
+        /// </summary>
+        public Token Typed { get; set; }
 
 
     }

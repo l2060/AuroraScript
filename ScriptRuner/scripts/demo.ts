@@ -8,6 +8,9 @@ var fff = 111 * (22*33);
 var TRUE = typeof true;
 var FALSE = !TRUE;
 
+var ff: number = 0;
+
+
 function fo(): number {
     return 3.1415926;
 }

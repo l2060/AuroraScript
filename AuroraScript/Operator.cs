@@ -238,7 +238,7 @@ namespace AuroraScript
         /// <summary>
         /// get operator secondary symbols
         /// </summary>
-        public Symbols SecondarySymbols
+        internal Symbols SecondarySymbols
         {
             get;
             private set;
@@ -248,7 +248,7 @@ namespace AuroraScript
         /// <summary>
         /// Get operator characteristics 
         /// </summary>
-        public OperatorPlacement Placement
+        internal OperatorPlacement Placement
         {
             get;
             private set;
@@ -266,7 +266,7 @@ namespace AuroraScript
         /// <summary>
         /// Whether the current object is an operand 
         /// </summary>
-        public bool IsOperand
+        internal bool IsOperand
         {
             get;
             private set;
@@ -276,7 +276,7 @@ namespace AuroraScript
         /// <summary>
         /// Get a value indicating whether a certain value is consumed on the left side of the main token  .
         /// </summary>
-        public bool HasLHSOperand
+        internal bool HasLHSOperand
         {
             get;
             private set;
@@ -285,7 +285,7 @@ namespace AuroraScript
         /// <summary>
         /// get operator calculation priority
         /// </summary> 
-        public int Precedence
+        internal int Precedence
         {
             get;
             private set;

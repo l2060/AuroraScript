@@ -2,6 +2,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Scanning;
 using AuroraScript.Tokens;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AuroraScript.Analyzer
@@ -11,17 +12,16 @@ namespace AuroraScript.Analyzer
         public Int32 LineNumber { get; private set; } = 1;
         public Int32 ColumnNumber { get; private set; } = 1;
 
-        private Int32 ReadOffset { get; set; } = 0;
-        private Int32 BufferLength { get; set; } = 0;
-
         public String FullPath { get; private set; }
         public String FileName { get; private set; }
         public String InputData { get; private set; }
 
+
         private List<Token> tokens = new List<Token>();
         private List<TokenRules> _TokenRules { get; set; }
-
-        private Int32 Position { get; set; }    
+        private Int32 readOffset { get; set; } = 0;
+        private Int32 bufferLength { get; set; } = 0;
+        private Int32 Position { get; set; } = 0;
 
         public AuroraLexer(String file, Encoding encoding) : this(File.ReadAllText(file, encoding), file)
         {
@@ -32,7 +32,7 @@ namespace AuroraScript.Analyzer
             this.FullPath = file;
             this.FileName = Path.GetFileName(file);
             this.InputData = text.Replace("\r\n", "\n");
-            this.BufferLength = this.InputData.Length;
+            this.bufferLength = this.InputData.Length;
             this.InitRegexs();
             this.ParseTokens();
             this.Position = 0;
@@ -46,40 +46,6 @@ namespace AuroraScript.Analyzer
         private void InitRegexs()
         {
             this._TokenRules = new List<TokenRules>();
-
-            //// line break
-            //this.AddRegex(new Regex("^[\\n]", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String), true, true);
-            //// space 
-            //this.AddRegex(new Regex("^[\\s]*", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String), true, false);
-            //// single line Comment
-            //this.AddRegex(new Regex("^//[^\n]*", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String), true, false);
-
-            //// block Comment
-            //this.AddRegex(new Regex("^/\\*([^\\*]|(\\*)*[^\\*/])*(\\*)*\\*\\/", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String), true, true);
-
-            //// hex number
-            //this.AddRegex(new Regex("^0[xX][0-9a-fA-F]+", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-
-            //// number
-            //this.AddRegex(new Regex("^(\\-|\\+)?\\d+(\\.\\d+)?", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-
-            //// String "" Support line break 
-            //this.AddRegex(new Regex("^\"[^\"]*\"", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-            //// String '' Support line break
-            //this.AddRegex(new Regex("^\'[^\']*\'", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-            //// String `` Support line break
-            //this.AddRegex(new Regex("^`[^`]*`", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-
-            //// id name  key words
-            //this.AddRegex(new Regex("^[a-zA-Z_$][a-zA-Z0-9_$]*", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-
-            //// += -= *= /= == != >= <=
-            //this.AddRegex(new Regex("^\\+=|^-=|^\\*=|^\\/=|^==|^!=|^>=|^<=", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-            //// ++ -- || && >> <<
-            //this.AddRegex(new Regex("^\\+\\+|^--|^\\|\\||^&&|^>>|^<<", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-            //// + - * / = % > < . , : ; ? ! ^ { } ( ) | ~ &
-            //this.AddRegex(new Regex("^[+\\-*/=%<>.,;:?!^{}()|~&]", RegexOptions.IgnoreCase | RegexOptions.Compiled), typeof(String));
-
             this.AddRegex(TokenRules.NewLine);
             this.AddRegex(TokenRules.WhiteSpace);
             this.AddRegex(TokenRules.RowComment);
@@ -124,12 +90,28 @@ namespace AuroraScript.Analyzer
         }
 
 
-
+        /// <summary>
+        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Boolean TestNext(Symbols symbol)
+        {
+            var nextToken = this.LookAtHead();
+            if(nextToken.Symbol == symbol)
+            {
+                this.Next();
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// get next token without removing it. 
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Token LookAtHead()
         {
             return this.tokens[this.Position];
@@ -194,8 +176,8 @@ namespace AuroraScript.Analyzer
         /// <exception cref="LexerException"></exception>
         private Token ParseNext()
         {
-            if (this.BufferLength <= 0) return Token.EOF;
-            ReadOnlySpan<Char> span = this.InputData.AsSpan(this.ReadOffset, this.BufferLength);
+            if (this.bufferLength <= 0) return Token.EOF;
+            ReadOnlySpan<Char> span = this.InputData.AsSpan(this.readOffset, this.bufferLength);
             foreach (var rule in this._TokenRules)
             {
                 var result = rule.Test(span, this.LineNumber, this.ColumnNumber);
@@ -203,15 +185,15 @@ namespace AuroraScript.Analyzer
                 {
                     if (result.Type == TokenTyped.Comment || result.Type == TokenTyped.NewLine || result.Type == TokenTyped.WhiteSpace)
                     {
-                        this.ReadOffset += result.Length;
-                        this.BufferLength -= result.Length;
+                        this.readOffset += result.Length;
+                        this.bufferLength -= result.Length;
                         this.LineNumber += result.LineCount;
                         this.ColumnNumber = result.ColumnNumber;
                         return this.ParseNext();
                     }
                     var token = this.CreateToken(result);
-                    this.ReadOffset += result.Length;
-                    this.BufferLength -= result.Length;
+                    this.readOffset += result.Length;
+                    this.bufferLength -= result.Length;
                     this.LineNumber += result.LineCount;
                     this.ColumnNumber = result.ColumnNumber;
                     return token;

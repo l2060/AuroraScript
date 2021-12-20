@@ -2,9 +2,9 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class OperatorExpression : Expression
+    public class OperatorExpression : Expression
     {
-        public OperatorExpression(Operator @operator)
+        internal OperatorExpression(Operator @operator)
         {
             this.Operator = @operator;
             this.operands = new List<Expression>();
@@ -15,29 +15,20 @@ namespace AuroraScript.Ast.Expressions
 
 
 
-
-
-
         /// <summary>
         /// 操作符优先级
         /// </summary>
-        public int Precedence
+        internal int Precedence
         {
             get;
             private set;
         }
 
 
-        public void Push(Expression expression)
+        internal void Push(Expression expression)
         {
             operands.Add(expression);
         }
-
-
-
-
-
-
 
         /// <summary>
         /// Gets or sets the operator this expression refers to.
@@ -47,10 +38,6 @@ namespace AuroraScript.Ast.Expressions
             get;
             private set;
         }
-
-
-
-
 
     }
 

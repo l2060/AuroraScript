@@ -1,9 +1,12 @@
 ﻿
 namespace AuroraScript.Tokens
 {
-    internal class NullToken : ValueToken
+    /// <summary>
+    /// null value token
+    /// </summary>
+    public class NullToken : ValueToken
     {
-        public NullToken()
+        internal NullToken()
         {
             this.Type = ValueType.Null;
         }

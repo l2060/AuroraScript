@@ -2,17 +2,17 @@
 
 namespace AuroraScript.Ast
 {
-    internal abstract class AstNode
+    public abstract class AstNode
     {
         protected List<AstNode> childrens = new List<AstNode>();
 
         internal AstNode Parent { get; private set; }
-        public AstNode()
+        internal AstNode()
         {
 
         }
 
-        public Int32 Length
+        internal Int32 Length
         {
             get
             {

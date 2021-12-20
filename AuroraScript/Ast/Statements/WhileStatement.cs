@@ -3,12 +3,11 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class WhileStatement : ConditionExpression
+    public class WhileStatement : ConditionExpression
     {
+        internal WhileStatement()
+        {
 
-
-
-
-
+        }
     }
 }

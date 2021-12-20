@@ -4,9 +4,9 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 赋值
     /// </summary>
-    internal class AssignmentExpression : OperatorExpression
+    public class AssignmentExpression : OperatorExpression
     {
-        public AssignmentExpression(Operator @operator) : base(@operator)
+        internal AssignmentExpression(Operator @operator) : base(@operator)
         {
         }
 

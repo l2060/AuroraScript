@@ -1,9 +1,9 @@
 ﻿
 namespace AuroraScript.Tokens
 {
-    internal class BooleanToken : ValueToken
+    public class BooleanToken : ValueToken
     {
-        public BooleanToken()
+        internal BooleanToken()
         {
             this.Type = ValueType.Boolean;
         }

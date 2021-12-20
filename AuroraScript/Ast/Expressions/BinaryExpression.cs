@@ -4,9 +4,9 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 二元表达式
     /// </summary>
-    internal class BinaryExpression : OperatorExpression
+    public class BinaryExpression : OperatorExpression
     {
-        public BinaryExpression(Operator @operator) : base(@operator)
+        internal BinaryExpression(Operator @operator) : base(@operator)
         {
         }
 

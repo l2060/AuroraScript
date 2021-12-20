@@ -2,9 +2,12 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    internal class ForStatement : Statement
+    public class ForStatement : Statement
     {
+        internal ForStatement()
+        {
 
+        }
         public Expression Condition { get; set; }
 
         public AstNode Body { get; set; }

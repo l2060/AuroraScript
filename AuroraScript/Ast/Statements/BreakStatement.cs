@@ -1,7 +1,11 @@
 ﻿
 namespace AuroraScript.Ast.Statements
 {
-    internal class BreakStatement : Statement
+    public class BreakStatement : Statement
     {
+        internal BreakStatement()
+        {
+
+        }
     }
 }

@@ -8,28 +8,40 @@ namespace AuroraScript
     {
         public static Token EOF = new EndOfFileToken(); // end of file
 
+        /// <summary>
+        /// get token symbol object
+        /// </summary>
         public Symbols Symbol
         {
             get;
             internal set;
         }
 
+        /// <summary>
+        /// get token string value
+        /// </summary>
         public string Value
         {
             get;
             internal set;
         }
 
-        public Int32 LineNumber
+        /// <summary>
+        /// get token line number
+        /// </summary>
+        internal Int32 LineNumber
         {
             get;
-            internal set;
+            set;
         }
 
-        public Int32 ColumnNumber
+        /// <summary>
+        /// get token column number
+        /// </summary>
+        internal Int32 ColumnNumber
         {
             get;
-            internal set;
+            set;
         }
 
 

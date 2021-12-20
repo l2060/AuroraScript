@@ -5,7 +5,11 @@ namespace AuroraScript.Tokens
     /// <summary>
     /// system keyword
     /// </summary>
-    internal class KeywordToken : Token
+    public class KeywordToken : Token
     {
+        internal KeywordToken()
+        {
+
+        }
     }
 }
