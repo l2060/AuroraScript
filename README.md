@@ -3,7 +3,7 @@ Strongly typed script imitating `typescript`
 
 What is AuroraScript?
 --------------
-The positioning of Jiguang Script is a strongly typed script, using TypeScript-like syntax,
+The positioning of AuroraScript is a strongly typed script, using TypeScript-like syntax,
 and the goal is to use the stack virtual machine to run 
 
 
