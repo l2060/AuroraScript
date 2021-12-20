@@ -1,11 +1,14 @@
-﻿
-
-var fff = 33 * 25 + 55 * 33 + 55;
-var fff = 33 + 25 - 55 * 33 / 55;
-var ff = (fff += 33) * 3;
-var fff = 55 + -fff ;
-var fff = 111 * (22*33);
-var TRUE = typeof true;
+﻿/**
+ * aurora script
+ * */
+import 'common';
+var n1 = 33 * 25 + 55 * 33 + 55;
+var n2 = 33 + 25 - 55 * 33 / 55;
+var n3 = (n1 += 33) * 3;
+var n4 = 55 + -n2;
+var n5 = 111 * (22 * 33);
+var typeName: string = typeof true;
+var TRUE = true;
 var FALSE = !TRUE;
 
 var ff: number = 0;
@@ -15,13 +18,13 @@ function fo(): number {
     return 3.1415926;
 }
 
-var fox = fo();
+var fov = fo();
 
-var psff = Math.max(
+var floatNumber = Math.max(
     5, 32 * 0.5
 ) / 20;
 
-for (var l = 0; i < 100; i++) fox++;
+for (var l = 0; i < 100; i++) fov++;
 
 
 var c, d, r = (
@@ -31,39 +34,25 @@ var c, d, r = (
         10 *
         (
             10 + 20)
-        ,
+        , // max
         50 + Math.max(
             5, 32 * 0.5
         ) / 20)
     + 3.1415 * 52;
 
 
-/**
- * block comment
- * */
 
-import 'common';
 
-// sdfsdf
+// comment
 var len = 50;
 var fd = 15 + 25 *
     55 + 33 * 55 + 22;
 var os = 25 + 15 *
     (15 + len);
 var ls = add(0x55, 0x33) / 2;
-
-var sss = Math.max(5, 32 * 0.5) / 20;
 var px = len * (-len + add(0x22 + (33 + 0x5), 0xff)) / (6 + 5);
 
 console.log(c + d + r);
-
-// 上一个Token是否是操作数
-
-// -5  -     前缀操作符     前面没操作数   前面有操作符
-// 5-5 -     中缀操作符     前面有操作数   前面没操作符
-// 55++      后缀操作符     前面有操作数   前面没操作符
-// 3 + ++55  前缀操作符     前面没操作数   前面有操作符
-// ++55      前缀操作符     前面没操作数   前面有操作符
 
 /**
  *          
@@ -95,7 +84,6 @@ for (var i = 0; i < 100; i++) {
         console.log(i);
 }
 
-
 var nil;
 var str = `
 this is line 1
@@ -105,8 +93,8 @@ var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
 var bol = true;
-//var ary1 = [];
-//var ary2 = [1, 2, 3];
+// var ary1 = [];
+// var ary2 = [1, 2, 3];
 var bol1 = bol == null;
 var bol2 = bol1 == false;
 var bol3 = !bol;
@@ -117,4 +105,4 @@ var n = 'hello';
 var result = foo(v, n);
 console.log(result);
 main('yoyo');
-//console.log(ary2[1]);
+// console.log(ary2[1]);
