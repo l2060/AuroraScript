@@ -431,6 +431,16 @@ namespace AuroraScript.Scanning
                         break;
                     }
                 }
+                if (!result.Success)
+                {
+                    result.ColumnNumber = 0;
+                    result.LineCount = 1;
+                    result.Length = codeSpan.Length;
+                    result.Value = codeSpan.Slice(0, codeSpan.Length).ToString();
+                    result.Type = TokenTyped.Comment;
+                    result.Success = true;
+                }
+
             }
             return result;
         }

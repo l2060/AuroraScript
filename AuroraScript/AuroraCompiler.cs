@@ -38,9 +38,12 @@ namespace AuroraScript
                 root = parser.Parse();
             }
 
-            //Console.WriteLine(root.ChildNodes.Count());
+            //
             string str = JsonConvert.SerializeObject(root, Formatting.Indented);
             Console.WriteLine(str);
+            Console.WriteLine(root.ChildNodes.Count());
+
+
         }
     }
 

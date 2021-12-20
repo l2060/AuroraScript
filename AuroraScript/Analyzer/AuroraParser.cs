@@ -53,7 +53,6 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
-            //this.lexer.RollBack();
             var statement = new Statement();
             statement.AddNode(this.ParseExpression(currentScope));
             return statement;
@@ -204,11 +203,8 @@ namespace AuroraScript.Analyzer
                 }
 
             }
-            //this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
-
             expression.Variables.AddRange(varNames);
             expression.Initializer = initializer;
-            //this.lexer.NextOfKind(Symbols.KW_VAR);
             return expression;
         }
 
@@ -289,6 +285,11 @@ namespace AuroraScript.Analyzer
             {
                 var token = this.lexer.Next();
                 // over statement
+                if (token == Token.EOF)
+                {
+                    this.lexer.RollBack();
+                    break;
+                }
                 if (token.Symbol == Symbols.PT_SEMICOLON)
                 {
                     break;
@@ -323,10 +324,6 @@ namespace AuroraScript.Analyzer
                         {
                             break;
                         }
-                        //if (endSymbols.Contains(Symbols.PT_SEMICOLON))
-                        //{
-                        //    break;
-                        //}
                     }
                     else
                     {
@@ -367,30 +364,9 @@ namespace AuroraScript.Analyzer
                             tmpexp = group;
                         }
                     }
-
-                    /*
-                       *  if(如果是前缀操作符){
-                       *      if(preexp.Length >= 2) throw ;
-                       *      preexp.addNode(exp);
-                       *  }else{
-                       *      var node = preexp;
-                       *      while(true){
-                       *          if(exp.precedence >= node.precedence && node.parent != null){
-                       *              node = node.parent;
-                       *          }else break;
-                       *      }
-                       *      var pnode = node.parent;
-                       *      node.remove();
-                       *      exp.addNode(node);
-                       *      pnode.addNode(exp);
-                       *  }
-                       */
                     /**
-                     * 判断当前表达式运算符
-                     * 如果目标优先级小于等于自己，往上爬
-                     * 如果目标优先级大于自己，新建节点替换右侧操作数
                      * ==================================================== *
-                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55   *
+                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  *
                      * ==================================================== *
                      *             [+]          |           [-]             *
                      *             / \          |           / \             *
@@ -445,10 +421,10 @@ namespace AuroraScript.Analyzer
                 // token is not an operator, that is the operand 
                 else if (lastOperator != null)
                 {
-                    // 添加操作数到操作符表达式中
+                    // Add operands to operator expressions 
                     lastExpression.AddNode(tmpexp);
                 }
-                // 不是操作符 且 上一个 Token也不是操作符
+                // Is not an operator and the previous token is not an operator 
                 else
                 {
                     if (rootExpression.ChildNodes.Count() > 0)
