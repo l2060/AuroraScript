@@ -70,7 +70,7 @@ namespace AuroraScript.Analyzer
             var token = this.Next();
             if (token.Symbol != symbol)
             {
-                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"Keyword “{token.Value}” appears in the wrong place.");
+                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword { token.Value } appears in the wrong place, it should be { symbol.Name}.");
             }
             return token;
         }
@@ -116,7 +116,7 @@ namespace AuroraScript.Analyzer
         public Boolean TestNext(Symbols symbol)
         {
             var nextToken = this.LookAtHead();
-            if(nextToken.Symbol == symbol)
+            if (nextToken.Symbol == symbol)
             {
                 this.Next();
                 return true;

@@ -68,7 +68,6 @@ namespace AuroraScript.Analyzer
         private Statement ParseDeclare(Scope currentScope)
         {
             this.lexer.NextOfKind(Symbols.KW_DECLARE);
-
             if (this.lexer.TestNext(Symbols.KW_FUNCTION))
             {
                 // extend function
@@ -157,9 +156,11 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseEnumDeclaration(Scope currentScope, Symbols access = null)
         {
-
-
-            return null;
+            this.lexer.NextOfKind(Symbols.KW_ENUM);
+            var enumName = this.lexer.NextOfKind<IdentifierToken>();
+            var elements = this.ParseEnumBody();
+            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            return new EnumDeclaration() { Elements = elements, Identifier = enumName };
         }
 
 

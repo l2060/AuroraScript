@@ -53,7 +53,11 @@ function fo(): number {
     return 3.1415926;
 }
 
-
+enum Animals2 {
+    Wolf = 1,
+    Dog = 2,
+    Tiger = 3
+};
 
 const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
 
