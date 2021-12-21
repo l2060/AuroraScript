@@ -1,7 +1,43 @@
 ﻿/**
  * aurora script
  * */
+// external declare
 import 'common';
+
+// import reference module 
+import Test from 'test';
+
+// exported  attributes
+export var length = 100;
+
+/**
+ * exported function Multiple return values
+ * @param id
+ */
+export function tupleFunction(id: number): [number, string] {
+    return;//[12, ''];
+}
+
+/**
+ * internal function
+ */
+function fo(): number {
+    return 3.1415926;
+}
+
+
+
+var text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
+
+var floatNumber = window.setInterval(fo, 123);
+
+floatNumber = 5 + 3 * 6;
+
+floatNumber += 123;
+
+
+
+
 var n1 = 33 * 25 + 55 * 33 + 55;
 var n2 = 33 + 25 - 55 * 33 / 55;
 var n3 = (n1 += 33) * 3;
@@ -14,15 +50,10 @@ var FALSE = !TRUE;
 var ff: number = 0;
 
 
-function fo(): number {
-    return 3.1415926;
-}
 
 var fov = fo();
 
-var floatNumber = Math.max(
-    5, 32 * 0.5
-) / 20;
+
 
 for (var l = 0; i < 100; i++) fov++;
 

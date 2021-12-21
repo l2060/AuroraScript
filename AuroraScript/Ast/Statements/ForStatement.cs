@@ -10,7 +10,7 @@ namespace AuroraScript.Ast.Statements
         }
         public Expression Condition { get; set; }
 
-        public AstNode Body { get; set; }
+        public Statement Body { get; set; }
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace AuroraScript.Ast.Statements
         /// for incrementor
         /// contains multiple sentences 
         /// </summary>
-        public AstNode Incrementor { get; set; }
+        public Expression Incrementor { get; set; }
 
 
 

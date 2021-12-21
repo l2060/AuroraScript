@@ -31,6 +31,9 @@ namespace AuroraScript.Ast
         /// </summary>
         public Token Typed { get; set; }
 
-
+        /// <summary>
+        /// Function Access
+        /// </summary>
+        public Symbols Access { get; set; }
     }
 }

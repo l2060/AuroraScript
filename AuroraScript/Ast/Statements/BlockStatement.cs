@@ -10,6 +10,12 @@ namespace AuroraScript.Ast.Statements
             this.currentScope = currentScope;
         }
 
-
+        public virtual IEnumerable<AstNode> ChildNodes
+        {
+            get
+            {
+                return childrens;
+            }
+        }
     }
 }

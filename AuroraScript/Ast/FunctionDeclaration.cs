@@ -39,7 +39,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// function result types
         /// </summary>
-        public Token Type { get; set; }
+        public List<Token> Typeds { get; set; }
 
     }
 }

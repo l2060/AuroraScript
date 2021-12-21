@@ -8,7 +8,8 @@ namespace AuroraScript
     {
 
         // key words
-
+        
+        public readonly static Symbols KW_DECLARE = new Symbols("declare", SymbolTypes.KeyWord);
         public readonly static Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
         public readonly static Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
 
@@ -17,6 +18,7 @@ namespace AuroraScript
         public readonly static Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
         public readonly static Symbols KW_BREAK = new Symbols("break", SymbolTypes.KeyWord);
         public readonly static Symbols KW_CONTINUE = new Symbols("continue", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_ENUM = new Symbols("enum", SymbolTypes.KeyWord);
         public readonly static Symbols KW_FOR = new Symbols("for", SymbolTypes.KeyWord);
         public readonly static Symbols KW_NEW = new Symbols("new", SymbolTypes.KeyWord);
         public readonly static Symbols KW_THIS = new Symbols("this", SymbolTypes.KeyWord);
@@ -27,8 +29,10 @@ namespace AuroraScript
         public readonly static Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
 
         public readonly static Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_FROM = new Symbols("from", SymbolTypes.KeyWord);
         public readonly static Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
         public readonly static Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord); // 密封的
+        public readonly static Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord); // 内部的
 
         
 

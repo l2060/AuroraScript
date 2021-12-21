@@ -10,9 +10,21 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
-        public List<Token> Variables { get; set; }
+        public Expression Left
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
 
-        public List<AstNode> Inits { get; set; }
+        public Expression Right
+        {
+            get
+            {
+                return this.childrens[1] as Expression;
+            }
+        }
 
 
 

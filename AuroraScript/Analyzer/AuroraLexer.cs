@@ -96,6 +96,23 @@ namespace AuroraScript.Analyzer
         /// <param name="symbol"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
+        public T TestNextOfKind<T>() where T : Token
+        {
+            var nextToken = this.LookAtHead();
+            if (nextToken is T)
+            {
+                this.Next();
+                return (T)nextToken;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public Boolean TestNext(Symbols symbol)
         {
             var nextToken = this.LookAtHead();

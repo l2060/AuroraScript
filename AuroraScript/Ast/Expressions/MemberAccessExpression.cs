@@ -12,13 +12,25 @@ namespace AuroraScript.Ast.Expressions
 
         }
 
-
+        public Expression Property
+        {
+            get
+            {
+                return this.childrens[1] as Expression;
+            }
+        }
 
 
         /// <summary>
         /// super object name
         /// </summary>
-        public AstNode Base { get; private set; }
+        public Expression Object
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
     }
 
 }

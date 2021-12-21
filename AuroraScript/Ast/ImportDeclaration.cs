@@ -9,6 +9,8 @@ namespace AuroraScript.Ast
         {
 
         }
+
+        public Token Module { get; set; }
         public Token File { get; set; }
     }
 }
