@@ -12,6 +12,7 @@ Development Progress
 --------------
 - [x] Lexical Analyzer
 - [x] Parser Syntax Tree 
+- [ ] Array Support
 - [ ] Custom Type Support
 - [ ] Parser Scope Tree
 - [ ] Optimize Syntax Tree 
@@ -26,7 +27,7 @@ Script Keys
 
 `export`  expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default
 
-`import`  Import other scripts or declare external scriptsScript Keys
+`import`  Import other scripts or declare external scripts Keys
 
 
 
