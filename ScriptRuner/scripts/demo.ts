@@ -68,8 +68,6 @@ floatNumber = 5 + 3 * 6;
 floatNumber += 123;
 
 
-
-
 var n1 = 33 * 25 + 55 * 33 + 55;
 var n2 = 33 + 25 - 55 * 33 / 55;
 var n3 = (n1 += 33) * 3;
@@ -128,7 +126,7 @@ export function main(cmd:            /*
 }
 
 function add(a: number, b: number): number {
-    return a + b;
+    return (a + b) * (a + b);
 }
 
 function foo(fs: number, name: string): boolean {
