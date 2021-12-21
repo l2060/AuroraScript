@@ -23,8 +23,11 @@ Development Progress
 Script Keys
 --------------
 `declare` declare external function|const|enum
-`export`  expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default  
+
+`export`  expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default
+
 `import`  Import other scripts or declare external scriptsScript Keys
+
 
 
 Script Basic Typed
@@ -46,6 +49,9 @@ export function tupleFunction(id: number): [number, string] {
 
 Script Example
 --------------
+
+
+
 ``` typescript
 /**
  * aurora script
