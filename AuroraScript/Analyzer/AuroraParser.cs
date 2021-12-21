@@ -46,11 +46,12 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
-            if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL); 
+            if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
-            if(token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration();
+            if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
@@ -61,18 +62,101 @@ namespace AuroraScript.Analyzer
         }
 
 
+        /**
+         * parse extend type declare 
+         */
         private Statement ParseDeclare(Scope currentScope)
         {
             this.lexer.NextOfKind(Symbols.KW_DECLARE);
-            Console.Error.WriteLine("");
+
+            if (this.lexer.TestNext(Symbols.KW_FUNCTION))
+            {
+                // extend function
+                var funcName = this.lexer.NextOfKind<IdentifierToken>();
+                // next token (
+                this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+                // parse arguments
+                var arguments = this.ParseFunctionArguments(currentScope);
+                // next token : Typed
+                this.lexer.NextOfKind(Symbols.PT_COLON);
+                // typed
+                var typeds = this.ParseFunctionReturnTypeds();
+                // ;
+                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                return new Statement();
+            }
+            else if (this.lexer.TestNext(Symbols.KW_ENUM))
+            {
+                // enum
+                var enumName = this.lexer.NextOfKind<IdentifierToken>();
+                var elements = this.ParseEnumBody();
+                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                return new EnumDeclaration() { Elements = elements, Identifier = enumName };
+            }
+            else if (this.lexer.TestNext(Symbols.KW_CONST))
+            {
+                // const var
+                var varName = this.lexer.NextOfKind<IdentifierToken>();
+                this.lexer.NextOfKind(Symbols.PT_COLON);
+                var returnType = this.lexer.TestNextOfKind<TypedToken>();
+                this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
+                var defaultValuetoken = this.ParseExpression(null, Symbols.PT_SEMICOLON);
+                //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                return new VariableDeclaration()
+                {
+                    Initializer = defaultValuetoken,
+                    Variables = new List<Token>() { varName },
+                    Typed = returnType
+                };
+            }
+            else
+            {
+                throw this.InitParseException("", this.lexer.LookAtHead());
+            }
             Debug.Assert(false);
             return new Statement();
         }
 
 
-        private Statement ParseEnumDeclaration()
-        {
 
+        /// <summary>
+        /// parse enum declare list
+        /// </summary>
+        /// <returns></returns>
+        private List<EnumElement> ParseEnumBody()
+        {
+            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+            var result = new List<EnumElement>();
+            var elementValue = 0;
+            while (true)
+            {
+                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE)) break;
+                var elementName = this.lexer.NextOfKind<IdentifierToken>();
+                if (this.lexer.TestNext(Symbols.OP_ASSIGNMENT))
+                {
+                    var token = this.lexer.NextOfKind<ValueToken>();
+                    if (token.Type != Tokens.ValueType.Number) throw this.InitParseException("Enumeration types only apply to integers", token);
+                    elementValue = Int32.Parse(token.Value);
+                }
+                result.Add(new EnumElement() { Name = elementName, Value = elementValue });
+                elementValue++;
+                this.lexer.TestNext(Symbols.PT_COMMA);
+            }
+            return result;
+        }
+
+
+
+
+
+        /// <summary>
+        /// parse enum type
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseEnumDeclaration(Scope currentScope, Symbols access = null)
+        {
 
 
             return null;
@@ -188,7 +272,21 @@ namespace AuroraScript.Analyzer
         private Statement ParseVariableDeclaration(Scope currentScope, Symbols access = null)
         {
             Expression initializer = null;
-            this.lexer.NextOfKind(Symbols.KW_VAR);
+            Boolean isConst = false;
+
+            if (this.lexer.TestNext(Symbols.KW_CONST))
+            {
+                isConst = true;
+            }
+            else if (this.lexer.TestNext(Symbols.KW_VAR))
+            {
+                isConst = false;
+            }
+            else
+            {
+                throw this.InitParseException("", this.lexer.LookAtHead());
+            }
+
             var varName = this.lexer.NextOfKind<IdentifierToken>();
             List<Token> varNames = new List<Token>() { varName };
             var expression = new VariableDeclaration();
@@ -226,6 +324,7 @@ namespace AuroraScript.Analyzer
             expression.Access = access;
             expression.Variables.AddRange(varNames);
             expression.Initializer = initializer;
+            expression.IsConst = isConst;
             return expression;
         }
 
@@ -607,7 +706,7 @@ namespace AuroraScript.Analyzer
         {
             List<Token> result = new List<Token>();
             var returnType = this.lexer.TestNextOfKind<TypedToken>();
-            if(returnType != null)
+            if (returnType != null)
             {
                 result.Add(returnType);
             }
@@ -627,7 +726,7 @@ namespace AuroraScript.Analyzer
                 }
             }
 
-            if(returnType == null && result.Count == 0)
+            if (returnType == null && result.Count == 0)
             {
                 throw this.InitParseException("定义多返回类型时，最少指定一个返回类型", this.lexer.Previous());
             }
@@ -669,6 +768,10 @@ namespace AuroraScript.Analyzer
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {
                 return ParseVariableDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_ENUM)
+            {
+                return ParseEnumDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             throw this.InitParseException("Invalid keywords appear in export declaration .", token);
         }

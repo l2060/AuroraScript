@@ -1,13 +1,41 @@
 ﻿/**
  * aurora script
  * */
-// external declare
+/* external declare */
 import 'common';
 
-// import reference module 
+/* import reference module */
 import Test from 'test';
 
-// exported  attributes
+/**
+ * declare external Enum
+ */
+declare enum Animals {
+    Wolf = 1,
+    Dog = 2,
+    Tiger = 3
+};
+
+
+
+/** declare external const var */
+declare const fff: number = 0x1234;
+
+/**
+ * declare external function
+ * print message to console
+ * @param message
+ */
+declare function print(message: string): void;
+
+/**
+ * declare external function
+ * read text file content
+ * @param fileName
+ */
+declare function ReadFile(fileName: string): string;
+
+/* exported  attributes */
 export var length = 100;
 
 /**
@@ -27,7 +55,7 @@ function fo(): number {
 
 
 
-var text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
+const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
 
 var floatNumber = window.setInterval(fo, 123);
 

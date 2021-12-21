@@ -12,9 +12,37 @@ Development Progress
 --------------
 - [x] Lexical Analyzer
 - [x] Parser Syntax Tree 
+- [ ] Custom Type Support
+- [ ] Parser Scope Tree
 - [ ] Optimize Syntax Tree 
 - [ ] IL Generation 
 - [ ] Virtual Machine
+
+
+
+Script Keys
+--------------
+`declare` declare external function|const|enum
+`export`  expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default  
+`import`  Import other scripts or declare external scriptsScript Keys
+
+
+Script Basic Typed
+--------------
+`number` 
+`string`
+`boolean`
+`void`
+`object`
+
+Script Multiple return values (Unrealized)
+--------------
+``` typescript
+export function tupleFunction(id: number): [number, string] {
+    return [12, ''];
+}
+```
+
 
 Script Example
 --------------
@@ -22,7 +50,71 @@ Script Example
 /**
  * aurora script
  * */
+/* external declare */
 import 'common';
+
+/* import reference module */
+import Test from 'test';
+
+/**
+ * declare external Enum
+ */
+declare enum Animals {
+    Wolf = 1,
+    Dog = 2,
+    Tiger = 3
+};
+
+
+
+/** declare external const var */
+declare const fff: number = 0x1234;
+
+/**
+ * declare external function
+ * print message to console
+ * @param message
+ */
+declare function print(message: string): void;
+
+/**
+ * declare external function
+ * read text file content
+ * @param fileName
+ */
+declare function ReadFile(fileName: string): string;
+
+/* exported  attributes */
+export var length = 100;
+
+/**
+ * exported function Multiple return values
+ * @param id
+ */
+export function tupleFunction(id: number): [number, string] {
+    return;//[12, ''];
+}
+
+/**
+ * internal function
+ */
+function fo(): number {
+    return 3.1415926;
+}
+
+
+
+const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
+
+var floatNumber = window.setInterval(fo, 123);
+
+floatNumber = 5 + 3 * 6;
+
+floatNumber += 123;
+
+
+
+
 var n1 = 33 * 25 + 55 * 33 + 55;
 var n2 = 33 + 25 - 55 * 33 / 55;
 var n3 = (n1 += 33) * 3;
@@ -35,15 +127,10 @@ var FALSE = !TRUE;
 var ff: number = 0;
 
 
-function fo(): number {
-    return 3.1415926;
-}
 
 var fov = fo();
 
-var floatNumber = Math.max(
-    5, 32 * 0.5
-) / 20;
+
 
 for (var l = 0; i < 100; i++) fov++;
 
@@ -127,5 +214,4 @@ var result = foo(v, n);
 console.log(result);
 main('yoyo');
 // console.log(ary2[1]);
-
 ```

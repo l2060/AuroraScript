@@ -35,5 +35,8 @@ namespace AuroraScript.Ast
         /// Function Access
         /// </summary>
         public Symbols Access { get; set; }
+
+        public Boolean IsConst { get; set; }
+
     }
 }
