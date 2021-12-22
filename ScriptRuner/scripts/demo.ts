@@ -4,40 +4,16 @@
 /* external declare */
 import 'common';
 
-/* import reference module */
-import Test from 'test';
+/* Import the exported objects in the script `test` to the `Test` namespace  */
+import Test from './test';
 
-/**
- * declare external Enum
- */
-declare enum Animals {
-    Wolf = 1,
-    Dog = 2,
-    Tiger = 3
-};
-
-
-
-/** declare external const var */
-declare const fff: number = 0x1234;
-
-/**
- * declare external function
- * print message to console
- * @param message
- */
-declare function print(message: string): void;
-
-/**
- * declare external function
- * read text file content
- * @param fileName
- */
-declare function ReadFile(fileName: string): string;
+/* define typed alias*/
+declare type Boolean = boolean;
 
 /* exported  attributes */
 export var length = 100;
 
+print('hello world');
 /**
  * exported function Multiple return values
  * @param id
@@ -55,8 +31,8 @@ function fo(): number {
 
 enum Animals2 {
     Wolf = 1,
-    Dog = 2,
-    Tiger = 3
+    Dog,
+    Tiger
 };
 
 const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
@@ -65,7 +41,7 @@ var floatNumber = window.setInterval(fo, 123);
 
 floatNumber = 5 + 3 * 6;
 
-floatNumber += 123;
+floatNumber += (123 + 255)*0.3;
 
 
 var n1 = 33 * 25 + 55 * 33 + 55;

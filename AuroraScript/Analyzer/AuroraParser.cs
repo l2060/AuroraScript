@@ -84,6 +84,15 @@ namespace AuroraScript.Analyzer
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
                 return new Statement();
             }
+            else if (this.lexer.TestNext(Symbols.KW_TYPE))
+            {
+                // enum
+                var enumName1 = this.lexer.NextOfKind<IdentifierToken>();
+                this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
+                var enumName2 = this.lexer.NextOfKind<TypedToken>();
+                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+                return new EnumDeclaration() { };
+            }
             else if (this.lexer.TestNext(Symbols.KW_ENUM))
             {
                 // enum
@@ -579,7 +588,7 @@ namespace AuroraScript.Analyzer
             // function call expression
             if (_operator == Operator.FunctionCall && !(previousToken is PunctuatorToken)) return new FunctionCallExpression(_operator);
             // Grouping expression
-            if (_operator == Operator.Grouping && previousToken is PunctuatorToken) return new GroupExpression(_operator);
+            if (_operator == Operator.Grouping  /* && previousToken is PunctuatorToken */ ) return new GroupExpression(_operator);
             // member access expression
             if (_operator == Operator.Index) return new MemberAccessExpression(_operator);
             // member access expression

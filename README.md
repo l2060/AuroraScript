@@ -33,10 +33,11 @@ Script Keys
 
 Script Basic Typed
 --------------
-`number` 
-`string`
+`number` int long float double short byte
+`string` 
 `boolean`
 `void`
+`array`
 `object`
 
 Script Multiple return values (Unrealized)

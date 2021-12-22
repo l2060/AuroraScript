@@ -12,7 +12,7 @@ namespace AuroraScript
         public readonly static Symbols KW_DECLARE = new Symbols("declare", SymbolTypes.KeyWord);
         public readonly static Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
         public readonly static Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
-
+        public readonly static Symbols KW_TYPE = new Symbols("type", SymbolTypes.KeyWord);
         public readonly static Symbols KW_CONST = new Symbols("const", SymbolTypes.KeyWord);
         public readonly static Symbols KW_FUNCTION = new Symbols("function", SymbolTypes.KeyWord);
         public readonly static Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
