@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
+using AuroraScript.Common;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
 using System.Diagnostics;
@@ -49,9 +50,10 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_TYPE) return this.ParseTypeDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
-            if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
@@ -84,45 +86,27 @@ namespace AuroraScript.Analyzer
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
                 return new Statement();
             }
-            else if (this.lexer.TestNext(Symbols.KW_TYPE))
-            {
-                // enum
-                var enumName1 = this.lexer.NextOfKind<IdentifierToken>();
-                this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
-                var enumName2 = this.lexer.NextOfKind<TypedToken>();
-                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-                return new EnumDeclaration() { };
-            }
-            else if (this.lexer.TestNext(Symbols.KW_ENUM))
-            {
-                // enum
-                var enumName = this.lexer.NextOfKind<IdentifierToken>();
-                var elements = this.ParseEnumBody();
-                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-                return new EnumDeclaration() { Elements = elements, Identifier = enumName };
-            }
-            else if (this.lexer.TestNext(Symbols.KW_CONST))
-            {
-                // const var
-                var varName = this.lexer.NextOfKind<IdentifierToken>();
-                this.lexer.NextOfKind(Symbols.PT_COLON);
-                var returnType = this.lexer.TestNextOfKind<TypedToken>();
-                this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
-                var defaultValuetoken = this.ParseExpression(null, Symbols.PT_SEMICOLON);
-                //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-                return new VariableDeclaration()
-                {
-                    Initializer = defaultValuetoken,
-                    Variables = new List<Token>() { varName },
-                    Typed = returnType
-                };
-            }
             else
             {
                 throw this.InitParseException("", this.lexer.LookAtHead());
             }
             Debug.Assert(false);
             return new Statement();
+        }
+
+        /// <summary>
+        /// parse Object Typed
+        /// </summary>
+        /// <returns></returns>
+        private ObjectTyped ParseObjectType()
+        {
+            var basicType = this.lexer.TestNextOfKind</*TypedToken*/IdentifierToken>();
+            if (this.lexer.TestNext(Symbols.PT_LEFTBRACKET))
+            {
+                this.lexer.NextOfKind(Symbols.PT_RIGHTBRACKET);
+                return new ArrayTyped(basicType);
+            }
+            return new ObjectTyped(basicType);
         }
 
 
@@ -170,6 +154,23 @@ namespace AuroraScript.Analyzer
             var elements = this.ParseEnumBody();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             return new EnumDeclaration() { Elements = elements, Identifier = enumName };
+        }
+
+
+        /// <summary>
+        /// parse typed define
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseTypeDeclaration(Scope currentScope, Symbols access = null)
+        {
+            this.lexer.NextOfKind(Symbols.KW_TYPE);
+            var name = this.lexer.NextOfKind<IdentifierToken>();
+            this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
+            var typed = this.ParseObjectType();
+            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            return new TypeDeclaration() { Identifier = name, Typed = typed };
         }
 
 
@@ -303,7 +304,7 @@ namespace AuroraScript.Analyzer
             // next token is : define var typed
             if (this.lexer.TestNext(Symbols.PT_COLON))
             {
-                expression.Typed = this.lexer.NextOfKind<TypedToken>();
+                expression.Typed = this.ParseObjectType();
             }
             while (true)
             {
@@ -396,6 +397,7 @@ namespace AuroraScript.Analyzer
             }
             return block;
         }
+
 
 
         /// <summary>
@@ -492,6 +494,30 @@ namespace AuroraScript.Analyzer
                             group.AddNode(tmpexp);
                             tmpexp = group;
                         }
+                        // Array expression 
+                        else if (tmpexp is ArrayExpression arrayExpression)
+                        {
+                            // Parse new array object 
+                            while (true)
+                            {
+                                // parse function call arguments
+                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (argument != null) arrayExpression.Elements.Add(argument);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete 
+                                if (last.Symbol == Symbols.PT_RIGHTBRACKET) break;
+                            }
+
+                        }
+                        // Array Index expression
+                        else if (tmpexp is ArrayAccessExpression)
+                        {
+                            // Parse() block, from here recursively parse expressions to minor symbols 
+                            var index = new ArrayAccessExpression(Operator.Grouping);
+                            index.Index = this.ParseExpression(currentScope, Symbols.PT_RIGHTBRACKET);
+                            //group.AddNode(tmpexp);
+                            tmpexp = index;
+                        }
                     }
                     /**
                      * ==================================================== *
@@ -572,6 +598,10 @@ namespace AuroraScript.Analyzer
 
 
 
+
+
+
+
         private Expression createExpression(Operator _operator, Token previousToken)
         {
             // Assignment Expression
@@ -590,7 +620,9 @@ namespace AuroraScript.Analyzer
             // Grouping expression
             if (_operator == Operator.Grouping  /* && previousToken is PunctuatorToken */ ) return new GroupExpression(_operator);
             // member access expression
-            if (_operator == Operator.Index) return new MemberAccessExpression(_operator);
+            if (_operator == Operator.Array) return new ArrayExpression(_operator);
+            // member index expression
+            if (_operator == Operator.Index) return new ArrayAccessExpression(_operator);
             // member access expression
             if (_operator == Operator.MemberAccess) return new MemberAccessExpression(_operator);
 
@@ -651,7 +683,7 @@ namespace AuroraScript.Analyzer
                 }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.PT_COLON);
-                var typed = this.lexer.NextOfKind<TypedToken>();
+                var typed = this.ParseObjectType();
                 Expression defaultValue = null;
                 // argument default value 
                 if (this.lexer.TestNext(Symbols.OP_ASSIGNMENT))
@@ -712,16 +744,18 @@ namespace AuroraScript.Analyzer
         }
 
 
-        private List<Token> ParseFunctionReturnTypeds()
+        private List<ObjectTyped> ParseFunctionReturnTypeds()
         {
-            List<Token> result = new List<Token>();
-            var returnType = this.lexer.TestNextOfKind<TypedToken>();
-            if (returnType != null)
+            List<ObjectTyped> result = new List<ObjectTyped>();
+            Boolean m = false;
+            if (this.lexer.TestAtHead</*TypedToken*/IdentifierToken>())
             {
+                var returnType = this.ParseObjectType();
                 result.Add(returnType);
             }
             else
             {
+                m = true;
                 /* [ */
                 this.lexer.NextOfKind(Symbols.PT_LEFTBRACKET);
                 while (true)
@@ -731,12 +765,12 @@ namespace AuroraScript.Analyzer
                     /* , */
                     if (this.lexer.TestNext(Symbols.PT_COMMA)) continue;
                     // typed
-                    var typed = this.lexer.TestNextOfKind<TypedToken>();
+                    var typed = this.ParseObjectType();
                     result.Add(typed);
                 }
             }
 
-            if (returnType == null && result.Count == 0)
+            if (m && result.Count == 0)
             {
                 throw this.InitParseException("定义多返回类型时，最少指定一个返回类型", this.lexer.Previous());
             }
@@ -773,15 +807,28 @@ namespace AuroraScript.Analyzer
             var token = this.lexer.LookAtHead();
             if (token is KeywordToken && token.Symbol == Symbols.KW_FUNCTION)
             {
+                // function
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {
+                // var
+                return ParseVariableDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_CONST)
+            {
+                // const
                 return ParseVariableDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_ENUM)
             {
+                // enum
                 return ParseEnumDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_TYPE)
+            {
+                // type
+                return ParseTypeDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             throw this.InitParseException("Invalid keywords appear in export declaration .", token);
         }

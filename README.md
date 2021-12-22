@@ -12,7 +12,8 @@ Development Progress
 --------------
 - [x] Lexical Analyzer
 - [x] Parser Syntax Tree 
-- [ ] Array Support
+- [x] Array Support
+- [x] Custom Type Define
 - [ ] Custom Type Support
 - [ ] Parser Scope Tree
 - [ ] Optimize Syntax Tree 
@@ -20,25 +21,113 @@ Development Progress
 - [ ] Virtual Machine
 
 
+Script Basic Typed
+--------------
+* `int`     32-bit integer  
+* `long`    64-bit integer  
+* `float`   32-bit float 
+* `double`  64-bit float 
+* `short`   16-bit integer   
+* `byte`     8-bit integer    
+* `string`  string    
+* `boolean` true false    
+* `null`    null value     
+* `array`   typed array value  
+
+
+
 
 Script Keys
 --------------
-`declare` declare external function|const|enum
+* `function` define function  
+    ``` typescript
+    function log(message: string): void {
+        console.log(message);
+    }
+    log('hello world!');
+    ```
+* `declare` [`fcuntion`] declare external function  
+    ``` typescript
+    declare function log(message: string): void;
+    log('hello world!');
+    ```
+* `import`  import other scripts or declare external scripts Keys  
+    ``` typescript
+    // import into the current script space 
+    import 'common';
+    // import into the current script and specify the namespace 
+    import $namespace from 'common';
+    ```
+* `const`  declare immutable constants  
+    ``` typescript
+    // can't be changed 
+    const PI: double = 3.1415926;
+    ```
+* `var`  declare variable  
+    ``` typescript
+    var i: int = 100;
+    i++;
+    console.log(i);
+    ```
+* `type` define typed  
+    ``` typescript
+    type IntArray = int[];
+    var array: IntArray = [];
+    ```
+* `enum`  declare enum type  
+    ``` typescript
+    enum Animals {
+        Wolf = 1,
+        Dog , // Dog = 2
+        Tiger = 3
+    };
+    ```
+* `export` [`function|type|var|const|enum`] expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default
+    ``` typescript
+    export function log(message: string):void{
+        console.log(message);
+    }
+    export type IntArray = int[];
+    export var  i: int = 100;
+    export const PI: double = 3.1415926;
+    export enum Animals {
+        Wolf = 1,
+        Dog , // Dog = 2
+        Tiger = 3
+    };
+    ```
+* `typeof` get object typed  
+    ``` typescript
+    export const PI: double = 3.1415926;
+    console.log(typeof PI);
+    ```
+* `for` loop statement `break`、`continue`  
+    ``` typescript
+    for(var i = 0; i < 10 ; i++){
+        if(i < 5) continue;
+        if(i == 9) break;
+        console.log(i);
+    }
+    ```
+* `if` conditional statement `else`、`else if`  
+    ``` typescript
+    if(exp == null){
+    }else if(exp == 1){
+    }else{
+    }
+    ```
+* `return` retuen a value 
+    ``` typescript
+    // return multiple return values 
+    function tupleFunction(id: number): [number, string] {
+        return [id, id.toString()];
+    }
+    // return one return values 
+    function tupleFunction(id: number): number {
+        return id;
+    }
+    ```
 
-`export`  expose the internal objects of the script, When the export keyword is not used, it is declared as an internal object by default
-
-`import`  Import other scripts or declare external scripts Keys
-
-
-
-Script Basic Typed
---------------
-`number` int long float double short byte
-`string` 
-`boolean`
-`void`
-`array`
-`object`
 
 Script Multiple return values (Unrealized)
 --------------

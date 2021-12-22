@@ -1,12 +1,11 @@
 ﻿
 namespace AuroraScript.Ast.Expressions
 {
-    public class ArrayExpression : Expression
+    public class ArrayExpression : OperatorExpression
     {
-
-        internal ArrayExpression()
+        internal ArrayExpression(Operator @operator) : base(@operator)
         {
-
+            this.Elements = new List<Expression>();
         }
 
         public List<Expression> Elements { get; set; }

@@ -35,15 +35,13 @@ namespace AuroraScript
         public readonly static Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord); // 密封的
         public readonly static Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord); // 内部的
 
-        
-
 
         // types
-        public readonly static Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Typed);
-        public readonly static Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Typed);
-        public readonly static Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Typed);
-        public readonly static Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Typed);
-        public readonly static Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Typed);
+        public readonly static Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Identifier);
+        public readonly static Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Identifier);
+        public readonly static Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Identifier);
+        public readonly static Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Identifier);
+        public readonly static Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Identifier);
         // public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
 
 

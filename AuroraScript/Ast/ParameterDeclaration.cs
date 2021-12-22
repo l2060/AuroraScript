@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Ast.Expressions;
-
+using AuroraScript.Common;
 
 namespace AuroraScript.Ast
 {
@@ -31,7 +31,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// 
         /// </summary>
-        public Token Typed { get; set; }
+        public ObjectTyped Typed { get; set; }
 
 
 

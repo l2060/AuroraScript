@@ -107,6 +107,14 @@ namespace AuroraScript.Analyzer
             return null;
         }
 
+
+
+        public Boolean TestAtHead<T>() where T : Token
+        {
+            var nextToken = this.LookAtHead();
+            return nextToken is T;
+        }
+
         /// <summary>
         /// If it is the specified symbol, take it out and return true, otherwise return false  
         /// </summary>
@@ -236,9 +244,10 @@ namespace AuroraScript.Analyzer
                 if (symbol.Type == SymbolTypes.KeyWord) token = new KeywordToken();
                 if (symbol.Type == SymbolTypes.Punctuator) token = new PunctuatorToken();
                 if (symbol.Type == SymbolTypes.Operator) token = new OperatorToken();
-                if (symbol.Type == SymbolTypes.Typed) token = new TypedToken();
+                //if (symbol.Type == SymbolTypes.Typed) token = new TypedToken();
                 if (symbol.Type == SymbolTypes.NullValue) token = new NullToken();
                 if (symbol.Type == SymbolTypes.BooleanValue) token = new BooleanToken();
+                if (symbol.Type == SymbolTypes.Identifier) token = new IdentifierToken();
                 token.Symbol = symbol;
             }
             else

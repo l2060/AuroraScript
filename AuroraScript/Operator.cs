@@ -39,11 +39,19 @@ namespace AuroraScript
         /// </summary>
         public static readonly Operator FunctionCall = new Operator(Symbols.PT_LEFTPARENTHESIS, 18, OperatorPlacement.Postfix, true, Symbols.PT_RIGHTPARENTHESIS);
 
-        // Index operator.
+        // Array operator.
         /// <summary>
-        /// operator exp[index]
+        /// operator [exp,exp,..]
+        /// </summary>
+        public static readonly Operator Array = new Operator(Symbols.PT_LEFTBRACKET, 18, OperatorPlacement.Prefix, true, Symbols.PT_RIGHTBRACKET);
+
+
+        // Array Index operator.
+        /// <summary>
+        /// operator exp[exp]
         /// </summary>
         public static readonly Operator Index = new Operator(Symbols.PT_LEFTBRACKET, 18, OperatorPlacement.Postfix, true, Symbols.PT_RIGHTBRACKET);
+
 
         // Member access operator and function call operator.
         /// <summary>

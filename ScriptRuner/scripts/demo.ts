@@ -8,18 +8,18 @@ import 'common';
 import Test from './test';
 
 /* define typed alias*/
-declare type Boolean = boolean;
+type Boolean = boolean;
 
 /* exported  attributes */
 export var length = 100;
 
-print('hello world');
+var result = ReadFile('hello world');
 /**
  * exported function Multiple return values
  * @param id
  */
 export function tupleFunction(id: number): [number, string] {
-    return;//[12, ''];
+    return;//[id, id.toString()];
 }
 
 /**
@@ -35,13 +35,18 @@ enum Animals2 {
     Tiger
 };
 
+var ary1: number[] = [1 + 2, 3 * 5];
+ary1[0] = 123;
+
+console.log(ary1[1]);
+
 const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
 
 var floatNumber = window.setInterval(fo, 123);
 
 floatNumber = 5 + 3 * 6;
 
-floatNumber += (123 + 255)*0.3;
+floatNumber += (123 + 255) * 0.3;
 
 
 var n1 = 33 * 25 + 55 * 33 + 55;
@@ -130,7 +135,9 @@ var str2 = "abc";
 var str3 = '123';
 var num = 0xff023;
 var bol = true;
-// var ary1 = [];
+
+
+
 // var ary2 = [1, 2, 3];
 var bol1 = bol == null;
 var bol2 = bol1 == false;

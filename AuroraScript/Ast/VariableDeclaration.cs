@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
-
+using AuroraScript.Common;
 
 namespace AuroraScript.Ast
 {
@@ -29,7 +29,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// get / set variable typed
         /// </summary>
-        public Token Typed { get; set; }
+        public ObjectTyped Typed { get; set; }
 
         /// <summary>
         /// Function Access

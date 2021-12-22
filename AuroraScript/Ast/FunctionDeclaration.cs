@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Ast.Statements;
-
+using AuroraScript.Common;
 
 namespace AuroraScript.Ast
 {
@@ -39,7 +39,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// function result types
         /// </summary>
-        public List<Token> Typeds { get; set; }
+        public List<ObjectTyped> Typeds { get; set; }
 
     }
 }
