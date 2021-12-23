@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Types
 {
-    internal class FunctionTyped : ObjectTyped
+    internal class FunctionType : ObjectType
     {
-        internal FunctionTyped(Token identifier) : base(identifier)
+        internal FunctionType(Token typeToken) : base(typeToken)
         {
 
         }

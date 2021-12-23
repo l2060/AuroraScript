@@ -7,10 +7,13 @@ export enum Animals {
     Dog = 2,
     Tiger = 3
 };
+export type byte = number;
+export type short = number;
+export type int = number;
+export type float = number;
+export type double = number;
+export type long = number;
 
-type float = number;
-type double = number;
-type long = number;
 
 export type Float = float;
 export type Double = double;
@@ -20,8 +23,8 @@ export type Boolean = boolean;
 
 
 /** declare external const var */
-export const fff: number = 0x1234;
-
+export const fff: int = 0x1234;
+export var Version: int = 0x1234;
 /**
  * declare external function
  * print message to console

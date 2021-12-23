@@ -2,30 +2,31 @@
  * aurora script
  * */
 /* external declare */
-import 'common';
-
+import './libs/common';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import Test from './test';
-
+type int = number;
 /* define typed alias*/
 type Boolean = boolean;
 
 /* exported  attributes */
 export var length = 100;
-export declare function printf(message: string): Float;
+export declare function messageBox(message: string): Animals2;
 var result = ReadFile('hello world');
 /**
  * exported function Multiple return values
  * @param id
  */
-export function tupleFunction(id: number): [number, string] {
+export function tupleFunction(id: int): [int, string] {
     return;//[id, id.toString()];
 }
+Test.main();
 
+Version++;
 /**
  * internal function
  */
-function fo(): number {
+function fo(): int {
     return 3.1415926;
 }
 
@@ -35,18 +36,18 @@ enum Animals2 {
     Tiger
 };
 
-var ary1: number[] = [1 + 2, 3 * 5];
+var ary1: int[] = [1 + 2, 3 * 5];
 ary1[0] = 123;
 
 console.log(ary1[1]);
 
 const text = Number.parseInt(`0`).toFixed(3 * 0.5) + 'end';
 
-var floatNumber = window.setInterval(fo, 123);
+var floatint = window.setInterval(fo, 123);
 
-floatNumber = 5 + 3 * 6;
+floatint = 5 + 3 * 6;
 
-floatNumber += (123 + 255) * 0.3;
+floatint += (123 + 255) * 0.3;
 
 
 var n1 = 33 * 25 + 55 * 33 + 55;
@@ -58,7 +59,7 @@ var typeName: string = typeof true;
 var TRUE = true;
 var FALSE = !TRUE;
 
-var ff: number = 0;
+var ff: int = 0;
 
 
 
@@ -106,11 +107,11 @@ export function main(cmd:            /*
     console.log('hello wrold!');
 }
 
-function add(a: number, b: number): number {
+function add(a: int, b: int): int {
     return (a + b) * (a + b);
 }
 
-function foo(fs: number, name: string): boolean {
+function foo(fs: int, name: string): boolean {
     if (fs && name && fs > 100) {
         return true;
     } else {
@@ -146,7 +147,7 @@ var age = 22;
 var v = -age + 1.5 - 0x36 * 2.5 / 1.2;
 v += 35;
 var n = 'hello';
-var result = foo(v, n);
-console.log(result);
+var result2 = foo(v, n);
+console.log(result2);
 main('yoyo');
 // console.log(ary2[1]);

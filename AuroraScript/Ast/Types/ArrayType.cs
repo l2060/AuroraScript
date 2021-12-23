@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Common
 {
-    public class ArrayTyped: ObjectTyped
+    public class ArrayType: ObjectType
     {
-        internal ArrayTyped(Token identifier):base(identifier)
+        internal ArrayType(Token typeToken):base(typeToken)
         {
 
         }
-
-
-
     }
 }

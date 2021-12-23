@@ -1,42 +1,54 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
 using AuroraScript.Uilty;
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace AuroraScript
 {
     public class AuroraCompiler
     {
-        
+        public String FileExtension { get; set; } = ".ts";
 
-        //public void ShuffleArray<T>(T[] array)
-        //{
-        //    var r = new Random();
-        //    for (int i = array.Length - 1; i >= 0; i--)
-        //    {
-        //        var dindex = r.Next(i);
-        //        var p = array[dindex];
-        //        array[dindex] = array[i];
-        //        array[i] = p;
-        //    }
-        //}
+        private ConcurrentDictionary<String, AuroraParser> scriptParsers = new ConcurrentDictionary<String, AuroraParser>();
 
 
-        public void build(string filepath)
+
+        /// <summary>
+        /// build Abstract syntax tree 
+        /// Increase the path cache to prevent the endless loop of circular references 
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
+        public AstNode buildAst(string filepath)
         {
-            AuroraLexer lexer;
-            AuroraParser parser;
-            AstNode root;
-            using (var time = new WitchTimer("lexer"))
+            var fullPath = Path.GetFullPath(filepath);
+            scriptParsers.TryGetValue(fullPath, out AuroraParser parser);
+            if (parser != null)
             {
-                lexer = new AuroraLexer(filepath, Encoding.UTF8);
+                return parser.root;
             }
-            using (var time = new WitchTimer("parser"))
+            AuroraLexer lexer;
+            //AuroraParser parser;
+            AstNode root;
+            using (var time = new WitchTimer("lexer：" + fullPath))
             {
-                parser = new AuroraParser(lexer);
+                lexer = new AuroraLexer(fullPath, Encoding.UTF8);
+            }
+            using (var time = new WitchTimer("parser：" + fullPath))
+            {
+                parser = new AuroraParser(this, lexer);
+                this.scriptParsers.TryAdd(fullPath, parser);
                 root = parser.Parse();
             }
+            return root;
+        }
 
+
+
+        public void buildFile(string filepath)
+        {
+            AstNode root = this.buildAst(filepath);
             //
             var printer = new AstPrinter(root);
             printer.print();
@@ -46,7 +58,7 @@ namespace AuroraScript
 
 
 
-   
+
 
 
 

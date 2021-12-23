@@ -3,7 +3,7 @@ using AuroraScript;
 
 
 var compiler = new AuroraCompiler();
-//compiler.build("./scripts/md5.ts");
-compiler.build("./scripts/demo.ts");
+//compiler.buildFile("./scripts/md5.ts");
+compiler.buildFile("./scripts/demo.ts");
 
 Console.ReadKey();

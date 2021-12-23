@@ -16,6 +16,6 @@ namespace AuroraScript.Ast
         }
 
         public Token Identifier { get; set; }
-        public ObjectTyped Typed { get; set; }
+        public ObjectType Typed { get; set; }
     }
 }

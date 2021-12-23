@@ -6,7 +6,7 @@
 **/
 
 function RotateLeft(lValue: number, iShiftBits: number): number {
-    return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
+    return (lValue << iShiftBits) | (lValue >>/*>*/ (32 - iShiftBits));
 }
 
 function AddUnsigned(lX: number, lY: number): number {
@@ -55,7 +55,7 @@ function II(a: number, b: number, c: number, d: number, x: number, s: number, ac
     return AddUnsigned(RotateLeft(a, s), b);
 };
 
-function ConvertToWordArray(string: string): object /* number[] */ {
+function ConvertToWordArray(string: string):  number[] {
     var lWordCount;
     var lMessageLength = string.length;
     var lNumberOfWords_temp1 = lMessageLength + 8;
@@ -118,7 +118,7 @@ function Utf8Encode(string: string): string {
 
 function MD5(string: string):string {
 
-    var x = Array();
+    var x = [];
     var k, AA, BB, CC, DD, a, b, c, d;
     var S11 = 7, S12 = 12, S13 = 17, S14 = 22;
     var S21 = 5, S22 = 9, S23 = 14, S24 = 20;

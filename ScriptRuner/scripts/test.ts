@@ -4,7 +4,7 @@
  * block comment
  * */
 
-import 'common';
+import './libs/common';
 
 // sdfsdf
 

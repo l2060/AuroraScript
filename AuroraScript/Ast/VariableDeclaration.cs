@@ -29,7 +29,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// get / set variable typed
         /// </summary>
-        public ObjectTyped Typed { get; set; }
+        public ObjectType Typed { get; set; }
 
         /// <summary>
         /// Function Access

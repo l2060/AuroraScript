@@ -10,24 +10,28 @@ namespace AuroraScript.Analyzer
 {
     public class AuroraParser
     {
+        public AuroraCompiler Compiler { get; private set; }
         public AuroraLexer lexer { get; private set; }
-        public AuroraParser(AuroraLexer lexer)
+
+        public BlockStatement root { get; private set; }
+        public AuroraParser(AuroraCompiler compiler, AuroraLexer lexer)
         {
             this.lexer = lexer;
+            this.Compiler = compiler;
+            var scope = new Scope(this, null);
+            this.root = new BlockStatement(scope);
         }
 
         public AstNode Parse()
         {
-            var scope = new Scope(this, null);
-            Statement result = new BlockStatement(scope);
             while (true)
             {
                 if (this.lexer.TestNext(Symbols.KW_EOF)) break;
-                var node = ParseStatement(scope);
-                result.AddNode(node);
+                var node = ParseStatement(this.root.currentScope);
+                if(node != null) this.root.AddNode(node);
                 if (node == null) break;
             }
-            return result;
+            return this.root;
         }
 
 
@@ -44,6 +48,8 @@ namespace AuroraScript.Analyzer
             var token = this.lexer.LookAtHead();
             if (token == null) throw new ParseException(this.lexer.FullPath, token, "Invalid keywords appear in ");
             //if (token.Symbol == Symbols.KW_EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
+
+            if (token.Symbol == Symbols.PT_SEMICOLON) return null;
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
@@ -99,15 +105,15 @@ namespace AuroraScript.Analyzer
         /// parse Object Typed
         /// </summary>
         /// <returns></returns>
-        private ObjectTyped ParseObjectType()
+        private ObjectType ParseObjectType()
         {
-            var basicType = this.lexer.TestNextOfKind</*TypedToken*/IdentifierToken>();
+            var basicType = this.lexer.TestNextOfKind<IdentifierToken>();
             if (this.lexer.TestNext(Symbols.PT_LEFTBRACKET))
             {
                 this.lexer.NextOfKind(Symbols.PT_RIGHTBRACKET);
-                return new ArrayTyped(basicType);
+                return new ArrayType(basicType);
             }
-            return new ObjectTyped(basicType);
+            return new ObjectType(basicType);
         }
 
 
@@ -745,11 +751,11 @@ namespace AuroraScript.Analyzer
         }
 
 
-        private List<ObjectTyped> ParseFunctionReturnTypeds()
+        private List<ObjectType> ParseFunctionReturnTypeds()
         {
-            List<ObjectTyped> result = new List<ObjectTyped>();
+            List<ObjectType> result = new List<ObjectType>();
             Boolean m = false;
-            if (this.lexer.TestAtHead</*TypedToken*/IdentifierToken>())
+            if (this.lexer.TestAtHead<IdentifierToken>())
             {
                 var returnType = this.ParseObjectType();
                 result.Add(returnType);
@@ -861,6 +867,19 @@ namespace AuroraScript.Analyzer
                 fileToken = this.lexer.NextOfKind<StringToken>();
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             }
+
+            // get current document fullpath
+            var fullPath = Path.GetFullPath(this.lexer.FullPath);
+            // get current document path
+            var currentPath = Path.GetDirectoryName(fullPath);
+            // get import fileName
+            var filename = fileToken.Value.Replace("/", "\\") + this.Compiler.FileExtension;
+            // get import file fullPath
+            var fileFullPath = Path.GetFullPath(Path.Combine(currentPath, filename));
+            if (!File.Exists(fileFullPath)) throw this.InitParseException("Import file path not found ", fileToken);
+            // import ast
+            var moduleAst = this.Compiler.buildAst(fileFullPath);
+
             return new ImportDeclaration() { Module = module, File = fileToken };
         }
 

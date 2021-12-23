@@ -31,7 +31,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// 
         /// </summary>
-        public ObjectTyped Typed { get; set; }
+        public ObjectType Typed { get; set; }
 
 
 
