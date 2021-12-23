@@ -48,16 +48,16 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
-            if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_TYPE) return this.ParseTypeDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
-            if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope);
             var statement = new Statement();
             statement.AddNode(this.ParseExpression(currentScope));
             return statement;
@@ -67,7 +67,7 @@ namespace AuroraScript.Analyzer
         /**
          * parse extend type declare 
          */
-        private Statement ParseDeclare(Scope currentScope)
+        private Statement ParseDeclare(Scope currentScope, Symbols access = null)
         {
             this.lexer.NextOfKind(Symbols.KW_DECLARE);
             if (this.lexer.TestNext(Symbols.KW_FUNCTION))
@@ -84,14 +84,15 @@ namespace AuroraScript.Analyzer
                 var typeds = this.ParseFunctionReturnTypeds();
                 // ;
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-                return new Statement();
+                return new FunctionDeclaration()
+                {
+                    Access = access,
+                    Identifier = funcName,
+                    Parameters = arguments,
+                    Typeds = typeds,
+                };
             }
-            else
-            {
-                throw this.InitParseException("", this.lexer.LookAtHead());
-            }
-            Debug.Assert(false);
-            return new Statement();
+            throw this.InitParseException("The Declare keyword only allows the declaration of external methods ", this.lexer.LookAtHead());
         }
 
         /// <summary>
@@ -295,7 +296,7 @@ namespace AuroraScript.Analyzer
             }
             else
             {
-                throw this.InitParseException("", this.lexer.LookAtHead());
+                throw this.InitParseException("Variable declaration should be placed after var const ", this.lexer.LookAtHead());
             }
 
             var varName = this.lexer.NextOfKind<IdentifierToken>();
@@ -829,6 +830,11 @@ namespace AuroraScript.Analyzer
             {
                 // type
                 return ParseTypeDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_DECLARE)
+            {
+                // type
+                return ParseDeclare(currentScope, Symbols.KW_EXPORT);
             }
             throw this.InitParseException("Invalid keywords appear in export declaration .", token);
         }

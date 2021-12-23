@@ -1,7 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
 using AuroraScript.Uilty;
-using Newtonsoft.Json;
 using System.Text;
 
 namespace AuroraScript
@@ -39,11 +38,8 @@ namespace AuroraScript
             }
 
             //
-            string str = JsonConvert.SerializeObject(root, Formatting.Indented);
-            Console.WriteLine(str);
-            Console.WriteLine(root.ChildNodes.Count());
-
-
+            var printer = new AstPrinter(root);
+            printer.print();
         }
     }
 

@@ -12,7 +12,7 @@ type Boolean = boolean;
 
 /* exported  attributes */
 export var length = 100;
-
+export declare function printf(message: string): Float;
 var result = ReadFile('hello world');
 /**
  * exported function Multiple return values
