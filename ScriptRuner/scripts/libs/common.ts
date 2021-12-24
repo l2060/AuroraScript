@@ -1,4 +1,5 @@
-﻿
+﻿import '../demo';
+
 /**
  * declare external Enum
  */
