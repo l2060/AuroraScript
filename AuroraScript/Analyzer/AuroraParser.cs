@@ -28,7 +28,7 @@ namespace AuroraScript.Analyzer
             {
                 if (this.lexer.TestNext(Symbols.KW_EOF)) break;
                 var node = ParseStatement(this.root.currentScope);
-                if(node != null) this.root.AddNode(node);
+                if (node != null) this.root.AddNode(node);
                 if (node == null) break;
             }
             return this.root;
@@ -868,17 +868,9 @@ namespace AuroraScript.Analyzer
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             }
 
-            // get current document fullpath
-            var fullPath = Path.GetFullPath(this.lexer.FullPath);
-            // get current document path
-            var currentPath = Path.GetDirectoryName(fullPath);
-            // get import fileName
-            var filename = fileToken.Value.Replace("/", "\\") + this.Compiler.FileExtension;
-            // get import file fullPath
-            var fileFullPath = Path.GetFullPath(Path.Combine(currentPath, filename));
-            if (!File.Exists(fileFullPath)) throw this.InitParseException("Import file path not found ", fileToken);
+
             // import ast
-            var moduleAst = this.Compiler.buildAst(fileFullPath);
+            var moduleAst = this.Compiler.buildAst(fileToken.Value, this.lexer.Directory);
             // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
             //最终由link-module 链接起来 
 

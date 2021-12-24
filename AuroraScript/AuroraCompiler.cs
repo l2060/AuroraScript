@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
+using AuroraScript.Exceptions;
 using AuroraScript.Uilty;
 using System.Collections.Concurrent;
 using System.Text;
@@ -13,32 +14,55 @@ namespace AuroraScript
         private ConcurrentDictionary<String, AuroraParser> scriptParsers = new ConcurrentDictionary<String, AuroraParser>();
 
 
+        /// <summary>
+        /// Fill in the file extension 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private String fillExtension(String filename)
+        {
+            var extension = Path.GetExtension(filename);
+            if (extension.ToLower() != this.FileExtension) filename = filename + this.FileExtension;
+            return filename;
+        }
+
 
         /// <summary>
         /// build Abstract syntax tree 
         /// Increase the path cache to prevent the endless loop of circular references 
         /// </summary>
         /// <param name="filepath"></param>
+        /// <param name="relativePath"></param>
         /// <returns></returns>
-        public AstNode buildAst(string filepath)
+        public AstNode buildAst(string filepath, string relativePath = null)
         {
-            var fullPath = Path.GetFullPath(filepath);
-            scriptParsers.TryGetValue(fullPath, out AuroraParser parser);
+            AuroraLexer lexer;
+            AstNode root;
+
+            if (relativePath == null) relativePath = "";
+            // get import fileName
+            var filename = filepath.Replace("/", "\\");
+            // full extension
+            filename = this.fillExtension(filename);
+            // get import file fullPath
+            var fileFullPath = Path.GetFullPath(Path.Combine(relativePath, filename));
+            if (!File.Exists(fileFullPath))
+            {
+                throw new CompilerException(fileFullPath, "Import file path not found ");
+            }
+            scriptParsers.TryGetValue(fileFullPath, out AuroraParser parser);
             if (parser != null)
             {
                 return parser.root;
             }
-            AuroraLexer lexer;
-            //AuroraParser parser;
-            AstNode root;
-            using (var time = new WitchTimer("lexer：" + fullPath))
+            using (var time = new WitchTimer("lexer：" + fileFullPath))
             {
-                lexer = new AuroraLexer(fullPath, Encoding.UTF8);
+                lexer = new AuroraLexer(fileFullPath, Encoding.UTF8);
             }
-            using (var time = new WitchTimer("parser：" + fullPath))
+            using (var time = new WitchTimer("parser：" + fileFullPath))
             {
                 parser = new AuroraParser(this, lexer);
-                this.scriptParsers.TryAdd(fullPath, parser);
+                this.scriptParsers.TryAdd(fileFullPath, parser);
                 root = parser.Parse();
             }
             return root;

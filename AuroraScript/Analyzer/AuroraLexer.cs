@@ -16,6 +16,7 @@ namespace AuroraScript.Analyzer
         public String FileName { get; private set; }
         public String InputData { get; private set; }
 
+        public String Directory { get; private set; }
 
         private List<Token> tokens = new List<Token>();
         private List<TokenRules> _TokenRules { get; set; }
@@ -29,6 +30,7 @@ namespace AuroraScript.Analyzer
 
         public AuroraLexer(String text, String file)
         {
+            this.Directory = Path.GetDirectoryName(file);
             this.FullPath = file;
             this.FileName = Path.GetFileName(file);
             this.InputData = text.Replace("\r\n", "\n");
