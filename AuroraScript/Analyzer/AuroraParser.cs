@@ -879,6 +879,10 @@ namespace AuroraScript.Analyzer
             if (!File.Exists(fileFullPath)) throw this.InitParseException("Import file path not found ", fileToken);
             // import ast
             var moduleAst = this.Compiler.buildAst(fileFullPath);
+            // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
+            //最终由link-module 链接起来 
+
+
 
             return new ImportDeclaration() { Module = module, File = fileToken };
         }
