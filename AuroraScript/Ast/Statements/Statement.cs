@@ -8,5 +8,9 @@ namespace AuroraScript.Ast.Statements
 
         }
 
+        public override String ToString()
+        {
+            return $"{this.childrens[0]};";
+        }
     }
 }

@@ -26,7 +26,10 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-
+        public override String ToString()
+        {
+            return $"{Left}{this.Operator.Symbol.Name}{Right}";
+        }
 
     }
 }

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Common
 {
-    public class ObjectType: AstNode
+    public class ObjectType : AstNode
     {
         internal ObjectType(Token typeToken)
         {
-            ElementType = typeToken;    
+            ElementType = typeToken;
         }
 
 
@@ -20,6 +20,14 @@ namespace AuroraScript.Common
         /// function name
         /// </summary>
         public Token ElementType { get; set; }
+
+
+
+        public override String ToString()
+        {
+            return $"{ElementType.Value}";
+        }
+
 
     }
 }

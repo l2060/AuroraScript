@@ -38,5 +38,15 @@ namespace AuroraScript.Ast
 
         public Boolean IsConst { get; set; }
 
+
+
+        public override String ToString()
+        {
+            var key = IsConst ? "const" : "var";
+            return $"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} = {Initializer};";
+        }
+
+
+
     }
 }

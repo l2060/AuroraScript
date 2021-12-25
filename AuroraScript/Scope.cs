@@ -19,6 +19,10 @@ namespace AuroraScript
 
         public Dictionary<string, ParameterDeclaration> Variables { get; private set; }
 
+
+
+
+
         public void DeclareVariable(List<ParameterDeclaration> parameters)
         {
             foreach (var parameter in parameters)
@@ -26,6 +30,9 @@ namespace AuroraScript
                 this.DeclareVariable(parameter);
             }
         }
+
+
+
 
         public void DeclareVariable(ParameterDeclaration parameter)
         {
@@ -41,11 +48,27 @@ namespace AuroraScript
             this.Variables.Add(parameter.Variable.Value, parameter);
         }
 
-        public void DeclareFunction(ParameterDeclaration parameter)
+        public void DeclareFunction(FunctionDeclaration parameter)
         {
-          
+
 
         }
+
+
+        public void DefineVariable(VariableDeclaration parameter)
+        {
+
+
+        }
+
+        
+       public void DefineFunction(FunctionDeclaration parameter)
+        {
+
+
+        }
+
+
 
     }
 }

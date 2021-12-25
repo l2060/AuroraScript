@@ -1,4 +1,4 @@
-﻿import '../demo';
+﻿import '../main';
 
 /**
  * declare external Enum
@@ -25,7 +25,7 @@ export type Boolean = boolean;
 
 /** declare external const var */
 export const fff: int = 0x1234;
-export var Version: int = 0x1234;
+
 /**
  * declare external function
  * print message to console
@@ -39,3 +39,6 @@ export declare function printf(message: string): Float;
  * @param fileName
  */
 export declare function ReadFile(fileName: string): string;
+
+
+export declare function messageBox(message: string): void;
