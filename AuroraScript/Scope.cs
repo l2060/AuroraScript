@@ -48,13 +48,13 @@ namespace AuroraScript
             this.Variables.Add(parameter.Variable.Value, parameter);
         }
 
-
-
         public void DeclareFunction(ParameterDeclaration parameter)
         {
-          
+
 
         }
+
+
 
     }
 }

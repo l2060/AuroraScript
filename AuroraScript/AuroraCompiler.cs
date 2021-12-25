@@ -77,7 +77,30 @@ namespace AuroraScript
             var printer = new AstPrinter(root);
             printer.print();
         }
+
+
+
+
+
+
+
+        /// <summary>
+        /// optimize ast nodes 
+        /// </summary>
+        /// <param name="root"></param>
+        public void opaimizeTree(AstNode root)
+        {
+
+
+
+        }
+
+
+
     }
+
+
+
 
 
 
