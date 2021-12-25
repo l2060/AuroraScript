@@ -16,13 +16,22 @@ namespace AuroraScript.Ast.Expressions
 
 
         /// <summary>
-        /// 操作符优先级
+        /// operator precedence
         /// </summary>
         internal int Precedence
         {
             get;
             private set;
         }
+
+        /// <summary>
+        /// upgrade operator precedence up up
+        /// </summary>
+        internal void UpgradePrecedence(Operator @operator)
+        {
+            this.Precedence = @operator.Precedence;
+        }
+
 
 
         internal void Push(Expression expression)

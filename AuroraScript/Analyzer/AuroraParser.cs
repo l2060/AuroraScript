@@ -498,6 +498,10 @@ namespace AuroraScript.Analyzer
                         {
                             // Parse() block, from here recursively parse expressions to minor symbols 
                             tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
+                            //if(tempExp is OperatorExpression opexp)
+                            //{
+                            //    opexp.UpgradePrecedence(Operator.Grouping);
+                            //}
                             var group = new GroupExpression(Operator.Grouping);
                             group.AddNode(tempExp);
                             tempExp = group;

@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
+using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
 using AuroraScript.Uilty;
 using System.Collections.Concurrent;
@@ -73,6 +74,7 @@ namespace AuroraScript
         public void buildFile(string filepath)
         {
             AstNode root = this.buildAst(filepath);
+            this.opaimizeTree(root);
             //
             var printer = new AstPrinter(root);
             printer.print();
@@ -85,14 +87,21 @@ namespace AuroraScript
 
 
         /// <summary>
-        /// optimize ast nodes 
+        /// optimize abstract syntax tree  
         /// </summary>
         /// <param name="root"></param>
-        public void opaimizeTree(AstNode root)
+        public void opaimizeTree(AstNode parent)
         {
-
-
-
+            for (int i = parent.Length - 1; i >= 0; i--)
+            {
+                var node = parent[i];
+                if (node is GroupExpression)
+                {
+                    node.Remove();
+                    parent.AddNode(node);
+                }
+                opaimizeTree(node);
+            }
         }
 
 

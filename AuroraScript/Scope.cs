@@ -48,7 +48,21 @@ namespace AuroraScript
             this.Variables.Add(parameter.Variable.Value, parameter);
         }
 
-        public void DeclareFunction(ParameterDeclaration parameter)
+        public void DeclareFunction(FunctionDeclaration parameter)
+        {
+
+
+        }
+
+
+        public void DefineVariable(VariableDeclaration parameter)
+        {
+
+
+        }
+
+        
+       public void DefineFunction(FunctionDeclaration parameter)
         {
 
 
