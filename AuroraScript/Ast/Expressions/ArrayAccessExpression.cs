@@ -9,5 +9,20 @@ namespace AuroraScript.Ast.Expressions
 
         public Expression Index { get; set; }
 
+
+
+        public Expression Target
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
+
+
+        public override String ToString()
+        {
+            return $"{Target}[{Index}]";
+        }
     }
 }

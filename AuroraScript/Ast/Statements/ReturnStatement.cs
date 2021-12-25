@@ -11,5 +11,10 @@ namespace AuroraScript.Ast.Statements
 
         public Expression Expression { get; private set; }
 
+
+        public override String ToString()
+        {
+            return $"return {this.Expression};";
+        }
     }
 }

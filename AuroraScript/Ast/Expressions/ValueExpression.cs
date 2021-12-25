@@ -10,5 +10,13 @@ namespace AuroraScript.Ast.Expressions
         }
         public Token Value { get; set; }
 
+
+        public override String ToString()
+        {
+            return $"{Value.Value}";
+        }
+
+
+
     }
 }

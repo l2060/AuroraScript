@@ -15,7 +15,14 @@ namespace AuroraScript.Ast
 
         }
 
+        public Symbols Access { get; set; }
         public Token Identifier { get; set; }
         public ObjectType Typed { get; set; }
+
+
+        public override String ToString()
+        {
+            return $"{Access.Name} type {Identifier.Value} = {Typed};";
+        }
     }
 }

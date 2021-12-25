@@ -3,7 +3,9 @@
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
-    /// 前缀表达式
+    /// PrefixUnary Expression
+    /// ++i
+    /// --i
     /// </summary>
     public class PrefixUnaryExpression : OperatorExpression
     {
@@ -12,15 +14,21 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-        /// <summary>
-        /// -5
-        /// !name
-        /// ++n
-        /// --n
-        /// </summary>
-        //public Token Operator { get; set; }
 
         public Exception Operand { get; set; }
 
+
+        public Expression Right
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
+
+        public override String ToString()
+        {
+            return $"{this.Operator.Symbol.Name}{this.Right}";
+        }
     }
 }

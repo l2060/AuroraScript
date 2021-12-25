@@ -31,6 +31,14 @@ namespace AuroraScript.Ast.Expressions
                 return this.childrens[0] as Expression;
             }
         }
+
+
+        public override String ToString()
+        {
+            return $"{Object}.{Property}";
+        }
+
+
     }
 
 }

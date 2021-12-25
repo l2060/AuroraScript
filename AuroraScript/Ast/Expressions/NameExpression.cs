@@ -10,6 +10,10 @@ namespace AuroraScript.Ast.Expressions
 
 
 
+        public override String ToString()
+        {
+            return $"{this.Identifier.Value}";
+        }
 
     }
 }

@@ -181,7 +181,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
             var typed = this.ParseObjectType();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var declaration = new TypeDeclaration() { Identifier = name, Typed = typed };
+            var declaration = new TypeDeclaration() { Identifier = name, Typed = typed, Access = access };
 
             return declaration;
         }
@@ -295,7 +295,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseVariableDeclaration(Scope currentScope, Symbols access = null)
         {
-            var variables = new VariableDeclaration() {  Access = access};
+            var variables = new VariableDeclaration() { Access = access };
             // const
             if (this.lexer.TestNext(Symbols.KW_CONST))
             {
@@ -454,10 +454,12 @@ namespace AuroraScript.Analyzer
                 if (token is PunctuatorToken)
                 {
                     var previousToken = this.lexer.Previous();
-                    var leftExpressionIsOperand = lastExpression != null ? (previousToken is IdentifierToken || previousToken is ValueToken) : false;
                     // I'm running, don't move me
-                    var leftIsOperand = (lastOperator != null && lastOperator.IsOperand) || leftExpressionIsOperand;
-                    var _operator = Operator.FromSymbols(token.Symbol, leftIsOperand);
+                    var leftExpressionIsOperand = lastExpression != null &&
+                        ((lastExpression is OperatorExpression lastOperatorExpression && lastOperatorExpression.IsOperand) ||
+                            previousToken is IdentifierToken ||
+                            previousToken is ValueToken);
+                    var _operator = Operator.FromSymbols(token.Symbol, leftExpressionIsOperand);
                     if (_operator == null)
                     {
                         if (endSymbols.Contains(token.Symbol))
@@ -494,19 +496,16 @@ namespace AuroraScript.Analyzer
                             }
                         }
                         // expressions wrapped in parentheses 
-                        else if (tempExp is GroupExpression groupExpression)
+                        else if (tempExp is GroupExpression)
                         {
                             // Parse() block, from here recursively parse expressions to minor symbols 
                             tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
-                            //if(tempExp is OperatorExpression opexp)
-                            //{
-                            //    opexp.UpgradePrecedence(Operator.Grouping);
-                            //}
-                            var group = new GroupExpression(Operator.Grouping);
-                            group.AddNode(tempExp);
-                            tempExp = group;
+                            if (tempExp is OperatorExpression opexp)
+                            {
+                                opexp.Upgrade(Operator.Grouping);
+                            }
                         }
-                        // Array expression 
+                        // new Array expression 
                         else if (tempExp is ArrayExpression arrayExpression)
                         {
                             // Parse new array object 
@@ -519,16 +518,12 @@ namespace AuroraScript.Analyzer
                                 // If the symbol ends with a closing parenthesis, the parsing is complete 
                                 if (last.Symbol == Symbols.PT_RIGHTBRACKET) break;
                             }
-
                         }
-                        // Array Index expression
-                        else if (tempExp is ArrayAccessExpression)
+                        // Array Index Access expression
+                        else if (tempExp is ArrayAccessExpression indexAccess)
                         {
-                            // Parse() block, from here recursively parse expressions to minor symbols 
-                            var index = new ArrayAccessExpression(Operator.Grouping);
-                            index.Index = this.ParseExpression(currentScope, Symbols.PT_RIGHTBRACKET);
-                            //group.AddNode(tmpexp);
-                            tempExp = index;
+                            // Parse[] block, from here recursively parse expressions to minor symbols 
+                            indexAccess.Index = this.ParseExpression(currentScope, Symbols.PT_RIGHTBRACKET);
                         }
                     }
                     /**

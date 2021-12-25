@@ -3,7 +3,9 @@
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
-    /// 前缀表达式
+    /// Postfix Expression
+    /// i++
+    /// i--
     /// </summary>
     public class PostfixExpression : OperatorExpression
     {
@@ -11,16 +13,19 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
-
-        /// <summary>
-        /// -5
-        /// !name
-        /// ++n
-        /// --n
-        /// </summary>
-        //public Token Operator { get; set; }
-
         public Exception Operand { get; set; }
 
+        public Expression Left
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
+
+        public override String ToString()
+        {
+            return $"{this.Left}{this.Operator.Symbol.Name}";
+        }
     }
 }

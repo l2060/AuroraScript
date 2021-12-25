@@ -9,6 +9,7 @@ namespace AuroraScript.Ast.Expressions
             this.Operator = @operator;
             this.operands = new List<Expression>();
             this.Precedence = this.Operator.Precedence;
+            this.IsOperand = this.Operator.IsOperand;
         }
 
         private List<Expression> operands;
@@ -18,18 +19,28 @@ namespace AuroraScript.Ast.Expressions
         /// <summary>
         /// operator precedence
         /// </summary>
-        internal int Precedence
+        internal Int32 Precedence
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// upgrade operator precedence up up
+        /// this expression is Operand
         /// </summary>
-        internal void UpgradePrecedence(Operator @operator)
+        internal Boolean IsOperand
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// upgrade operator expression up up
+        /// </summary>
+        internal void Upgrade(Operator @operator)
         {
             this.Precedence = @operator.Precedence;
+            this.IsOperand = @operator.IsOperand;
         }
 
 

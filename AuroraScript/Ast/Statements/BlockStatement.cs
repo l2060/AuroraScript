@@ -20,5 +20,16 @@ namespace AuroraScript.Ast.Statements
                 return childrens;
             }
         }
+
+        public override String ToString()
+        {
+            var temp = "";
+            foreach (var item in ChildNodes)
+            {
+                temp += $"{item};\r\n";
+            }
+            return temp;
+        }
+
     }
 }

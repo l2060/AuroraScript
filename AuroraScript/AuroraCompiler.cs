@@ -76,13 +76,18 @@ namespace AuroraScript
             AstNode root = this.buildAst(filepath);
             this.opaimizeTree(root);
             //
-            var printer = new AstPrinter(root);
-            printer.print();
+            this.PrintTreeCode(root);
         }
 
 
 
-
+        private void PrintTreeCode(AstNode root)
+        {
+            foreach (var item in root.ChildNodes)
+            {
+                Console.WriteLine(item);
+            }
+        }
 
 
 

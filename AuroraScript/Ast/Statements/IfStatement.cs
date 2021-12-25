@@ -10,5 +10,20 @@ namespace AuroraScript.Ast.Statements
         public Expression Condition { get; set; }
         public Statement Body { get; set; }
         public Statement Else { get; set; }
+
+
+
+        public override String ToString()
+        {
+            var temp = $"if({this.Condition}){this.Body}";
+            if(this.Else != null)
+            {
+                temp += $" else {this.Else}";
+            }
+            return temp;
+        }
+
+
+
     }
 }

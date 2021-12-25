@@ -41,5 +41,30 @@ namespace AuroraScript.Ast
         /// </summary>
         public List<ObjectType> Typeds { get; set; }
 
+
+
+
+
+        public override String ToString()
+        {
+            var declare = $"{Access.Name} function {Identifier.Value}({String.Join(',', Parameters.Select(e => e.ToString()))}): {String.Join(',', Typeds.Select(e => e.ToString()))}";
+
+            if(Body!= null)
+            {
+                declare += $"{{{this.Body}}}";
+            }
+
+
+            return declare;
+        }
+
+
+
+
+
+
+
+
+
     }
 }

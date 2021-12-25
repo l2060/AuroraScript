@@ -12,5 +12,10 @@ namespace AuroraScript.Common
         {
 
         }
+
+        public override String ToString()
+        {
+            return $"{ElementType.Value}[];";
+        }
     }
 }

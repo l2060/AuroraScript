@@ -29,6 +29,11 @@ namespace AuroraScript.Ast.Statements
 
 
 
+        public override String ToString()
+        {
+            var temp = $"for({this.Initializer};{this.Condition};{this.Incrementor}){{{ this.Body   }}}";
+            return temp;
+        }
 
     }
 }

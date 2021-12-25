@@ -13,6 +13,7 @@ export var length = 100;
 
 var result = ReadFile('hello world');
 
+var p = a[0] * b[1].scc();
 
 Document.Print('hello');
 Document.Version++;
@@ -22,6 +23,14 @@ var num, str = Document.tuple(0xff023);
 console.log(num);
 console.log(str);
 
+for (var i = 0; i < 100; i++)
+{
+    if (i == 66) break;
+    if (i > 33 && i < 55)
+        continue;
+    else
+        console.log(i);
+}
 
 /**
  *          

@@ -35,5 +35,16 @@ namespace AuroraScript.Ast
 
 
 
+        public override String ToString()
+        {
+            var temp = $"{Variable.Value} function {Typed}";
+
+            if(DefaultValue != null)
+            {
+                temp += $" = {DefaultValue}";
+            }
+            return temp;
+        }
+
     }
 }
