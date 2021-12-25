@@ -12,7 +12,6 @@ namespace AuroraScript.Analyzer
     {
         public AuroraCompiler Compiler { get; private set; }
         public AuroraLexer lexer { get; private set; }
-
         public BlockStatement root { get; private set; }
         public AuroraParser(AuroraCompiler compiler, AuroraLexer lexer)
         {

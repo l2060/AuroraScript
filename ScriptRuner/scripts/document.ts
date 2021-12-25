@@ -5,6 +5,7 @@
  * */
 
 import './libs/common';
+import 'main';
 
 export var TextContent = `
 this is line 1
@@ -53,7 +54,7 @@ for (var i = 0; i < 100; i++) {
 for (var i = 0; i < 100; i++) Version++;
 
 var result = foo(1, 'foo');
-
+length++;
 ary1[0] = 123;
 
 console.log(ary1[1]);

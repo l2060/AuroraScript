@@ -7,8 +7,32 @@ The positioning of AuroraScript is a strongly typed script, using TypeScript-lik
 and the goal is to use the stack virtual machine to run 
 
 
+Compiler WorkFlow 
+--------------
+```mermaid
+graph LR
+A[Script] -->B(Lexer)
+    B --> C(Parser)
+    C --> D[Import module]
+    D --> E
+    C --> E[Type Checked]
+    C --> F[Optimize Expression]
+    F --> E
+    E --> G[IL Gen]
+```
 
-
+Virtual Machine WorkFlow 
+--------------
+```mermaid
+graph LR
+A[Binary Script] -->B(Load)
+    B --> C[Export Table]
+    B --> D(Import Table)
+    C --> E[Load Other Modules]
+    D --> E
+    E --> G[Link Modules]
+    G --> H[Run Module]
+```
 
 
 Development Progress  
