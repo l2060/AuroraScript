@@ -23,6 +23,7 @@ var num, str = Document.tuple(0xff023);
 console.log(num);
 console.log(str);
 
+
 for (var i = 0; i < 100; i++)
 {
     if (i == 66) break;
@@ -31,6 +32,8 @@ for (var i = 0; i < 100; i++)
     else
         console.log(i);
 }
+
+var fmtString = `load ${num} of ${str}`;
 
 /**
  *          
@@ -51,9 +54,9 @@ var c, d, r = (
     33 + 66)
     /
     add(
-        10 *
+        10_0_0_0 *
         (
-            10 + 20)
+            -10 + 0.20_00)
         , // max
         50 + Math.max(
             5, 32 * 0.5

@@ -603,8 +603,22 @@ namespace AuroraScript.Analyzer
 
 
 
+        /// <summary>
+        /// var fmtString = `load ${num} of ${str}`;
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="currentScope"></param>
+        /// <returns></returns>
+        private Expression expandStringTemplate(ValueToken token, Scope currentScope)
+        {
+            var exp = new BinaryExpression(Operator.Add);
 
 
+
+
+
+            return exp;
+        }
 
 
 

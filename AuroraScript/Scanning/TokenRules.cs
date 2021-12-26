@@ -153,7 +153,7 @@ namespace AuroraScript.Scanning
 
 
     /// <summary>
-    ///  quotes
+    ///  Double quotes
     /// </summary>
     internal class StringDoubleRule : TokenRules
     {
@@ -192,7 +192,7 @@ namespace AuroraScript.Scanning
 
 
     /// <summary>
-    ///  \n new line
+    ///  Single quotes
     /// </summary>
     internal class StringSingleRule : TokenRules
     {
@@ -230,7 +230,7 @@ namespace AuroraScript.Scanning
 
 
     /// <summary>
-    ///  \n new line
+    ///  format string
     /// </summary>
     internal class StringTemplateRule : TokenRules
     {
@@ -277,17 +277,26 @@ namespace AuroraScript.Scanning
         {
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
-            Int32 dot = 0;
+            Int32 dot = -1;
+            Char? lastChar = null;
             if ((codeSpan[0] >= '0' && codeSpan[0] <= '9') || codeSpan[0] == '-')
             {
+                lastChar = codeSpan[0];
                 for (int i = 1; i < codeSpan.Length; i++)
                 {
                     if (codeSpan[i] >= '0' && codeSpan[i] <= '9')
                     {
                     }
-                    else if (codeSpan[i] == '.' && dot == 0 && !(codeSpan[0] == '-' && i == 1))
+                    else if (codeSpan[i] == '_')
                     {
-                        dot++;
+                        if (lastChar == '-' || lastChar == '.' || lastChar == '_') return result;
+                    }
+                    else if (codeSpan[i] == '.')
+                    {
+                        if (lastChar == '-' || lastChar == '.' || lastChar == '_') return result;
+                        if (lastChar == '-') return result;
+                        if (dot > -1) return result;
+                        dot = i;
                     }
                     else if (codeSpan[0] == '-' && i == 1)
                     {
@@ -302,6 +311,7 @@ namespace AuroraScript.Scanning
                         result.Type = TokenTyped.Number;
                         break;
                     }
+                    lastChar = codeSpan[i];
                 }
             }
             return result;

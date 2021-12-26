@@ -28,7 +28,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override String ToString()
         {
-            return $"{this.Operator.Symbol.Name}{this.Right}";
+            return $"({this.Operator.Symbol.Name}{this.Right})";
         }
     }
 }

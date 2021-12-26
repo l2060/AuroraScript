@@ -3,7 +3,7 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    public class WhileStatement : ConditionExpression
+    public class WhileStatement : Statement
     {
         internal WhileStatement()
         {
@@ -11,6 +11,8 @@ namespace AuroraScript.Ast.Statements
         }
 
 
+        public Expression Condition { get; set; }
 
+        public BlockStatement Body { get; set; }
     }
 }
