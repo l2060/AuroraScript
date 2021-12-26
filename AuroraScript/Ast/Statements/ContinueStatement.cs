@@ -9,7 +9,7 @@ namespace AuroraScript.Ast.Statements
         }
         public override String ToString()
         {
-            return $"continue;";
+            return $"continue;\r\n";
         }
     }
 }

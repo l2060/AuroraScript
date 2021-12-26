@@ -10,7 +10,7 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            return $"{this.childrens[0]};";
+            return $"{this.childrens[0]};\r\n";
         }
     }
 }

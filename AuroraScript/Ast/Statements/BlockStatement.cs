@@ -23,11 +23,12 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            var temp = "";
+            var temp = "{\r\n";
             foreach (var item in ChildNodes)
             {
-                temp += $"{item};\r\n";
+                temp += $"{item}";
             }
+            temp += "}\r\n";
             return temp;
         }
 
