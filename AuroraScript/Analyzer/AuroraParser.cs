@@ -748,7 +748,10 @@ namespace AuroraScript.Analyzer
             // create function scope
             var scope = new Scope(this, currentScope);
             // declare arguments variable
-            scope.DeclareVariable(arguments);
+            foreach (var arg in arguments)
+            {
+                scope.DeclareVariable(arg);
+            }
             // parse function body
             var body = this.ParseBlock(scope);
 

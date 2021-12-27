@@ -10,5 +10,13 @@ namespace AuroraScript.Ast.Expressions
 
         public List<Expression> Elements { get; set; }
 
+
+
+        public override String ToString()
+        {
+            var els = Elements.Select(el => el.ToString()).ToArray();
+            return $"[{String.Join(',', els)}]";
+        }
+
     }
 }
