@@ -62,10 +62,9 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
-            var statement = new Statement();
-            var expression = this.ParseExpression(currentScope);
-            statement.AddNode(expression);
-            return statement;
+
+            var exp = this.ParseExpression(currentScope);
+            return new ExpressionStatement(exp);
         }
 
 
@@ -161,7 +160,7 @@ namespace AuroraScript.Analyzer
             var enumName = this.lexer.NextOfKind<IdentifierToken>();
             var elements = this.ParseEnumBody();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var declaration = new EnumDeclaration() { Elements = elements, Identifier = enumName };
+            var declaration = new EnumDeclaration() { Elements = elements, Identifier = enumName, Access = access };
 
 
             return declaration;
