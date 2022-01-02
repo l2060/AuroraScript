@@ -66,6 +66,8 @@ namespace AuroraScript
                 this.scriptParsers.TryAdd(fileFullPath, parser);
                 root = parser.Parse();
             }
+            //
+            this.PrintTreeCode(root);
             return root;
         }
 
@@ -75,8 +77,7 @@ namespace AuroraScript
         {
             AstNode root = this.buildAst(filepath);
             this.opaimizeTree(root);
-            //
-            this.PrintTreeCode(root);
+
         }
 
 

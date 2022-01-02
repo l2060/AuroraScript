@@ -4,37 +4,44 @@ using AuroraScript.Exceptions;
 
 namespace AuroraScript
 {
+    /// <summary>
+    /// statemtnt scope
+    /// </summary>
     public class Scope
     {
         public Scope Parent { get; private set; }
-
         internal AuroraParser Parser { get; private set; }
+        public IReadOnlyList<Scope> Childrens { get; private set; } = new List<Scope>();
+        public Dictionary<string, ParameterDeclaration> Variables { get; private set; } = new Dictionary<string, ParameterDeclaration>();
 
-        internal Scope(AuroraParser parser,  Scope parent )
+
+
+        internal Scope(AuroraParser parser, Scope parent)
         {
-            this.Parent = parent;
             this.Parser = parser;
-            this.Variables = new Dictionary<string, ParameterDeclaration>();
-        }
-
-        public Dictionary<string, ParameterDeclaration> Variables { get; private set; }
-
-
-
-
-
-        public void DeclareVariable(List<ParameterDeclaration> parameters)
-        {
-            foreach (var parameter in parameters)
+            this.Parent = parent;
+            if(this.Parent != null && this.Parent.Childrens is List<Scope> list)
             {
-                this.DeclareVariable(parameter);
+                list.Add(this);
             }
         }
 
 
+        public void FindToken(Token token)
+        {
 
 
-        public void DeclareVariable(ParameterDeclaration parameter)
+
+        }
+
+
+
+
+
+
+
+
+        internal void DeclareVariable(ParameterDeclaration parameter)
         {
             var declarationScope = this;
             while (declarationScope != null)
@@ -48,21 +55,19 @@ namespace AuroraScript
             this.Variables.Add(parameter.Variable.Value, parameter);
         }
 
-        public void DeclareFunction(FunctionDeclaration parameter)
+        internal void DefineVariable(VariableDeclaration parameter)
         {
 
 
         }
 
-
-        public void DefineVariable(VariableDeclaration parameter)
+        internal void DeclareFunction(FunctionDeclaration parameter)
         {
 
 
         }
 
-        
-       public void DefineFunction(FunctionDeclaration parameter)
+        internal void DefineFunction(FunctionDeclaration parameter)
         {
 
 

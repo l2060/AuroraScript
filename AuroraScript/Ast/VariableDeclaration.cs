@@ -15,6 +15,11 @@ namespace AuroraScript.Ast
         }
 
         /// <summary>
+        /// parameter Modifier  ....
+        /// </summary>
+        public Token Modifier { get; set; }
+
+        /// <summary>
         /// variable names
         /// </summary>
         public List<Token> Variables { get; set; }
@@ -36,6 +41,9 @@ namespace AuroraScript.Ast
         /// </summary>
         public Symbols Access { get; set; }
 
+        /// <summary>
+        /// this variable use const declare
+        /// </summary>
         public Boolean IsConst { get; set; }
 
 

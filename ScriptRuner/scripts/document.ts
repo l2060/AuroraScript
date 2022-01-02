@@ -31,7 +31,7 @@ export function Print(cmd:            /*
  * @param id
  */
 export function tuple(id: int): [int, string] {
-    return;//[id, id.toString()];
+    return [id, id.toString()];
 }
 
 function foo(fs: number, name: string): boolean {
