@@ -10,8 +10,8 @@ type int = number;
 
 /* exported  attributes */
 export var length = 100;
-
-var result = ReadFile('hello world');
+//var regex = /gg/;
+var result = ReadFile('hello\'\\\n\"world'); 
 
 var p = a[0] * b[1].scc();
 
