@@ -3,6 +3,7 @@
  * */
 /* external declare */
 import './libs/common';
+import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import Document from './document';
 type int = number;
@@ -11,7 +12,7 @@ type int = number;
 /* exported  attributes */
 export var length = 100;
 //var regex = /gg/;
-var result = ReadFile('hello\'\\\n\"world'); 
+var result = ReadFile('hello\'\\\n\"world');
 
 var p = a[0] * b[1].scc();
 
@@ -24,8 +25,20 @@ console.log(num);
 console.log(str);
 
 
-for (var i = 0; i < 100; i++)
-{
+var i = 0;
+while (true) {
+    console.log(i);
+    if (i > 5) break;
+    i++;
+}
+
+while (i < 5) {
+    console.log(i);
+    i++;
+}
+
+;;;;;;;;;;;;;;;;;;
+for (var i = 0; i < 100; i++) {
     if (i == 66) break;
     if (i > 33 && i < 55)
         continue;

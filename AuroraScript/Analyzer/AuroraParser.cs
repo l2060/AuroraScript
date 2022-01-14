@@ -47,7 +47,11 @@ namespace AuroraScript.Analyzer
             if (token == null) throw new ParseException(this.lexer.FullPath, token, "Invalid keywords appear in ");
             //if (token.Symbol == Symbols.KW_EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
 
-            if (token.Symbol == Symbols.PT_SEMICOLON) return null;
+            if (token.Symbol == Symbols.PT_SEMICOLON)
+            {
+                this.lexer.Next();
+                return this.ParseStatement(currentScope);
+            }
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
@@ -58,6 +62,7 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_TYPE) return this.ParseTypeDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
+            if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
@@ -281,6 +286,31 @@ namespace AuroraScript.Analyzer
         }
 
 
+        /// <summary>
+        /// parse while block
+        /// starting with “for”
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <returns></returns>
+        private Statement ParseWhileBlock(Scope currentScope)
+        {
+            this.lexer.NextOfKind(Symbols.KW_WHILE);
+            this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+            // parse while condition
+            var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+            // Determine whether the body is single-line or multi-line 
+            var body = this.ParseStatement(currentScope);
+            // parse while body
+            return new WhileStatement()
+            {
+                Condition = condition,
+                Body = body
+            };
+
+        }
+
+
+        
 
 
 
@@ -392,7 +422,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.KW_ELSE);
             BlockStatement block = new BlockStatement(currentScope);
-            if (this.lexer.TestNext(Symbols.KW_IF))
+            if (this.lexer.TestSymbol(Symbols.KW_IF))
             {
                 var statement = this.ParseIfBlock(currentScope);
                 block.AddNode(statement);
