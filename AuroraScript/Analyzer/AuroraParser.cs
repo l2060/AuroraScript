@@ -46,11 +46,11 @@ namespace AuroraScript.Analyzer
             var token = this.lexer.LookAtHead();
             if (token == null) throw new ParseException(this.lexer.FullPath, token, "Invalid keywords appear in ");
             //if (token.Symbol == Symbols.KW_EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
-
             if (token.Symbol == Symbols.PT_SEMICOLON)
             {
+                // Ignore empty statements;
                 this.lexer.Next();
-                return this.ParseStatement(currentScope);
+                return null;
             }
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
@@ -243,10 +243,20 @@ namespace AuroraScript.Analyzer
             while (true)
             {
                 var token = this.lexer.LookAtHead();
+                // Ignore empty statements ;
+                //if (token.Symbol == Symbols.PT_SEMICOLON)
+                //{
+                //    this.lexer.Next();
+                //    continue;
+                //}
                 // Check for the end brace (}).
                 if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
                 // Parse a single statement.
-                result.AddNode(this.ParseStatement(scope));
+                var exp = this.ParseStatement(scope);
+                if (exp != null)
+                {
+                    result.AddNode(exp);
+                }
             }
             // Consume the end brace.
             this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
@@ -274,6 +284,8 @@ namespace AuroraScript.Analyzer
             var incrementor = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
             var body = this.ParseStatement(currentScope);
+            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
+
             // parse for body
             return new ForStatement()
             {
@@ -300,6 +312,7 @@ namespace AuroraScript.Analyzer
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
             var body = this.ParseStatement(currentScope);
+            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "while body statement should not be empty");
             // parse while body
             return new WhileStatement()
             {
@@ -401,6 +414,7 @@ namespace AuroraScript.Analyzer
             // Determine whether the body is single-line or multi-line 
             // parse if body
             Statement body = this.ParseStatement(currentScope);
+            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "if body statement should not be empty");
             var ifStatement = new IfStatement() { Condition = condition };
             ifStatement.Body = body;
             var nextToken = this.lexer.LookAtHead();
@@ -430,6 +444,7 @@ namespace AuroraScript.Analyzer
             else
             {
                 var expression = this.ParseStatement(currentScope);
+                if (expression == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
                 block.AddNode(expression);
             }
             return block;
