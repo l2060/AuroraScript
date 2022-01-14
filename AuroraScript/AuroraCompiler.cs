@@ -4,6 +4,7 @@ using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
 using AuroraScript.Uilty;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text;
 
 namespace AuroraScript
@@ -39,7 +40,7 @@ namespace AuroraScript
         {
             AuroraLexer lexer;
             AstNode root;
-
+            //Debug.WriteLine("111111111111111111111111111111");
             if (relativePath == null) relativePath = "";
             // get import fileName
             var filename = filepath.Replace("/", "\\");

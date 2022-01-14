@@ -1,4 +1,7 @@
 ﻿using AuroraScript.Common;
+using AuroraScript.Exceptions;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace AuroraScript.Scanning
 {
@@ -25,12 +28,66 @@ namespace AuroraScript.Scanning
         public readonly static TokenRules BlockComment = new BlockCommentRule();
         public readonly static TokenRules HexNumber = new HexNumberCommentRule();
         public readonly static TokenRules Number = new NumberCommentRule();
-        public readonly static TokenRules StringTemplate = new StringTemplateRule();
-        public readonly static TokenRules StringSingle = new StringSingleRule();
-        public readonly static TokenRules StringDouble = new StringDoubleRule();
+        public readonly static TokenRules StringTemplate = new StringBlockRule();
         public readonly static TokenRules Identifier = new IdentifierRule();
         public readonly static TokenRules Punctuator = new PunctuatorRule();
         public abstract RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber);
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected unsafe Boolean IsNumber(char lpChar)
+        {
+            return (lpChar >= '0' && lpChar <= '9');
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected unsafe Boolean IsChinese(char lpChar)
+        {
+            return (lpChar >= 0x4e00 && lpChar <= 0x9fbb);
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected unsafe Boolean IsLetter(char lpChar)
+        {
+            return (lpChar >= 'a' && lpChar <= 'z') || (lpChar >= 'A' && lpChar <= 'Z');
+        }
+
+
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected unsafe Boolean canEscape(char lpChar, out char outchar)
+        {
+            Char? c = null;
+            if (lpChar == 'a') c = '\a';
+            if (lpChar == 'b') c = '\b';
+            if (lpChar == 'f') c = '\f';
+            if (lpChar == 'n') c = '\n';
+            if (lpChar == 'r') c = '\r';
+            if (lpChar == 't') c = '\t';
+            if (lpChar == 'v') c = '\v';
+            if (lpChar == '0') c = '\0';
+            if (lpChar == '\\') c = '\\';
+            if (lpChar == '\'') c = '\'';
+            if (lpChar == '"') c = '"';
+            if (c.HasValue)
+            {
+                outchar = c.Value;
+                return true;
+            }
+            else
+            {
+                outchar = '\0';
+                return false;
+            }
+        }
+
 
     }
 
@@ -71,7 +128,7 @@ namespace AuroraScript.Scanning
                     result.Value = codeSpan.Slice(0, 2).ToString();
                     result.Success = true;
                 }
-                else if (codeSpan[0] == '+' ||
+                else if (
                     codeSpan[0] == '+' || codeSpan[0] == '-' || codeSpan[0] == '*' || codeSpan[0] == '/' ||
                     codeSpan[0] == '=' || codeSpan[0] == '%' || codeSpan[0] == '<' || codeSpan[0] == '>' ||
                     codeSpan[0] == '.' || codeSpan[0] == ',' || codeSpan[0] == ';' || codeSpan[0] == ':' ||
@@ -86,7 +143,7 @@ namespace AuroraScript.Scanning
                     result.Success = true;
                 }
             }
-            else if (codeSpan[0] == '+' ||
+            else if (
                     codeSpan[0] == '+' || codeSpan[0] == '-' || codeSpan[0] == '*' || codeSpan[0] == '/' ||
                     codeSpan[0] == '=' || codeSpan[0] == '%' || codeSpan[0] == '<' || codeSpan[0] == '>' ||
                     codeSpan[0] == '.' || codeSpan[0] == ',' || codeSpan[0] == ';' || codeSpan[0] == ':' ||
@@ -114,13 +171,13 @@ namespace AuroraScript.Scanning
     /// </summary>
     internal class IdentifierRule : TokenRules
     {
-        public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
+        public override unsafe RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
         {
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
             if ((codeSpan[0] >= 'a' && codeSpan[0] <= 'z') ||
                 (codeSpan[0] >= 'A' && codeSpan[0] <= 'Z') ||
-                (codeSpan[0] >= 'A' && codeSpan[0] <= 'Z') ||
+                (codeSpan[0] >= 0x4e00 && codeSpan[0] <= 0x9fbb) ||
                   codeSpan[0] == '_' ||
                   codeSpan[0] == '$')
             {
@@ -130,8 +187,7 @@ namespace AuroraScript.Scanning
                     (codeSpan[i] >= 'A' && codeSpan[i] <= 'Z') ||
                     (codeSpan[i] >= 0x4e00 && codeSpan[i] <= 0x9fbb) ||
                     (codeSpan[i] >= '0' && codeSpan[i] <= '9') ||
-                     codeSpan[i] == '_' ||
-                     codeSpan[i] == '$')
+                     codeSpan[i] == '_')
                     {
 
                     }
@@ -151,21 +207,38 @@ namespace AuroraScript.Scanning
     }
 
 
-
     /// <summary>
-    ///  Double quotes
+    ///  format string block
     /// </summary>
-    internal class StringDoubleRule : TokenRules
+    internal class StringBlockRule : TokenRules
     {
+
+        private static StringBuilder sb = new StringBuilder();
+
+
         public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
         {
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
-            if (codeSpan[0] == '"')
+            if (codeSpan[0] == '`' || codeSpan[0] == '"' || codeSpan[0] == '\'')
             {
+                sb.Clear();
+                var keychar = codeSpan[0];
                 for (int i = 1; i < codeSpan.Length; i++)
                 {
-                    if (codeSpan[i] == '\n')
+                    var viewChar = codeSpan[i];
+                    // parse escape char
+                    if (viewChar == '\\')
+                    {
+                        result.ColumnNumber++;
+                        if (!base.canEscape(codeSpan[i + 1], out viewChar))
+                        {
+                            throw new Exception("xxxxxx");
+                        }
+                        result.ColumnNumber++;
+                        i++;
+                    }
+                    else if (viewChar == '\n')
                     {
                         result.ColumnNumber = 0;
                         result.LineCount += 1;
@@ -173,96 +246,27 @@ namespace AuroraScript.Scanning
                     else
                     {
                         result.ColumnNumber++;
-                        if (codeSpan[i] == '"')
+                        if (viewChar == keychar)
                         {
                             result.Length = i + 1;
-                            result.Value = codeSpan.Slice(1, i - 1).ToString();
+                            result.Value = sb.ToString();// codeSpan.Slice(1, i - 1).ToString();
                             result.Success = true;
                             result.Type = TokenTyped.String;
                             break;
                         }
                     }
+                    sb.Append(viewChar);
                 }
             }
             return result;
         }
-    }
 
 
 
 
-    /// <summary>
-    ///  Single quotes
-    /// </summary>
-    internal class StringSingleRule : TokenRules
-    {
-        public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
-        {
-            var result = new RuleTestResult();
-            result.ColumnNumber = ColumnNumber;
-            if (codeSpan[0] == '\'')
-            {
-                for (int i = 1; i < codeSpan.Length; i++)
-                {
-                    if (codeSpan[i] == '\n')
-                    {
-                        result.ColumnNumber = 0;
-                        result.LineCount += 1;
-                    }
-                    else
-                    {
-                        result.ColumnNumber++;
-                        if (codeSpan[i] == '\'')
-                        {
-                            result.Length = i + 1;
-                            result.Value = codeSpan.Slice(1, i - 1).ToString();
-                            result.Success = true;
-                            result.Type = TokenTyped.String;
-                            break;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-    }
 
 
 
-    /// <summary>
-    ///  format string
-    /// </summary>
-    internal class StringTemplateRule : TokenRules
-    {
-        public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
-        {
-            var result = new RuleTestResult();
-            result.ColumnNumber = ColumnNumber;
-            if (codeSpan[0] == '`')
-            {
-                for (int i = 1; i < codeSpan.Length; i++)
-                {
-                    if (codeSpan[i] == '\n')
-                    {
-                        result.ColumnNumber = 0;
-                        result.LineCount += 1;
-                    }
-                    else
-                    {
-                        result.ColumnNumber++;
-                        if (codeSpan[i] == '`')
-                        {
-                            result.Length = i + 1;
-                            result.Value = codeSpan.Slice(1, i - 1).ToString();
-                            result.Success = true;
-                            result.Type = TokenTyped.String;
-                            break;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
     }
 
 

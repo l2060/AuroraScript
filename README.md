@@ -41,6 +41,7 @@ Development Progress
 - [x] Parser Syntax Tree 
 - [x] Array Support
 - [x] Custom Type Define
+- [x] String Escape & format
 - [ ] Custom Type Support
 - [ ] Parser Scope Tree
 - [ ] Optimize Syntax Tree 
