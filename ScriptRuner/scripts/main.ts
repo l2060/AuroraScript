@@ -3,7 +3,7 @@
  * */
 /* external declare */
 import './libs/common';
-import './md5';
+//import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import Document from './document';
 type int = number;
@@ -33,13 +33,13 @@ while (true) {
 }
 
 while (i < 5) {
-    console.log(i);
-    i++;
+    console.log(i);;;;;;;;;;;
+    i++;;;;;;;;;;;;;
 }
 
 ;;;;;;;;;;;;;;;;;;
 for (var i = 0; i < 100; i++) {
-    if (i == 66) break;
+    if (i == 66) break;;;;;;;;;;
     if (i > 33 && i < 55)
         continue;
     else
