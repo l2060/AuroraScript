@@ -10,9 +10,15 @@ namespace AuroraScript.Ast.Statements
 
         }
 
-
         public Expression Condition { get; set; }
 
-        public BlockStatement Body { get; set; }
+        public Statement Body { get; set; }
+
+
+        public override String ToString()
+        {
+            var temp = $"while({this.Condition}){this.Body}";
+            return temp;
+        }
     }
 }

@@ -74,14 +74,16 @@ function ConvertToWordArray(string: string):  number[] {
     lBytePosition = (lByteCount % 4) * 8;
     lWordArray[lWordCount] = lWordArray[lWordCount] | (0x80 << lBytePosition);
     lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
-    lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
+    lWordArray[lNumberOfWords - 1] = lMessageLength >> 29;
     return lWordArray;
 };
 
 function WordToHex(lValue: number): string {
-    var WordToHexValue = "", WordToHexValue_temp = "", lByte, lCount;
+    var WordToHexValue = "";
+    var WordToHexValue_temp = "";
+    var lByte, lCount;
     for (lCount = 0; lCount <= 3; lCount++) {
-        lByte = (lValue >>> (lCount * 8)) & 255;
+        lByte = (lValue >> (lCount * 8)) & 255;
         WordToHexValue_temp = "0" + lByte.toString(16);
         WordToHexValue = WordToHexValue + WordToHexValue_temp.substr(WordToHexValue_temp.length - 2, 2);
     }
@@ -120,10 +122,10 @@ function MD5(string: string):string {
 
     var x = [];
     var k, AA, BB, CC, DD, a, b, c, d;
-    var S11 = 7, S12 = 12, S13 = 17, S14 = 22;
-    var S21 = 5, S22 = 9, S23 = 14, S24 = 20;
-    var S31 = 4, S32 = 11, S33 = 16, S34 = 23;
-    var S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+    var S11 = 7; var S12 = 12; var S13 = 17; var S14 = 22;
+    var S21 = 5; var S22 = 9; var S23 = 14; var S24 = 20;
+    var S31 = 4; var S32 = 11; var S33 = 16; var S34 = 23;
+    var S41 = 6; var S42 = 10; var S43 = 15; var S44 = 21;
 
     string = Utf8Encode(string);
 

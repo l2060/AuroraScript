@@ -115,6 +115,21 @@ namespace AuroraScript.Analyzer
             return nextToken is T;
         }
 
+
+
+        /// <summary>
+        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Boolean TestSymbol(Symbols symbol)
+        {
+            var nextToken = this.LookAtHead();
+            return (nextToken.Symbol == symbol);
+
+        }
+
         /// <summary>
         /// If it is the specified symbol, take it out and return true, otherwise return false  
         /// </summary>
