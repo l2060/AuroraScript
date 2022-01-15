@@ -28,6 +28,8 @@ namespace AuroraScript
     public sealed class Operator
     {
 
+
+
         // Parenthesis.
         /// <summary>
         /// operator (exp)
@@ -64,6 +66,12 @@ namespace AuroraScript
         /// operator new
         /// </summary>
         public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, true);
+
+
+        /// <summary>
+        /// Coroutine (func call)
+        /// </summary>
+        public static readonly Operator Coroutine = new Operator(Symbols.KW_COROUTINE, 16, OperatorPlacement.Prefix, true);
 
         // Postfix operators.
         /// <summary>

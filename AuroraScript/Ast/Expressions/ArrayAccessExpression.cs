@@ -22,7 +22,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override String ToString()
         {
-            return $" {Target}[{Index}] ";
+            return $" {Target}{Operator.Array.Symbol.Name}{Index}{Operator.Array.SecondarySymbols.Name} ";
         }
     }
 }

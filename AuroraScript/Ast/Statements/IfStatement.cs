@@ -15,10 +15,10 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            var temp = $"if({this.Condition}){this.Body}";
+            var temp = $"{Symbols.KW_IF.Name}({this.Condition}){this.Body}";
             if(this.Else != null)
             {
-                temp += $" else {this.Else}";
+                temp += $" {Symbols.KW_ELSE.Name} {this.Else}";
             }
             return temp;
         }

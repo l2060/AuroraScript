@@ -35,7 +35,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override String ToString()
         {
-            return $"{Object}.{Property}";
+            return $"{Object}{Operator.MemberAccess.Symbol.Name}{Property}";
         }
 
 

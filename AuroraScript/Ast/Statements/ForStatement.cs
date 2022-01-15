@@ -31,7 +31,7 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            var temp = $"for({this.Initializer}{this.Condition};{this.Incrementor}){this.Body}";
+            var temp = $"{Symbols.KW_FOR.Name}({this.Initializer}{this.Condition}{Symbols.PT_SEMICOLON.Name}{this.Incrementor}){this.Body}";
             return temp;
         }
 

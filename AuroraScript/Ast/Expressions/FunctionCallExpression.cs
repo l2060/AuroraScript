@@ -24,7 +24,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override String ToString()
         {
-            return $"{Target}({String.Join(',', Arguments.Select(e => e.ToString()))})";
+            return $"{Target}{Operator.FunctionCall.Symbol.Name}{String.Join(',', Arguments.Select(e => e.ToString()))}{Operator.FunctionCall.SecondarySymbols.Name}";
         }
 
     }

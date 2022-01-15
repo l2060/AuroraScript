@@ -17,7 +17,7 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            return Expression.ToString() + ';';
+            return $"{Expression}{Symbols.PT_SEMICOLON.Name}";
         }
 
 

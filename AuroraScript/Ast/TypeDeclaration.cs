@@ -22,7 +22,7 @@ namespace AuroraScript.Ast
 
         public override String ToString()
         {
-            return $"{Access.Name} type {Identifier.Value} = {Typed};";
+            return $"{Access.Name} {Symbols.KW_TYPE.Name} {Identifier.Value} = {Typed};";
         }
     }
 }

@@ -37,7 +37,7 @@ namespace AuroraScript.Ast
 
         public override String ToString()
         {
-            var temp = $"{Variable.Value} function {Typed}";
+            var temp = $"{Variable.Value}{Symbols.PT_COLON.Name} {Typed}";
 
             if(DefaultValue != null)
             {
