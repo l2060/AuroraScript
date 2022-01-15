@@ -50,8 +50,8 @@ namespace AuroraScript.Ast
 
         public override String ToString()
         {
-            var key = IsConst ? "const" : "var";
-            return $"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} = {Initializer};";
+            var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
+            return $"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} {Symbols.OP_ASSIGNMENT.Name} {Initializer};";
         }
 
 

@@ -28,12 +28,12 @@ namespace AuroraScript
         public readonly static Symbols KW_PROTECTED = new Symbols("protected", SymbolTypes.KeyWord);
         public readonly static Symbols KW_PUBLIC = new Symbols("public", SymbolTypes.KeyWord);
         public readonly static Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
-
         public readonly static Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
         public readonly static Symbols KW_FROM = new Symbols("from", SymbolTypes.KeyWord);
         public readonly static Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
         public readonly static Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord); // 密封的
         public readonly static Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord); // 内部的
+
 
 
         // types
@@ -44,6 +44,7 @@ namespace AuroraScript
         public readonly static Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Identifier);
         // public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
 
+        public readonly static Symbols KW_COROUTINE = new Symbols("coroutine", SymbolTypes.Punctuator);
 
         /// <summary>
         /// token typeof 

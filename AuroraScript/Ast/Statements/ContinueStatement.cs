@@ -9,7 +9,7 @@ namespace AuroraScript.Ast.Statements
         }
         public override String ToString()
         {
-            return $"continue;\r\n";
+            return $"{Symbols.KW_CONTINUE.Name}{Symbols.PT_SEMICOLON.Name}\r\n";
         }
     }
 }

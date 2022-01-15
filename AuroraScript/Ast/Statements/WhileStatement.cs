@@ -17,7 +17,7 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            var temp = $"while({this.Condition}){this.Body}";
+            var temp = $"{Symbols.KW_WHILE.Name}({this.Condition}){this.Body}";
             return temp;
         }
     }

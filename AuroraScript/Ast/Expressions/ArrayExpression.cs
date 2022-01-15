@@ -15,7 +15,7 @@ namespace AuroraScript.Ast.Expressions
         public override String ToString()
         {
             var els = Elements.Select(el => el.ToString()).ToArray();
-            return $"[{String.Join(',', els)}]";
+            return $"{Operator.Array.Symbol.Name}{String.Join(',', els)}{Operator.Array.SecondarySymbols.Name}";
         }
 
     }

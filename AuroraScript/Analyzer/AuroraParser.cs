@@ -675,7 +675,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.CompoundDivide) return new AssignmentExpression(_operator);
             if (_operator == Operator.CompoundModulo) return new AssignmentExpression(_operator);
             if (_operator == Operator.CompoundMultiply) return new AssignmentExpression(_operator);
-
+            if (_operator == Operator.Coroutine) return new CoroutineExpression(_operator);
             // new expression
             if (_operator == Operator.New) return new BinaryExpression(_operator);
 

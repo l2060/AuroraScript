@@ -42,7 +42,7 @@ namespace AuroraScript.Ast
 
             var text = String.Join("\r\n", elements);
 
-            return $"{this.Access.Name} enum {Identifier.Value} {{\r\n {text} \r\n}}";
+            return $"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{\r\n {text} \r\n}}";
         }
 
 

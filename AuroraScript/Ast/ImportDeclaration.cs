@@ -18,11 +18,11 @@ namespace AuroraScript.Ast
         {
             if (this.Module != null)
             {
-                return $"import {this.Module.Value} from {this.File.Value};";
+                return $"{Symbols.KW_IMPORT.Name} {this.Module.Value} {Symbols.KW_FROM.Name} {this.File.Value};";
             }
             else
             {
-                return $"import {this.File.Value};";
+                return $"{Symbols.KW_IMPORT.Name} {this.File.Value};";
             }
         }
     }

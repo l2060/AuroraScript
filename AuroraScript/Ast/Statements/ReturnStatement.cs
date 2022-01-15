@@ -14,7 +14,7 @@ namespace AuroraScript.Ast.Statements
 
         public override String ToString()
         {
-            return $"return {this.Expression};\r\n";
+            return $"{Symbols.KW_RETURN.Name} {this.Expression}{Symbols.PT_SEMICOLON.Name}\r\n";
         }
     }
 }

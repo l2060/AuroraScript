@@ -9,7 +9,7 @@ namespace AuroraScript.Ast.Statements
         }
         public override String ToString()
         {
-            return $"break;\r\n";
+            return $"{Symbols.KW_BREAK.Name}{Symbols.PT_SEMICOLON.Name}\r\n";
         }
     }
 }

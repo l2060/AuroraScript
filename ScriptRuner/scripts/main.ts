@@ -37,6 +37,12 @@ while (i < 5) {
     i++;;;;;;;;;;;;;
 }
 
+while (i < 15) i++;
+
+if (i < 15) {
+
+}
+
 ;;;;;;;;;;;;;;;;;;
 for (var i = 0; i < 100; i++) {
     if (i == 66) break;;;;;;;;;;
@@ -62,6 +68,8 @@ function add(a: int, b: int): int {
     return (a + b) * (a + b);
 }
 
+
+coroutine add(1, 2);
 
 var c, d, r = (
     33 + 66)
