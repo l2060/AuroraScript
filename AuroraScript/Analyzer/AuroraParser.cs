@@ -243,12 +243,6 @@ namespace AuroraScript.Analyzer
             while (true)
             {
                 var token = this.lexer.LookAtHead();
-                // Ignore empty statements ;
-                //if (token.Symbol == Symbols.PT_SEMICOLON)
-                //{
-                //    this.lexer.Next();
-                //    continue;
-                //}
                 // Check for the end brace (}).
                 if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
                 // Parse a single statement.
