@@ -8,7 +8,7 @@ namespace AuroraScript.Scanning
 
     internal struct RuleTestResult
     {
-        public Boolean Success = false;
+        public Boolean Success;
         public Int32 LineCount;
         public Int32 ColumnNumber;
         public String Value;

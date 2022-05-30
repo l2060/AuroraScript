@@ -4,6 +4,10 @@ namespace AuroraScript.Common
 {
     internal struct RegexDefine
     {
+        public RegexDefine()
+        {
+
+        }
         /// <summary>
         /// 
         /// </summary>
