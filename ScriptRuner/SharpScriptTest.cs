@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 //using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -13,6 +14,9 @@ namespace ScriptRuner
 
         public async void Test()
         {
+            //NetworkStream
+
+
             //Console.Write("测试基本算数表达式:(1+2)*3/4");
             //var res = await CSharpScript.EvaluateAsync("(1+2)*3/4");
             //Console.WriteLine(res);
