@@ -3,7 +3,7 @@
  * */
 /* external declare */
 import './libs/common';
-//import './md5';
+import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import Document from './document';
 type int = number;

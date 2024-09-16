@@ -66,12 +66,25 @@ namespace AuroraScript.Ast
         public List<ObjectType> Typeds { get; set; }
 
 
-        public FunctionFlags    Flags { get; set; }
+        public FunctionFlags Flags { get; set; }
 
 
         public override String ToString()
         {
-            var declare = $"{Access.Name} {Symbols.KW_FUNCTION.Name} {Identifier.Value}({String.Join(',', Parameters.Select(e => e.ToString()))}): {String.Join(',', Typeds.Select(e => e.ToString()))}";
+            var kw = "";
+            if (Flags == FunctionFlags.General)
+            {
+                kw = Symbols.KW_FUNCTION.Name;
+            }
+            else if (Flags == FunctionFlags.GetMethod)
+            {
+                kw = Symbols.KW_GET.Name;
+            }
+            else if (Flags == FunctionFlags.SetMethod)
+            {
+                kw = Symbols.KW_SET.Name;
+            }
+            var declare = $"{Access.Name} {kw} {Identifier.Value}({String.Join(',', Parameters.Select(e => e.ToString()))}): {String.Join(',', Typeds.Select(e => e.ToString()))}";
             if (Body != null)
             {
                 declare += $"{this.Body}";

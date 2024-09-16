@@ -1,22 +1,21 @@
 ﻿
+using AuroraScript.Tokens;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class ValueExpression: Expression
     {
 
-        internal ValueExpression(Token value)
+        internal ValueExpression(ValueToken value)
         {
             this.Value = value;
         }
-        public Token Value { get; set; }
+        public ValueToken Value { get; set; }
 
 
         public override String ToString()
         {
-
-
-
-            return $"{Value.Value}";
+            return $"{Value.ToValue()}";
         }
 
 

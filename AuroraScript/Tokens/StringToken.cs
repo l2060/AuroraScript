@@ -7,5 +7,17 @@ namespace AuroraScript.Tokens
         {
             this.Type = ValueType.String;
         }
+
+
+
+
+        public override string ToValue()
+        {
+            return $"`{this.Value}`";
+        }
+
+
+
+
     }
 }

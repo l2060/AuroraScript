@@ -78,7 +78,7 @@ namespace AuroraScript
         {
             AstNode root = this.buildAst(filepath);
             this.opaimizeTree(root);
-
+            //this.PrintTreeCode(root);
         }
 
 

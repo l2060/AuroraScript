@@ -46,7 +46,7 @@ namespace ScriptRuner
         public static void Run()
         {
 
-            var i = TestDynamic<IService>();
+            var i = MakeProxy<IService>();
             i.Action();
             i.Action("123456", 1234888);
             i.Action("123456");
@@ -74,7 +74,7 @@ namespace ScriptRuner
 
 
 
-        static T TestDynamic<T>() where T : class
+        static T MakeProxy<T>() where T : class
         {
             var type = typeof(T);
             AssemblyName assemblyName = new AssemblyName("ChefDynamicAssembly");

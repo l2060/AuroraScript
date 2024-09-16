@@ -18,7 +18,7 @@ namespace AuroraScript.Analyzer
             this.lexer = lexer;
             this.Compiler = compiler;
             var scope = new Scope(this, null);
-            this.root = new BlockStatement(scope);
+            this.root = new ModuleDeclaration(scope);
         }
 
         public AstNode Parse()
@@ -485,7 +485,7 @@ namespace AuroraScript.Analyzer
                 // expression of Token
                 Expression tempExp = null;
                 // value Operand
-                if (token is ValueToken) tempExp = new ValueExpression(token);
+                if (token is ValueToken) tempExp = new ValueExpression(token as ValueToken);
                 // identifier Operand
                 if (token is IdentifierToken) tempExp = new NameExpression() { Identifier = token };
                 // keywords should not appear here 
