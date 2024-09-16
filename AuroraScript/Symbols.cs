@@ -15,6 +15,9 @@ namespace AuroraScript
         public readonly static Symbols KW_TYPE = new Symbols("type", SymbolTypes.KeyWord);
         public readonly static Symbols KW_CONST = new Symbols("const", SymbolTypes.KeyWord);
         public readonly static Symbols KW_FUNCTION = new Symbols("function", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_GET = new Symbols("get", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_SET = new Symbols("set", SymbolTypes.KeyWord);
+
         public readonly static Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
         public readonly static Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
         public readonly static Symbols KW_BREAK = new Symbols("break", SymbolTypes.KeyWord);

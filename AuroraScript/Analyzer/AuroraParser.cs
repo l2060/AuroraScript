@@ -56,6 +56,8 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_GET) return this.ParseGetFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_SET) return this.ParseSetFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
@@ -317,7 +319,7 @@ namespace AuroraScript.Analyzer
         }
 
 
-        
+
 
 
 
@@ -775,7 +777,7 @@ namespace AuroraScript.Analyzer
         /// <param name="parentScope"></param>
         /// <param name="access"></param>
         /// <returns></returns>
-        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null)
+        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null, FunctionFlags flags = FunctionFlags.General)
         {
             // next token (
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
@@ -800,7 +802,8 @@ namespace AuroraScript.Analyzer
                 Body = body,
                 Identifier = functionName,
                 Parameters = arguments,
-                Typeds = typeds
+                Typeds = typeds,
+                Flags = flags
             };
             // define functions in scope 
             currentScope.DefineFunction(declaration);
@@ -856,7 +859,38 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.KW_FUNCTION);
             var functionName = this.lexer.NextOfKind<IdentifierToken>();
             // 校验 方法名是否有效
-            return this.ParseFunction(functionName, currentScope, access);
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.General);
+        }
+
+
+        /// <summary>
+        /// analyze function declarations 
+        /// starting with “get” 
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseGetFunctionDeclaration(Scope currentScope, Symbols access = null)
+        {
+            this.lexer.NextOfKind(Symbols.KW_GET);
+            var functionName = this.lexer.NextOfKind<IdentifierToken>();
+            // 校验 方法名是否有效
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.GetMethod);
+        }
+
+        /// <summary>
+        /// analyze function declarations 
+        /// starting with “set” 
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseSetFunctionDeclaration(Scope currentScope, Symbols access = null)
+        {
+            this.lexer.NextOfKind(Symbols.KW_SET);
+            var functionName = this.lexer.NextOfKind<IdentifierToken>();
+            // 校验 方法名是否有效
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.SetMethod);
         }
 
         /// <summary>
@@ -873,6 +907,16 @@ namespace AuroraScript.Analyzer
             {
                 // function
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_GET)
+            {
+                // get function
+                return ParseGetFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_SET)
+            {
+                // set function
+                return ParseSetFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {

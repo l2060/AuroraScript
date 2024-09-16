@@ -3,6 +3,30 @@ using AuroraScript.Common;
 
 namespace AuroraScript.Ast
 {
+    public enum FunctionFlags
+    {
+        /// <summary>
+        /// 普通方法
+        /// </summary>
+        General = 0,
+
+        /// <summary>
+        /// Get 方法
+        /// </summary>
+        GetMethod = 1,
+
+        /// <summary>
+        /// Set 方法
+        /// </summary>
+        SetMethod = 2,
+    }
+
+
+
+
+
+
+
     /// <summary>
     /// 函数定义
     /// </summary>
@@ -42,7 +66,7 @@ namespace AuroraScript.Ast
         public List<ObjectType> Typeds { get; set; }
 
 
-
+        public FunctionFlags    Flags { get; set; }
 
 
         public override String ToString()
