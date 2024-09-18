@@ -36,7 +36,7 @@ namespace AuroraScript
         /// <param name="filepath"></param>
         /// <param name="relativePath"></param>
         /// <returns></returns>
-        public AstNode buildAst(string filepath, string relativePath = null)
+        public ModuleDeclaration buildAst(string filepath, string relativePath = null)
         {
             AuroraLexer lexer;
             AstNode root;
@@ -68,8 +68,8 @@ namespace AuroraScript
                 root = parser.Parse();
             }
             //
-            this.PrintTreeCode(root);
-            return root;
+
+            return root as ModuleDeclaration;
         }
 
 
@@ -83,7 +83,50 @@ namespace AuroraScript
 
 
 
-        private void PrintTreeCode(AstNode root)
+
+
+
+        public String ToCode(ModuleDeclaration root)
+        {
+            List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
+            moduleList.Insert(0, root);
+            Queue<ModuleDeclaration> moduleImports = new Queue<ModuleDeclaration>(root.Imports);
+            while (moduleImports.Count > 0)
+            {
+                var module = moduleImports.Dequeue();
+                foreach (var import in module.Imports)
+                {
+                    if (!moduleList.Contains(import))
+                    {
+                        moduleList.Add(import);
+                        import.Imports.ForEach(x => moduleImports.Enqueue(x));
+                    }
+                }
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+                {
+                    foreach (ModuleDeclaration module in moduleList)
+                    {
+                        module.WriteCode(writer);
+                        writer.WriteLine();
+                        writer.WriteLine();
+                    }
+                }
+                stream.Position = 0;
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+
+        }
+
+
+
+        public void PrintTreeCode(AstNode root)
         {
             foreach (var item in root.ChildNodes)
             {

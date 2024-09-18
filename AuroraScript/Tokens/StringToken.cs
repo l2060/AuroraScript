@@ -13,7 +13,9 @@ namespace AuroraScript.Tokens
 
         public override string ToValue()
         {
-            return $"`{this.Value}`";
+
+
+            return $"`{this.Value.Replace("\r", "\\r").Replace("\n", "\\n")}`";
         }
 
 

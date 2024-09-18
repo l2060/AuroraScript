@@ -18,7 +18,10 @@ namespace AuroraScript.Ast.Expressions
             return $"{Value.ToValue()}";
         }
 
-
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write(Value.ToValue());
+        }
 
     }
 }

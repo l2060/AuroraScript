@@ -24,5 +24,10 @@ namespace AuroraScript.Ast
         {
             return $"{Access.Name} {Symbols.KW_TYPE.Name} {Identifier.Value} = {Typed};";
         }
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.WriteLine($"{Access.Name} {Symbols.KW_TYPE.Name} {Identifier.Value} = {Typed};");
+        }
     }
 }

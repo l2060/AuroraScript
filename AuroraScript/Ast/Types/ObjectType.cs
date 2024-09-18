@@ -29,5 +29,12 @@ namespace AuroraScript.Common
         }
 
 
+
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write(ElementType.Value);
+        }
+
     }
 }

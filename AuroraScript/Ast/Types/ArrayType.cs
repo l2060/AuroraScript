@@ -17,5 +17,12 @@ namespace AuroraScript.Common
         {
             return $"{ElementType.Value}[];";
         }
+
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.WriteLine($"{ElementType.Value}[];");
+        }
+
     }
 }

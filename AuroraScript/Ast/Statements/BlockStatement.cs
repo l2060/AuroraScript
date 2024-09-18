@@ -13,7 +13,7 @@ namespace AuroraScript.Ast.Statements
             this.Scope = currentScope;
         }
 
-        public new virtual IEnumerable<AstNode> ChildNodes
+        public new virtual List<AstNode> ChildNodes
         {
             get
             {
@@ -31,6 +31,16 @@ namespace AuroraScript.Ast.Statements
             temp += $"\r\n{Symbols.PT_RIGHTBRACE.Name}";
             return temp;
         }
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
+            this.writeParameters(writer, ChildNodes, "");
+            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
+        }
+
+
+
 
     }
 }

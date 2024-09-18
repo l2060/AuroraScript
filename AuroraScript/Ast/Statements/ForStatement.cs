@@ -35,5 +35,19 @@ namespace AuroraScript.Ast.Statements
             return temp;
         }
 
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write(Symbols.KW_FOR.Name);
+            writer.Write("(");
+            this.Initializer.WriteCode(writer);
+            writer.Write("; ");
+            this.Condition.WriteCode(writer);
+            writer.Write("; ");
+            this.Incrementor.WriteCode(writer);
+            writer.Write(")");
+
+            this.Body.WriteCode(writer);
+        }
     }
 }

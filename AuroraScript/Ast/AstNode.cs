@@ -58,5 +58,27 @@ namespace AuroraScript.Ast
         }
 
 
+
+
+        /// <summary>
+        /// ???????????????????????????
+        /// </summary>
+        /// <param name="writer"></param>
+        public virtual void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+
+        }
+
+
+        protected void writeParameters<T>(StreamWriter writer, List<T> nodes, string sp) where T : AstNode
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].WriteCode(writer);
+                if (i < nodes.Count -1 ) writer.Write(sp);
+            }
+        }
+
+
     }
 }

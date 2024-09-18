@@ -11,5 +11,12 @@ namespace AuroraScript.Ast.Statements
         {
             return $"{Symbols.KW_BREAK.Name}{Symbols.PT_SEMICOLON.Name}\r\n";
         }
+
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write(Symbols.KW_BREAK.Name);
+            writer.WriteLine(Symbols.PT_SEMICOLON.Name);
+        }
     }
 }

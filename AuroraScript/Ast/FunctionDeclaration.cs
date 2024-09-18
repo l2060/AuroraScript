@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Common;
+using System.Xml.Linq;
 
 namespace AuroraScript.Ast
 {
@@ -94,8 +95,49 @@ namespace AuroraScript.Ast
 
 
 
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            var kw = "";
+            if (Flags == FunctionFlags.General)
+            {
+                kw = Symbols.KW_FUNCTION.Name;
+            }
+            else if (Flags == FunctionFlags.GetMethod)
+            {
+                kw = Symbols.KW_GET.Name;
+            }
+            else if (Flags == FunctionFlags.SetMethod)
+            {
+                kw = Symbols.KW_SET.Name;
+            }
+
+            writer.Write($"{Access.Name} {kw} {Identifier.Value}(");
+            this.writeParameters(writer, Parameters, ", ");
+            writer.Write("): ");
+
+            if (Typeds.Count > 0)
+            {
+                if (Typeds.Count == 1)
+                {
+                    this.writeParameters(writer, Typeds, ", ");
+                }
+                else
+                {
+                    writer.Write("[");
+                    this.writeParameters(writer, Typeds, ", ");
+                    writer.Write("]");
+                }
 
 
+
+            } 
+      
+
+
+            writer.WriteLine();
+            if (Body != null) this.Body.WriteCode(writer);
+
+        }
 
 
 

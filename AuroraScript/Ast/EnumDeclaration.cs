@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Ast
 {
@@ -39,12 +40,22 @@ namespace AuroraScript.Ast
         public override String ToString()
         {
             var elements = Elements.Select(e => $"{e.Name.Value}={e.Value},");
-
             var text = String.Join("\r\n", elements);
-
             return $"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{\r\n {text} \r\n}}";
         }
 
 
+
+
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.WriteLine($"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{");
+            foreach (EnumElement element in Elements)
+            {
+                writer.WriteLine($"    {element.Name.Value} = {element.Value},");
+            }
+            writer.WriteLine("}}");
+        }
     }
 }

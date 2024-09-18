@@ -35,6 +35,10 @@ namespace AuroraScript.Ast.Expressions
             return "...";
         }
 
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.WriteLine($"...");
+        }
 
     }
 }

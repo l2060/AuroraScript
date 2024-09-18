@@ -38,7 +38,12 @@ namespace AuroraScript.Ast.Expressions
             return $"{Object}{Operator.MemberAccess.Symbol.Name}{Property}";
         }
 
-
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            this.Object.WriteCode(writer);
+            writer.Write(Operator.MemberAccess.Symbol.Name);
+            this.Property.WriteCode(writer);
+        }
     }
 
 }

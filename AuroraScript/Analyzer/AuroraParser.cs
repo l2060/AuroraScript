@@ -12,13 +12,14 @@ namespace AuroraScript.Analyzer
     {
         public AuroraCompiler Compiler { get; private set; }
         public AuroraLexer lexer { get; private set; }
-        public BlockStatement root { get; private set; }
+        public ModuleDeclaration root { get; private set; }
         public AuroraParser(AuroraCompiler compiler, AuroraLexer lexer)
         {
             this.lexer = lexer;
             this.Compiler = compiler;
             var scope = new Scope(this, null);
             this.root = new ModuleDeclaration(scope);
+            this.root.ModulePath = lexer.FullPath;
         }
 
         public AstNode Parse()
@@ -256,6 +257,13 @@ namespace AuroraScript.Analyzer
             }
             // Consume the end brace.
             this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
+
+            //if (result.Length == 1)
+            //{
+            //    var statement = result.ChildNodes[0];
+            //    statement.Remove();
+            //    return statement as Statement;
+            //}
             return result;
         }
 
@@ -270,16 +278,19 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseForBlock(Scope currentScope)
         {
+            var scope = new Scope(currentScope.Parser, currentScope);
             this.lexer.NextOfKind(Symbols.KW_FOR);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse for initializer
-            var initializer = this.ParseStatement(currentScope);
+            AstNode initializer = this.ParseStatement(scope);
+            // remove expression layout
+            if (initializer is ExpressionStatement es) initializer = es.Expression;
             // parse for condition
-            var condition = this.ParseExpression(currentScope);
+            var condition = this.ParseExpression(scope);
             // parse for incrementor
-            var incrementor = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+            var incrementor = this.ParseExpression(scope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
-            var body = this.ParseStatement(currentScope);
+            var body = this.ParseStatement(scope);
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
 
             // parse for body
@@ -382,7 +393,7 @@ namespace AuroraScript.Analyzer
             }
             // define variables
             currentScope.DefineVariable(variables);
-            return variables;
+            return new ExpressionStatement(variables);
         }
 
 
@@ -406,6 +417,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.KW_IF);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
             // parse if body
@@ -968,15 +980,12 @@ namespace AuroraScript.Analyzer
                 fileToken = this.lexer.NextOfKind<StringToken>();
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             }
-
-
             // import ast
+            // 查缓存
             var moduleAst = this.Compiler.buildAst(fileToken.Value, this.lexer.Directory);
+            this.root.Import(moduleAst);
             // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
             //最终由link-module 链接起来 
-
-
-
             return new ImportDeclaration() { Module = module, File = fileToken };
         }
 

@@ -39,12 +39,22 @@ namespace AuroraScript.Ast
         {
             var temp = $"{Variable.Value}{Symbols.PT_COLON.Name} {Typed}";
 
-            if(DefaultValue != null)
+            if (DefaultValue != null)
             {
                 temp += $" = {DefaultValue}";
             }
             return temp;
         }
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write($"{Variable.Value}{Symbols.PT_COLON.Name} {Typed}");
+            if (DefaultValue != null) {
+                writer.Write($" = {DefaultValue}");
+            }
+        }
+
+
 
     }
 }

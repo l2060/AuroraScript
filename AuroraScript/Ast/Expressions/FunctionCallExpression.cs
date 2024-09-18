@@ -27,5 +27,14 @@ namespace AuroraScript.Ast.Expressions
             return $"{Target}{Operator.FunctionCall.Symbol.Name}{String.Join(',', Arguments.Select(e => e.ToString()))}{Operator.FunctionCall.SecondarySymbols.Name}";
         }
 
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            Target.WriteCode(writer);
+            writer.Write(Operator.FunctionCall.Symbol.Name);
+            this.writeParameters(writer, Arguments, ", ");
+            writer.Write(Operator.FunctionCall.SecondarySymbols.Name);
+        }
+
     }
 }

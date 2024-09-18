@@ -14,9 +14,10 @@ using ScriptRuner;
 
 var compiler = new AuroraCompiler();
 
-AstNode root = compiler.buildAst("./scripts/main.ts");
+ModuleDeclaration root = compiler.buildAst("./scripts/main.ts");
 compiler.opaimizeTree(root);
-//Console.WriteLine(root);
+//compiler.PrintTreeCode(root);
+Console.WriteLine(compiler.ToCode(root));
 Console.ReadKey();
 
 

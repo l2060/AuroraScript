@@ -24,5 +24,16 @@ namespace AuroraScript.Ast.Expressions
         {
             return $" {Target}{Operator.Array.Symbol.Name}{Index}{Operator.Array.SecondarySymbols.Name} ";
         }
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            Target.WriteCode(writer);
+            writer.Write(Operator.Array.Symbol.Name);
+            Index.WriteCode(writer);
+            writer.Write(Operator.Array.SecondarySymbols.Name);
+        }
+
+
+
     }
 }

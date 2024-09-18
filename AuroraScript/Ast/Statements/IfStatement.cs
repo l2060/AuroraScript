@@ -23,7 +23,20 @@ namespace AuroraScript.Ast.Statements
             return temp;
         }
 
-
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            writer.Write(Symbols.KW_IF.Name);
+            writer.Write(" (");
+            this.Condition.WriteCode(writer);
+            writer.Write(") ");
+            this.Body.WriteCode(writer);
+            if (this.Else != null)
+            {
+                writer.WriteLine();
+                writer.Write(Symbols.KW_ELSE.Name);
+                this.Else.WriteCode(writer);
+            }
+        }
 
     }
 }

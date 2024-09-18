@@ -12,8 +12,6 @@ namespace AuroraScript.Ast
 
         public Token Module { get; set; }
         public Token File { get; set; }
-
-
         public override String ToString()
         {
             if (this.Module != null)
@@ -25,5 +23,21 @@ namespace AuroraScript.Ast
                 return $"{Symbols.KW_IMPORT.Name} {this.File.Value};";
             }
         }
+
+
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            if (this.Module != null)
+            {
+                writer.WriteLine($"{Symbols.KW_IMPORT.Name} {this.Module.Value} {Symbols.KW_FROM.Name} {this.File.Value};");
+            }
+            else
+            {
+                writer.WriteLine($"{Symbols.KW_IMPORT.Name} {this.File.Value};");
+            }
+        }
+
+
     }
 }

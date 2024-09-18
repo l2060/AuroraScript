@@ -31,5 +31,13 @@ namespace AuroraScript.Ast.Expressions
             return $"{Left} {this.Operator.Symbol.Name} {Right}";
         }
 
+
+        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        {
+            this.Left.WriteCode(writer);
+            writer.Write($" {this.Operator.Symbol.Name} ");
+            this.Right.WriteCode(writer);
+
+        }
     }
 }
