@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Statements;
+using AuroraScript.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,26 +37,17 @@ namespace AuroraScript.Ast
 
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            var elements = Elements.Select(e => $"{e.Name.Value}={e.Value},");
-            var text = String.Join("\r\n", elements);
-            return $"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{\r\n {text} \r\n}}";
-        }
-
-
-
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            writer.WriteLine($"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{");
-            foreach (EnumElement element in Elements)
+            writer.WriteLine($"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {Symbols.PT_LEFTBRACE.Name}");
+            using (writer.IncIndented())
             {
-                writer.WriteLine($"    {element.Name.Value} = {element.Value},");
+                foreach (EnumElement element in Elements)
+                {
+                    writer.WriteLine($"{element.Name.Value} = {element.Value},");
+                }
             }
-            writer.WriteLine("}}");
+            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
     }
 }

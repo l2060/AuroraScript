@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Statements;
+using AuroraScript.Stream;
 
 
 namespace AuroraScript.Ast
@@ -12,21 +13,9 @@ namespace AuroraScript.Ast
 
         public Token Module { get; set; }
         public Token File { get; set; }
-        public override String ToString()
-        {
-            if (this.Module != null)
-            {
-                return $"{Symbols.KW_IMPORT.Name} {this.Module.Value} {Symbols.KW_FROM.Name} {this.File.Value};";
-            }
-            else
-            {
-                return $"{Symbols.KW_IMPORT.Name} {this.File.Value};";
-            }
-        }
 
 
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             if (this.Module != null)
             {

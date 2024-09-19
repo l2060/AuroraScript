@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast.Statements;
-using AuroraScript.Common;
-using System.Xml.Linq;
+using AuroraScript.Ast.Types;
+using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast
 {
@@ -70,32 +71,7 @@ namespace AuroraScript.Ast
         public FunctionFlags Flags { get; set; }
 
 
-        public override String ToString()
-        {
-            var kw = "";
-            if (Flags == FunctionFlags.General)
-            {
-                kw = Symbols.KW_FUNCTION.Name;
-            }
-            else if (Flags == FunctionFlags.GetMethod)
-            {
-                kw = Symbols.KW_GET.Name;
-            }
-            else if (Flags == FunctionFlags.SetMethod)
-            {
-                kw = Symbols.KW_SET.Name;
-            }
-            var declare = $"{Access.Name} {kw} {Identifier.Value}({String.Join(',', Parameters.Select(e => e.ToString()))}): {String.Join(',', Typeds.Select(e => e.ToString()))}";
-            if (Body != null)
-            {
-                declare += $"{this.Body}";
-            }
-            return declare;
-        }
-
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             var kw = "";
             if (Flags == FunctionFlags.General)
@@ -111,32 +87,25 @@ namespace AuroraScript.Ast
                 kw = Symbols.KW_SET.Name;
             }
 
-            writer.Write($"{Access.Name} {kw} {Identifier.Value}(");
+            writer.Write($"{Access.Name} {kw} {Identifier.Value}{Symbols.PT_LEFTPARENTHESIS.Name}");
             this.writeParameters(writer, Parameters, ", ");
-            writer.Write("): ");
+            writer.Write("{0}{1} ", Symbols.PT_RIGHTPARENTHESIS.Name, Symbols.PT_COLON.Name);
 
             if (Typeds.Count > 0)
             {
                 if (Typeds.Count == 1)
                 {
-                    this.writeParameters(writer, Typeds, ", ");
+                    this.writeParameters(writer, Typeds, Symbols.PT_COMMA.Name + " ");
                 }
                 else
                 {
-                    writer.Write("[");
-                    this.writeParameters(writer, Typeds, ", ");
-                    writer.Write("]");
+                    writer.Write(Symbols.PT_LEFTBRACKET.Name);
+                    this.writeParameters(writer, Typeds, Symbols.PT_COMMA.Name + " ");
+                    writer.Write(Symbols.PT_RIGHTBRACKET.Name);
                 }
-
-
-
-            } 
-      
-
-
+            }
             writer.WriteLine();
-            if (Body != null) this.Body.WriteCode(writer);
-
+            if (Body != null) this.Body.GenerateCode(writer);
         }
 
 

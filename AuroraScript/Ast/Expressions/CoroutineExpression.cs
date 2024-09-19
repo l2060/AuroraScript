@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
+using AuroraScript.Stream;
 using System.Linq.Expressions;
 
 namespace AuroraScript.Ast.Statements
@@ -29,15 +30,10 @@ namespace AuroraScript.Ast.Statements
             }
         }
 
-        public override String ToString()
-        {
-            return $"{Operator.Coroutine.Symbol.Name} {this.FunctionCall}";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.Write($"{Operator.Coroutine.Symbol.Name} ");
-            this.FunctionCall.WriteCode(writer);
+            this.FunctionCall.GenerateCode(writer);
 
         }
 

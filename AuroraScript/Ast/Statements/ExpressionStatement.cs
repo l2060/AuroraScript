@@ -2,6 +2,7 @@
 
 
 using AuroraScript.Ast.Expressions;
+using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
 {
@@ -15,14 +16,9 @@ namespace AuroraScript.Ast.Statements
             this.Expression = expression;
         }
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{Expression}{Symbols.PT_SEMICOLON.Name}";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            Expression.WriteCode(writer);
+            Expression.GenerateCode(writer);
             writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
     }

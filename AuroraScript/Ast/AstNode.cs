@@ -1,5 +1,7 @@
 ﻿
 
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast
 {
     public abstract class AstNode
@@ -64,18 +66,18 @@ namespace AuroraScript.Ast
         /// ???????????????????????????
         /// </summary>
         /// <param name="writer"></param>
-        public virtual void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public virtual void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
 
         }
 
 
-        protected void writeParameters<T>(StreamWriter writer, List<T> nodes, string sp) where T : AstNode
+        protected void writeParameters<T>(CodeWriter writer, List<T> nodes, string sp) where T : AstNode
         {
             for (int i = 0; i < nodes.Count; i++)
             {
-                nodes[i].WriteCode(writer);
-                if (i < nodes.Count -1 ) writer.Write(sp);
+                nodes[i].GenerateCode(writer);
+                if (!String.IsNullOrEmpty(sp) && i < nodes.Count -1 ) writer.Write(sp);
             }
         }
 

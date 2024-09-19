@@ -1,5 +1,7 @@
 ﻿
 
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
@@ -22,17 +24,11 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{Target}{Operator.FunctionCall.Symbol.Name}{String.Join(',', Arguments.Select(e => e.ToString()))}{Operator.FunctionCall.SecondarySymbols.Name}";
-        }
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            Target.WriteCode(writer);
+            Target.GenerateCode(writer);
             writer.Write(Operator.FunctionCall.Symbol.Name);
-            this.writeParameters(writer, Arguments, ", ");
+            this.writeParameters(writer, Arguments, Symbols.PT_COMMA.Name + " ");
             writer.Write(Operator.FunctionCall.SecondarySymbols.Name);
         }
 

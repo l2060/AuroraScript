@@ -2,6 +2,7 @@
 using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
+using AuroraScript.Stream;
 using AuroraScript.Uilty;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -86,7 +87,7 @@ namespace AuroraScript
 
 
 
-        public String ToCode(ModuleDeclaration root)
+        public void PrintGenerateCode(ModuleDeclaration root)
         {
             List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
             moduleList.Insert(0, root);
@@ -104,13 +105,52 @@ namespace AuroraScript
                 }
             }
 
-            using (var stream = new MemoryStream())
+           
+            using (var stream = Console.OpenStandardOutput())
             {
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+                using (var writer = new CodeWriter(stream))
                 {
                     foreach (ModuleDeclaration module in moduleList)
                     {
-                        module.WriteCode(writer);
+                        module.GenerateCode(writer);
+                        writer.WriteLine();
+                        writer.WriteLine();
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+        public String GenerateCode(ModuleDeclaration root)
+        {
+            List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
+            moduleList.Insert(0, root);
+            Queue<ModuleDeclaration> moduleImports = new Queue<ModuleDeclaration>(root.Imports);
+            while (moduleImports.Count > 0)
+            {
+                var module = moduleImports.Dequeue();
+                foreach (var import in module.Imports)
+                {
+                    if (!moduleList.Contains(import))
+                    {
+                        moduleList.Add(import);
+                        import.Imports.ForEach(x => moduleImports.Enqueue(x));
+                    }
+                }
+            }
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new CodeWriter(stream, Encoding.UTF8, 1024, true))
+                {
+                    foreach (ModuleDeclaration module in moduleList)
+                    {
+                        module.GenerateCode(writer);
                         writer.WriteLine();
                         writer.WriteLine();
                     }
@@ -121,18 +161,12 @@ namespace AuroraScript
                     return reader.ReadToEnd();
                 }
             }
-
         }
 
 
 
-        public void PrintTreeCode(AstNode root)
-        {
-            foreach (var item in root.ChildNodes)
-            {
-                Console.WriteLine(item);
-            }
-        }
+
+
 
 
 

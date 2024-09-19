@@ -1,5 +1,7 @@
 ﻿
 
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Statements
 {
     public class BlockStatement : Statement
@@ -21,22 +23,22 @@ namespace AuroraScript.Ast.Statements
             }
         }
 
-        public override String ToString()
-        {
-            var temp = $"{Symbols.PT_LEFTBRACE.Name}";
-            foreach (var item in ChildNodes)
-            {
-                temp += $"\r\n{item}";
-            }
-            temp += $"\r\n{Symbols.PT_RIGHTBRACE.Name}";
-            return temp;
-        }
 
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
-            this.writeParameters(writer, ChildNodes, "");
-            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
+            if (this.Length == 1)
+            {
+                this.writeParameters(writer, ChildNodes, "");
+            }
+            else
+            {
+                writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
+                using (writer.IncIndented())
+                {
+                    this.writeParameters(writer, ChildNodes, "");
+                }
+                writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
+            }
         }
 
 

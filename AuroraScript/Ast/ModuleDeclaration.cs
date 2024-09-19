@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Statements;
+using AuroraScript.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,14 +35,14 @@ namespace AuroraScript.Ast
         }
 
 
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.WriteLine();
-            writer.WriteLine("// ===========================================================");
-            writer.WriteLine("// " + ModulePath);
-            writer.WriteLine("// ===========================================================");
+            writer.WriteLine("// ==========" + "=".PadLeft(ModulePath.Length, '='));
+            writer.WriteLine("// FileName: " + ModulePath);
+            writer.WriteLine("// ==========" + "=".PadLeft(ModulePath.Length, '='));
             writer.WriteLine();
-            base.WriteCode(writer);
+            this.writeParameters(writer, ChildNodes, "");
         }
 
     }

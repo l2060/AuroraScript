@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Expressions;
+using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
 {
@@ -28,26 +29,18 @@ namespace AuroraScript.Ast.Statements
         public Expression Incrementor { get; set; }
 
 
-
-        public override String ToString()
-        {
-            var temp = $"{Symbols.KW_FOR.Name}({this.Initializer}{this.Condition}{Symbols.PT_SEMICOLON.Name}{this.Incrementor}){this.Body}";
-            return temp;
-        }
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Symbols.KW_FOR.Name);
-            writer.Write("(");
-            this.Initializer.WriteCode(writer);
-            writer.Write("; ");
-            this.Condition.WriteCode(writer);
-            writer.Write("; ");
-            this.Incrementor.WriteCode(writer);
-            writer.Write(")");
+            writer.Write(" {0}", Symbols.PT_LEFTPARENTHESIS.Name);
+            this.Initializer.GenerateCode(writer);
+            writer.Write("{0} ", Symbols.PT_SEMICOLON.Name);
+            this.Condition.GenerateCode(writer);
+            writer.Write("{0} ", Symbols.PT_SEMICOLON.Name);
+            this.Incrementor.GenerateCode(writer);
+            writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
 
-            this.Body.WriteCode(writer);
+            this.Body.GenerateCode(writer);
         }
     }
 }

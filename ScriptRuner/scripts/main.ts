@@ -6,11 +6,12 @@ import './libs/common';
 import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import Document from './document';
+
 type int = number;
 
 
 export set Name(value: string): void {
-    
+
 }
 
 export get Name(): string {
@@ -112,3 +113,43 @@ console.log(v);
 main('yoyo');
 
 
+echo
+    .say([
+        // text
+        "====[<$name>]====",
+        "bbbbbb",
+        "cccccc",
+        "dddddd",
+    ])
+    .float([
+        ui_gif("view", "package://item.wix,12", "0,0"),
+        ui_img("view", "package://item.wix,12", "0,0"),
+        ui_button("ok", "package://item.wix,13", "15,100"),
+        ui_button("cancel", "package://item.wix,14", "200,100"),
+    ])
+    .position(11,22)
+    .background(142)
+    .send();
+
+
+
+echo([
+    // text
+    "====[<$name>]====",
+    "bbbbbb",
+    "cccccc",
+    "dddddd",
+], [
+    // buttons
+    ui_gif("view", "package://item.wix,12", "0,0"),
+    ui_img("view", "package://item.wix,12", "0,0"),
+    ui_button("ok", "package://item.wix,13", "15,100"),
+    ui_button("cancel", "package://item.wix,14", "200,100"),
+],
+    options
+);
+
+
+function cancel_click(): void {
+
+}

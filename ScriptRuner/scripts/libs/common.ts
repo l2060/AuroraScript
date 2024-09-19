@@ -42,3 +42,11 @@ export declare function ReadFile(fileName: string): string;
 
 
 export declare function messageBox(message: string): void;
+
+
+
+export declare function sleep(ms: number): void;
+export declare function echo(labels: any, floating: any, options: any): any;
+export declare function ui_gif(name: string, res_url: string, location: string): any;
+export declare function ui_img(name: string, res_url: string, location: string): any;
+export declare function ui_button(name: string, res_url: string, location: string): any;

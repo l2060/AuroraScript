@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
@@ -30,16 +32,18 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"({this.Left}{this.Operator.Symbol.Name}{this.Right})";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            this.Left.WriteCode(writer);
+            var isPriority = false ;
+            if (this.Parent is BinaryExpression  parent)
+            {
+                isPriority = parent.Operator.Precedence > this.Operator.Precedence;
+            }
+            if(isPriority) writer.Write(Symbols.PT_LEFTPARENTHESIS.Name);
+            this.Left.GenerateCode(writer);
             writer.Write($" {this.Operator.Symbol.Name} ");
-            this.Right.WriteCode(writer);
+            this.Right.GenerateCode(writer);
+            if (isPriority) writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
         }
 
 

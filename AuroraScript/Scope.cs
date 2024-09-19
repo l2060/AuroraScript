@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
+using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
 
 namespace AuroraScript

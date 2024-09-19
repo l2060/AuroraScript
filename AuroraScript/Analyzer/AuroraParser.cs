@@ -1,10 +1,9 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
-using AuroraScript.Common;
+using AuroraScript.Ast.Types;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
-using System.Diagnostics;
 
 namespace AuroraScript.Analyzer
 {
@@ -189,8 +188,8 @@ namespace AuroraScript.Analyzer
             var typed = this.ParseObjectType();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             var declaration = new TypeDeclaration() { Identifier = name, Typed = typed, Access = access };
-
-            return declaration;
+            return new ExpressionStatement(declaration);
+            //return declaration;
         }
 
 
@@ -579,22 +578,22 @@ namespace AuroraScript.Analyzer
                         }
                     }
                     /**
-                     * ==================================================== *
-                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  *
-                     * ==================================================== *
-                     *             [+]          |           [-]             *
-                     *             / \          |           / \             *
-                     *            /   \         |          /   \            *
-                     *          [+]    55       |         /     \           *
-                     *          / \             |        /       \          *
-                     *         /   \            |      [+]       [/]        *
-                     *        /     \           |      / \       / \        *
-                     *       /       \          |     /   \     /   \       *
-                     *     [*]       [*]        |    11   22  [*]   [-]     *
-                     *     / \       / \        |             / \     \     *
-                     *    /   \     /   \       |            /   \     55   *
-                     *   11   22   33   44      |           33   44         *
-                     * =====================================================*
+                     * =====================================================*===========================*
+                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  * (11 + 22) * 33 + 44 / 55  *
+                     * =====================================================*===========================*
+                     *             [+]          |           [-]             *              [+]          *
+                     *             / \          |           / \             *              / \          *
+                     *            /   \         |          /   \            *             /   \         *
+                     *          [+]    55       |         /     \           *            /     \        *
+                     *          / \             |        /       \          *           /       \       *
+                     *         /   \            |      [+]       [/]        *         [*]       [/]     *
+                     *        /     \           |      / \       / \        *         / \       / \     *
+                     *       /       \          |     /   \     /   \       *        /   \     /   \    *
+                     *     [*]       [*]        |    11   22  [*]   [-]     *      [+]   33   44   55   *
+                     *     / \       / \        |             / \     \     *      / \                  *
+                     *    /   \     /   \       |            /   \     55   *     /   \                 *
+                     *   11   22   33   44      |           33   44         *    11   22                *
+                     * =====================================================*===========================*
                      */
                     if (operatorExpression.Operator.Placement == OperatorPlacement.Prefix)
                     {
@@ -807,7 +806,8 @@ namespace AuroraScript.Analyzer
             }
             // parse function body
             var body = this.ParseBlock(scope);
-
+            body.AddNode(new NOPExpression());
+            body.AddNode(new NOPExpression());
             var declaration = new FunctionDeclaration()
             {
                 Access = access,

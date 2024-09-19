@@ -1,11 +1,12 @@
 ﻿using AuroraScript.Ast;
+using AuroraScript.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuroraScript.Common
+namespace AuroraScript.Ast.Types
 {
     public class ObjectType : AstNode
     {
@@ -22,16 +23,7 @@ namespace AuroraScript.Common
         public Token ElementType { get; set; }
 
 
-
-        public override String ToString()
-        {
-            return $"{ElementType.Value}";
-        }
-
-
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.Write(ElementType.Value);
         }

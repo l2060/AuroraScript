@@ -1,4 +1,5 @@
 ﻿
+using AuroraScript.Stream;
 using AuroraScript.Tokens;
 
 namespace AuroraScript.Ast.Expressions
@@ -12,13 +13,7 @@ namespace AuroraScript.Ast.Expressions
         }
         public ValueToken Value { get; set; }
 
-
-        public override String ToString()
-        {
-            return $"{Value.ToValue()}";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Value.ToValue());
         }

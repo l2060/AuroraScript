@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
@@ -26,17 +28,11 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{Left} {this.Operator.Symbol.Name} {Right}";
-        }
-
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            this.Left.WriteCode(writer);
+            this.Left.GenerateCode(writer);
             writer.Write($" {this.Operator.Symbol.Name} ");
-            this.Right.WriteCode(writer);
+            this.Right.GenerateCode(writer);
 
         }
     }

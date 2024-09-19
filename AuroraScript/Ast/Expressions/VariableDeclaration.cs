@@ -1,9 +1,7 @@
-﻿using AuroraScript.Ast.Expressions;
-using AuroraScript.Ast.Statements;
-using AuroraScript.Common;
-using System;
+﻿using AuroraScript.Ast.Types;
+using AuroraScript.Stream;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
     /// variable declaration
@@ -12,7 +10,7 @@ namespace AuroraScript.Ast
     {
         internal VariableDeclaration()
         {
-            this.Variables = new List<Token>();
+            Variables = new List<Token>();
         }
 
         /// <summary>
@@ -45,26 +43,22 @@ namespace AuroraScript.Ast
         /// <summary>
         /// this variable use const declare
         /// </summary>
-        public Boolean IsConst { get; set; }
+        public bool IsConst { get; set; }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, int depth = 0)
         {
             var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
-            return $"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} {Symbols.OP_ASSIGNMENT.Name} {Initializer};";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
-        {
-            var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
-            //writer.Write($"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} {Symbols.OP_ASSIGNMENT.Name} {Initializer}");
             writer.Write($"{key} ");
-            writer.Write(String.Join(',', Variables.Select(e => e.Value)));
-            writer.Write($":");
-            if (Typed != null) Typed.WriteCode(writer);
+            writer.Write(string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value)));
+
+            if (Typed != null)
+            {
+                writer.Write(Symbols.PT_COLON.Name);
+                Typed.GenerateCode(writer);
+            }
             writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
-            if(Initializer != null) Initializer.WriteCode(writer);
+            if (Initializer != null) Initializer.GenerateCode(writer);
 
 
         }

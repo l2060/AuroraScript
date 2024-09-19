@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class Expression : AstNode
@@ -29,13 +31,7 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-
-        public override String ToString()
-        {
-            return "...";
-        }
-
-        public override void WriteCode(StreamWriter writer, Int32 depth = 0)
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.WriteLine($"...");
         }
