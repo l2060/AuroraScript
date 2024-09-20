@@ -96,7 +96,6 @@ namespace AuroraScript
         /// </summary>
         public readonly static Symbols PT_COLON = new Symbols(":", SymbolTypes.Punctuator);
 
-
         // Operators
         /// <summary>
         /// token <
@@ -143,6 +142,10 @@ namespace AuroraScript
         /// token %
         /// </summary>
         public readonly static Symbols OP_MODULO = new Symbols("%", SymbolTypes.Operator);
+        /// <summary>
+        /// token ...
+        /// </summary>
+        public readonly static Symbols OP_SPREAD = new Symbols("...", SymbolTypes.Operator);
         /// <summary>
         /// token ++
         /// </summary>

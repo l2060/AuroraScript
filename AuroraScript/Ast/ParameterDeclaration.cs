@@ -30,6 +30,12 @@ namespace AuroraScript.Ast
         public Expression DefaultValue { get; set; }
 
 
+
+        /// <summary>
+        /// 扩展运算符（Spread Operator）
+        /// </summary>
+        public Boolean IsSpreadOperator { get; set; } = false;
+
         /// <summary>
         /// 
         /// </summary>
@@ -38,13 +44,15 @@ namespace AuroraScript.Ast
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
+            if (IsSpreadOperator) writer.Write(Symbols.OP_SPREAD.Name);
             writer.Write(Variable.Value);
             if (Typed != null)
             {
                 writer.Write($"{Symbols.PT_COLON.Name} ");
                 Typed.GenerateCode(writer, depth);
             }
-            if (DefaultValue != null) {
+            if (DefaultValue != null)
+            {
                 writer.Write($" {Symbols.OP_ASSIGNMENT.Name} {DefaultValue}");
             }
         }

@@ -34,6 +34,13 @@ export function tuple(id: int): [int, string] {
     return [id, id.toString()];
 }
 
+
+export function test(...args: any[]): void {
+    console.log(args);
+}
+
+test(11, 222, ...[333, 444]);
+
 function foo(fs: number, name: string): boolean {
     if (fs && name && fs > 100) {
         return true;

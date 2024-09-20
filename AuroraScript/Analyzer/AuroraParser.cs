@@ -741,6 +741,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Minus) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreDecrement) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreIncrement) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.PreSpread) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.TypeOf) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.LogicalNot) return new PrefixUnaryExpression(_operator);
             // Postfix expression
@@ -770,6 +771,11 @@ namespace AuroraScript.Analyzer
                 {
                     break;
                 }
+                var spreadOperator = false;
+                // 扩展运算符
+                if (this.lexer.TestNext(Symbols.OP_SPREAD)) {
+                    spreadOperator = true;
+                }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.PT_COLON);
                 var typed = this.ParseObjectType();
@@ -783,6 +789,7 @@ namespace AuroraScript.Analyzer
                 {
                     Variable = varname,
                     DefaultValue = defaultValue,
+                    IsSpreadOperator = spreadOperator,
                     Typed = typed
                 };
                 arguments.Add(declaration);
