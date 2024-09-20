@@ -1,6 +1,7 @@
 ﻿
 
 using AuroraScript.Stream;
+using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast
 {
@@ -8,13 +9,14 @@ namespace AuroraScript.Ast
     {
         protected List<AstNode> childrens = new List<AstNode>();
 
-        internal AstNode Parent { get; private set; }
+        [JsonIgnore]
+        public AstNode Parent { get; private set; }
         internal AstNode()
         {
 
         }
 
-        internal Int32 Length
+        public Int32 Length
         {
             get
             {
@@ -33,7 +35,7 @@ namespace AuroraScript.Ast
 
 
 
-        internal virtual IEnumerable<AstNode> ChildNodes
+        public virtual IEnumerable<AstNode> ChildNodes
         {
             get
             {

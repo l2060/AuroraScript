@@ -2,6 +2,8 @@
 using AuroraScript;
 using AuroraScript.Ast;
 using ScriptRuner;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 //Interface.Run(); 
 //Console.ReadKey();
@@ -18,7 +20,12 @@ ModuleDeclaration root = compiler.buildAst("./scripts/main.ts");
 //compiler.opaimizeTree(root);
 //compiler.PrintTreeCode(root);
 //Console.WriteLine(compiler.GenerateCode(root));
-compiler.PrintGenerateCode(root);
+
+
+compiler.PrintGenerateCode(root); 
+
+Console.WriteLine("=====================================================================================");
+
 Console.ReadKey();
 
 

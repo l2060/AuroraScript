@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace AuroraScript.Ast
@@ -44,6 +46,21 @@ namespace AuroraScript.Ast
             writer.WriteLine();
             this.writeParameters(writer, ChildNodes, "");
         }
+
+
+
+        public  String ToJson()
+        {
+            var options = new JsonSerializerOptions
+            {
+                //ReferenceHandler = ReferenceHandler.Preserve,  // 处理循环引用
+                WriteIndented = true,  // 格式化输出,
+                IncludeFields = true,
+            };
+
+            return JsonSerializer.Serialize(this, options);
+        }
+
 
     }
 }

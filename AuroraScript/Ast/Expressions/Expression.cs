@@ -14,7 +14,7 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public List<Token> Types { get; set; }
 
-        internal new Expression this[Int32 index]
+        public new Expression this[Int32 index]
         {
             get
             {

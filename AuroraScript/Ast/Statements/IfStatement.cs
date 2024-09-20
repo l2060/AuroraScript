@@ -31,7 +31,7 @@ namespace AuroraScript.Ast.Statements
             if (this.Else != null)
             {
                 writer.Write(Symbols.KW_ELSE.Name + " ");
-                writer.WriteLine();
+                if(!(this.Else is IfStatement)) writer.WriteLine();
                 using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
             }
         }

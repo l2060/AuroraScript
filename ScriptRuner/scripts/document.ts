@@ -7,6 +7,8 @@
 import './libs/common';
 import 'main';
 
+export type int = number;
+
 export var TextContent = `
 this is line 1
 this is line 2
@@ -39,7 +41,7 @@ export function test(...args: any[]): void {
     console.log(args);
 }
 
-test(11, 222, ...[333, 444]);
+
 
 function foo(fs: number, name: string): boolean {
     if (fs && name && fs > 100) {
@@ -67,3 +69,5 @@ ary1[0] = 123;
 console.log(ary1[1]);
 
 console.log(result);
+
+test(11, 222, ...[333, 444]);

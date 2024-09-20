@@ -2,6 +2,7 @@
 using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Exceptions;
+using System.Text.Json.Serialization;
 
 namespace AuroraScript
 {
@@ -10,6 +11,7 @@ namespace AuroraScript
     /// </summary>
     public class Scope
     {
+        [JsonIgnore]
         public Scope Parent { get; private set; }
         internal AuroraParser Parser { get; private set; }
         public IReadOnlyList<Scope> Childrens { get; private set; } = new List<Scope>();
