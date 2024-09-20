@@ -83,9 +83,16 @@ namespace AuroraScript
         /// </summary>
         public static readonly Operator PostDecrement = new Operator(Symbols.OP_DECREMENT, 16, OperatorPlacement.Postfix, true);
 
+
         // Unary prefix operators.
         /// <summary>
         /// operator ++exp
+        /// </summary>
+        public static readonly Operator PreSpread = new Operator(Symbols.OP_SPREAD, 15, OperatorPlacement.Prefix, false);
+
+        // Spread prefix Operator.
+        /// <summary>
+        /// operator ... exp
         /// </summary>
         public static readonly Operator PreIncrement = new Operator(Symbols.OP_INCREMENT, 15, OperatorPlacement.Prefix, false);
         /// <summary>

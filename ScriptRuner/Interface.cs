@@ -14,20 +14,23 @@ namespace ScriptRuner
 
     public interface IService
     {
-
-
+        public void Action();
         public void Action(String arg1);
         public void Action(String arg1, Int64 arg2);
-
-        //public String MethodFunc(String[] arg1);
-        public Double MethodFunc(Double arg0, String[] arg1, Object arg2);
+        public String MethodFunc(String[] arg1);
+        public List<string> MethodFunc(Double arg0, String[] arg1, Object arg2);
 
 
     }
 
+
+
+
+
     public struct ParamValue
     {
         public Type Type;
+        public String Name;
         public Object Value;
     }
 
@@ -43,14 +46,11 @@ namespace ScriptRuner
         public static void Run()
         {
 
-            var M = typeof(ParamValue).GetField("Type");
-
-            Console.WriteLine(M);
-            var i = TestDynamic<IService>();
-
+            var i = MakeProxy<IService>();
+            i.Action();
             i.Action("123456", 1234888);
             i.Action("123456");
-           var ret = i.MethodFunc(0.23456, Array.Empty<String>(), 1000);
+            var ret = i.MethodFunc(0.23456, Array.Empty<String>(), 1000);
             Console.WriteLine(ret);
             //i.MethodFunc(Array.Empty<String>());
         }
@@ -74,7 +74,7 @@ namespace ScriptRuner
 
 
 
-        static T TestDynamic<T>() where T : class
+        static T MakeProxy<T>() where T : class
         {
             var type = typeof(T);
             AssemblyName assemblyName = new AssemblyName("ChefDynamicAssembly");
@@ -109,16 +109,18 @@ namespace ScriptRuner
                     // 得到IL生成器
                     ILGenerator ilGen = methodBuilder.GetILGenerator();
                     // 定义一个字符串（为了判断方法是否被调用）
-                    var paramToken = String.Join(",", param.Select(e => e.ParameterType.Name));
-                    var funcToken = $"{typeBuilder.Name}.{method.Name}:{method.ReturnType.Name}?{paramToken}";
+                    var paramToken = String.Join("#", param.Select(e => e.ParameterType.FullName));
+                    var funcToken = $"{typeBuilder.Name}?{method.Name}?{method.ReturnType.FullName}#{paramToken}";
 
 
-                    ilGen.Emit(OpCodes.Ldstr, funcToken);
+                    //ilGen.Emit(OpCodes.Ldstr, funcToken);
                     // 调用WriteLine函数
-                    ilGen.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) }));
+                    //ilGen.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) }));
 
                     {
+                        // NameToken
                         ilGen.Emit(OpCodes.Ldstr, funcToken);
+                        // ResultType
                         ilGen.Emit(OpCodes.Ldtoken, methodBuilder.ReturnType);
                         ilGen.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
 
@@ -144,6 +146,13 @@ namespace ScriptRuner
                             ilGen.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
                             ilGen.Emit(OpCodes.Stfld, typeof(ParamValue).GetField("Type"));
 
+                            // name
+                            ilGen.Emit(OpCodes.Ldloc_0, localParams);
+                            ilGen.Emit(OpCodes.Ldc_I4, i);
+                            ilGen.Emit(OpCodes.Ldelema, typeof(ParamValue));
+                            ilGen.Emit(OpCodes.Ldstr, param[i].Name);
+                            ilGen.Emit(OpCodes.Stfld, typeof(ParamValue).GetField("Name"));
+
                             // value
                             ilGen.Emit(OpCodes.Ldloc_0, localParams);
                             ilGen.Emit(OpCodes.Ldc_I4, i);
@@ -159,7 +168,7 @@ namespace ScriptRuner
                         ilGen.Emit(OpCodes.Nop);
                         ilGen.Emit(OpCodes.Ldloc, localParams);
                         ilGen.Emit(OpCodes.Call, typeof(Interface).GetMethod("CallProxy"));
-               
+
                     }
 
                     // 定义object类型的局部变量

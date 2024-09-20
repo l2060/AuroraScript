@@ -1,10 +1,9 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
-using AuroraScript.Common;
+using AuroraScript.Ast.Types;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
-using System.Diagnostics;
 
 namespace AuroraScript.Analyzer
 {
@@ -12,13 +11,14 @@ namespace AuroraScript.Analyzer
     {
         public AuroraCompiler Compiler { get; private set; }
         public AuroraLexer lexer { get; private set; }
-        public BlockStatement root { get; private set; }
+        public ModuleDeclaration root { get; private set; }
         public AuroraParser(AuroraCompiler compiler, AuroraLexer lexer)
         {
             this.lexer = lexer;
             this.Compiler = compiler;
             var scope = new Scope(this, null);
-            this.root = new BlockStatement(scope);
+            this.root = new ModuleDeclaration(scope);
+            this.root.ModulePath = lexer.FullPath;
         }
 
         public AstNode Parse()
@@ -56,6 +56,8 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_GET) return this.ParseGetFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_SET) return this.ParseSetFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
@@ -186,8 +188,8 @@ namespace AuroraScript.Analyzer
             var typed = this.ParseObjectType();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             var declaration = new TypeDeclaration() { Identifier = name, Typed = typed, Access = access };
-
-            return declaration;
+            return new ExpressionStatement(declaration);
+            //return declaration;
         }
 
 
@@ -254,7 +256,14 @@ namespace AuroraScript.Analyzer
             }
             // Consume the end brace.
             this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
-            return result;
+
+            //if (result.Length == 1)
+            //{
+            //    var statement = result.ChildNodes[0];
+            //    statement.Remove();
+            //    return statement as Statement;
+            //}
+            return this.opaimizeStatement(result);
         }
 
 
@@ -268,16 +277,19 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseForBlock(Scope currentScope)
         {
+            var scope = new Scope(currentScope.Parser, currentScope);
             this.lexer.NextOfKind(Symbols.KW_FOR);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse for initializer
-            var initializer = this.ParseStatement(currentScope);
+            AstNode initializer = this.ParseStatement(scope);
+            // remove expression layout
+            if (initializer is ExpressionStatement es) initializer = es.Expression;
             // parse for condition
-            var condition = this.ParseExpression(currentScope);
+            var condition = this.ParseExpression(scope);
             // parse for incrementor
-            var incrementor = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+            var incrementor = this.ParseExpression(scope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
-            var body = this.ParseStatement(currentScope);
+            var body = this.ParseStatement(scope);
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
 
             // parse for body
@@ -317,7 +329,7 @@ namespace AuroraScript.Analyzer
         }
 
 
-        
+
 
 
 
@@ -380,7 +392,7 @@ namespace AuroraScript.Analyzer
             }
             // define variables
             currentScope.DefineVariable(variables);
-            return variables;
+            return new ExpressionStatement(variables);
         }
 
 
@@ -404,6 +416,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.KW_IF);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line 
             // parse if body
@@ -419,6 +432,24 @@ namespace AuroraScript.Analyzer
             }
             return ifStatement;
         }
+
+
+        private Statement opaimizeStatement(Statement statement)
+        {
+            var node  = statement;
+            var parent = statement.Parent;
+            while (node is BlockStatement block && block.Length == 1)
+            {
+                node = (Statement)block.ChildNodes[0];
+                node.Remove();
+               if(parent != null) parent.AddNode(node);
+            }
+            return node;
+        }
+
+
+
+
 
         /// <summary>
         /// parse else block
@@ -441,7 +472,7 @@ namespace AuroraScript.Analyzer
                 if (expression == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
                 block.AddNode(expression);
             }
-            return block;
+            return this.opaimizeStatement(block);
         }
 
 
@@ -483,7 +514,7 @@ namespace AuroraScript.Analyzer
                 // expression of Token
                 Expression tempExp = null;
                 // value Operand
-                if (token is ValueToken) tempExp = new ValueExpression(token);
+                if (token is ValueToken) tempExp = new ValueExpression(token as ValueToken);
                 // identifier Operand
                 if (token is IdentifierToken) tempExp = new NameExpression() { Identifier = token };
                 // keywords should not appear here 
@@ -565,22 +596,22 @@ namespace AuroraScript.Analyzer
                         }
                     }
                     /**
-                     * ==================================================== *
-                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  *
-                     * ==================================================== *
-                     *             [+]          |           [-]             *
-                     *             / \          |           / \             *
-                     *            /   \         |          /   \            *
-                     *          [+]    55       |         /     \           *
-                     *          / \             |        /       \          *
-                     *         /   \            |      [+]       [/]        *
-                     *        /     \           |      / \       / \        *
-                     *       /       \          |     /   \     /   \       *
-                     *     [*]       [*]        |    11   22  [*]   [-]     *
-                     *     / \       / \        |             / \     \     *
-                     *    /   \     /   \       |            /   \     55   *
-                     *   11   22   33   44      |           33   44         *
-                     * =====================================================*
+                     * =====================================================*===========================*
+                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  * (11 + 22) * 33 + 44 / 55  *
+                     * =====================================================*===========================*
+                     *             [+]          |           [-]             *              [+]          *
+                     *             / \          |           / \             *              / \          *
+                     *            /   \         |          /   \            *             /   \         *
+                     *          [+]    55       |         /     \           *            /     \        *
+                     *          / \             |        /       \          *           /       \       *
+                     *         /   \            |      [+]       [/]        *         [*]       [/]     *
+                     *        /     \           |      / \       / \        *         / \       / \     *
+                     *       /       \          |     /   \     /   \       *        /   \     /   \    *
+                     *     [*]       [*]        |    11   22  [*]   [-]     *      [+]   33   44   55   *
+                     *     / \       / \        |             / \     \     *      / \                  *
+                     *    /   \     /   \       |            /   \     55   *     /   \                 *
+                     *   11   22   33   44      |           33   44         *    11   22                *
+                     * =====================================================*===========================*
                      */
                     if (operatorExpression.Operator.Placement == OperatorPlacement.Prefix)
                     {
@@ -710,6 +741,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Minus) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreDecrement) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreIncrement) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.PreSpread) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.TypeOf) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.LogicalNot) return new PrefixUnaryExpression(_operator);
             // Postfix expression
@@ -739,6 +771,11 @@ namespace AuroraScript.Analyzer
                 {
                     break;
                 }
+                var spreadOperator = false;
+                // 扩展运算符
+                if (this.lexer.TestNext(Symbols.OP_SPREAD)) {
+                    spreadOperator = true;
+                }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.PT_COLON);
                 var typed = this.ParseObjectType();
@@ -752,6 +789,7 @@ namespace AuroraScript.Analyzer
                 {
                     Variable = varname,
                     DefaultValue = defaultValue,
+                    IsSpreadOperator = spreadOperator,
                     Typed = typed
                 };
                 arguments.Add(declaration);
@@ -775,7 +813,7 @@ namespace AuroraScript.Analyzer
         /// <param name="parentScope"></param>
         /// <param name="access"></param>
         /// <returns></returns>
-        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null)
+        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null, FunctionFlags flags = FunctionFlags.General)
         {
             // next token (
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
@@ -793,6 +831,12 @@ namespace AuroraScript.Analyzer
             }
             // parse function body
             var body = this.ParseBlock(scope);
+            if (!(body is BlockStatement))
+            {
+                var newBody = new BlockStatement(scope);
+                newBody.AddNode(body);
+                body = newBody;
+            }
 
             var declaration = new FunctionDeclaration()
             {
@@ -800,7 +844,8 @@ namespace AuroraScript.Analyzer
                 Body = body,
                 Identifier = functionName,
                 Parameters = arguments,
-                Typeds = typeds
+                Typeds = typeds,
+                Flags = flags
             };
             // define functions in scope 
             currentScope.DefineFunction(declaration);
@@ -856,7 +901,38 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.KW_FUNCTION);
             var functionName = this.lexer.NextOfKind<IdentifierToken>();
             // 校验 方法名是否有效
-            return this.ParseFunction(functionName, currentScope, access);
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.General);
+        }
+
+
+        /// <summary>
+        /// analyze function declarations 
+        /// starting with “get” 
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseGetFunctionDeclaration(Scope currentScope, Symbols access = null)
+        {
+            this.lexer.NextOfKind(Symbols.KW_GET);
+            var functionName = this.lexer.NextOfKind<IdentifierToken>();
+            // 校验 方法名是否有效
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.GetMethod);
+        }
+
+        /// <summary>
+        /// analyze function declarations 
+        /// starting with “set” 
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseSetFunctionDeclaration(Scope currentScope, Symbols access = null)
+        {
+            this.lexer.NextOfKind(Symbols.KW_SET);
+            var functionName = this.lexer.NextOfKind<IdentifierToken>();
+            // 校验 方法名是否有效
+            return this.ParseFunction(functionName, currentScope, access, FunctionFlags.SetMethod);
         }
 
         /// <summary>
@@ -873,6 +949,16 @@ namespace AuroraScript.Analyzer
             {
                 // function
                 return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_GET)
+            {
+                // get function
+                return ParseGetFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
+            }
+            else if (token is KeywordToken && token.Symbol == Symbols.KW_SET)
+            {
+                // set function
+                return ParseSetFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {
@@ -919,20 +1005,19 @@ namespace AuroraScript.Analyzer
             }
             else
             {
+                this.lexer.NextOfKind(Symbols.OP_MULTIPLY);
+                this.lexer.NextOfKind(Symbols.KW_AS);
                 module = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.KW_FROM);
                 fileToken = this.lexer.NextOfKind<StringToken>();
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             }
-
-
             // import ast
+            // 查缓存
             var moduleAst = this.Compiler.buildAst(fileToken.Value, this.lexer.Directory);
+            this.root.Import(moduleAst);
             // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
             //最终由link-module 链接起来 
-
-
-
             return new ImportDeclaration() { Module = module, File = fileToken };
         }
 

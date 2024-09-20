@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class NameExpression :Expression
@@ -9,11 +11,9 @@ namespace AuroraScript.Ast.Expressions
         public Token Identifier { get; set; }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{this.Identifier.Value}";
+            writer.Write(this.Identifier.Value);
         }
-
     }
 }

@@ -1,5 +1,7 @@
 ﻿
 
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Statements
 {
     public class BlockStatement : Statement
@@ -13,7 +15,7 @@ namespace AuroraScript.Ast.Statements
             this.Scope = currentScope;
         }
 
-        public new virtual IEnumerable<AstNode> ChildNodes
+        public new virtual List<AstNode> ChildNodes
         {
             get
             {
@@ -21,16 +23,19 @@ namespace AuroraScript.Ast.Statements
             }
         }
 
-        public override String ToString()
+
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            var temp = $"{Symbols.PT_LEFTBRACE.Name}";
-            foreach (var item in ChildNodes)
+            writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
+            using (writer.IncIndented())
             {
-                temp += $"\r\n{item}";
+                this.writeParameters(writer, ChildNodes, "");
             }
-            temp += $"\r\n{Symbols.PT_RIGHTBRACE.Name}";
-            return temp;
+            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
+
+
+
 
     }
 }

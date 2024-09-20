@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Expressions;
+using AuroraScript.Stream;
 
 
 namespace AuroraScript.Ast.Statements
@@ -15,10 +16,16 @@ namespace AuroraScript.Ast.Statements
         public Statement Body { get; set; }
 
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            var temp = $"{Symbols.KW_WHILE.Name}({this.Condition}){this.Body}";
-            return temp;
+            writer.Write(Symbols.KW_WHILE.Name);
+            writer.Write(" {0}", Symbols.PT_LEFTPARENTHESIS.Name);
+            this.Condition.GenerateCode(writer);
+            writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
+            this.Body.GenerateCode(writer);
         }
+
+
+
     }
 }

@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class ArrayExpression : OperatorExpression
@@ -11,12 +13,12 @@ namespace AuroraScript.Ast.Expressions
         public List<Expression> Elements { get; set; }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             var els = Elements.Select(el => el.ToString()).ToArray();
-            return $"{Operator.Array.Symbol.Name}{String.Join(',', els)}{Operator.Array.SecondarySymbols.Name}";
+            writer.Write(Operator.Array.Symbol.Name);
+            writeParameters(writer, Elements, Symbols.PT_COMMA.Name + " ");
+            writer.Write(Operator.Array.SecondarySymbols.Name);
         }
-
     }
 }

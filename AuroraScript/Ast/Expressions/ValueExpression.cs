@@ -1,25 +1,22 @@
 ﻿
+using AuroraScript.Stream;
+using AuroraScript.Tokens;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class ValueExpression: Expression
     {
 
-        internal ValueExpression(Token value)
+        internal ValueExpression(ValueToken value)
         {
             this.Value = value;
         }
-        public Token Value { get; set; }
+        public ValueToken Value { get; set; }
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-
-
-
-            return $"{Value.Value}";
+            writer.Write(Value.ToValue());
         }
-
-
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Expressions;
+using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
 {
@@ -12,18 +13,28 @@ namespace AuroraScript.Ast.Statements
         public Statement Else { get; set; }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            var temp = $"{Symbols.KW_IF.Name}({this.Condition}){this.Body}";
-            if(this.Else != null)
+            writer.Write(Symbols.KW_IF.Name);
+            writer.Write(" {0}", Symbols.PT_LEFTPARENTHESIS.Name);
+            this.Condition.GenerateCode(writer);
+            writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
+            if (this.Else != null)
             {
-                temp += $" {Symbols.KW_ELSE.Name} {this.Else}";
+                writer.WriteLine();
+                using (writer.IncIndented(!(this.Body is BlockStatement))) this.Body.GenerateCode(writer);
             }
-            return temp;
+            else
+            {
+                this.Body.GenerateCode(writer);
+            }
+            if (this.Else != null)
+            {
+                writer.Write(Symbols.KW_ELSE.Name + " ");
+                if(!(this.Else is IfStatement)) writer.WriteLine();
+                using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
+            }
         }
-
-
 
     }
 }

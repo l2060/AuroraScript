@@ -3,11 +3,22 @@
  * */
 /* external declare */
 import './libs/common';
-//import './md5';
+import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
-import Document from './document';
+import * as Document from './document';
+
 type int = number;
 
+
+export set Name(value: string): void {
+
+}
+
+export get Name(): string {
+    return '';
+}
+
+Name = 123456;
 
 /* exported  attributes */
 export var length = 100;
@@ -102,3 +113,33 @@ console.log(v);
 main('yoyo');
 
 
+echo.dialog([
+    // text
+    "====[<$name>]====",
+    "bbbbbb",
+    "cccccc",
+    "dddddd",
+])
+    .modal()
+    .floating([
+        ui_gif("view", "package://item.wix,12", "0,0"),
+        ui_img("view", "package://item.wix,12", "0,0"),
+        ui_button("ok", "package://item.wix,13", "15,100"),
+        ui_button("cancel", "package://item.wix,14", "200,100"),
+    ])
+    .position(11, 22)
+    .background(142)
+    .send();
+
+
+
+
+function ok(): void {
+
+}
+function view(): void {
+
+}
+function cancel(): void {
+
+}

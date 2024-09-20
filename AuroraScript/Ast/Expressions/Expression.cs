@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class Expression : AstNode
@@ -12,7 +14,7 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public List<Token> Types { get; set; }
 
-        internal new Expression this[Int32 index]
+        public new Expression this[Int32 index]
         {
             get
             {
@@ -29,12 +31,10 @@ namespace AuroraScript.Ast.Expressions
         }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return "...";
+            writer.WriteLine($"...");
         }
-
 
     }
 }

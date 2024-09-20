@@ -1,5 +1,7 @@
 ﻿
 
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
@@ -32,13 +34,20 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{Object}{Operator.MemberAccess.Symbol.Name}{Property}";
+            IDisposable disposable = null;
+            this.Object.GenerateCode(writer);
+            if (Object is FunctionCallExpression fce)
+            {
+                writer.WriteLine();
+                // 链式访问对齐
+                disposable = writer.IncIndented();
+            }
+            writer.Write(Operator.MemberAccess.Symbol.Name);
+            this.Property.GenerateCode(writer);
+            if (disposable != null) disposable.Dispose();
         }
-
-
     }
 
 }

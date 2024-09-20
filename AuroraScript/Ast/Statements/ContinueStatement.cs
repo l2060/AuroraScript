@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Statements
 {
     public class ContinueStatement : Statement
@@ -7,9 +9,12 @@ namespace AuroraScript.Ast.Statements
         {
 
         }
-        public override String ToString()
+
+
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return $"{Symbols.KW_CONTINUE.Name}{Symbols.PT_SEMICOLON.Name}\r\n";
+            writer.Write(Symbols.KW_CONTINUE.Name);
+            writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
     }
 }

@@ -7,6 +7,8 @@
 import './libs/common';
 import 'main';
 
+export type int = number;
+
 export var TextContent = `
 this is line 1
 this is line 2
@@ -34,6 +36,13 @@ export function tuple(id: int): [int, string] {
     return [id, id.toString()];
 }
 
+
+export function test(...args: any[]): void {
+    console.log(args);
+}
+
+
+
 function foo(fs: number, name: string): boolean {
     if (fs && name && fs > 100) {
         return true;
@@ -60,3 +69,5 @@ ary1[0] = 123;
 console.log(ary1[1]);
 
 console.log(result);
+
+test(11, 222, ...[333, 444]);

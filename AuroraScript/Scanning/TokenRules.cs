@@ -104,7 +104,17 @@ namespace AuroraScript.Scanning
         {
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
-
+            if (codeSpan.Length >= 3)
+            {
+                if (codeSpan[0] == '.' && codeSpan[1] == '.' && codeSpan[2] == '.')
+                {
+                    result.ColumnNumber += 3;
+                    result.Length = 3;
+                    result.Value = codeSpan.Slice(0, 3).ToString();
+                    result.Success = true;
+                    return result;
+                }
+            }
             if (codeSpan.Length >= 2)
             {
                 if ((codeSpan[0] == '+' && codeSpan[1] == '=') ||
@@ -120,8 +130,8 @@ namespace AuroraScript.Scanning
                    (codeSpan[0] == '|' && codeSpan[1] == '|') ||
                    (codeSpan[0] == '&' && codeSpan[1] == '&') ||
                    (codeSpan[0] == '>' && codeSpan[1] == '>') ||
-                   (codeSpan[0] == '<' && codeSpan[1] == '<')
-                    )
+                   (codeSpan[0] == '<' && codeSpan[1] == '<'))
+                    
                 {
                     result.ColumnNumber += 2;
                     result.Length = 2;

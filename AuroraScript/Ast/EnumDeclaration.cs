@@ -1,9 +1,11 @@
 ﻿using AuroraScript.Ast.Statements;
+using AuroraScript.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Ast
 {
@@ -35,16 +37,17 @@ namespace AuroraScript.Ast
 
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            var elements = Elements.Select(e => $"{e.Name.Value}={e.Value},");
-
-            var text = String.Join("\r\n", elements);
-
-            return $"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {{\r\n {text} \r\n}}";
+            writer.WriteLine($"{this.Access.Name} {Symbols.KW_ENUM.Name} {Identifier.Value} {Symbols.PT_LEFTBRACE.Name}");
+            using (writer.IncIndented())
+            {
+                foreach (EnumElement element in Elements)
+                {
+                    writer.WriteLine($"{element.Name.Value} = {element.Value},");
+                }
+            }
+            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
-
-
     }
 }

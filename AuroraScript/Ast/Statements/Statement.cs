@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Statements
 {
     public class Statement : AstNode
@@ -8,9 +10,12 @@ namespace AuroraScript.Ast.Statements
 
         }
 
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            return this.childrens.Count > 0? $"{this.childrens[0]};\r\n" : "**-**";
+            writer.WriteLine("????????");
+            writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
+
+
     }
 }

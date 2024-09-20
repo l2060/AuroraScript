@@ -1,17 +1,16 @@
-﻿using AuroraScript.Ast.Expressions;
-using AuroraScript.Ast.Statements;
-using AuroraScript.Common;
+﻿using AuroraScript.Ast.Types;
+using AuroraScript.Stream;
 
-namespace AuroraScript.Ast
+namespace AuroraScript.Ast.Expressions
 {
     /// <summary>
     /// variable declaration
     /// </summary>
-    public class VariableDeclaration : Statement
+    public class VariableDeclaration : Expression
     {
         internal VariableDeclaration()
         {
-            this.Variables = new List<Token>();
+            Variables = new List<Token>();
         }
 
         /// <summary>
@@ -44,17 +43,25 @@ namespace AuroraScript.Ast
         /// <summary>
         /// this variable use const declare
         /// </summary>
-        public Boolean IsConst { get; set; }
+        public bool IsConst { get; set; }
 
 
-
-        public override String ToString()
+        public override void GenerateCode(CodeWriter writer, int depth = 0)
         {
             var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
-            return $"{key} {String.Join(',', Variables.Select(e => e.Value))}:{Typed} {Symbols.OP_ASSIGNMENT.Name} {Initializer};";
+            writer.Write($"{key} ");
+            writer.Write(string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value)));
+
+            if (Typed != null)
+            {
+                writer.Write(Symbols.PT_COLON.Name);
+                Typed.GenerateCode(writer);
+            }
+            writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
+            if (Initializer != null) Initializer.GenerateCode(writer);
+
+
         }
-
-
 
     }
 }
