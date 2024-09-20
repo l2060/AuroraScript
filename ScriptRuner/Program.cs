@@ -15,7 +15,7 @@ using ScriptRuner;
 var compiler = new AuroraCompiler();
 
 ModuleDeclaration root = compiler.buildAst("./scripts/main.ts");
-compiler.opaimizeTree(root);
+//compiler.opaimizeTree(root);
 //compiler.PrintTreeCode(root);
 //Console.WriteLine(compiler.GenerateCode(root));
 compiler.PrintGenerateCode(root);

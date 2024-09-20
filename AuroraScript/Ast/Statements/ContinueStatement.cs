@@ -14,7 +14,7 @@ namespace AuroraScript.Ast.Statements
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Symbols.KW_CONTINUE.Name);
-            writer.Write(Symbols.PT_SEMICOLON.Name);
+            writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
     }
 }

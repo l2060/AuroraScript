@@ -34,12 +34,12 @@ namespace AuroraScript.Stream
 
         }
 
-        public IDisposable IncIndented()
+        public IDisposable IncIndented(Boolean executed = true)
         {
-            this.Indented++;
+            if(executed) this.Indented++;
             return new CustomDisposable(() =>
             {
-                this.Indented--;
+                if (executed) this.Indented--;
             });
         }
 

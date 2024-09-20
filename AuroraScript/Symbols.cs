@@ -11,6 +11,7 @@ namespace AuroraScript
         
         public readonly static Symbols KW_DECLARE = new Symbols("declare", SymbolTypes.KeyWord);
         public readonly static Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
+        public readonly static Symbols KW_AS = new Symbols("as", SymbolTypes.KeyWord);
         public readonly static Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
         public readonly static Symbols KW_TYPE = new Symbols("type", SymbolTypes.KeyWord);
         public readonly static Symbols KW_CONST = new Symbols("const", SymbolTypes.KeyWord);
@@ -133,6 +134,7 @@ namespace AuroraScript
         /// token *
         /// </summary>
         public readonly static Symbols OP_MULTIPLY = new Symbols("*", SymbolTypes.Operator);
+
         /// <summary>
         /// token /
         /// </summary>

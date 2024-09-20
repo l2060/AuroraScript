@@ -26,19 +26,12 @@ namespace AuroraScript.Ast.Statements
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            if (this.Length == 1)
+            writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
+            using (writer.IncIndented())
             {
                 this.writeParameters(writer, ChildNodes, "");
             }
-            else
-            {
-                writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
-                using (writer.IncIndented())
-                {
-                    this.writeParameters(writer, ChildNodes, "");
-                }
-                writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
-            }
+            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
 
 

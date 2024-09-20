@@ -263,7 +263,7 @@ namespace AuroraScript.Analyzer
             //    statement.Remove();
             //    return statement as Statement;
             //}
-            return result;
+            return this.opaimizeStatement(result);
         }
 
 
@@ -433,6 +433,24 @@ namespace AuroraScript.Analyzer
             return ifStatement;
         }
 
+
+        private Statement opaimizeStatement(Statement statement)
+        {
+            var node  = statement;
+            var parent = statement.Parent;
+            while (node is BlockStatement block && block.Length == 1)
+            {
+                node = (Statement)block.ChildNodes[0];
+                node.Remove();
+               if(parent != null) parent.AddNode(node);
+            }
+            return node;
+        }
+
+
+
+
+
         /// <summary>
         /// parse else block
         /// starting with “else”
@@ -454,7 +472,7 @@ namespace AuroraScript.Analyzer
                 if (expression == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
                 block.AddNode(expression);
             }
-            return block;
+            return this.opaimizeStatement(block);
         }
 
 
@@ -806,8 +824,13 @@ namespace AuroraScript.Analyzer
             }
             // parse function body
             var body = this.ParseBlock(scope);
-            body.AddNode(new NOPExpression());
-            body.AddNode(new NOPExpression());
+            if (!(body is BlockStatement))
+            {
+                var newBody = new BlockStatement(scope);
+                newBody.AddNode(body);
+                body = newBody;
+            }
+
             var declaration = new FunctionDeclaration()
             {
                 Access = access,
@@ -975,6 +998,8 @@ namespace AuroraScript.Analyzer
             }
             else
             {
+                this.lexer.NextOfKind(Symbols.OP_MULTIPLY);
+                this.lexer.NextOfKind(Symbols.KW_AS);
                 module = this.lexer.NextOfKind<IdentifierToken>();
                 this.lexer.NextOfKind(Symbols.KW_FROM);
                 fileToken = this.lexer.NextOfKind<StringToken>();

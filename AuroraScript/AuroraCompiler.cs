@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
+using AuroraScript.Ast.Statements;
 using AuroraScript.Exceptions;
 using AuroraScript.Stream;
 using AuroraScript.Uilty;
@@ -120,13 +121,6 @@ namespace AuroraScript
             }
         }
 
-
-
-
-
-
-
-
         public String GenerateCode(ModuleDeclaration root)
         {
             List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
@@ -176,16 +170,16 @@ namespace AuroraScript
         /// <param name="root"></param>
         public void opaimizeTree(AstNode parent)
         {
-            for (int i = parent.Length - 1; i >= 0; i--)
-            {
-                var node = parent[i];
-                if (node is GroupExpression)
-                {
-                    node.Remove();
-                    parent.AddNode(node);
-                }
-                opaimizeTree(node);
-            }
+            //for (int i = parent.Length - 1; i >= 0; i--)
+            //{
+            //    var node = parent[i];
+            //    if (node is GroupExpression || (node is BlockStatement block && block.Length == 1))
+            //    {
+            //        node.Remove();
+            //        parent.AddNode(node);
+            //    }
+            //    opaimizeTree(node);
+            //}
         }
 
 

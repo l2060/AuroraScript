@@ -19,7 +19,7 @@ namespace AuroraScript.Ast
         {
             if (this.Module != null)
             {
-                writer.WriteLine($"{Symbols.KW_IMPORT.Name} {this.Module.Value} {Symbols.KW_FROM.Name} {this.File.Value};");
+                writer.WriteLine($"{Symbols.KW_IMPORT.Name} {Symbols.OP_MULTIPLY.Name} {Symbols.KW_AS.Name} {this.Module.Value} {Symbols.KW_FROM.Name} {this.File.Value};");
             }
             else
             {

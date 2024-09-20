@@ -22,7 +22,7 @@ namespace AuroraScript.Ast.Statements
             if (this.Else != null)
             {
                 writer.WriteLine();
-                using (writer.IncIndented()) this.Body.GenerateCode(writer);
+                using (writer.IncIndented(!(this.Body is BlockStatement))) this.Body.GenerateCode(writer);
             }
             else
             {
@@ -30,10 +30,9 @@ namespace AuroraScript.Ast.Statements
             }
             if (this.Else != null)
             {
-                writer.WriteLine();
                 writer.Write(Symbols.KW_ELSE.Name + " ");
                 writer.WriteLine();
-                using (writer.IncIndented()) this.Else.GenerateCode(writer);
+                using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
             }
         }
 
