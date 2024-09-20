@@ -1,27 +1,16 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Stream;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace AuroraScript.Ast
 {
     public class ModuleDeclaration : BlockStatement
     {
-
-
-
-
         // 引用
         public readonly List<ModuleDeclaration> Imports = new List<ModuleDeclaration>();
         // 文件名 
 
         // 其他
-
 
         public void Import(ModuleDeclaration module)
         {
@@ -49,7 +38,7 @@ namespace AuroraScript.Ast
 
 
 
-        public  String ToJson()
+        public String ToJson()
         {
             var options = new JsonSerializerOptions
             {
