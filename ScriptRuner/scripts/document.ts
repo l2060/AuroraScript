@@ -71,3 +71,12 @@ console.log(ary1[1]);
 console.log(result);
 
 test(11, 222, ...[333, 444]);
+
+
+var data = {
+    a: 1,
+    console,
+    b: result,
+    c: foo(1, "x"),
+    ...ary1
+};

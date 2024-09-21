@@ -1,9 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AuroraScript;
 using AuroraScript.Ast;
-using ScriptRuner;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 //Interface.Run(); 
 //Console.ReadKey();

@@ -1,6 +1,7 @@
 ﻿
 
 using AuroraScript.Stream;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast
@@ -83,6 +84,14 @@ namespace AuroraScript.Ast
             }
         }
 
+        protected void writeParameters<T>(CodeWriter writer, List<T> nodes, Action ss) where T : AstNode
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].GenerateCode(writer);
+                ss?.Invoke();
+            }
+        }
 
     }
 }

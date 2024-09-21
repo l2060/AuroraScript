@@ -541,6 +541,11 @@ namespace AuroraScript.Analyzer
                         tempExp = this.createExpression(_operator, previousToken);
                     }
                 }
+
+
+
+
+
                 if (tempExp == null) throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 // ==============================================
                 // 
@@ -575,7 +580,7 @@ namespace AuroraScript.Analyzer
                             }
                         }
                         // new Array expression 
-                        else if (tempExp is ArrayExpression arrayExpression)
+                        else if (tempExp is ArrayConstructExpression arrayExpression)
                         {
                             // Parse new array object 
                             while (true)
@@ -588,6 +593,22 @@ namespace AuroraScript.Analyzer
                                 if (last.Symbol == Symbols.PT_RIGHTBRACKET) break;
                             }
                         }
+                        // new Anonymous object expression 
+                        else if (tempExp is ObjectConstructExpression constructExpression)
+                        {
+                            // Parse new Anonymous object 
+                            while (true)
+                            {
+                                // parse aa : ddd
+                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (argument != null) constructExpression.Elements.Add(argument);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete 
+                                if (last.Symbol == Symbols.PT_RIGHTBRACE) break;
+                            }
+                        }
+
+
                         // Array Index Access expression
                         else if (tempExp is ArrayAccessExpression indexAccess)
                         {
@@ -703,13 +724,13 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Coroutine) return new CoroutineExpression(_operator);
             // new expression
             if (_operator == Operator.New) return new BinaryExpression(_operator);
-
+            if (_operator == Operator.Constructor) return new ObjectConstructExpression(_operator);
             // function call expression
             if (_operator == Operator.FunctionCall && !(previousToken is PunctuatorToken)) return new FunctionCallExpression(_operator);
             // Grouping expression
             if (_operator == Operator.Grouping  /* && previousToken is PunctuatorToken */ ) return new GroupExpression(_operator);
             // member access expression
-            if (_operator == Operator.Array) return new ArrayExpression(_operator);
+            if (_operator == Operator.Array) return new ArrayConstructExpression(_operator);
             // member index expression
             if (_operator == Operator.Index) return new ArrayAccessExpression(_operator);
             // member access expression
@@ -728,6 +749,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.BitwiseOr) return new BinaryExpression(_operator);
             if (_operator == Operator.BitwiseXor) return new BinaryExpression(_operator);
             if (_operator == Operator.LogicalAnd) return new BinaryExpression(_operator);
+            if (_operator == Operator.MemberSet) return new BinaryExpression(_operator);
 
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
@@ -747,6 +769,8 @@ namespace AuroraScript.Analyzer
             // Postfix expression
             if (_operator == Operator.PostDecrement) return new PostfixExpression(_operator);
             if (_operator == Operator.PostIncrement) return new PostfixExpression(_operator);
+
+
             return null;
         }
 

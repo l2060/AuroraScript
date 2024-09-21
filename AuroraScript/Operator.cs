@@ -48,6 +48,13 @@ namespace AuroraScript
         public static readonly Operator Array = new Operator(Symbols.PT_LEFTBRACKET, 18, OperatorPlacement.Prefix, true, Symbols.PT_RIGHTBRACKET);
 
 
+
+        /// <summary>
+        /// operator new Anonymous object
+        /// </summary>
+        public static readonly Operator Constructor = new Operator(Symbols.PT_LEFTBRACE, 18, OperatorPlacement.Prefix, true, Symbols.PT_RIGHTBRACE);
+
+
         // Array Index operator.
         /// <summary>
         /// operator exp[exp]
@@ -68,6 +75,8 @@ namespace AuroraScript
         public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, true);
 
 
+
+        
         /// <summary>
         /// Coroutine (func call)
         /// </summary>
@@ -238,6 +247,13 @@ namespace AuroraScript
         /// operator exp -= exp
         /// </summary>
         public static readonly Operator CompoundSubtract = new Operator(Symbols.OP_COMPOUNDSUBTRACT, 2, OperatorPlacement.Binary, false);
+
+
+
+        public static readonly Operator MemberSet = new Operator(Symbols.PT_COLON, 2, OperatorPlacement.Binary, false);
+
+
+
 
 
         /// <summary>

@@ -3,9 +3,9 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class ArrayExpression : OperatorExpression
+    public class ArrayConstructExpression : OperatorExpression
     {
-        internal ArrayExpression(Operator @operator) : base(@operator)
+        internal ArrayConstructExpression(Operator @operator) : base(@operator)
         {
             this.Elements = new List<Expression>();
         }
