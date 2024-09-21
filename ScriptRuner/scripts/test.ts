@@ -1,11 +1,14 @@
 ﻿
-//var ddd = [1, 2, 3, 4, 5, 6];
+//import './main.ts';
 
 
+console.log((event: number): boolean => {
+    var s = true;
+    return s;
+});
 
-var data = {
-    a: 1,
-    b: ary1[1],
-    c: foo(1, "x"),
-    ...adfg
+
+var func = (event: number): boolean => {
+    var s = true;
+    return s;
 }

@@ -95,7 +95,10 @@ namespace AuroraScript
         /// token :
         /// </summary>
         public readonly static Symbols PT_COLON = new Symbols(":", SymbolTypes.Punctuator);
-
+        /// <summary>
+        /// token =>
+        /// </summary>
+        public readonly static Symbols PT_LAMBDA = new Symbols("=>", SymbolTypes.Operator);
         // Operators
         /// <summary>
         /// token <

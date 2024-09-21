@@ -80,3 +80,17 @@ var data = {
     c: foo(1, "x"),
     ...ary1
 };
+
+//export type action = (v1: number, v2: string) => boolean;
+
+
+console.log((event: number): boolean => {
+    var s = true;
+    return s;
+});
+
+
+var func = (event: number): boolean => {
+    var s = true;
+    return s;
+}

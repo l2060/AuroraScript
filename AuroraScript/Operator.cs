@@ -75,8 +75,13 @@ namespace AuroraScript
         public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, true);
 
 
+        // lambda operator.
+        /// <summary>
+        /// operator new
+        /// </summary>
+        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 17, OperatorPlacement.Binary, true);
 
-        
+
         /// <summary>
         /// Coroutine (func call)
         /// </summary>

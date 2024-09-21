@@ -32,7 +32,7 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    public class FunctionDeclaration : Statement
+    public class FunctionDeclaration : LambdaDeclareation
     {
         internal FunctionDeclaration()
         {
@@ -48,24 +48,9 @@ namespace AuroraScript.Ast
         public List<Token> Modifiers { get; set; }
 
         /// <summary>
-        /// parameters
-        /// </summary>
-        public List<ParameterDeclaration> Parameters { get; set; }
-
-        /// <summary>
         /// function name
         /// </summary>
         public Token Identifier { get; set; }
-
-        /// <summary>
-        /// function code
-        /// </summary>
-        public Statement Body { get; set; }
-
-        /// <summary>
-        /// function result types
-        /// </summary>
-        public List<ObjectType> Typeds { get; set; }
 
 
         public FunctionFlags Flags { get; set; }

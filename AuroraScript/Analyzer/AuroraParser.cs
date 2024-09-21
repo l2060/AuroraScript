@@ -540,8 +540,14 @@ namespace AuroraScript.Analyzer
                     {
                         tempExp = this.createExpression(_operator, previousToken);
                     }
-                }
 
+                    // TODO Lambda
+                    if (tempExp is BinaryExpression be && be.Operator == Operator.MemberSet)
+                    {
+                        Console.WriteLine();
+                    }
+
+                }
 
 
 
@@ -572,6 +578,26 @@ namespace AuroraScript.Analyzer
                         // expressions wrapped in parentheses 
                         else if (tempExp is GroupExpression)
                         {
+                            // Parse() block, from here recursively parse expressions to minor symbols 
+                            tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
+                            if (tempExp is OperatorExpression opexp)
+                            {
+                                opexp.Upgrade(Operator.Grouping);
+                            }
+                        }
+                        // TODO Lambda
+                        else if (tempExp is LambdaExpression)
+                        {
+
+                            var body = this.ParseBlock(currentScope);
+                            if (!(body is BlockStatement))
+                            {
+                                var newBody = new BlockStatement(currentScope);
+                                newBody.AddNode(body);
+                                body = newBody;
+                            }
+
+
                             // Parse() block, from here recursively parse expressions to minor symbols 
                             tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
                             if (tempExp is OperatorExpression opexp)
@@ -770,6 +796,8 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.PostDecrement) return new PostfixExpression(_operator);
             if (_operator == Operator.PostIncrement) return new PostfixExpression(_operator);
 
+            //TODO Lambda
+            if (_operator == Operator.Lambda) return new LambdaExpression(_operator);
 
             return null;
         }

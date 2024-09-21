@@ -13,7 +13,7 @@ using AuroraScript.Ast;
 
 var compiler = new AuroraCompiler();
 
-ModuleDeclaration root = compiler.buildAst("./scripts/main.ts");
+ModuleDeclaration root = compiler.buildAst("./scripts/test.ts");
 //compiler.opaimizeTree(root);
 //compiler.PrintTreeCode(root);
 //Console.WriteLine(compiler.GenerateCode(root));

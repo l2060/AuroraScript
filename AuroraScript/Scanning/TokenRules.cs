@@ -130,7 +130,8 @@ namespace AuroraScript.Scanning
                    (codeSpan[0] == '|' && codeSpan[1] == '|') ||
                    (codeSpan[0] == '&' && codeSpan[1] == '&') ||
                    (codeSpan[0] == '>' && codeSpan[1] == '>') ||
-                   (codeSpan[0] == '<' && codeSpan[1] == '<'))
+                   (codeSpan[0] == '<' && codeSpan[1] == '<') ||
+                   (codeSpan[0] == '=' && codeSpan[1] == '>'))
                     
                 {
                     result.ColumnNumber += 2;
