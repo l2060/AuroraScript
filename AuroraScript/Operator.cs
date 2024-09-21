@@ -79,7 +79,7 @@ namespace AuroraScript
         /// <summary>
         /// operator new
         /// </summary>
-        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 17, OperatorPlacement.Binary, true);
+        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 17, OperatorPlacement.Binary, true, Symbols.PT_RIGHTBRACKET);
 
 
         /// <summary>

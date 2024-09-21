@@ -540,13 +540,6 @@ namespace AuroraScript.Analyzer
                     {
                         tempExp = this.createExpression(_operator, previousToken);
                     }
-
-                    // TODO Lambda
-                    if (tempExp is BinaryExpression be && be.Operator == Operator.MemberSet)
-                    {
-                        Console.WriteLine();
-                    }
-
                 }
 
 
@@ -589,21 +582,26 @@ namespace AuroraScript.Analyzer
                         else if (tempExp is LambdaExpression)
                         {
 
-                            var body = this.ParseBlock(currentScope);
-                            if (!(body is BlockStatement))
+                            // TODO Lambda
+                            if (lastExpression.Parent is BinaryExpression be && be.Operator == Operator.MemberSet)
                             {
-                                var newBody = new BlockStatement(currentScope);
-                                newBody.AddNode(body);
-                                body = newBody;
+                                Console.WriteLine();
+                                // 左侧参数转换为 Lambda参数
                             }
 
-
-                            // Parse() block, from here recursively parse expressions to minor symbols 
-                            tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
-                            if (tempExp is OperatorExpression opexp)
-                            {
-                                opexp.Upgrade(Operator.Grouping);
-                            }
+                            //var body = this.ParseBlock(currentScope);
+                            //if (!(body is BlockStatement))
+                            //{
+                            //    var newBody = new BlockStatement(currentScope);
+                            //    newBody.AddNode(body);
+                            //    body = newBody;
+                            //}
+                            //// Parse() block, from here recursively parse expressions to minor symbols 
+                            //tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
+                            //if (tempExp is OperatorExpression opexp)
+                            //{
+                            //    opexp.Upgrade(Operator.Grouping);
+                            //}
                         }
                         // new Array expression 
                         else if (tempExp is ArrayConstructExpression arrayExpression)
