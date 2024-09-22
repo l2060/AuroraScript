@@ -81,7 +81,7 @@ var data = {
     ...ary1
 };
 
-//export type action = (v1: number, v2: string) => boolean;
+export type action = (v1: number, v2: string) => boolean;
 
 
 console.log((event: number): boolean => {

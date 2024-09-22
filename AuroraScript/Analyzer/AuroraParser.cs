@@ -186,10 +186,10 @@ namespace AuroraScript.Analyzer
             var name = this.lexer.NextOfKind<IdentifierToken>();
             this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
 
-            var s = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
-            var typed = this.ParseObjectType();
-            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var declaration = new TypeDeclaration() { Identifier = name, Typed = typed, Access = access };
+            var typed = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+            //var typed = this.ParseObjectType();
+            //this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            var declaration = new TypeDeclaration() { Identifier = name,Typed = typed, Access = access };
             return new ExpressionStatement(declaration);
             //return declaration;
         }
@@ -543,11 +543,23 @@ namespace AuroraScript.Analyzer
                         tempExp = this.createExpression(currentScope, _operator, previousToken);
                     }
                 }
+                if (tempExp == null) throw this.InitParseException("Invalid token {0} appears in expression", token);
+                // TODO Lambda
+                if (tempExp is LambdaExpression lambda)
+                {
+                    // TODO Lambda
+                    if (lastExpression.Parent is BinaryExpression bin && bin.Operator == Operator.SetMember)
+                    {
+                        // Lambda 表达式
+                        return ParseLamdaExpression(currentScope, lambda, lastExpression.Parent as Expression);
+                    }
+                    else
+                    {
+                        // Delegate 声明
 
+                    }
+                }
 
-
-
-                if (tempExp == null) throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 // ==============================================
                 // 
                 // ==============================================
@@ -575,36 +587,15 @@ namespace AuroraScript.Analyzer
                         {
                             var scope = currentScope.CreateScope(ScopeType.GROUP);
                             // Parse() block, from here recursively parse expressions to minor symbols 
-                            tempExp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols);
-                            if (tempExp is OperatorExpression opexp)
+                            while (true)
                             {
-                                opexp.Upgrade(Operator.Grouping);
+                                // parse aa : ddd
+                                var exp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (exp != null) tempExp.AddNode(exp);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete 
+                                if (last.Symbol != Symbols.PT_COMMA) break;
                             }
-                        }
-                        // TODO Lambda
-                        else if (tempExp is LambdaExpression)
-                        {
-
-                            // TODO Lambda
-                            if (lastExpression.Parent is BinaryExpression be && be.Operator == Operator.SetMember)
-                            {
-                                Console.WriteLine();
-                                // 左侧参数转换为 Lambda参数
-                            }
-
-                            //var body = this.ParseBlock(currentScope);
-                            //if (!(body is BlockStatement))
-                            //{
-                            //    var newBody = new BlockStatement(currentScope);
-                            //    newBody.AddNode(body);
-                            //    body = newBody;
-                            //}
-                            //// Parse() block, from here recursively parse expressions to minor symbols 
-                            //tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
-                            //if (tempExp is OperatorExpression opexp)
-                            //{
-                            //    opexp.Upgrade(Operator.Grouping);
-                            //}
                         }
                         // new Array expression 
                         else if (tempExp is ArrayConstructExpression arrayExpression)
@@ -732,13 +723,15 @@ namespace AuroraScript.Analyzer
         private Expression expandStringTemplate(ValueToken token, Scope currentScope)
         {
             var exp = new BinaryExpression(Operator.Add);
-
-
-
-
-
             return exp;
         }
+
+
+
+
+
+
+
 
 
 
@@ -789,7 +782,7 @@ namespace AuroraScript.Analyzer
                 }
                 else
                 {
-
+                    return new ParamDefineExpression(_operator);
                 }
             }
 
@@ -817,6 +810,25 @@ namespace AuroraScript.Analyzer
 
             return null;
         }
+
+
+        private Expression ParseLamdaExpression(Scope currentScope,LambdaExpression lambda , Expression param)
+        {
+            param.Remove();
+            var _params = param.ChildNodes[0];
+            var _typed = param.ChildNodes[1];
+
+            //TODO  转 Delegate 声明
+            //lambda.AddNode(param);
+            lambda.Declare = param;
+
+            var body = this.ParseBlock(currentScope);
+            lambda.Block = body;
+            return lambda;
+        }
+
+
+
 
 
 

@@ -15,7 +15,7 @@ namespace AuroraScript.Ast.Expressions
 
         public Symbols Access { get; set; }
         public Token Identifier { get; set; }
-        public ObjectType Typed { get; set; }
+        public Expression Typed { get; set; }
 
         public override void GenerateCode(CodeWriter writer, int depth = 0)
         {

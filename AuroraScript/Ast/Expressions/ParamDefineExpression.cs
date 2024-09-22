@@ -1,5 +1,4 @@
-﻿using AuroraScript.Ast.Statements;
-using AuroraScript.Stream;
+﻿using AuroraScript.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,18 +7,11 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class LambdaExpression : BinaryExpression
+    internal class ParamDefineExpression : BinaryExpression
     {
-        internal LambdaExpression(Operator @operator) : base(@operator)
+        internal ParamDefineExpression(Operator @operator) : base(@operator)
         {
         }
-
-
-        public Expression Declare;
-
-
-        public Statement Block { get; set; }
-
 
 
 
@@ -30,25 +22,12 @@ namespace AuroraScript.Ast.Expressions
             {
                 isPriority = parent.Operator.Precedence > this.Operator.Precedence;
             }
-
             if (isPriority) writer.Write(Symbols.PT_LEFTPARENTHESIS.Name);
-
-            this.Declare.GenerateCode(writer);
-
-            writer.Write($" {this.Operator.Symbol.Name} ");
-            if (this.Block != null)
-            {
-                // lambda
-                this.Block.GenerateCode(writer);
-            }
-            else
-            {
-                // delegate
-                this.Right.GenerateCode(writer);
-            }
+            this.Left.GenerateCode(writer);
+            writer.Write($"{this.Operator.Symbol.Name} ");
+            this.Right.GenerateCode(writer);
             if (isPriority) writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
         }
-
 
 
     }

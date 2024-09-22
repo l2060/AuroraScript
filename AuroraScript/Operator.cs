@@ -33,7 +33,7 @@ namespace AuroraScript
         /// <summary>
         /// operator new
         /// </summary>
-        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 19, OperatorPlacement.Binary, true);
+        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 0, OperatorPlacement.Binary, true);
 
         /// <summary>
         /// Cast Type  <type> ??
@@ -45,6 +45,7 @@ namespace AuroraScript
         /// operator (exp)
         /// </summary>
         public static readonly Operator Grouping = new Operator(Symbols.PT_LEFTPARENTHESIS, 19, OperatorPlacement.Prefix, true, Symbols.PT_RIGHTPARENTHESIS);
+
 
         /// <summary>
         /// operator exp(

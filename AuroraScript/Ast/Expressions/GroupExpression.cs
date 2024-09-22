@@ -1,4 +1,6 @@
 ﻿
+using AuroraScript.Stream;
+
 namespace AuroraScript.Ast.Expressions
 {
     public class GroupExpression : OperatorExpression
@@ -6,5 +8,23 @@ namespace AuroraScript.Ast.Expressions
         internal GroupExpression(Operator @operator) : base(@operator)
         {
         }
+
+
+
+
+
+
+
+        public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
+        {
+
+            writer.Write(Symbols.PT_LEFTPARENTHESIS.Name);
+
+            writeParameters(writer, ChildNodes,", ");
+            writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
+        }
+
+
     }
+
 }
