@@ -36,7 +36,7 @@ namespace AuroraScript.Ast
 
 
 
-        public virtual IEnumerable<AstNode> ChildNodes
+        public virtual List<AstNode> ChildNodes
         {
             get
             {

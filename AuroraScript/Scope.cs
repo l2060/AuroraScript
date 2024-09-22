@@ -6,6 +6,24 @@ using System.Text.Json.Serialization;
 
 namespace AuroraScript
 {
+    public enum ScopeType
+    {
+        UNKNOWN,
+        MODULE,
+        FOR,
+        BLOCK,
+        GROUP,
+        FUNCTION,
+        CONSTRUCTOR
+
+    }
+
+
+
+
+
+
+
     /// <summary>
     /// statemtnt scope
     /// </summary>
@@ -14,19 +32,15 @@ namespace AuroraScript
         [JsonIgnore]
         public Scope Parent { get; private set; }
         internal AuroraParser Parser { get; private set; }
-        public IReadOnlyList<Scope> Childrens { get; private set; } = new List<Scope>();
+        public List<Scope> Childrens { get; private set; } = new List<Scope>();
         public Dictionary<string, ParameterDeclaration> Variables { get; private set; } = new Dictionary<string, ParameterDeclaration>();
 
+        public ScopeType  ScopeType { get; private set; }
 
-
-        internal Scope(AuroraParser parser, Scope parent)
+        internal Scope(AuroraParser parser)
         {
             this.Parser = parser;
-            this.Parent = parent;
-            if(this.Parent != null && this.Parent.Childrens is List<Scope> list)
-            {
-                list.Add(this);
-            }
+            this.ScopeType = ScopeType.MODULE;
         }
 
 
@@ -39,7 +53,14 @@ namespace AuroraScript
 
 
 
-
+        public Scope CreateScope(ScopeType scopeType)
+        {
+            var scope = new Scope(this.Parser);
+            scope.Parent = this;
+            scope.ScopeType = scopeType;
+            this.Childrens.Add(scope);
+            return scope;
+        }
 
 
 

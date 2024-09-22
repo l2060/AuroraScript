@@ -29,6 +29,16 @@ namespace AuroraScript
     {
 
 
+        // lambda operator.
+        /// <summary>
+        /// operator new
+        /// </summary>
+        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 19, OperatorPlacement.Binary, true);
+
+        /// <summary>
+        /// Cast Type  <type> ??
+        /// </summary>
+        public static readonly Operator CastType = new Operator(Symbols.OP_LESSTHAN, 19, OperatorPlacement.Prefix, false, Symbols.OP_GREATERTHAN);
 
         // Parenthesis.
         /// <summary>
@@ -75,11 +85,6 @@ namespace AuroraScript
         public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, true);
 
 
-        // lambda operator.
-        /// <summary>
-        /// operator new
-        /// </summary>
-        public static readonly Operator Lambda = new Operator(Symbols.PT_LAMBDA, 17, OperatorPlacement.Binary, true, Symbols.PT_RIGHTBRACKET);
 
 
         /// <summary>
@@ -255,7 +260,7 @@ namespace AuroraScript
 
 
 
-        public static readonly Operator MemberSet = new Operator(Symbols.PT_COLON, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator SetMember = new Operator(Symbols.PT_COLON, 2, OperatorPlacement.Binary, false);
 
 
 

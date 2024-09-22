@@ -42,6 +42,8 @@ Development Progress
 - [x] Array Support
 - [x] Custom Type Define
 - [x] String Escape & format
+- [x] Cast Type
+- [x] Object Constructor && ~
 - [ ] Custom Type Support
 - [ ] Parser Scope Tree
 - [ ] Optimize Syntax Tree 

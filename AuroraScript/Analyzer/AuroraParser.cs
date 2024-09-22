@@ -4,6 +4,7 @@ using AuroraScript.Ast.Statements;
 using AuroraScript.Ast.Types;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
+using System.ComponentModel;
 
 namespace AuroraScript.Analyzer
 {
@@ -16,8 +17,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer = lexer;
             this.Compiler = compiler;
-            var scope = new Scope(this, null);
-            this.root = new ModuleDeclaration(scope);
+            this.root = new ModuleDeclaration(new Scope(this));
             this.root.ModulePath = lexer.FullPath;
         }
 
@@ -185,6 +185,8 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.KW_TYPE);
             var name = this.lexer.NextOfKind<IdentifierToken>();
             this.lexer.NextOfKind(Symbols.OP_ASSIGNMENT);
+
+            var s = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
             var typed = this.ParseObjectType();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             var declaration = new TypeDeclaration() { Identifier = name, Typed = typed, Access = access };
@@ -240,7 +242,7 @@ namespace AuroraScript.Analyzer
         private Statement ParseBlock(Scope currentScope)
         {
             this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
-            var scope = new Scope(this, currentScope);
+            var scope = currentScope.CreateScope(ScopeType.BLOCK);
             var result = new BlockStatement(scope);
             while (true)
             {
@@ -277,7 +279,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseForBlock(Scope currentScope)
         {
-            var scope = new Scope(currentScope.Parser, currentScope);
+            var scope = currentScope.CreateScope(ScopeType.FOR);
             this.lexer.NextOfKind(Symbols.KW_FOR);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse for initializer
@@ -436,13 +438,13 @@ namespace AuroraScript.Analyzer
 
         private Statement opaimizeStatement(Statement statement)
         {
-            var node  = statement;
+            var node = statement;
             var parent = statement.Parent;
             while (node is BlockStatement block && block.Length == 1)
             {
                 node = (Statement)block.ChildNodes[0];
                 node.Remove();
-               if(parent != null) parent.AddNode(node);
+                if (parent != null) parent.AddNode(node);
             }
             return node;
         }
@@ -538,7 +540,7 @@ namespace AuroraScript.Analyzer
                     }
                     else
                     {
-                        tempExp = this.createExpression(_operator, previousToken);
+                        tempExp = this.createExpression(currentScope, _operator, previousToken);
                     }
                 }
 
@@ -571,8 +573,9 @@ namespace AuroraScript.Analyzer
                         // expressions wrapped in parentheses 
                         else if (tempExp is GroupExpression)
                         {
+                            var scope = currentScope.CreateScope(ScopeType.GROUP);
                             // Parse() block, from here recursively parse expressions to minor symbols 
-                            tempExp = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols);
+                            tempExp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols);
                             if (tempExp is OperatorExpression opexp)
                             {
                                 opexp.Upgrade(Operator.Grouping);
@@ -583,7 +586,7 @@ namespace AuroraScript.Analyzer
                         {
 
                             // TODO Lambda
-                            if (lastExpression.Parent is BinaryExpression be && be.Operator == Operator.MemberSet)
+                            if (lastExpression.Parent is BinaryExpression be && be.Operator == Operator.SetMember)
                             {
                                 Console.WriteLine();
                                 // 左侧参数转换为 Lambda参数
@@ -620,24 +623,27 @@ namespace AuroraScript.Analyzer
                         // new Anonymous object expression 
                         else if (tempExp is ObjectConstructExpression constructExpression)
                         {
+                            var scope = currentScope.CreateScope(ScopeType.CONSTRUCTOR);
                             // Parse new Anonymous object 
                             while (true)
                             {
                                 // parse aa : ddd
-                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                var argument = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
                                 if (argument != null) constructExpression.Elements.Add(argument);
                                 var last = this.lexer.Previous(1);
                                 // If the symbol ends with a closing parenthesis, the parsing is complete 
                                 if (last.Symbol == Symbols.PT_RIGHTBRACE) break;
                             }
                         }
-
-
                         // Array Index Access expression
                         else if (tempExp is ArrayAccessExpression indexAccess)
                         {
                             // Parse[] block, from here recursively parse expressions to minor symbols 
-                            indexAccess.Index = this.ParseExpression(currentScope, Symbols.PT_RIGHTBRACKET);
+                            indexAccess.Index = this.ParseExpression(currentScope, indexAccess.Operator.SecondarySymbols);
+                        }
+                        else if (tempExp is CastTypeExpression typeConvert)
+                        {
+                            typeConvert.Typed = this.ParseExpression(currentScope, typeConvert.Operator.SecondarySymbols);
                         }
                     }
                     /**
@@ -708,7 +714,7 @@ namespace AuroraScript.Analyzer
                 }
                 lastOperator = (tempExp is OperatorExpression f) ? f.Operator : null;
                 lastExpression = tempExp;
-                if (rootExpression.ChildNodes.Count() == 0) rootExpression.AddNode(tempExp);
+                if (rootExpression.ChildNodes.Count() == 0 && tempExp != null) rootExpression.AddNode(tempExp);
             }
 
 
@@ -736,7 +742,7 @@ namespace AuroraScript.Analyzer
 
 
 
-        private Expression createExpression(Operator _operator, Token previousToken)
+        private Expression createExpression(Scope currentScope, Operator _operator, Token previousToken)
         {
             // Assignment Expression
             if (_operator == Operator.Assignment) return new AssignmentExpression(_operator);
@@ -773,7 +779,19 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.BitwiseOr) return new BinaryExpression(_operator);
             if (_operator == Operator.BitwiseXor) return new BinaryExpression(_operator);
             if (_operator == Operator.LogicalAnd) return new BinaryExpression(_operator);
-            if (_operator == Operator.MemberSet) return new BinaryExpression(_operator);
+            if (_operator == Operator.CastType) return new CastTypeExpression(_operator);
+
+            if (_operator == Operator.SetMember)
+            {
+                if (currentScope.ScopeType == ScopeType.CONSTRUCTOR)
+                {
+                    return new SetMemberExpression(_operator);
+                }
+                else
+                {
+
+                }
+            }
 
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
@@ -823,7 +841,8 @@ namespace AuroraScript.Analyzer
                 }
                 var spreadOperator = false;
                 // 扩展运算符
-                if (this.lexer.TestNext(Symbols.OP_SPREAD)) {
+                if (this.lexer.TestNext(Symbols.OP_SPREAD))
+                {
                     spreadOperator = true;
                 }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
@@ -873,7 +892,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_COLON);
             var typeds = this.ParseFunctionReturnTypeds();
             // create function scope
-            var scope = new Scope(this, currentScope);
+            var scope = currentScope.CreateScope(ScopeType.FUNCTION);
             // declare arguments variable
             foreach (var arg in arguments)
             {
