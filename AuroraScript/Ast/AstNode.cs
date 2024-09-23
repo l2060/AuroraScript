@@ -10,6 +10,8 @@ namespace AuroraScript.Ast
     {
         protected List<AstNode> childrens = new List<AstNode>();
 
+        public Int32 Position;
+
         [JsonIgnore]
         public AstNode Parent { get; private set; }
         internal AstNode()

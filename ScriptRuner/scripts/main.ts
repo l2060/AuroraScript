@@ -10,15 +10,15 @@ import * as Document from './document';
 type int = number;
 
 
-export set Name(value: string): void {
+export set name(value: string): void {
 
 }
 
-export get Name(): string {
+export get name(): string {
     return '';
 }
 
-Name = 123456;
+name = 123456;
 
 /* exported  attributes */
 export var length = 100;

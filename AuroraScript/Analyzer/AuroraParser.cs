@@ -503,6 +503,7 @@ namespace AuroraScript.Analyzer
 
             while (true)
             {
+                var pos = this.lexer.Position;
                 var token = this.lexer.Next();
                 // over statement
                 if (token == Token.EOF)
@@ -550,6 +551,10 @@ namespace AuroraScript.Analyzer
                     else
                     {
                         tempExp = this.createExpression(currentScope, _operator, previousToken, lastExpression);
+                        if (tempExp != null)
+                        {
+                            tempExp.Position = pos;
+                        }
                     }
                 }
 
@@ -567,6 +572,12 @@ namespace AuroraScript.Analyzer
                         return ParseFunctionSignatureExpression(currentScope);
                     }
                 }
+                if (tempExp is PropertyAssignmentExpression pa)
+                {
+                    var argument = this.ParseExpression(currentScope, Symbols.PT_COMMA);
+                    Console.WriteLine(argument);
+                }
+
 
                 if (tempExp == null) throw this.InitParseException("Invalid token {0} appears in expression", token);
                 // ==============================================
@@ -829,7 +840,7 @@ namespace AuroraScript.Analyzer
                 else if (exp is NameExpression named)
                 {
                     var key = named.Identifier;
-                    var newExp =new PropertyAssignmentExpression(Operator.SetMember);
+                    var newExp = new PropertyAssignmentExpression(Operator.SetMember);
                     newExp.Key = named.Identifier;
                     newExp.Value = named;
                     exp = newExp;
