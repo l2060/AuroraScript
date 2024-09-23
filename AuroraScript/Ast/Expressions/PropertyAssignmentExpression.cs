@@ -8,8 +8,8 @@ namespace AuroraScript.Ast.Expressions
         {
 
         }
-        public Token Key;
-        public AstNode Value;
+        public Token Key {  get; set; }
+        public AstNode Value { get; set; }
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {

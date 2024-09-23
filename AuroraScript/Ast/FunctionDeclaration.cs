@@ -108,6 +108,8 @@ namespace AuroraScript.Ast
             }
             writer.WriteLine();
             if (Body != null) this.Body.GenerateCode(writer);
+            writer.WriteLine();
+
         }
 
 

@@ -31,7 +31,7 @@ namespace AuroraScript.Ast.Statements
             {
                 this.writeParameters(writer, ChildNodes, "");
             }
-            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
+            writer.Write(Symbols.PT_RIGHTBRACE.Name);
         }
 
 

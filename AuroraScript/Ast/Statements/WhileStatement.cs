@@ -23,6 +23,7 @@ namespace AuroraScript.Ast.Statements
             this.Condition.GenerateCode(writer);
             writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
             this.Body.GenerateCode(writer);
+            if(this.Body is BlockStatement) writer.WriteLine();
         }
 
 

@@ -113,14 +113,13 @@ console.log(v);
 main('yoyo');
 
 
-echo.dialog([
-    // text
-    "====[<$name>]====",
-    "bbbbbb",
-    "cccccc",
-    "dddddd",
-])
-    .modal()
+echo.dialog(120)
+    .text([
+        "====[<$name>]====",
+        "bbbbbb",
+        "cccccc",
+        "dddddd",
+    ])
     .floating([
         ui_gif("view", "package://item.wix,12", "0,0"),
         ui_img("view", "package://item.wix,12", "0,0"),
@@ -128,8 +127,7 @@ echo.dialog([
         ui_button("cancel", "package://item.wix,14", "200,100"),
     ])
     .position(11, 22)
-    .background(142)
-    .send();
+    .wait(); // 等待关闭
 
 
 

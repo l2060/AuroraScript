@@ -3,8 +3,11 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class ArrayConstructExpression : Expression
-    { 
+    public class ArrayConstructExpression : OperatorExpression
+    {
+        internal ArrayConstructExpression() : base(Operator.Array)
+        {
+        }
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {

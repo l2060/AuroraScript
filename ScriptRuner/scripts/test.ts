@@ -1,6 +1,5 @@
 ﻿
-//import './main.ts';
-
+import './main.ts';
 
 var sss = (1 + 4) * 3;
 
@@ -50,4 +49,4 @@ console.log((event: number, event2: number): boolean => {
 //[([event]: [number], [event]: [number] = 55)]: [boolean]  =>
 
 
-//func({ a: 1, b: 2 }, [1, 2, 3]);
+func({ a: 1, b: 2 }, [1, 2, 3]);

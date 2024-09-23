@@ -27,12 +27,14 @@ namespace AuroraScript.Ast.Statements
             else
             {
                 this.Body.GenerateCode(writer);
+                if (this.Body is BlockStatement) writer.WriteLine();
             }
             if (this.Else != null)
             {
                 writer.Write(Symbols.KW_ELSE.Name + " ");
                 if(!(this.Else is IfStatement)) writer.WriteLine();
                 using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
+                if (this.Else is BlockStatement) writer.WriteLine();
             }
         }
 

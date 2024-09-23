@@ -625,19 +625,6 @@ namespace AuroraScript.Analyzer
                         {
                             rollBackLexer();
                             return ParseObjectConstructor(currentScope);
-
-
-                            //var scope = currentScope.CreateScope(ScopeType.CONSTRUCTOR);
-                            //// Parse new Anonymous object 
-                            //while (true)
-                            //{
-                            //    // parse aa : ddd
-                            //    var argument = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
-                            //    if (argument != null) constructExpression.Elements.Add(argument);
-                            //    var last = this.lexer.Previous(1);
-                            //    // If the symbol ends with a closing parenthesis, the parsing is complete 
-                            //    if (last.Symbol == Symbols.PT_RIGHTBRACE) break;
-                            //}
                         }
                         // Array Index Access expression
                         else if (tempExp is ArrayAccessExpression indexAccess)
@@ -824,6 +811,29 @@ namespace AuroraScript.Analyzer
                     break;
                 }
                 var exp = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
+                if (exp is PropertyAssignmentExpression pae)
+                {
+                    Token key = null;
+                    if (pae.ChildNodes[0] is ValueExpression value)
+                    {
+                        key = value.Value;
+                    }
+                    else if (pae.ChildNodes[0] is NameExpression name)
+                    {
+                        key = name.Identifier;
+                    }
+                    pae.Key = key;
+                    pae.Value = pae.ChildNodes[1];
+                    pae.ChildNodes.Clear();
+                }
+                else if (exp is NameExpression named)
+                {
+                    var key = named.Identifier;
+                    var newExp =new PropertyAssignmentExpression(Operator.SetMember);
+                    newExp.Key = named.Identifier;
+                    newExp.Value = named;
+                    exp = newExp;
+                }
                 constructExpression.AddNode(exp);
                 var token = this.lexer.Previous(1);
                 if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
