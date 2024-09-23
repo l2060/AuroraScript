@@ -495,6 +495,12 @@ namespace AuroraScript.Analyzer
             Expression lastExpression = null;
             Operator lastOperator = null;
             var startPointer = this.lexer.Position;
+            var rollBackLexer = () =>
+            {
+                while (this.lexer.Position > startPointer) this.lexer.RollBack();
+            };
+
+
             while (true)
             {
                 var token = this.lexer.Next();
@@ -552,12 +558,12 @@ namespace AuroraScript.Analyzer
                 {
                     if (lastExpression.Parent is BinaryExpression bin && bin.Operator == Operator.SetMember)
                     {
-                        while (this.lexer.Position > startPointer) this.lexer.RollBack();
+                        rollBackLexer();
                         return ParseLamdaExpression(currentScope);
                     }
                     else
                     {
-                        while (this.lexer.Position > startPointer) this.lexer.RollBack();
+                        rollBackLexer();
                         return ParseFunctionSignatureExpression(currentScope);
                     }
                 }
@@ -608,26 +614,30 @@ namespace AuroraScript.Analyzer
                             {
                                 // parse function call arguments
                                 var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
-                                if (argument != null) arrayExpression.Elements.Add(argument);
+                                if (argument != null) arrayExpression.AddNode(argument);
                                 var last = this.lexer.Previous(1);
                                 // If the symbol ends with a closing parenthesis, the parsing is complete 
                                 if (last.Symbol == Symbols.PT_RIGHTBRACKET) break;
                             }
                         }
                         // new Anonymous object expression 
-                        else if (tempExp is ObjectConstructExpression constructExpression)
+                        else if (tempExp is ObjectLiteralExpression constructExpression)
                         {
-                            var scope = currentScope.CreateScope(ScopeType.CONSTRUCTOR);
-                            // Parse new Anonymous object 
-                            while (true)
-                            {
-                                // parse aa : ddd
-                                var argument = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
-                                if (argument != null) constructExpression.Elements.Add(argument);
-                                var last = this.lexer.Previous(1);
-                                // If the symbol ends with a closing parenthesis, the parsing is complete 
-                                if (last.Symbol == Symbols.PT_RIGHTBRACE) break;
-                            }
+                            rollBackLexer();
+                            return ParseObjectConstructor(currentScope);
+
+
+                            //var scope = currentScope.CreateScope(ScopeType.CONSTRUCTOR);
+                            //// Parse new Anonymous object 
+                            //while (true)
+                            //{
+                            //    // parse aa : ddd
+                            //    var argument = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                            //    if (argument != null) constructExpression.Elements.Add(argument);
+                            //    var last = this.lexer.Previous(1);
+                            //    // If the symbol ends with a closing parenthesis, the parsing is complete 
+                            //    if (last.Symbol == Symbols.PT_RIGHTBRACE) break;
+                            //}
                         }
                         // Array Index Access expression
                         else if (tempExp is ArrayAccessExpression indexAccess)
@@ -750,13 +760,13 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Coroutine) return new CoroutineExpression(_operator);
             // new expression
             if (_operator == Operator.New) return new BinaryExpression(_operator);
-            if (_operator == Operator.Constructor) return new ObjectConstructExpression(_operator);
+            if (_operator == Operator.Constructor) return new ObjectLiteralExpression(_operator);
             // function call expression
             if (_operator == Operator.FunctionCall && !(previousToken is PunctuatorToken)) return new FunctionCallExpression(_operator);
             // Grouping expression
             if (_operator == Operator.Grouping  /* && previousToken is PunctuatorToken */ ) return new GroupExpression(_operator);
             // member access expression
-            if (_operator == Operator.Array) return new ArrayConstructExpression(_operator);
+            if (_operator == Operator.Array) return new ArrayConstructExpression();
             // member index expression
             if (_operator == Operator.Index) return new ArrayAccessExpression(_operator);
 
@@ -777,7 +787,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.LogicalAnd) return new BinaryExpression(_operator);
             if (_operator == Operator.CastType) return new CastTypeExpression(_operator);
 
-            if (_operator == Operator.SetMember) return new SetMemberExpression(_operator);
+            if (_operator == Operator.SetMember) return new PropertyAssignmentExpression(_operator);
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
             if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
@@ -790,7 +800,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Minus) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreDecrement) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.PreIncrement) return new PrefixUnaryExpression(_operator);
-            if (_operator == Operator.PreSpread) return new PrefixUnaryExpression(_operator);
+            if (_operator == Operator.PreSpread) return new SpreadAssignmentExpression();
             if (_operator == Operator.TypeOf) return new PrefixUnaryExpression(_operator);
             if (_operator == Operator.LogicalNot) return new PrefixUnaryExpression(_operator);
             // Postfix expression
@@ -801,6 +811,30 @@ namespace AuroraScript.Analyzer
 
 
 
+
+        private Expression ParseObjectConstructor(Scope currentScope)
+        {
+            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+
+            var constructExpression = new ObjectLiteralExpression(Operator.Constructor);
+            while (true)
+            {
+                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE))
+                {
+                    break;
+                }
+                var exp = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
+                constructExpression.AddNode(exp);
+                var token = this.lexer.Previous(1);
+                if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
+                // Encountered comma break ;
+                this.lexer.TestNext(Symbols.PT_COMMA);
+                // Encountered closing parenthesis break ;
+                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE)) break;
+            }
+            return constructExpression;
+
+        }
 
 
 
@@ -891,10 +925,8 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LAMBDA);
 
             var funType = new FunctionType();
-
             funType.Parameters = arguments;
             funType.Typeds = typeds;
-
             lambda.Declare = funType;
             var body = this.ParseBlock(currentScope);
             lambda.Block = body;

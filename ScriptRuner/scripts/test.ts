@@ -29,6 +29,7 @@ var func = (event: number, event2: number = 1): boolean => {
 //export type Action4 = (ev: string, b: boolean) => [number, string];
 
 var data = {
+    0: ddd,
     a: 1,
     console,
     b: result,
@@ -49,4 +50,4 @@ console.log((event: number, event2: number): boolean => {
 //[([event]: [number], [event]: [number] = 55)]: [boolean]  =>
 
 
-func({ a: 1, b: 2 }, [1, 2, 3]);
+//func({ a: 1, b: 2 }, [1, 2, 3]);

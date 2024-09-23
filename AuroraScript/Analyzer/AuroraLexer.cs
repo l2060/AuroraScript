@@ -86,11 +86,13 @@ namespace AuroraScript.Analyzer
         {
             var token = this.Next();
             if (token is T) return (T)token;
-
-            
-
             throw new InvalidOperationException("");
         }
+
+
+
+
+
 
 
         /// <summary>
