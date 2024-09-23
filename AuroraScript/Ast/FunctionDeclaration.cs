@@ -32,12 +32,29 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    public class FunctionDeclaration : LambdaDeclareation
+    public class FunctionDeclaration : Statement
     {
         internal FunctionDeclaration()
         {
 
         }
+
+        /// <summary>
+        /// parameters
+        /// </summary>
+        public List<ParameterDeclaration> Parameters { get; set; }
+
+        /// <summary>
+        /// function code
+        /// </summary>
+        public Statement Body { get; set; }
+
+        /// <summary>
+        /// function result types
+        /// </summary>
+        public List<TypeNode> Typeds { get; set; }
+
+
         /// <summary>
         /// Function Access
         /// </summary>

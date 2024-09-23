@@ -33,7 +33,7 @@ namespace AuroraScript.Ast.Expressions
         /// <summary>
         /// get / set variable typed
         /// </summary>
-        public ObjectType Typed { get; set; }
+        public TypeNode Typed { get; set; }
 
         /// <summary>
         /// Function Access

@@ -1,12 +1,19 @@
 ﻿
 //import './main.ts';
 
+
 var sss = (1 + 4) * 3;
 
 
-export type Action = () => void;
-export type Action2 = (a: string) => number;
+export type Action = () => [void,ssss];
+export type Action2 = (a: string[]) => number;
 export type Action3 = (a: string, b: boolean, c: boolean, d: boolean) => string;
+
+
+
+//function as(v: (a: string) => number) {
+
+//}
 
 
 

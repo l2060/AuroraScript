@@ -9,10 +9,7 @@ namespace AuroraScript.Ast.Expressions
         {
 
         }
-        /// <summary>
-        /// function result types
-        /// </summary>
-        public List<Token> Types { get; set; }
+
 
         public new Expression this[Int32 index]
         {

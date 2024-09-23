@@ -39,7 +39,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// 
         /// </summary>
-        public ObjectType Typed { get; set; }
+        public TypeNode Typed { get; set; }
 
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
@@ -53,7 +53,8 @@ namespace AuroraScript.Ast
             }
             if (DefaultValue != null)
             {
-                writer.Write($" {Symbols.OP_ASSIGNMENT.Name} {DefaultValue}");
+                writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
+                DefaultValue.GenerateCode(writer, depth);
             }
         }
 

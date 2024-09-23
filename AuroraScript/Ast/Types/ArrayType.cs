@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Ast.Types
 {
-    public class ArrayType: ObjectType
+    public class ArrayType: TypeNode
     {
-        internal ArrayType(Token typeToken):base(typeToken)
-        {
+        private TypeNode node;
 
+        public ArrayType(TypeNode  node)
+        {
+            this.node = node;
         }
 
 
         public override void GenerateCode(CodeWriter writer, Int32 depth = 0)
         {
-            writer.Write($"{ElementType.Value}{Symbols.PT_LEFTBRACKET.Name}{Symbols.PT_RIGHTBRACKET.Name}");
+            this.node.GenerateCode(writer, depth);
+            writer.Write($"{Symbols.PT_LEFTBRACKET.Name}{Symbols.PT_RIGHTBRACKET.Name}");
         }
 
     }

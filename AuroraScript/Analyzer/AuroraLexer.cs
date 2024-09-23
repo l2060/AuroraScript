@@ -22,7 +22,7 @@ namespace AuroraScript.Analyzer
         private List<TokenRules> _TokenRules { get; set; }
         private Int32 readOffset { get; set; } = 0;
         private Int32 bufferLength { get; set; } = 0;
-        private Int32 Position { get; set; } = 0;
+        public Int32 Position {  get; private set; } = 0;
 
         public AuroraLexer(String file, Encoding encoding) : this(File.ReadAllText(file, encoding), file)
         {
@@ -86,6 +86,9 @@ namespace AuroraScript.Analyzer
         {
             var token = this.Next();
             if (token is T) return (T)token;
+
+            
+
             throw new InvalidOperationException("");
         }
 
