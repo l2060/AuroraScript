@@ -1,6 +1,7 @@
 ﻿
 //import './main.ts';
 
+func({ a: 1, b: 2 }, [1, 2, 3]);
 
 var s = {
 
@@ -71,7 +72,6 @@ console.log((event: number, event2: number): boolean => {
 //[([event]: [number], [event]: [number] = 55)]: [boolean]  =>
 
 
-func({ a: 1, b: 2 }, [1, 2, 3]);
 
 function foo(arg0: number, arg1: string) {
     //throw new Error('Function not implemented.');
