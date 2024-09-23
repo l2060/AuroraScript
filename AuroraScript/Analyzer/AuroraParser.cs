@@ -5,6 +5,7 @@ using AuroraScript.Ast.Types;
 using AuroraScript.Exceptions;
 using AuroraScript.Tokens;
 using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace AuroraScript.Analyzer
 {
@@ -574,8 +575,8 @@ namespace AuroraScript.Analyzer
                 }
                 if (tempExp is PropertyAssignmentExpression pa)
                 {
-                    var argument = this.ParseExpression(currentScope, Symbols.PT_COMMA);
-                    Console.WriteLine(argument);
+                    //var argument = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
+                    //Console.WriteLine(argument);
                 }
 
 
@@ -610,7 +611,7 @@ namespace AuroraScript.Analyzer
                             while (true)
                             {
                                 // parse aa : ddd
-                                var exp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                var exp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                                 if (exp != null) tempExp.AddNode(exp);
                                 var last = this.lexer.Previous(1);
                                 // If the symbol ends with a closing parenthesis, the parsing is complete 
@@ -821,33 +822,62 @@ namespace AuroraScript.Analyzer
                 {
                     break;
                 }
-                var exp = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
-                if (exp is PropertyAssignmentExpression pae)
+
+                // get token
+                // try get ,
+                // try get }
+                if (this.lexer.TestNext(Symbols.OP_SPREAD))
                 {
-                    Token key = null;
-                    if (pae.ChildNodes[0] is ValueExpression value)
-                    {
-                        key = value.Value;
-                    }
-                    else if (pae.ChildNodes[0] is NameExpression name)
-                    {
-                        key = name.Identifier;
-                    }
-                    pae.Key = key;
-                    pae.Value = pae.ChildNodes[1];
-                    pae.ChildNodes.Clear();
+                    var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
+
+
+                    Console.WriteLine(  );
                 }
-                else if (exp is NameExpression named)
+
+                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE))
                 {
-                    var key = named.Identifier;
+                    break;
+                }
+                var varname = this.lexer.NextOfKind<IdentifierToken>();
+                if (this.lexer.TestNext(Symbols.PT_COLON))
+                {
+                    var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
                     var newExp = new PropertyAssignmentExpression(Operator.SetMember);
-                    newExp.Key = named.Identifier;
-                    newExp.Value = named;
-                    exp = newExp;
+                    newExp.Key = varname;
+                    newExp.Value = value;
+                    constructExpression.AddNode(newExp);
                 }
-                constructExpression.AddNode(exp);
+
+
+                //exp = newExp;
+
+
+                //if (exp is PropertyAssignmentExpression pae)
+                //{
+                //    Token key = null;
+                //    if (pae.ChildNodes[0] is ValueExpression value)
+                //    {
+                //        key = value.Value;
+                //    }
+                //    else if (pae.ChildNodes[0] is NameExpression name)
+                //    {
+                //        key = name.Identifier;
+                //    }
+                //    pae.Key = key;
+                //    pae.Value = pae.ChildNodes[1];
+                //    pae.ChildNodes.Clear();
+                //}
+                //else if (exp is NameExpression named)
+                //{
+                //    var key = named.Identifier;
+                //    var newExp = new PropertyAssignmentExpression(Operator.SetMember);
+                //    newExp.Key = named.Identifier;
+                //    newExp.Value = named;
+                //    exp = newExp;
+                //}
+   
                 var token = this.lexer.Previous(1);
-                if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
+                //if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);
                 // Encountered closing parenthesis break ;
