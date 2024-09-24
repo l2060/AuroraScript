@@ -7,7 +7,19 @@ namespace AuroraScript.Ast.Expressions.Literals
     {
         internal NumberLiteralExpression(ValueToken value) : base(value)
         {
-            this.Value = Double.Parse(value.Value);
+            if (value.Value.StartsWith("0x"))
+            {
+                this.Value = Convert.ToUInt64(value.Value,16);
+            }
+            else
+            {
+                this.Value = Double.Parse(value.Value.Replace("_",""));
+            }
+
+
+
+
+
         }
     }
 }

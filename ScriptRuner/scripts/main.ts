@@ -105,7 +105,7 @@ var px = len * (-len + add(0x22 + (33 + 0x5), 0xff)) / (6 + 5);
 console.log(px);
 
 var age = 22;
-var v = -age + 1.5 - 0x36 * 2.5 / 1.2;
+var v = (-age + 1.5) - 0x36 * (2.5 / 1.2);
 v += 35;
 console.log(v);
 

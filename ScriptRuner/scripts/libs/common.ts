@@ -50,3 +50,19 @@ export declare function echo(labels: any, floating: any, options: any): any;
 export declare function ui_gif(name: string, res_url: string, location: string): any;
 export declare function ui_img(name: string, res_url: string, location: string): any;
 export declare function ui_button(name: string, res_url: string, location: string): any;
+
+
+var result = ReadFile('hello\'\\\n\"world');
+
+
+export declare interface HostExtendType {
+
+    say(arg1: string): void;
+
+    property1: number;
+
+}
+
+extends function options(this: HostExtendType, options: string): HostExtendType {
+    return null;
+}

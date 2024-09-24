@@ -546,10 +546,10 @@ namespace AuroraScript.Analyzer
                 if (token is ValueToken)
                 {
                     var valueExpression = token as ValueToken;
-                    if (valueExpression.Type == Tokens.ValueType.Number) tempExp = new NumberLiteralExpression(token as ValueToken);
-                    if (valueExpression.Type == Tokens.ValueType.String) tempExp = new StringLiteralExpression(token as ValueToken);
-                    if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new NullLiteralExpression(token as ValueToken);
-                    if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new BooleanLiteralExpression(token as ValueToken);
+                    if (valueExpression.Type == Tokens.ValueType.Number) tempExp = new NumberLiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.String) tempExp = new StringLiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new NullLiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new BooleanLiteralExpression(valueExpression);
                 }
 
                 // identifier Operand
