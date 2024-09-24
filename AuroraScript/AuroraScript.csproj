@@ -18,4 +18,8 @@
 	  <Optimize>False</Optimize>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Folder Include="Runtime\" />
+	</ItemGroup>
+
 </Project>

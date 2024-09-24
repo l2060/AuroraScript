@@ -1,27 +1,52 @@
 ﻿
 //import './main.ts';
 
-func({ a: 1, b: 2 }, [1, 2, 3]);
+const a = 0;
+const b = 0;
+const c = 0;
+
+
+const array = [true, false, null, "123", 'abc', 6];
+
+
+function call(action: (name: string, age: number) => [number, number]): void {
+    // do something
+    action("hello", 3.1415926);
+
+    ss.fff[0]();
+}
+
+call((name: string, age: number): [number, number] => {
+    console.log(name, age);
+    return [10086, 10086];
+});
+
 
 var s = {
-
-    call: (a: string, b: boolean, c: boolean, d: boolean): boolean => {
+    call: (arg1: string, arg2: boolean, arg3: boolean, arg4: boolean): boolean => {
         console.log("12345");
         return true;
-
     },
-    mini: (event: number, event2: number = 1): boolean => {
+    mini: (arg1: number, arg2: number = 1): [boolean, string] => {
         var s = true;
-        return s;
+        return [s, ""];
+    },
+    func: (arg1: any, arg2: any[]): void => {
+        console.log(arg1, arg2);
+    },
+    b: {
+        b: {
+            b: {
+                v: (123 + 24) * <number>56
+            }
+        }
     }
-
-    //vvvv: function (sssss: number): void {
-    //},
 };
 
 
 s.call("", true, false, false);
 s.mini(100, 120);
+s.func({ a: 1, b: 2 }, [a, b, c, ...array]);
 
 
 var func = (event: number, event2: number = 1): boolean => {
@@ -39,7 +64,7 @@ export type Action3 = (a: string, b: boolean, c: boolean, d: boolean) => string;
 
 
 
-//function as(v: (a: string) => number) {
+//function as11(v: (a: string) => number):void {
 
 //}
 
@@ -73,6 +98,6 @@ console.log((event: number, event2: number): boolean => {
 
 
 
-function foo(arg0: number, arg1: string) {
+function foo(arg0: number, arg1: string): void {
     //throw new Error('Function not implemented.');
 }
