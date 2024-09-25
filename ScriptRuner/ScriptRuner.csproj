@@ -22,12 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="sharps\Extends.cs" />
     <Compile Remove="sharps\ScriptA.cs" />
     <Compile Remove="sharps\ScriptB.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="sharps\ScriptA.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="sharps\Extends.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="sharps\ScriptB.cs">
