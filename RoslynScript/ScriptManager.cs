@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.IO;
 using Microsoft.CodeAnalysis;
+using System.Text;
 
 namespace RoslynScript
 {
@@ -17,7 +18,12 @@ namespace RoslynScript
         {
             var scriptFiles = Directory.GetFiles(scriptDirectory, "*.cs");
             SyntaxTree[] syntaxTrees = scriptFiles
-                                .Select(file => CSharpSyntaxTree.ParseText(File.ReadAllText(file)))
+                                .Select(file =>
+                                {
+                                    var syntax = CSharpSyntaxTree.ParseText(text: File.ReadAllText(file), path: Path.GetFullPath(file), encoding: Encoding.UTF8);
+
+                                    return syntax;
+                                })
                                 .ToArray();
             assembly = CompileScript(syntaxTrees);
         }
@@ -60,42 +66,30 @@ namespace RoslynScript
 
             options.WithAllowUnsafe(false)
                 .WithConcurrentBuild(true)
-                //.WithMetadataReferenceResolver()
                 .WithUsings("using System;", "using System.Reflection;");
 
-       
             var compilation = CSharpCompilation.Create(
                 assemblyName: Path.GetRandomFileName(),
                 syntaxTrees: syntaxTrees,
                 references: references,
-
-                // new[] {
-                //MetadataReference.CreateFromFile(RuntimeDll),
-                //MetadataReference.CreateFromFile(ConsoleDll)
-                //},
                 options: options
             );
 
-
-
-
             // 检查是否有不允许的 API 调用
+            var walker = new ForbiddenApiWalker();
             foreach (var syntaxTree in syntaxTrees)
             {
                 var semanticModel = compilation.GetSemanticModel(syntaxTree);
-                var walker = new ForbiddenApiWalker(semanticModel);
-                walker.Visit(syntaxTree.GetRoot());
-                if (walker.HasForbiddenApis)
-                {
-                    foreach (var item in walker.ForbiddenApis)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    return null;
-                }
+                walker.VisitWith(semanticModel, syntaxTree.GetRoot());
             }
 
-
+            if (walker.HasForbiddenApis)
+            {
+                foreach (var item in walker.ForbiddenApis)
+                {
+                    Console.WriteLine(item);
+                }
+            }
 
 
 
@@ -114,7 +108,12 @@ namespace RoslynScript
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
-                return Assembly.Load(ms.ToArray());
+
+
+                var context = new ScriptLoadContext();
+
+                return context.LoadFromStream(ms);
+                 // context.Unload();
             }
         }
 

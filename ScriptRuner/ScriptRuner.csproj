@@ -22,26 +22,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="sharps\Extends.cs" />
-    <Compile Remove="sharps\ScriptA.cs" />
-    <Compile Remove="sharps\ScriptB.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="sharps\ScriptA.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="sharps\Extends.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="sharps\ScriptB.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AuroraScript\AuroraScript.csproj" />
     <ProjectReference Include="..\RoslynScript\RoslynScript.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="sharps\Extends.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="sharps\ScriptA.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="sharps\ScriptB.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

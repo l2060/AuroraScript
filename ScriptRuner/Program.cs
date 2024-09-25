@@ -5,9 +5,9 @@ using ScriptRuner;
 rsTest.Run();
 
 
-var engine = new ScriptEngine();
+//var engine = new ScriptEngine();
 
-engine.build("./scripts/test.ts");
+//engine.build("./scripts/test.ts");
 
 Console.WriteLine("=====================================================================================");
 Console.ReadKey();

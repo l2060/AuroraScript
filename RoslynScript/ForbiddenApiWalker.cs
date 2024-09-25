@@ -19,11 +19,7 @@ namespace RoslynScript
     // 自定义的 Roslyn 语法树 Walker，用于检测不允许的 API 调用
     public class ForbiddenApiWalker : CSharpSyntaxWalker
     {
-        private SemanticModel semanticModel;
-        public ForbiddenApiWalker(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private  SemanticModel semanticModel;
         public readonly List<String> ForbiddenApis = new List<String>();
 
 
@@ -34,6 +30,18 @@ namespace RoslynScript
                 return ForbiddenApis.Count > 0;
             }
         }
+
+
+        public void VisitWith(SemanticModel model, SyntaxNode root)
+        {
+            this.semanticModel = model;
+            base.Visit(root);
+        }
+
+
+
+
+
 
         private List<ForbiddenSymbols> forbiddenSymbols = new List<ForbiddenSymbols>()
         {
@@ -65,6 +73,35 @@ namespace RoslynScript
             base.VisitMemberAccessExpression(node);
         }
 
+        public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+        {
+            // 获取方法的语义信息
+            var symbol = this.semanticModel.GetDeclaredSymbol(node);
+            if (symbol != null)
+            {
+                // 检查方法的特性是否包含 DllImport
+
+                // System.Runtime.CompilerServices.ModuleInitializer
+                // System.Runtime.InteropServices.DllImportAttribute
+                var dllImportAttribute = symbol.GetAttributes().FirstOrDefault(attr =>  attr.AttributeClass?.ToString() == "System.Runtime.InteropServices.DllImportAttribute");
+
+                if (dllImportAttribute != null)
+                {
+                    var location = node.GetLocation();
+                    var lineSpan = location.GetLineSpan();
+                    Console.WriteLine($"Forbidden API 'DllImport' found in method '{symbol.Name}' at line {lineSpan.StartLinePosition.Line + 1}, " +
+                                      $"column {lineSpan.StartLinePosition.Character + 1}");
+                }
+            }
+
+            base.VisitMethodDeclaration(node);
+        }
+
+
+        public override void VisitTypeOfExpression(TypeOfExpressionSyntax node)
+        {
+            DefaultVisit(node);
+        }
 
 
         public override void VisitInvocationExpression(InvocationExpressionSyntax node)
