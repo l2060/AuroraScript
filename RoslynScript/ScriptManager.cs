@@ -28,20 +28,8 @@ namespace RoslynScript
         // 使用 Roslyn 编译脚本
         private Assembly CompileScript(SyntaxTree[] syntaxTrees)
         {
-            // 检查是否有不允许的 API 调用
-            var walker = new ForbiddenApiWalker();
-            foreach (var syntaxTree in syntaxTrees)
-            {
-                walker.Visit(syntaxTree.GetRoot());
-            }
-            if (walker.HasForbiddenApis)
-            {
-                foreach (var item in walker.ForbiddenApis)
-                {
-                    Console.WriteLine(item);
-                }
-                return null;
-            }
+
+
 
             var refs = new List<String>()
             {
@@ -87,6 +75,29 @@ namespace RoslynScript
                 //},
                 options: options
             );
+
+
+
+
+            // 检查是否有不允许的 API 调用
+            foreach (var syntaxTree in syntaxTrees)
+            {
+                var semanticModel = compilation.GetSemanticModel(syntaxTree);
+                var walker = new ForbiddenApiWalker(semanticModel);
+                walker.Visit(syntaxTree.GetRoot());
+                if (walker.HasForbiddenApis)
+                {
+                    foreach (var item in walker.ForbiddenApis)
+                    {
+                        Console.WriteLine(item);
+                    }
+                    return null;
+                }
+            }
+
+
+
+
 
             using (var ms = new MemoryStream())
             {
