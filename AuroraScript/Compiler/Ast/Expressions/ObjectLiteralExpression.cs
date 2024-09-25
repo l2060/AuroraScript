@@ -1,5 +1,4 @@
-﻿using AuroraScript.Ast.Statements;
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -8,10 +7,7 @@ namespace AuroraScript.Ast.Expressions
     {
         internal ObjectLiteralExpression(Operator @operator) : base(@operator)
         {
-   
         }
-
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {

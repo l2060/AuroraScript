@@ -6,6 +6,7 @@ namespace AuroraScript.Uilty
     {
         private Stopwatch stopwatch;
         private String name;
+
         public WitchTimer(String name)
         {
             this.name = name;

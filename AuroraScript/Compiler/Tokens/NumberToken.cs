@@ -1,5 +1,4 @@
-﻿
-namespace AuroraScript.Tokens
+﻿namespace AuroraScript.Tokens
 {
     public class NumberToken : ValueToken
     {

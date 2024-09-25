@@ -9,9 +9,7 @@ import * as Document from './document';
 
 type int = number;
 
-
 export set name(value: string): void {
-
 }
 
 export get name(): string {
@@ -30,11 +28,9 @@ var p = a[0] * b[1].scc();
 Document.Print('hello');
 Document.Version++;
 
-
 var num, str = Document.tuple(0xff023);
 console.log(num);
 console.log(str);
-
 
 var i = 0;
 while (true) {
@@ -51,7 +47,6 @@ while (i < 5) {
 while (i < 15) i++;
 
 if (i < 15) {
-
 }
 
 ;;;;;;;;;;;;;;;;;;
@@ -66,11 +61,11 @@ for (var i = 0; i < 100; i++) {
 var fmtString = `load ${num} of ${str}`;
 
 /**
- *          
- * 
+ *
+ *
  * @param cmd
  */
-export function main(cmd:            /* 
+export function main(cmd:            /*
  * block comment */string): void {
     console.log('hello wrold!');
 }
@@ -78,7 +73,6 @@ export function main(cmd:            /*
 function add(a: int, b: int): int {
     return (a + b) * (a + b);
 }
-
 
 coroutine add(1, 2);
 
@@ -109,11 +103,11 @@ var v = (-age + 1.5) - 0x36 * (2.5 / 1.2);
 v += 35;
 console.log(v);
 
-
 main('yoyo');
 
-
 echo.dialog(120)
+    .before(Before)
+    .after(After)
     .text([
         "====[<$name>]====",
         "bbbbbb",
@@ -129,15 +123,16 @@ echo.dialog(120)
     .position(11, 22)
     .wait(); // 等待关闭
 
+function After(): void {
+}
+function Before(): void {
+}
 
 
 
 function ok(): void {
-
 }
 function view(): void {
-
 }
 function cancel(): void {
-
 }

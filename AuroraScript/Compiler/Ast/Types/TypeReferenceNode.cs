@@ -1,5 +1,4 @@
-﻿
-namespace AuroraScript.Ast.Types
+﻿namespace AuroraScript.Ast.Types
 {
     internal class TypeReferenceNode
     {

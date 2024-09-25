@@ -9,7 +9,8 @@ namespace AuroraScript.Ast
     {
         // 引用
         public readonly List<ModuleDeclaration> Imports = new List<ModuleDeclaration>();
-        // 文件名 
+
+        // 文件名
 
         // 其他
 
@@ -23,9 +24,7 @@ namespace AuroraScript.Ast
 
         internal ModuleDeclaration(Scope currentScope) : base(currentScope)
         {
-
         }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
@@ -36,8 +35,6 @@ namespace AuroraScript.Ast
             writer.WriteLine();
             this.writeParameters(writer, ChildNodes, "");
         }
-
-
 
         public String ToJson()
         {
@@ -50,7 +47,5 @@ namespace AuroraScript.Ast
 
             return JsonSerializer.Serialize(this, options);
         }
-
-
     }
 }

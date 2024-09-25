@@ -1,6 +1,4 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -12,7 +10,6 @@ namespace AuroraScript.Ast.Expressions
     {
         internal MemberAccessExpression(Operator @operator) : base(@operator)
         {
-
         }
 
         public Expression Property
@@ -22,7 +19,6 @@ namespace AuroraScript.Ast.Expressions
                 return this.childrens[1] as Expression;
             }
         }
-
 
         /// <summary>
         /// super object name
@@ -50,5 +46,4 @@ namespace AuroraScript.Ast.Expressions
             if (disposable != null) disposable.Dispose();
         }
     }
-
 }

@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-//using Microsoft.CodeAnalysis.CSharp.Scripting;
+﻿//using Microsoft.CodeAnalysis.CSharp.Scripting;
 //using Microsoft.CodeAnalysis.Scripting;
 
 namespace ScriptRuner
 {
     internal class SharpScriptTest
     {
-
         public async void Test()
         {
             //NetworkStream
-
 
             //Console.Write("测试基本算数表达式:(1+2)*3/4");
             //var res = await CSharpScript.EvaluateAsync("(1+2)*3/4");
@@ -58,13 +50,11 @@ namespace ScriptRuner
             //script = script.ContinueWith("return x+y;");
             //Console.WriteLine((await script.RunAsync()).ReturnValue);
 
-
             //Console.WriteLine(@"测试脚本中的变量var:");
             //var script2 = CSharpScript.Create("var x=1;");
             //script2 = script2.ContinueWith("var y=1.5;");
             //script2 = script2.ContinueWith("return x+y;");
             //Console.WriteLine((await script2.RunAsync()).ReturnValue);
-
 
             //Console.WriteLine(@"测试脚本中的变量数组:");
             //var script3 = CSharpScript.Create("int[] x = new int[7] { 1, 2, 3, 4, 5, 6, 7 }; ");
@@ -72,9 +62,6 @@ namespace ScriptRuner
             //script3 = script3.ContinueWith("for(var i=0;i<7;i++) y+=x[i] ;");
             //script3 = script3.ContinueWith("return y;");
             //Console.WriteLine((await script3.RunAsync()).ReturnValue);
-
         }
-
-
     }
 }

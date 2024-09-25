@@ -14,9 +14,8 @@ namespace AuroraScript.Compiler
 
         private ConcurrentDictionary<string, AuroraParser> scriptParsers = new ConcurrentDictionary<string, AuroraParser>();
 
-
         /// <summary>
-        /// Fill in the file extension 
+        /// Fill in the file extension
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
@@ -27,10 +26,9 @@ namespace AuroraScript.Compiler
             return filename;
         }
 
-
         /// <summary>
-        /// build Abstract syntax tree 
-        /// Increase the path cache to prevent the endless loop of circular references 
+        /// build Abstract syntax tree
+        /// Increase the path cache to prevent the endless loop of circular references
         /// </summary>
         /// <param name="filepath"></param>
         /// <param name="relativePath"></param>
@@ -69,19 +67,12 @@ namespace AuroraScript.Compiler
             return root as ModuleDeclaration;
         }
 
-
-
         public void buildFile(string filepath)
         {
             AstNode root = buildAst(filepath);
             opaimizeTree(root);
             //this.PrintTreeCode(root);
         }
-
-
-
-
-
 
         public void PrintGenerateCode(ModuleDeclaration root)
         {
@@ -100,7 +91,6 @@ namespace AuroraScript.Compiler
                     }
                 }
             }
-
 
             using (var stream = Console.OpenStandardOutput())
             {
@@ -152,15 +142,8 @@ namespace AuroraScript.Compiler
             }
         }
 
-
-
-
-
-
-
-
         /// <summary>
-        /// optimize abstract syntax tree  
+        /// optimize abstract syntax tree
         /// </summary>
         /// <param name="root"></param>
         public void opaimizeTree(AstNode parent)
@@ -176,20 +159,5 @@ namespace AuroraScript.Compiler
             //    opaimizeTree(node);
             //}
         }
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

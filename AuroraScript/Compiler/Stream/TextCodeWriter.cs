@@ -2,7 +2,6 @@
 
 namespace AuroraScript.Stream
 {
-
     public class CustomDisposable : IDisposable
     {
         private readonly Action _disposeAction;
@@ -18,8 +17,6 @@ namespace AuroraScript.Stream
         }
     }
 
-
-
     public class TextCodeWriter : StreamWriter
     {
         public Int32 Indented = 0;
@@ -27,16 +24,15 @@ namespace AuroraScript.Stream
 
         public TextCodeWriter(System.IO.Stream stream) : base(stream)
         {
-
         }
+
         public TextCodeWriter(System.IO.Stream stream, Encoding encoding = null, int bufferSize = -1, bool leaveOpen = false) : base(stream, encoding, bufferSize, leaveOpen)
         {
-
         }
 
         public IDisposable IncIndented(Boolean executed = true)
         {
-            if(executed) this.Indented++;
+            if (executed) this.Indented++;
             return new CustomDisposable(() =>
             {
                 if (executed) this.Indented--;
@@ -67,7 +63,6 @@ namespace AuroraScript.Stream
             this.Flush();
         }
 
-
         public override void Write(string format, object? arg0, object? arg1)
         {
             WriteIndented();
@@ -75,7 +70,6 @@ namespace AuroraScript.Stream
             this.IsNewLine = false;
             this.Flush();
         }
-
 
         private void WriteIndented()
         {
@@ -85,9 +79,5 @@ namespace AuroraScript.Stream
             base.Write(content);
             this.IsNewLine = false;
         }
-
-
-
-
     }
 }

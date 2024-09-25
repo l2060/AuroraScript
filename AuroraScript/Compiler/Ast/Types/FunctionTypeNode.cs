@@ -1,8 +1,5 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
-using System;
 
 namespace AuroraScript.Ast.Types
 {
@@ -11,12 +8,7 @@ namespace AuroraScript.Ast.Types
         public AstNode Name { get; set; }
         public List<ParameterDeclaration> Parameters { get; set; }
 
-        public List<TypeNode> Typeds ;
-
-
-
-
-
+        public List<TypeNode> Typeds;
 
         public override void GenerateCode(TextCodeWriter writer, int depth = 0)
         {
@@ -37,8 +29,5 @@ namespace AuroraScript.Ast.Types
                 }
             }
         }
-
-
     }
-
 }

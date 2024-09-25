@@ -1,5 +1,4 @@
-﻿
-namespace AuroraScript.Common
+﻿namespace AuroraScript.Common
 {
     public enum SymbolTypes
     {

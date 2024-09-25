@@ -1,6 +1,4 @@
 ﻿using AuroraScript.Ast.Expressions;
-using AuroraScript.Ast.Statements;
-using AuroraScript.Ast.Types;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
@@ -17,8 +15,6 @@ namespace AuroraScript.Ast
         /// function result types
         /// </summary>
         public List<TypeNode> Typeds { get; set; }
-
-
 
         public override void GenerateCode(TextCodeWriter writer, int depth = 0)
         {
@@ -59,8 +55,5 @@ namespace AuroraScript.Ast
                 }
             }
         }
-
-
-
     }
 }

@@ -1,7 +1,4 @@
-﻿
-
-
-using AuroraScript.Ast.Expressions;
+﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
@@ -10,7 +7,6 @@ namespace AuroraScript.Ast.Statements
     public class ExpressionStatement : Statement
     {
         public Expression Expression { get; private set; }
-
 
         internal ExpressionStatement(Expression expression)
         {

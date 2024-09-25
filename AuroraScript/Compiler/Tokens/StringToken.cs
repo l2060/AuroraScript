@@ -1,7 +1,6 @@
-﻿
-namespace AuroraScript.Tokens
+﻿namespace AuroraScript.Tokens
 {
-    public class StringToken: ValueToken
+    public class StringToken : ValueToken
     {
         internal StringToken()
         {

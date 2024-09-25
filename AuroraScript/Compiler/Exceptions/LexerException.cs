@@ -1,6 +1,4 @@
-﻿using AuroraScript.Compiler;
-
-namespace AuroraScript.Compiler.Exceptions
+﻿namespace AuroraScript.Compiler.Exceptions
 {
     public class LexerException : Exception
     {
@@ -17,7 +15,6 @@ namespace AuroraScript.Compiler.Exceptions
             Token = Token;
         }
 
-
         internal LexerException(string fileName, Token token, string message) : base(message)
         {
             ColumnNumber = token.ColumnNumber;
@@ -26,13 +23,9 @@ namespace AuroraScript.Compiler.Exceptions
             Token = token;
         }
 
-
-
         public override string ToString()
         {
             return $"Line:{LineNumber} Column:{ColumnNumber} {GetType().Name.PadRight(15, ' ')} {Token.Value}";
         }
-
-
     }
 }

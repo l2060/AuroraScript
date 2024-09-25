@@ -1,7 +1,5 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
-
 
 namespace AuroraScript.Ast.Types
 {
@@ -12,18 +10,14 @@ namespace AuroraScript.Ast.Types
             ElementType = typeToken;
         }
 
-
-
         /// <summary>
         /// function name
         /// </summary>
         public Token ElementType { get; set; }
 
-
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.Write(ElementType.Value);
         }
-
     }
 }

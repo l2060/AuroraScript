@@ -1,10 +1,7 @@
-﻿
-
-namespace AuroraScript.Common
+﻿namespace AuroraScript.Common
 {
     public enum TokenTyped
     {
-
         String,
 
         Number,
@@ -19,9 +16,4 @@ namespace AuroraScript.Common
 
         WhiteSpace
     }
-
-
-
-
-
 }

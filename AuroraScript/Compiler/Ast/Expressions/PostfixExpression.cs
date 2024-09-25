@@ -1,6 +1,4 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -31,7 +29,5 @@ namespace AuroraScript.Ast.Expressions
             this.Left.GenerateCode(writer);
             writer.Write(this.Operator.Symbol.Name);
         }
-
-
     }
 }

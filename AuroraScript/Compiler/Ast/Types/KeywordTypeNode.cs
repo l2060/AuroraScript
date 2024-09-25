@@ -1,7 +1,5 @@
 ﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
-using AuroraScript.Tokens;
-
 
 namespace AuroraScript.Ast.Types
 {
@@ -12,14 +10,11 @@ namespace AuroraScript.Ast.Types
             this.Name = name;
         }
 
-
-
         public Token Name { get; set; }
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Name.Value);
         }
-
     }
 }

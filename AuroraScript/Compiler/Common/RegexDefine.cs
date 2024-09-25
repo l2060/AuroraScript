@@ -6,15 +6,15 @@ namespace AuroraScript.Common
     {
         public RegexDefine()
         {
-
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public TokenRules Regex = null;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Boolean Skip = false;
     }

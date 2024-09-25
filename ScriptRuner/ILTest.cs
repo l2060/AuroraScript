@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+
 // https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.opcodetype?view=net-6.0
 // https://www.jianshu.com/p/b6b86476c106
 // https://www.cnblogs.com/hui088/p/4571484.html
 /// <summary>
-/// 
+///
 /// </summary>
 namespace ScriptRuner
 {
-
-
     public abstract class ScriptInterface
     {
         public ScriptInterface()
@@ -25,10 +18,8 @@ namespace ScriptRuner
 
         public virtual void __SCRIPT_LOADED()
         {
-
         }
     }
-
 
     public class MyScript : ScriptInterface
     {
@@ -37,7 +28,6 @@ namespace ScriptRuner
             Console.WriteLine("hello wrold..");
         }
     }
-
 
     public interface IChef
     {
@@ -51,23 +41,18 @@ namespace ScriptRuner
             return "good:" + string.Join("+", vegetables);
         }
 
-
         public string Test(string a, string b)
         {
             return a + b;
         }
-
-
-
-
     }
 
     public delegate String StringMethodCall(String ss);
+
     public delegate void MethodCall();
 
     public class ILTest
     {
-
         public static void Run()
         {
             AssemblyName assemblyName = new AssemblyName("ChefDynamicAssembly");
@@ -75,16 +60,13 @@ namespace ScriptRuner
             AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("ModuleName");
 
-
             //ModuleBuilder moduleBuilder2 = assemblyBuilder.DefineDynamicModule(assemblyName.Name + "2.dll");
             //EnumBuilder enumBuilder = moduleBuilder2.DefineEnum("", TypeAttributes.Public, null);
             //enumBuilder.DefineLiteral("a", "a");
             //enumBuilder.DefineLiteral("b", "b");
             //enumBuilder.DefineLiteral("c", "c");
 
-
             TypeBuilder typeBuilder = moduleBuilder.DefineType("SCRIPT__STATIC", TypeAttributes.Public, typeof(ScriptInterface));
-
 
             // override method
             var overrideMethod = typeof(ScriptInterface).GetMethod("__SCRIPT_LOADED");
@@ -99,7 +81,6 @@ namespace ScriptRuner
             gil.EmitWriteLine("Hello World from __SCRIPT_LOADED.");
             gil.Emit(OpCodes.Ret);
             typeBuilder.DefineMethodOverride(loadedMethod, overrideMethod);
-
 
             // 使用类型构建器创建一个方法构建器
             MethodBuilder methodBuilder = typeBuilder.DefineMethod("Do", MethodAttributes.Public, typeof(string), new Type[] { typeof(string) });
@@ -139,9 +120,6 @@ namespace ScriptRuner
             IL.Emit(OpCodes.Ldarg, 1);
             IL.Emit(OpCodes.Stelem, typeof(string));
 
-
-
-
             // IChef chef = new GoodChef();
             var chef = IL.DeclareLocal(typeof(IChef));
             IL.Emit(OpCodes.Newobj, typeof(GoodChef).GetConstructor(Type.EmptyTypes));
@@ -173,10 +151,6 @@ namespace ScriptRuner
             MethodInfo MyMethodInfo = moduleBuilder.GetMethod("foo");
             //var fsRet = MyMethodInfo.Invoke(null, new object[] { });// 调用方法，并返回其值
 
-
-
-
-
             var dynamicMethod = new DynamicMethod("fss", typeof(void), null);
             var dmIL = dynamicMethod.GetILGenerator();
             dmIL.EmitWriteLine("Hello World from fss.");
@@ -185,47 +159,26 @@ namespace ScriptRuner
             var call = dynamicMethod.CreateDelegate<MethodCall>();
             call();
 
-
-
-
-
             // 从类型构建器中创建出类型
             Type dynamicType = typeBuilder.CreateType();
             MethodInfo method = dynamicType.GetMethod("Do");
             // 通过反射创建出动态类型的实例
             var commander = Activator.CreateInstance(dynamicType);
 
-
-
             // Save;
             //var generator = new Lokad.ILPack.AssemblyGenerator();
             // direct serialization to disk
             //generator.GenerateAssembly(assemblyBuilder, "./dynamic.dll");
 
-
-
-
             var mydelegate = (StringMethodCall)Delegate.CreateDelegate(typeof(StringMethodCall), commander, method);
             var r1 = mydelegate("gogogo");
             Console.WriteLine(r1);
-
 
             var result = method.Invoke(commander, new object[] { "fuck" });
 
             Console.WriteLine(result);
             Console.ReadLine();
-
-
-
-
-
-
-
-
-
         }
-
-
 
         private void OverrideMethod(TypeBuilder typeBuilder,
                             Type interfaceToOverride,
@@ -251,7 +204,7 @@ namespace ScriptRuner
 
             // ... a bunch of calls to il.Emit ...
 
-            // Return 
+            // Return
             il.Emit(OpCodes.Ret);
 
             // And define a methodimpl, which consists of a pair of metadata tokens.
@@ -259,10 +212,5 @@ namespace ScriptRuner
             // to a declaration that the body implements
             typeBuilder.DefineMethodOverride(methodBuilder, methodToOverride);
         }
-
-
     }
-
-
-
 }

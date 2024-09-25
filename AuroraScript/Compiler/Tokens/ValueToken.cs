@@ -1,6 +1,4 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 
 namespace AuroraScript.Tokens
 {
@@ -23,16 +21,9 @@ namespace AuroraScript.Tokens
 
         public ValueType Type { get; protected set; }
 
-
-
-
-
-
         public virtual string ToValue()
         {
             return Value;
         }
-
-
     }
 }

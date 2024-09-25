@@ -1,5 +1,4 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 
 namespace AuroraScript.Tokens
 {
@@ -10,7 +9,6 @@ namespace AuroraScript.Tokens
     {
         internal IdentifierToken()
         {
-
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿using AuroraScript.Common;
-using AuroraScript.Tokens;
+﻿using AuroraScript.Tokens;
 
 namespace AuroraScript.Compiler
 {
-
     public abstract class Token
     {
         public static Token EOF = new EndOfFileToken(); // end of file
@@ -44,12 +42,9 @@ namespace AuroraScript.Compiler
             set;
         }
 
-
         public override string ToString()
         {
             return $"LineNumber:{LineNumber.ToString().PadLeft(4, '0')} ColumnNumber:{ColumnNumber.ToString().PadLeft(3, '0')} {GetType().Name.PadRight(15, ' ')} {Value}";
         }
-
     }
-
 }

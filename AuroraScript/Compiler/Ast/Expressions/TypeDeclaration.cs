@@ -1,9 +1,5 @@
-﻿using AuroraScript.Ast.Statements;
-using AuroraScript.Ast.Types;
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
-
-
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -11,7 +7,6 @@ namespace AuroraScript.Ast.Expressions
     {
         internal TypeDeclaration()
         {
-
         }
 
         public Symbols Access { get; set; }

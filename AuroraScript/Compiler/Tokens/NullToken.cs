@@ -1,5 +1,4 @@
-﻿
-namespace AuroraScript.Tokens
+﻿namespace AuroraScript.Tokens
 {
     /// <summary>
     /// null value token

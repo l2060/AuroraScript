@@ -9,10 +9,10 @@ namespace AuroraScript.Ast.Statements
         internal IfStatement()
         {
         }
+
         public Expression Condition { get; set; }
         public Statement Body { get; set; }
         public Statement Else { get; set; }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
@@ -32,10 +32,9 @@ namespace AuroraScript.Ast.Statements
             if (this.Else != null)
             {
                 writer.Write(Symbols.KW_ELSE.Name + " ");
-                if(!(this.Else is IfStatement)) writer.WriteLine();
+                if (!(this.Else is IfStatement)) writer.WriteLine();
                 using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
             }
         }
-
     }
 }

@@ -8,12 +8,11 @@ namespace AuroraScript.Ast.Statements
     {
         internal ForStatement()
         {
-
         }
+
         public Expression Condition { get; set; }
 
         public Statement Body { get; set; }
-
 
         /// <summary>
         /// for initializer
@@ -22,13 +21,11 @@ namespace AuroraScript.Ast.Statements
         /// </summary>
         public AstNode Initializer { get; set; }
 
-
         /// <summary>
         /// for incrementor
-        /// contains multiple sentences 
+        /// contains multiple sentences
         /// </summary>
         public Expression Incrementor { get; set; }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {

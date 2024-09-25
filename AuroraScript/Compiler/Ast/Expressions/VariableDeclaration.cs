@@ -1,5 +1,4 @@
-﻿using AuroraScript.Ast.Types;
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -24,12 +23,10 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public List<Token> Variables { get; set; }
 
-
         /// <summary>
         /// var initialize statement
         /// </summary>
         public Expression Initializer { get; set; }
-
 
         /// <summary>
         /// get / set variable typed
@@ -46,7 +43,6 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public bool IsConst { get; set; }
 
-
         public override void GenerateCode(TextCodeWriter writer, int depth = 0)
         {
             var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
@@ -60,9 +56,6 @@ namespace AuroraScript.Ast.Expressions
             }
             writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
             if (Initializer != null) Initializer.GenerateCode(writer);
-
-
         }
-
     }
 }

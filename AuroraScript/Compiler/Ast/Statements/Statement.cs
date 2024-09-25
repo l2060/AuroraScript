@@ -1,5 +1,4 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
@@ -8,7 +7,6 @@ namespace AuroraScript.Ast.Statements
     {
         internal Statement()
         {
-
         }
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
@@ -16,7 +14,5 @@ namespace AuroraScript.Ast.Statements
             writer.WriteLine("????????");
             writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
-
-
     }
 }

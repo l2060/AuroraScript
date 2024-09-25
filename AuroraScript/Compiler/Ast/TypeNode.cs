@@ -1,19 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraScript.Ast
+﻿namespace AuroraScript.Ast
 {
-    public abstract class TypeNode: AstNode
+    public abstract class TypeNode : AstNode
     {
-
-
-
-
-
-
-
     }
 }

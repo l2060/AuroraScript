@@ -1,31 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Reflection;
 using System.Reflection.Emit;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AuroraScript.Tokens;
-using System.Xml.Linq;
-using System.Linq.Expressions;
 
 namespace ScriptRuner
 {
-
     public interface IService
     {
         public void Action();
+
         public void Action(String arg1);
+
         public void Action(String arg1, Int64 arg2);
+
         public String MethodFunc(String[] arg1);
+
         public List<string> MethodFunc(Double arg0, String[] arg1, Object arg2);
-
-
     }
-
-
-
-
 
     public struct ParamValue
     {
@@ -34,18 +23,10 @@ namespace ScriptRuner
         public Object Value;
     }
 
-
-
-
-
-
-
-
     public class Interface
     {
         public static void Run()
         {
-
             var i = MakeProxy<IService>();
             i.Action();
             i.Action("123456", 1234888);
@@ -55,8 +36,7 @@ namespace ScriptRuner
             //i.MethodFunc(Array.Empty<String>());
         }
 
-
-        public static Object CallProxy(String funcToken, Type returnType, ParamValue[] args)// 
+        public static Object CallProxy(String funcToken, Type returnType, ParamValue[] args)//
         {
             Console.WriteLine(funcToken);
             if (returnType == typeof(void))
@@ -64,17 +44,10 @@ namespace ScriptRuner
                 return null;
             }
 
-
-
-
             return System.Activator.CreateInstance(returnType);
         }
 
-
-
-
-
-        static T MakeProxy<T>() where T : class
+        private static T MakeProxy<T>() where T : class
         {
             var type = typeof(T);
             AssemblyName assemblyName = new AssemblyName("ChefDynamicAssembly");
@@ -90,13 +63,9 @@ namespace ScriptRuner
                 //ctrGenerator.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes));
             }
 
-
-
-
             var methods = type.GetMethods();
             foreach (MethodInfo method in methods)
             {
-
                 if (method.IsPublic)
                 {
                     ParameterInfo[] param = method.GetParameters();
@@ -111,7 +80,6 @@ namespace ScriptRuner
                     // 定义一个字符串（为了判断方法是否被调用）
                     var paramToken = String.Join("#", param.Select(e => e.ParameterType.FullName));
                     var funcToken = $"{typeBuilder.Name}?{method.Name}?{method.ReturnType.FullName}#{paramToken}";
-
 
                     //ilGen.Emit(OpCodes.Ldstr, funcToken);
                     // 调用WriteLine函数
@@ -168,14 +136,12 @@ namespace ScriptRuner
                         ilGen.Emit(OpCodes.Nop);
                         ilGen.Emit(OpCodes.Ldloc, localParams);
                         ilGen.Emit(OpCodes.Call, typeof(Interface).GetMethod("CallProxy"));
-
                     }
 
                     // 定义object类型的局部变量
                     //LocalBuilder local = ilGen.DeclareLocal(typeof(Object));
                     // 将索引为 0 的局部变量加载到栈的最顶层
                     //ilGen.Emit(OpCodes.Ldloc_0, local);
-
 
                     // 判断是否需要返回值
                     if (methodBuilder.ReturnType == typeof(void))
@@ -205,10 +171,5 @@ namespace ScriptRuner
             // 通过反射创建出动态类型的实例
             return (T)Activator.CreateInstance(dynamicType);
         }
-
-
-
-
-
     }
 }

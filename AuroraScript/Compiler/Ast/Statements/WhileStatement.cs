@@ -2,20 +2,17 @@
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
-
 namespace AuroraScript.Ast.Statements
 {
     public class WhileStatement : Statement
     {
         internal WhileStatement()
         {
-
         }
 
         public Expression Condition { get; set; }
 
         public Statement Body { get; set; }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
@@ -25,8 +22,5 @@ namespace AuroraScript.Ast.Statements
             writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
             this.Body.GenerateCode(writer);
         }
-
-
-
     }
 }

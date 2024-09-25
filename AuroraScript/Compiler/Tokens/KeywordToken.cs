@@ -1,9 +1,7 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 
 namespace AuroraScript.Tokens
 {
-
     /// <summary>
     /// system keyword
     /// </summary>
@@ -11,7 +9,6 @@ namespace AuroraScript.Tokens
     {
         internal KeywordToken()
         {
-
         }
     }
 }

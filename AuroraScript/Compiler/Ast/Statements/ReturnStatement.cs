@@ -13,7 +13,6 @@ namespace AuroraScript.Ast.Statements
 
         public Expression Expression { get; private set; }
 
-
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Symbols.KW_RETURN.Name);

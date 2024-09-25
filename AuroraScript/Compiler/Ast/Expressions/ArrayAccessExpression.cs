@@ -1,5 +1,4 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -12,8 +11,6 @@ namespace AuroraScript.Ast.Expressions
 
         public Expression Index { get; set; }
 
-
-
         public Expression Target
         {
             get
@@ -22,7 +19,6 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             Target.GenerateCode(writer);
@@ -30,8 +26,5 @@ namespace AuroraScript.Ast.Expressions
             Index.GenerateCode(writer);
             writer.Write(Operator.ArrayLiteral.SecondarySymbols.Name);
         }
-
-
-
     }
 }

@@ -45,7 +45,7 @@ function GG(a: number, b: number, c: number, d: number, x: number, s: number, ac
     return AddUnsigned(RotateLeft(a, s), b);
 };
 
-function HH(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number{
+function HH(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
     return AddUnsigned(RotateLeft(a, s), b);
 };
@@ -55,7 +55,7 @@ function II(a: number, b: number, c: number, d: number, x: number, s: number, ac
     return AddUnsigned(RotateLeft(a, s), b);
 };
 
-function ConvertToWordArray(string: string):  number[] {
+function ConvertToWordArray(string: string): number[] {
     var lWordCount;
     var lMessageLength = string.length;
     var lNumberOfWords_temp1 = lMessageLength + 8;
@@ -95,7 +95,6 @@ function Utf8Encode(string: string): string {
     var utftext = "";
 
     for (var n = 0; n < string.length; n++) {
-
         var c = string.charCodeAt(n);
 
         if (c < 128) {
@@ -110,16 +109,12 @@ function Utf8Encode(string: string): string {
             utftext += String.fromCharCode(((c >> 6) & 63) | 128);
             utftext += String.fromCharCode((c & 63) | 128);
         }
-
     }
 
     return utftext;
 };
 
-
-
-function MD5(string: string):string {
-
+function MD5(string: string): string {
     var x = [];
     var k, AA, BB, CC, DD, a, b, c, d;
     var S11 = 7; var S12 = 12; var S13 = 17; var S14 = 22;

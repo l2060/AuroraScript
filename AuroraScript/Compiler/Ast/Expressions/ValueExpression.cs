@@ -1,12 +1,10 @@
-﻿
-using AuroraScript.Stream;
+﻿using AuroraScript.Stream;
 using AuroraScript.Tokens;
 
 namespace AuroraScript.Ast.Expressions
 {
     public class ValueExpression<T> : Expression
     {
-
         internal ValueExpression(ValueToken token)
         {
             this.Token = token;
@@ -20,6 +18,5 @@ namespace AuroraScript.Ast.Expressions
         {
             writer.Write(Token.ToValue());
         }
-
     }
 }

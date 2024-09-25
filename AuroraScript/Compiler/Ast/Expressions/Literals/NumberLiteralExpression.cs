@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Tokens;
 
-
 namespace AuroraScript.Ast.Expressions.Literals
 {
     internal class NumberLiteralExpression : ValueExpression<Double>
@@ -9,17 +8,12 @@ namespace AuroraScript.Ast.Expressions.Literals
         {
             if (value.Value.StartsWith("0x"))
             {
-                this.Value = Convert.ToUInt64(value.Value,16);
+                this.Value = Convert.ToUInt64(value.Value, 16);
             }
             else
             {
-                this.Value = Double.Parse(value.Value.Replace("_",""));
+                this.Value = Double.Parse(value.Value.Replace("_", ""));
             }
-
-
-
-
-
         }
     }
 }

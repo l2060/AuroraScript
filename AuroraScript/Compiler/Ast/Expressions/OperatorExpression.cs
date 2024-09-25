@@ -1,6 +1,4 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -15,8 +13,6 @@ namespace AuroraScript.Ast.Expressions
         }
 
         private List<Expression> operands;
-
-
 
         /// <summary>
         /// operator precedence
@@ -45,8 +41,6 @@ namespace AuroraScript.Ast.Expressions
             this.IsOperand = @operator.IsOperand;
         }
 
-
-
         internal void Push(Expression expression)
         {
             operands.Add(expression);
@@ -60,10 +54,5 @@ namespace AuroraScript.Ast.Expressions
             get;
             private set;
         }
-
     }
-
-
-
-
 }

@@ -4,7 +4,6 @@ using System.Text;
 
 namespace AuroraScript.Scanning
 {
-
     internal struct RuleTestResult
     {
         public Boolean Success;
@@ -13,26 +12,21 @@ namespace AuroraScript.Scanning
         public String Value;
         public Int32 Length;
         public TokenTyped Type;
-
     }
-
-
-
 
     internal abstract class TokenRules
     {
-        public readonly static TokenRules NewLine = new NewLineRule();
-        public readonly static TokenRules WhiteSpace = new WhiteSpaceRule();
-        public readonly static TokenRules RowComment = new RowCommentRule();
-        public readonly static TokenRules BlockComment = new BlockCommentRule();
-        public readonly static TokenRules HexNumber = new HexNumberCommentRule();
-        public readonly static TokenRules Number = new NumberCommentRule();
-        public readonly static TokenRules StringTemplate = new StringBlockRule();
-        public readonly static TokenRules Identifier = new IdentifierRule();
-        public readonly static TokenRules Punctuator = new PunctuatorRule();
+        public static readonly TokenRules NewLine = new NewLineRule();
+        public static readonly TokenRules WhiteSpace = new WhiteSpaceRule();
+        public static readonly TokenRules RowComment = new RowCommentRule();
+        public static readonly TokenRules BlockComment = new BlockCommentRule();
+        public static readonly TokenRules HexNumber = new HexNumberCommentRule();
+        public static readonly TokenRules Number = new NumberCommentRule();
+        public static readonly TokenRules StringTemplate = new StringBlockRule();
+        public static readonly TokenRules Identifier = new IdentifierRule();
+        public static readonly TokenRules Punctuator = new PunctuatorRule();
+
         public abstract RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber);
-
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected unsafe Boolean IsNumber(char lpChar)
@@ -40,25 +34,17 @@ namespace AuroraScript.Scanning
             return (lpChar >= '0' && lpChar <= '9');
         }
 
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected unsafe Boolean IsChinese(char lpChar)
         {
             return (lpChar >= 0x4e00 && lpChar <= 0x9fbb);
         }
 
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected unsafe Boolean IsLetter(char lpChar)
         {
             return (lpChar >= 'a' && lpChar <= 'z') || (lpChar >= 'A' && lpChar <= 'Z');
         }
-
-
-
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected unsafe Boolean canEscape(char lpChar, out char outchar)
@@ -86,13 +72,7 @@ namespace AuroraScript.Scanning
                 return false;
             }
         }
-
-
     }
-
-
-
-
 
     /// <summary>
     ///  \n new line
@@ -131,7 +111,7 @@ namespace AuroraScript.Scanning
                    (codeSpan[0] == '>' && codeSpan[1] == '>') ||
                    (codeSpan[0] == '<' && codeSpan[1] == '<') ||
                    (codeSpan[0] == '=' && codeSpan[1] == '>'))
-                    
+
                 {
                     result.ColumnNumber += 2;
                     result.Length = 2;
@@ -172,10 +152,6 @@ namespace AuroraScript.Scanning
         }
     }
 
-
-
-
-
     /// <summary>
     ///  \n new line
     /// </summary>
@@ -199,7 +175,6 @@ namespace AuroraScript.Scanning
                     (codeSpan[i] >= '0' && codeSpan[i] <= '9') ||
                      codeSpan[i] == '_')
                     {
-
                     }
                     else
                     {
@@ -216,15 +191,12 @@ namespace AuroraScript.Scanning
         }
     }
 
-
     /// <summary>
     ///  format string block
     /// </summary>
     internal class StringBlockRule : TokenRules
     {
-
         private static StringBuilder sb = new StringBuilder();
-
 
         public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
         {
@@ -270,23 +242,10 @@ namespace AuroraScript.Scanning
             }
             return result;
         }
-
-
-
-
-
-
-
     }
-
-
-
-
-
 
     internal class NumberCommentRule : TokenRules
     {
-
         public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
         {
             var result = new RuleTestResult();
@@ -332,16 +291,6 @@ namespace AuroraScript.Scanning
         }
     }
 
-
-
-
-
-
-
-
-
-
-
     internal class HexNumberCommentRule : TokenRules
     {
         public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
@@ -356,7 +305,6 @@ namespace AuroraScript.Scanning
                         (codeSpan[i] >= 'A' && codeSpan[i] <= 'F') ||
                         (codeSpan[i] >= '0' && codeSpan[i] <= '9'))
                     {
-
                     }
                     else
                     {
@@ -372,22 +320,6 @@ namespace AuroraScript.Scanning
             return result;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /// <summary>
     /// Block Comment
@@ -426,14 +358,6 @@ namespace AuroraScript.Scanning
         }
     }
 
-
-
-
-
-
-
-
-
     /// <summary>
     /// Row Comment
     /// </summary>
@@ -467,12 +391,10 @@ namespace AuroraScript.Scanning
                     result.Type = TokenTyped.Comment;
                     result.Success = true;
                 }
-
             }
             return result;
         }
     }
-
 
     /// <summary>
     /// white space
@@ -500,10 +422,6 @@ namespace AuroraScript.Scanning
         }
     }
 
-
-
-
-
     /// <summary>
     ///  \n new line
     /// </summary>
@@ -524,10 +442,4 @@ namespace AuroraScript.Scanning
             return result;
         }
     }
-
-
-
-
-
-
 }

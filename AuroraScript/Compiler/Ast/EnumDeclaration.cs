@@ -1,12 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Ast
 {
@@ -15,11 +9,6 @@ namespace AuroraScript.Ast
         public Token Name;
         public Int32 Value;
     }
-
-
-
-
-
 
     public class EnumDeclaration : Statement
     {
@@ -35,8 +24,6 @@ namespace AuroraScript.Ast
 
         public Token Identifier { get; set; }
         public List<EnumElement> Elements { get; set; }
-
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {

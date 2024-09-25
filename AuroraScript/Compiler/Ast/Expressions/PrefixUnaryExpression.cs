@@ -1,6 +1,4 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
@@ -16,10 +14,7 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
-
-
         public Exception Operand { get; set; }
-
 
         public Expression Right
         {

@@ -1,8 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
-using AuroraScript.Ast.Types;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
-
 
 namespace AuroraScript.Ast
 {
@@ -24,12 +22,6 @@ namespace AuroraScript.Ast
         SetMethod = 2,
     }
 
-
-
-
-
-
-
     /// <summary>
     /// 函数定义
     /// </summary>
@@ -37,7 +29,6 @@ namespace AuroraScript.Ast
     {
         internal FunctionDeclaration()
         {
-
         }
 
         /// <summary>
@@ -55,11 +46,11 @@ namespace AuroraScript.Ast
         /// </summary>
         public List<TypeNode> Typeds { get; set; }
 
-
         /// <summary>
         /// Function Access
         /// </summary>
         public Symbols Access { get; set; }
+
         /// <summary>
         /// Export ....
         /// </summary>
@@ -70,9 +61,7 @@ namespace AuroraScript.Ast
         /// </summary>
         public Token Identifier { get; set; }
 
-
         public FunctionFlags Flags { get; set; }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
@@ -110,9 +99,5 @@ namespace AuroraScript.Ast
             writer.WriteLine();
             if (Body != null) this.Body.GenerateCode(writer);
         }
-
-
-
-
     }
 }

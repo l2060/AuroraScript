@@ -1,9 +1,6 @@
-﻿
-
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast
@@ -16,9 +13,9 @@ namespace AuroraScript.Ast
 
         [JsonIgnore]
         public AstNode Parent { get; private set; }
+
         internal AstNode()
         {
-
         }
 
         public Int32 Length
@@ -37,9 +34,6 @@ namespace AuroraScript.Ast
             }
         }
 
-
-
-
         public virtual List<AstNode> ChildNodes
         {
             get
@@ -47,7 +41,6 @@ namespace AuroraScript.Ast
                 return childrens;
             }
         }
-
 
         public void Remove()
         {
@@ -58,16 +51,12 @@ namespace AuroraScript.Ast
             }
         }
 
-
         public virtual void AddNode(AstNode node)
         {
             if (node.Parent != null) throw new InvalidOperationException();
             this.childrens.Add(node);
-            node.Parent=this;
+            node.Parent = this;
         }
-
-
-
 
         /// <summary>
         /// ???????????????????????????
@@ -75,24 +64,18 @@ namespace AuroraScript.Ast
         /// <param name="writer"></param>
         public virtual void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
-
         }
 
         public virtual void GenerateCode(ILGenerator generator, OptimizationInfo optimizationInfo)
         {
-
-
         }
-
-
-
 
         protected void writeParameters<T>(TextCodeWriter writer, List<T> nodes, string sp) where T : AstNode
         {
             for (int i = 0; i < nodes.Count; i++)
             {
                 nodes[i].GenerateCode(writer);
-                if (!String.IsNullOrEmpty(sp) && i < nodes.Count -1 ) writer.Write(sp);
+                if (!String.IsNullOrEmpty(sp) && i < nodes.Count - 1) writer.Write(sp);
             }
         }
 
@@ -104,6 +87,5 @@ namespace AuroraScript.Ast
                 ss?.Invoke();
             }
         }
-
     }
 }

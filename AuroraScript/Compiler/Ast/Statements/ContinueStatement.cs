@@ -1,5 +1,4 @@
-﻿
-using AuroraScript.Compiler;
+﻿using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
@@ -8,9 +7,7 @@ namespace AuroraScript.Ast.Statements
     {
         internal ContinueStatement()
         {
-
         }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {

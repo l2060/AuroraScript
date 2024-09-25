@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace ScriptRuner
 {
     public static class TypedExtends
     {
-
- 
-
- 
         public static String add(this String _this, String value)
         {
             return _this + value;
         }
+
         public static IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType)
         {
             var query = from type in assembly.GetTypes()
@@ -28,6 +20,5 @@ namespace ScriptRuner
                         select method;
             return query;
         }
-
     }
 }

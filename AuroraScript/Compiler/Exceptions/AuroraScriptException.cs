@@ -4,7 +4,6 @@
     {
         internal AuroraScriptException(string message) : base(message)
         {
-
         }
     }
 }

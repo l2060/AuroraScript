@@ -15,14 +15,7 @@ namespace AuroraScript.Compiler
         GROUP,
         FUNCTION,
         CONSTRUCTOR
-
     }
-
-
-
-
-
-
 
     /// <summary>
     /// statemtnt scope
@@ -31,6 +24,7 @@ namespace AuroraScript.Compiler
     {
         [JsonIgnore]
         public Scope Parent { get; private set; }
+
         internal AuroraParser Parser { get; private set; }
         public List<Scope> Childrens { get; private set; } = new List<Scope>();
         public Dictionary<string, ParameterDeclaration> Variables { get; private set; } = new Dictionary<string, ParameterDeclaration>();
@@ -43,15 +37,9 @@ namespace AuroraScript.Compiler
             ScopeType = ScopeType.MODULE;
         }
 
-
         public void FindToken(Token token)
         {
-
-
-
         }
-
-
 
         public Scope CreateScope(ScopeType scopeType)
         {
@@ -61,9 +49,6 @@ namespace AuroraScript.Compiler
             Childrens.Add(scope);
             return scope;
         }
-
-
-
 
         internal void DeclareVariable(ParameterDeclaration parameter)
         {
@@ -81,23 +66,14 @@ namespace AuroraScript.Compiler
 
         internal void DefineVariable(VariableDeclaration parameter)
         {
-
-
         }
 
         internal void DeclareFunction(FunctionDeclaration parameter)
         {
-
-
         }
 
         internal void DefineFunction(FunctionDeclaration parameter)
         {
-
-
         }
-
-
-
     }
 }

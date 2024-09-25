@@ -1,5 +1,4 @@
-﻿
-using AuroraScript.Stream;
+﻿using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -7,9 +6,7 @@ namespace AuroraScript.Ast.Expressions
     {
         internal Expression()
         {
-
         }
-
 
         public new Expression this[Int32 index]
         {
@@ -19,7 +16,6 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-
         internal Expression Pop()
         {
             var node = this.childrens[0];
@@ -27,11 +23,9 @@ namespace AuroraScript.Ast.Expressions
             return (Expression)node;
         }
 
-
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.WriteLine($"...");
         }
-
     }
 }

@@ -1,8 +1,6 @@
 ﻿using AuroraScript.Ast.Expressions;
-using AuroraScript.Ast.Types;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
-
 
 namespace AuroraScript.Ast
 {
@@ -13,8 +11,8 @@ namespace AuroraScript.Ast
     {
         internal ParameterDeclaration()
         {
-
         }
+
         /// <summary>
         /// parameter Modifier  ....
         /// </summary>
@@ -26,11 +24,9 @@ namespace AuroraScript.Ast
         public Token Variable { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Expression DefaultValue { get; set; }
-
-
 
         /// <summary>
         /// 扩展运算符（Spread Operator）
@@ -38,10 +34,9 @@ namespace AuroraScript.Ast
         public Boolean IsSpreadOperator { get; set; } = false;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public TypeNode Typed { get; set; }
-
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
@@ -58,8 +53,5 @@ namespace AuroraScript.Ast
                 DefaultValue.GenerateCode(writer, depth);
             }
         }
-
-
-
     }
 }

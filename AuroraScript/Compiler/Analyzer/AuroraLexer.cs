@@ -23,7 +23,7 @@ namespace AuroraScript.Analyzer
         private List<TokenRules> _TokenRules { get; set; }
         private Int32 readOffset { get; set; } = 0;
         private Int32 bufferLength { get; set; } = 0;
-        public Int32 Position {  get; private set; } = 0;
+        public Int32 Position { get; private set; } = 0;
 
         public AuroraLexer(String file, Encoding encoding) : this(File.ReadAllText(file, encoding), file)
         {
@@ -61,7 +61,7 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// If it is the specified symbol, return, otherwise report an error 
+        /// If it is the specified symbol, return, otherwise report an error
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
@@ -71,14 +71,13 @@ namespace AuroraScript.Analyzer
             var token = this.Next();
             if (token.Symbol != symbol)
             {
-                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword { token.Value } appears in the wrong place, it should be { symbol.Name}.");
+                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword {token.Value} appears in the wrong place, it should be {symbol.Name}.");
             }
             return token;
         }
 
-
         /// <summary>
-        /// If it is the specified token, return, otherwise report an error  
+        /// If it is the specified token, return, otherwise report an error
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -90,14 +89,8 @@ namespace AuroraScript.Analyzer
             throw new InvalidOperationException("");
         }
 
-
-
-
-
-
-
         /// <summary>
-        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// If it is the specified symbol, take it out and return true, otherwise return false
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
@@ -113,18 +106,14 @@ namespace AuroraScript.Analyzer
             return null;
         }
 
-
-
         public Boolean TestAtHead<T>() where T : Token
         {
             var nextToken = this.LookAtHead();
             return nextToken is T;
         }
 
-
-
         /// <summary>
-        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// If it is the specified symbol, take it out and return true, otherwise return false
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
@@ -133,11 +122,10 @@ namespace AuroraScript.Analyzer
         {
             var nextToken = this.LookAtHead();
             return (nextToken.Symbol == symbol);
-
         }
 
         /// <summary>
-        /// If it is the specified symbol, take it out and return true, otherwise return false  
+        /// If it is the specified symbol, take it out and return true, otherwise return false
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
@@ -154,7 +142,7 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// get next token without removing it. 
+        /// get next token without removing it.
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,14 +152,13 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// get next token without removing it. 
+        /// get next token without removing it.
         /// </summary>
         /// <returns></returns>
         public Token Previous(Int32 offset = 2)
         {
             return this.tokens[this.Position - offset];
         }
-
 
         /// <summary>
         /// get next token
@@ -184,26 +171,13 @@ namespace AuroraScript.Analyzer
             return token;
         }
 
-
         public void RollBack()
         {
             this.Position--;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
         /// <summary>
-        /// Parse all tokens 
+        /// Parse all tokens
         /// </summary>
         private void ParseTokens()
         {
@@ -216,7 +190,7 @@ namespace AuroraScript.Analyzer
         }
 
         /// <summary>
-        /// Parse next token 
+        /// Parse next token
         /// </summary>
         /// <returns></returns>
         /// <exception cref="LexerException"></exception>
@@ -247,8 +221,6 @@ namespace AuroraScript.Analyzer
             }
             throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, "Invalid keywords 。");
         }
-
-
 
         /// <summary>
         /// create token from rule result
@@ -283,19 +255,5 @@ namespace AuroraScript.Analyzer
             token.Value = result.Value;
             return token;
         }
-
-
-
-
     }
-
-
-
-
-
-
-
 }
-
-
-
