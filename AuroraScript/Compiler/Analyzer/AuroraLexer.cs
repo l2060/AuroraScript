@@ -49,6 +49,7 @@ namespace AuroraScript.Analyzer
         private void InitRegexs()
         {
             this._TokenRules = new List<TokenRules>();
+            this.AddRegex(TokenRules.StringBlock);
             this.AddRegex(TokenRules.NewLine);
             this.AddRegex(TokenRules.WhiteSpace);
             this.AddRegex(TokenRules.RowComment);
@@ -58,6 +59,7 @@ namespace AuroraScript.Analyzer
             this.AddRegex(TokenRules.Number);
             this.AddRegex(TokenRules.Punctuator);
             this.AddRegex(TokenRules.StringTemplate);
+ 
         }
 
         /// <summary>
@@ -245,7 +247,8 @@ namespace AuroraScript.Analyzer
             }
             else
             {
-                if (result.Type == TokenTyped.String) token = new StringToken();
+                if (result.Type == TokenTyped.String) token = new StringToken(false);
+                if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
                 if (result.Type == TokenTyped.Number) token = new NumberToken();
                 if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
             }

@@ -2,12 +2,12 @@
 using AuroraScript;
 using ScriptRuner;
 
-rsTest.Run();
+//rsTest.Run();
 
 
-//var engine = new ScriptEngine();
+var engine = new ScriptEngine();
 
-//engine.build("./scripts/test.ts");
+engine.build("./scripts/main.ts");
 
 Console.WriteLine("=====================================================================================");
 Console.ReadKey();

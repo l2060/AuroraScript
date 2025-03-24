@@ -22,9 +22,13 @@ namespace AuroraScript.Scanning
         public static readonly TokenRules BlockComment = new BlockCommentRule();
         public static readonly TokenRules HexNumber = new HexNumberCommentRule();
         public static readonly TokenRules Number = new NumberCommentRule();
-        public static readonly TokenRules StringTemplate = new StringBlockRule();
+        public static readonly TokenRules StringTemplate = new StringTemplateRule();
         public static readonly TokenRules Identifier = new IdentifierRule();
         public static readonly TokenRules Punctuator = new PunctuatorRule();
+        public static readonly TokenRules StringBlock = new StringBlockRule();
+
+
+
 
         public abstract RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber);
 
@@ -191,13 +195,10 @@ namespace AuroraScript.Scanning
         }
     }
 
-    /// <summary>
-    ///  format string block
-    /// </summary>
-    internal class StringBlockRule : TokenRules
+
+    internal class StringTemplateRule : TokenRules
     {
         private static StringBuilder sb = new StringBuilder();
-
         public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
         {
             var result = new RuleTestResult();
@@ -238,6 +239,88 @@ namespace AuroraScript.Scanning
                         }
                     }
                     sb.Append(viewChar);
+                }
+            }
+            return result;
+        }
+    }
+
+
+    public class CharReader
+    {
+        private int _current = 0;
+        public Char Current(in ReadOnlySpan<Char> codeSpan)
+        {
+            return codeSpan[_current];
+        }
+
+        public Char Peek(in ReadOnlySpan<Char> codeSpan)
+        {
+            var pos = _current +1;
+            return _current < codeSpan.Length? codeSpan[pos] : '\0';
+        }
+
+        public void Advance(int len = 1)
+        {
+            _current += len;
+        }
+
+        public int Length => _current;
+
+    }
+
+
+    /// <summary>
+    ///  format string block
+    /// </summary>
+    /// 
+
+    internal class StringBlockRule : TokenRules
+    {
+        private static StringBuilder sb = new StringBuilder();
+
+        public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
+        {
+            var result = new RuleTestResult();
+            result.ColumnNumber = ColumnNumber;
+            if (codeSpan.Length > 2 && codeSpan[0] == '|' && codeSpan[1] == '>')
+            {
+                sb.Clear();
+                var reader = new CharReader();
+                reader.Advance(2);
+                // remove first space
+                if (reader.Current(codeSpan) == ' ') reader.Advance();
+
+                while (reader.Current(codeSpan) != '\0')
+                {
+                    if (reader.Current(codeSpan) == '\r') reader.Advance();
+                    if (reader.Current(codeSpan) == '\n')
+                    {
+                        reader.Advance();
+                        while (reader.Current(codeSpan) == ' ' || reader.Current(codeSpan) == '\t' )
+                        {
+                            reader.Advance();
+                        }
+                        
+                        if (reader.Current(codeSpan) == '|' && reader.Peek(codeSpan) == '>')
+                        {
+                            reader.Advance(2);
+                            // remove first space
+                            if (reader.Current(codeSpan) == ' ') reader.Advance();
+                            sb.AppendLine();
+                            continue;
+                        }
+                        else
+                        {
+                            result.Length = reader.Length;
+                            result.Value = sb.ToString();// codeSpan.Slice(1, i - 1).ToString();
+                            result.Success = true;
+                            result.Type = TokenTyped.StringBlock;
+                            break;
+                        }
+                    }
+                    sb.Append(reader.Current(codeSpan));
+                    reader.Advance();
                 }
             }
             return result;

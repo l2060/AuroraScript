@@ -4,6 +4,8 @@
     {
         String,
 
+        StringBlock,
+
         Number,
 
         Identifier,

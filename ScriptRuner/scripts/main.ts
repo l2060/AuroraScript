@@ -9,13 +9,6 @@ import * as Document from './document';
 
 type int = number;
 
-export set name(value: string): void {
-}
-
-export get name(): string {
-    return '';
-}
-
 name = 123456;
 
 /* exported  attributes */
@@ -58,7 +51,9 @@ for (var i = 0; i < 100; i++) {
         console.log(i);
 }
 
-var fmtString = `load ${num} of ${str}`;
+var fmtString = `load ${num} 
+
+of ${str}`;
 
 /**
  *
@@ -74,8 +69,8 @@ function add(a: int, b: int): int {
     return (a + b) * (a + b);
 }
 
-coroutine add(1, 2);
-
+ add(1, 2);
+// yield;
 var c, d, r = (
     33 + 66)
     /
@@ -135,4 +130,25 @@ function ok(): void {
 function view(): void {
 }
 function cancel(): void {
+    say(
+        |> * You examine the ${ itemName } closely * 
+        |>
+        |> <color=${ goldColor } > ${ itemName } < /color>
+        |> <i>${ itemRarity } Armor < /i>
+        |>
+        |> Defense: 45
+        |> Weight: 15
+        |> Value: 5000 gold
+        |>
+        |> Special Effects:
+        |>   • Fire Resistance + 75 %
+        |>   • Cannot be damaged by acid
+        |>   • Intimidation bonus against lesser creatures
+        |>
+        |> "Forged from the scales of the ancient dragon Fyrenthal,
+        |> this armor still radiates with magical warmth.The
+        |> craftmanship is beyond anything seen in the modern age."
+         |>
+        |> <Equip/@equipItem> <Back/@showInventory>
+    );
 }
