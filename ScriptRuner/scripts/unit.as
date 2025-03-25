@@ -1,0 +1,117 @@
+﻿
+
+var ss = 123;
+xxx = 1234;
+var rollBackLexer = () => {
+    while (ss1.Position > startPointer) this.ss.RollBack();
+};
+function getPlayerStatus() {
+
+    //  debug("While loop:");
+    var count = 0;
+    while (count < 100) {
+        count++;
+        // if( count == 5)  continue;
+        // if( count == 800000)  break; 
+        // debug("While iteration " + count);
+        var s = 12345;
+    }
+
+    debug("s = " + ss);
+
+
+
+
+    var array = [0, 1, 2, "3", "4"];
+    var ttt = true;
+    debug("array: " + array);
+    debug("ttt: " + ttt);
+
+
+    // var myFunc =   showMerchantGreeting;
+    // myFunc();
+
+
+    var player = {
+        name: "Hero",
+        health: 100,
+        mana: 50,
+        equipment: {
+            weapon: "Sword",
+            armor: "Leather"
+        }
+    };
+
+    var s = sum(1, 2, 3, 4, 5);
+    debug("Sum: " + s);
+
+    // While loop
+
+
+
+    debug("While iteration " + count);
+    // Access global variable
+    var score = playerScore;
+
+
+
+
+    return player;
+    if (score > 40) {
+        return "Player is winning with score: " + score;
+    } else {
+        return "Player needs to improve score: " + score;
+    }
+}
+
+
+
+
+
+// Test script for GameScriptInterpreter
+export function calculateTotal(a, b) {
+    // global.print("Player score: " + 1);
+    // Basic arithmetic
+    var total = a + b;
+    debug("Calculated total: " + total);
+    //  showMerchantGreeting();
+    return total;
+}
+
+
+
+
+// Function to display merchant greeting dialog
+function showMerchantGreeting() {
+    // This function demonstrates the special multiline text format
+    // The |> prefix marks each line of dialog
+    say(
+        |> * You examine the ${ itemName } closely * 
+        |>
+        |> <color=${ goldColor } > ${ itemName } < /color>
+        |> <i>${ itemRarity } Armor < /i>
+        |>
+        |> Defense: 45
+        |> Weight: 15
+        |> Value: 5000 gold
+        |>
+        |> Special Effects:
+        |>   • Fire Resistance + 75 %
+        |>   • Cannot be damaged by acid
+        |>   • Intimidation bonus against lesser creatures
+        |>
+        |> "Forged from the scales of the ancient dragon Fyrenthal,
+        |> this armor still radiates with magical warmth.The
+        |> craftmanship is beyond anything seen in the modern age."
+         |>
+        |> <Equip/@equipItem> <Back/@showInventory>
+    );
+
+    return "Merchant greeting displayed";
+}
+
+
+debug("Domain: " + ss);
+
+
+var px = 1233 * (-444 + add(444 + (33 + 15), 23)) / (6 + 5);

@@ -14,5 +14,10 @@ namespace AuroraScript.Ast.Statements
             writer.Write(Symbols.KW_CONTINUE.Name);
             writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitContinueExpression(this);
+        }
     }
 }

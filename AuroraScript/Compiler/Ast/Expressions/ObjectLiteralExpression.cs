@@ -9,6 +9,11 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitMapExpression(this);
+        }
+
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.WriteLine(Operator.ObjectLiteral.Symbol.Name);
@@ -18,5 +23,9 @@ namespace AuroraScript.Ast.Expressions
             });
             writer.Write(Operator.ObjectLiteral.SecondarySymbols.Name);
         }
+
+
+
+
     }
 }

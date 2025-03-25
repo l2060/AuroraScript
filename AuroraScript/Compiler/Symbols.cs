@@ -24,7 +24,7 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_ENUM = new Symbols("enum", SymbolTypes.KeyWord);
         public static readonly Symbols KW_FOR = new Symbols("for", SymbolTypes.KeyWord);
         public static readonly Symbols KW_NEW = new Symbols("new", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_THIS = new Symbols("this", SymbolTypes.KeyWord);
+
         public static readonly Symbols KW_WHILE = new Symbols("while", SymbolTypes.KeyWord);
         public static readonly Symbols KW_PRIVATE = new Symbols("private", SymbolTypes.KeyWord);
         public static readonly Symbols KW_PROTECTED = new Symbols("protected", SymbolTypes.KeyWord);
@@ -41,24 +41,22 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_EXTENDS = new Symbols("extends", SymbolTypes.KeyWord);
         public static readonly Symbols KW_IMPLEMENTS = new Symbols("implements", SymbolTypes.KeyWord);
 
-        
+
 
 
 
         // types
-        public static readonly Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Identifier);
+        public static readonly Symbols KW_THIS = new Symbols("this", SymbolTypes.Identifier);
 
-        public static readonly Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Identifier);
-        public static readonly Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Identifier);
-        public static readonly Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Identifier);
+        //public static readonly Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Identifier);
+        //public static readonly Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Identifier);
+        //public static readonly Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Identifier);
+        //public static readonly Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Identifier);
 
         // byte char short ushort long ulong float double
         // number = double
         public static readonly Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Identifier);
 
-        //public readonly static Symbols Byte = new Symbols("byte", SymbolTypes.Typed);
-
-        public static readonly Symbols KW_COROUTINE = new Symbols("coroutine", SymbolTypes.Punctuator);
 
         /// <summary>
         /// token typeof
@@ -135,12 +133,12 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// token <=
         /// </summary>
-        public static readonly Symbols OP_LESSTHANOREQUAL = new Symbols("<=", SymbolTypes.Operator);
+        public static readonly Symbols OP_LESS_EQUAL = new Symbols("<=", SymbolTypes.Operator);
 
         /// <summary>
         /// token >=
         /// </summary>
-        public static readonly Symbols OP_GREATERTHANOREQUal = new Symbols(">=", SymbolTypes.Operator);
+        public static readonly Symbols OP_GREATER_EQUAL = new Symbols(">=", SymbolTypes.Operator);
 
         /// <summary>
         /// token ==

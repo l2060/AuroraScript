@@ -14,5 +14,10 @@ namespace AuroraScript.Ast.Expressions
         {
             writer.Write(this.Identifier.Value);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitName(this);
+        }
     }
 }

@@ -3,7 +3,7 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    internal class PropertyAssignmentExpression : BinaryExpression
+    public class PropertyAssignmentExpression : BinaryExpression
     {
         internal PropertyAssignmentExpression(Operator @operator) : base(@operator)
         {
@@ -16,6 +16,11 @@ namespace AuroraScript.Ast.Expressions
         {
             writer.Write($"{Key?.Value}{this.Operator.Symbol.Name} ");
             Value?.GenerateCode(writer, depth);
+        }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitSetPropertyExpression(this);
         }
     }
 }

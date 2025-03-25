@@ -6,7 +6,7 @@ using AuroraScript;
 
 var engine = new ScriptEngine();
 
-engine.build("./scripts/main.ts");
+engine.build("./scripts/unit.as");
 
 Console.WriteLine("=====================================================================================");
 Console.ReadKey();

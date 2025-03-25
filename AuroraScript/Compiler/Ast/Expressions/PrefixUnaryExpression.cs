@@ -8,7 +8,7 @@ namespace AuroraScript.Ast.Expressions
     /// ++i
     /// --i
     /// </summary>
-    public class PrefixUnaryExpression : OperatorExpression
+    public abstract class PrefixUnaryExpression : OperatorExpression
     {
         internal PrefixUnaryExpression(Operator @operator) : base(@operator)
         {

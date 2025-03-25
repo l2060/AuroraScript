@@ -34,5 +34,10 @@ namespace AuroraScript.Ast.Expressions
             writer.Write($" {this.Operator.Symbol.Name} ");
             this.Right.GenerateCode(writer);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitAssignmentExpression(this);
+        }
     }
 }

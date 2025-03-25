@@ -12,6 +12,9 @@ namespace AuroraScript
         {
             var compiler = new ScriptCompiler();
             ModuleDeclaration root = compiler.buildAst(filename);
+            var codeGenerator = new ByteCodeGenerator();
+            root.Accept(codeGenerator);
+
             compiler.PrintGenerateCode(root);
         }
     }

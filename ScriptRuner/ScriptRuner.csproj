@@ -23,11 +23,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuroraScript\AuroraScript.csproj" />
-    <ProjectReference Include="..\RoslynScript\RoslynScript.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="scripts\libs\common.ts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="scripts\unit.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="scripts\md5.ts">
@@ -37,9 +39,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="scripts\main.ts">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scripts\test.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

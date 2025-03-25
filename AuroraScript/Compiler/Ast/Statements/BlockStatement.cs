@@ -32,5 +32,10 @@ namespace AuroraScript.Ast.Statements
             }
             writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitBlock(this);
+        }
     }
 }

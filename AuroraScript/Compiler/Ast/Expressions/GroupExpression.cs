@@ -12,9 +12,11 @@ namespace AuroraScript.Ast.Expressions
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
             writer.Write(Symbols.PT_LEFTPARENTHESIS.Name);
-
             writeParameters(writer, ChildNodes, ", ");
             writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
+        }
+        public override void Accept(IAstVisitor visitor)
+        {
         }
     }
 }

@@ -70,6 +70,10 @@ namespace AuroraScript.Ast
         {
         }
 
+
+        public abstract void Accept(IAstVisitor visitor);
+
+
         protected void writeParameters<T>(TextCodeWriter writer, List<T> nodes, string sp) where T : AstNode
         {
             for (int i = 0; i < nodes.Count; i++)

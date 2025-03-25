@@ -22,5 +22,10 @@ namespace AuroraScript.Ast.Statements
             writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
             this.Body.GenerateCode(writer);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitWhileStatement(this);
+        }
     }
 }

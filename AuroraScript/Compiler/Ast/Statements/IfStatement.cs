@@ -36,5 +36,9 @@ namespace AuroraScript.Ast.Statements
                 using (writer.IncIndented(!(this.Else is BlockStatement))) this.Else.GenerateCode(writer);
             }
         }
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitIfStatement(this);
+        }
     }
 }

@@ -18,5 +18,9 @@ namespace AuroraScript.Ast.Statements
             Expression.GenerateCode(writer);
             writer.WriteLine(Symbols.PT_SEMICOLON.Name);
         }
+        public override void Accept(IAstVisitor visitor)
+        {
+            this.Expression.Accept(visitor);
+        }
     }
 }

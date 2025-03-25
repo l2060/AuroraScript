@@ -40,5 +40,10 @@ namespace AuroraScript.Ast.Statements
 
             this.Body.GenerateCode(writer);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitForStatement(this);
+        }
     }
 }

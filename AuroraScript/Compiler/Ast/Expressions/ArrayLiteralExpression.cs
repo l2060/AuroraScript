@@ -15,5 +15,10 @@ namespace AuroraScript.Ast.Expressions
             writeParameters(writer, ChildNodes, Symbols.PT_COMMA.Name + " ");
             writer.Write(Operator.ArrayLiteral.SecondarySymbols.Name);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitArrayExpression(this);
+        }
     }
 }

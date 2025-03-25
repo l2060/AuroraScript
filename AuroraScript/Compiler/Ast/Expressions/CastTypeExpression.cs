@@ -18,5 +18,9 @@ namespace AuroraScript.Ast.Expressions
             writer.Write(Operator.CastType.SecondarySymbols.Name);
             Right.GenerateCode(writer, depth);
         }
+        public override void Accept(IAstVisitor visitor)
+        {
+
+        }
     }
 }

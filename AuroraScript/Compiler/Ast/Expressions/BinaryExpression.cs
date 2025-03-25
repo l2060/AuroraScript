@@ -43,5 +43,10 @@ namespace AuroraScript.Ast.Expressions
             this.Right.GenerateCode(writer);
             if (isPriority) writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitBinaryExpression(this);
+        }
     }
 }

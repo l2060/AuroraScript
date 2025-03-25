@@ -3,7 +3,7 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class Statement : AstNode
+    public abstract class Statement : AstNode
     {
         internal Statement()
         {

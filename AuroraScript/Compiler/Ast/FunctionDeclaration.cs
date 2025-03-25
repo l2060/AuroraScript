@@ -12,14 +12,9 @@ namespace AuroraScript.Ast
         General = 0,
 
         /// <summary>
-        /// Get 方法
+        /// Lambda 方法
         /// </summary>
-        GetMethod = 1,
-
-        /// <summary>
-        /// Set 方法
-        /// </summary>
-        SetMethod = 2,
+        Lambda = 1,
     }
 
     /// <summary>
@@ -40,11 +35,6 @@ namespace AuroraScript.Ast
         /// function code
         /// </summary>
         public Statement Body { get; set; }
-
-        /// <summary>
-        /// function result types
-        /// </summary>
-        public List<TypeNode> Typeds { get; set; }
 
         /// <summary>
         /// Function Access
@@ -70,34 +60,23 @@ namespace AuroraScript.Ast
             {
                 kw = Symbols.KW_FUNCTION.Name;
             }
-            else if (Flags == FunctionFlags.GetMethod)
-            {
-                kw = Symbols.KW_GET.Name;
-            }
-            else if (Flags == FunctionFlags.SetMethod)
-            {
-                kw = Symbols.KW_SET.Name;
-            }
-
-            writer.Write($"{Access.Name} {kw} {Identifier.Value}{Symbols.PT_LEFTPARENTHESIS.Name}");
+            writer.Write($"{Access?.Name} {kw} {Identifier?.Value}{Symbols.PT_LEFTPARENTHESIS.Name}");
             this.writeParameters(writer, Parameters, ", ");
-            writer.Write("{0}{1} ", Symbols.PT_RIGHTPARENTHESIS.Name, Symbols.PT_COLON.Name);
-
-            if (Typeds.Count > 0)
+            writer.Write("{0}", Symbols.PT_RIGHTPARENTHESIS.Name);
+            if (Flags == FunctionFlags.Lambda)
             {
-                if (Typeds.Count == 1)
-                {
-                    this.writeParameters(writer, Typeds, Symbols.PT_COMMA.Name + " ");
-                }
-                else
-                {
-                    writer.Write(Symbols.PT_LEFTBRACKET.Name);
-                    this.writeParameters(writer, Typeds, Symbols.PT_COMMA.Name + " ");
-                    writer.Write(Symbols.PT_RIGHTBRACKET.Name);
-                }
+                writer.Write(" {0} ", Symbols.PT_LAMBDA.Name);
             }
-            writer.WriteLine();
+            else
+            {
+                writer.WriteLine();
+            }
             if (Body != null) this.Body.GenerateCode(writer);
+        }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitFunction(this);
         }
     }
 }

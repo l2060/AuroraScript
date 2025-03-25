@@ -30,5 +30,10 @@ namespace AuroraScript.Ast.Expressions
             this.writeParameters(writer, Arguments, Symbols.PT_COMMA.Name + " ");
             writer.Write(Operator.FunctionCall.SecondarySymbols.Name);
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitCallExpression(this);
+        }
     }
 }

@@ -45,5 +45,11 @@ namespace AuroraScript.Ast.Expressions
             this.Property.GenerateCode(writer);
             if (disposable != null) disposable.Dispose();
         }
+
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitGetPropertyExpression(this);
+        }
     }
 }

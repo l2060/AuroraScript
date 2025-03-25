@@ -5,24 +5,22 @@
 import './libs/common';
 import 'main';
 
-export type int = number;
 
 export var TextContent = `
 this is line 1
 this is line 2
 this is line 3`;
 
-export var Version: int = 0x1234;
+export var Version = 0x1234;
 
-export var ary1: int[] = [1 + 2, 3 * 5];
+export var ary1 = [1 + 2, 3 * 5];
 
 /**
  *
  *
  * @param cmd
  */
-export function Print(cmd:            /*
- * block comment */string): void {
+export function Print(cmd   /* * block comment */) {
     console.log('Document:hello wrold!');
 }
 
@@ -30,15 +28,15 @@ export function Print(cmd:            /*
  * exported function Multiple return values
  * @param id
  */
-export function tuple(id: int): [int, string] {
+export function tuple(id) {
     return [id, id.toString()];
 }
 
-export function test(...args: any[]): void {
+export function test(...args) {
     console.log(args);
 }
 
-function foo(fs: number, name: string): boolean {
+function foo(fs, name) {
     if (fs && name && fs > 100) {
         return true;
     } else {
@@ -74,14 +72,14 @@ var data = {
     ...ary1
 };
 
-export type action = (v1: number, v2: string) => boolean;
 
-console.log((event: number): boolean => {
+
+console.log((event) => {
     var s = true;
     return s;
 });
 
-var func = (event: number): boolean => {
+var func = (event) => {
     var s = true;
     return s;
 }
@@ -96,34 +94,34 @@ const c = 0;
 
 const array = [true, false, null, "123", 'abc', 6];
 
-function call(action: (name: string, age: number) => [number, number]): void {
+function call(action) {
     // do something
     action("hello", 3.1415926);
 
     ss.fff[0]();
 }
 
-call((name: string, age: number): [number, number] => {
+call((name, age) => {
     console.log(name, age);
     return [10086, 10086];
 });
 
 var s = {
-    call: (arg1: string, arg2: boolean, arg3: boolean, arg4: boolean): boolean => {
+    call: (arg1, arg2, arg3, arg4) => {
         console.log("12345");
         return true;
     },
-    mini: (arg1: number, arg2: number = 1): [boolean, string] => {
+    mini: (arg1, arg2 = 1) => {
         var s = true;
         return [s, ""];
     },
-    func: (arg1: any, arg2: any[]): void => {
+    func: (arg1, arg2) => {
         console.log(arg1, arg2);
     },
     b: {
         b: {
             b: {
-                v: (123 + 24) * <number>56
+                v: (123 + 24) * 56
             }
         }
     }
@@ -133,16 +131,13 @@ s.call("", true, false, false);
 s.mini(100, 120);
 s.func({ a: 1, b: 2 }, [a, b, c, ...array]);
 
-var func = (event: number, event2: number = 1): boolean => {
+var func = (event, event2 = 1) => {
     var s = true;
     return s;
 };
 
 var sss = (1 + 4) * 3;
 
-export type Action = () => [number, string];
-export type Action2 = (a: string[]) => number;
-export type Action3 = (a: string, b: boolean, c: boolean, d: boolean) => string;
 
 //function as11(v: (a: string) => number):void {
 //}
@@ -158,9 +153,9 @@ var data = {
     ...ary1
 };
 var cc = 5;
-var a = 1111 * (<number>cc * (<number>99 - <number>55));
+var a = 1111 * (cc * (99 - 55));
 
-console.log((event: number, event2: number): boolean => {
+console.log((event, event2) => {
     var s = true;
     return s;
 });
@@ -169,6 +164,6 @@ console.log((event: number, event2: number): boolean => {
 
 //[([event]: [number], [event]: [number] = 55)]: [boolean]  =>
 
-function foo(arg0: number, arg1: string): void {
+function foo(arg0, arg1) {
     //throw new Error('Function not implemented.');
 }

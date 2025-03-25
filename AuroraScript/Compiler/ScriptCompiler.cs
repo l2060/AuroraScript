@@ -10,7 +10,7 @@ namespace AuroraScript.Compiler
 {
     public class ScriptCompiler
     {
-        public string FileExtension { get; set; } = ".ts";
+        public string FileExtension { get; set; } = ".as";
 
         private ConcurrentDictionary<string, AuroraParser> scriptParsers = new ConcurrentDictionary<string, AuroraParser>();
 

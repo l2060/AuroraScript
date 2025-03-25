@@ -7,7 +7,6 @@ import './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
 import * as Document from './document';
 
-type int = number;
 
 name = 123456;
 
@@ -60,12 +59,11 @@ of ${str}`;
  *
  * @param cmd
  */
-export function main(cmd:            /*
- * block comment */string): void {
+export function main(cmd /* * block comment */) {
     console.log('hello wrold!');
 }
 
-function add(a: int, b: int): int {
+function add(a, b) {
     return (a + b) * (a + b);
 }
 
@@ -118,18 +116,18 @@ echo.dialog(120)
     .position(11, 22)
     .wait(); // 等待关闭
 
-function After(): void {
+function After() {
 }
-function Before(): void {
+function Before() {
 }
 
 
 
-function ok(): void {
+function ok() {
 }
-function view(): void {
+function view() {
 }
-function cancel(): void {
+function cancel() {
     say(
         |> * You examine the ${ itemName } closely * 
         |>

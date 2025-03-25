@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class OperatorExpression : Expression
+    public abstract class OperatorExpression : Expression
     {
         internal OperatorExpression(Operator @operator)
         {

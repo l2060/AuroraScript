@@ -28,10 +28,6 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public Expression Initializer { get; set; }
 
-        /// <summary>
-        /// get / set variable typed
-        /// </summary>
-        public TypeNode Typed { get; set; }
 
         /// <summary>
         /// Function Access
@@ -48,14 +44,12 @@ namespace AuroraScript.Ast.Expressions
             var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
             writer.Write($"{key} ");
             writer.Write(string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value)));
-
-            if (Typed != null)
-            {
-                writer.Write(Symbols.PT_COLON.Name);
-                Typed.GenerateCode(writer);
-            }
             writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
             if (Initializer != null) Initializer.GenerateCode(writer);
+        }
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitVarDeclaration(this);
         }
     }
 }

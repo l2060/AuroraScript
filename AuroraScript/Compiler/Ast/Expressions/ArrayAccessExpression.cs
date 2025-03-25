@@ -18,6 +18,10 @@ namespace AuroraScript.Ast.Expressions
                 return this.childrens[0] as Expression;
             }
         }
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitArrayAccessExpression(this);
+        }
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {

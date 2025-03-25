@@ -79,11 +79,6 @@ namespace AuroraScript.Compiler
         /// </summary>
         public static readonly Operator New = new Operator(Symbols.KW_NEW, 17, OperatorPlacement.Prefix, true);
 
-        /// <summary>
-        /// Coroutine (func call)
-        /// </summary>
-        public static readonly Operator Coroutine = new Operator(Symbols.KW_COROUTINE, 16, OperatorPlacement.Prefix, true);
-
         // Postfix operators.
         /// <summary>
         /// operator exp++
@@ -97,13 +92,13 @@ namespace AuroraScript.Compiler
 
         // Unary prefix operators.
         /// <summary>
-        /// operator ++exp
+        /// operator ...exp
         /// </summary>
         public static readonly Operator PreSpread = new Operator(Symbols.OP_SPREAD, 15, OperatorPlacement.Prefix, false);
 
         // Spread prefix Operator.
         /// <summary>
-        /// operator ... exp
+        /// operator ++ exp
         /// </summary>
         public static readonly Operator PreIncrement = new Operator(Symbols.OP_INCREMENT, 15, OperatorPlacement.Prefix, false);
 
@@ -178,7 +173,7 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// operator exp &lt;= exp
         /// </summary>
-        public static readonly Operator LessThanOrEqual = new Operator(Symbols.OP_LESSTHANOREQUAL, 10, OperatorPlacement.Binary, false);
+        public static readonly Operator LessThanOrEqual = new Operator(Symbols.OP_LESS_EQUAL, 10, OperatorPlacement.Binary, false);
 
         /// <summary>
         /// operator exp > exp
@@ -188,7 +183,7 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// operator exp >= exp
         /// </summary>
-        public static readonly Operator GreaterThanOrEqual = new Operator(Symbols.OP_GREATERTHANOREQUal, 10, OperatorPlacement.Binary, false);
+        public static readonly Operator GreaterThanOrEqual = new Operator(Symbols.OP_GREATER_EQUAL, 10, OperatorPlacement.Binary, false);
 
         //public static readonly Operator In = new Operator(KeywordToken.In, 10, OperatorPlacement.Binary, OperatorType.In);
 

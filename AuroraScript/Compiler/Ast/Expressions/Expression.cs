@@ -1,8 +1,9 @@
-﻿using AuroraScript.Stream;
+﻿using AuroraScript.Compiler;
+using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class Expression : AstNode
+    public abstract class Expression : AstNode
     {
         internal Expression()
         {
@@ -28,4 +29,14 @@ namespace AuroraScript.Ast.Expressions
             writer.WriteLine($"...");
         }
     }
+
+
+    internal class ExpressionStack : Expression
+    {
+        public override void Accept(IAstVisitor visitor)
+        {
+
+        }
+    }
+
 }

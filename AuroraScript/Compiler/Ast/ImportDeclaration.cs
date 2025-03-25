@@ -24,5 +24,9 @@ namespace AuroraScript.Ast
                 writer.WriteLine($"{Symbols.KW_IMPORT.Name} {this.File.Value};");
             }
         }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+        }
     }
 }
