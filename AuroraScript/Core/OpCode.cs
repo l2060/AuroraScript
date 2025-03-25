@@ -50,7 +50,8 @@ namespace AuroraScript.Core
         MULTIPLY = 72,     // Multiply the top two values
         DIVIDE = 73,       // Divide the second value by the top value
         NEGATE = 74,       // Negate the top value
-        
+
+
         // Logical Operations
         NOT = 80,            // Logical NOT of the top value
         EQUAL = 81,          // Compare the top two values for equality

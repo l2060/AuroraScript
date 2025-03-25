@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
+using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Stream;
 using AuroraScript.Uilty;
@@ -64,6 +65,7 @@ namespace AuroraScript.Compiler
                 root = parser.Parse();
             }
             //
+            opaimizeTree(root);
             return root as ModuleDeclaration;
         }
 
@@ -148,16 +150,23 @@ namespace AuroraScript.Compiler
         /// <param name="root"></param>
         public void opaimizeTree(AstNode parent)
         {
-            //for (int i = parent.Length - 1; i >= 0; i--)
-            //{
-            //    var node = parent[i];
-            //    if (node is GroupExpression || (node is BlockStatement block && block.Length == 1))
-            //    {
-            //        node.Remove();
-            //        parent.AddNode(node);
-            //    }
-            //    opaimizeTree(node);
-            //}
+            for (int i = parent.Length - 1; i >= 0; i--)
+            {
+                var node = parent[i];
+
+                if (node is AssignmentExpression assignmentExpression)
+                {
+                    Console.WriteLine();
+                }
+
+
+                //if (node is GroupExpression || (node is BlockStatement block && block.Length == 1))
+                //{
+                //    node.Remove();
+                //    parent.AddNode(node);
+                //}
+                opaimizeTree(node);
+            }
         }
     }
 }

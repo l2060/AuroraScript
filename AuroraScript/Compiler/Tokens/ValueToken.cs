@@ -6,6 +6,8 @@ namespace AuroraScript.Tokens
     {
         String,
         Number,
+        DoubleNumber,
+        IntegerNumber,
         Boolean,
         Null,
     }

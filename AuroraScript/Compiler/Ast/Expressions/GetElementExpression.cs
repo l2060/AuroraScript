@@ -3,29 +3,31 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class ArrayAccessExpression : OperatorExpression
+    public class GetElementExpression : OperatorExpression
     {
-        internal ArrayAccessExpression(Operator @operator) : base(@operator)
+        internal GetElementExpression(Operator @operator) : base(@operator)
         {
         }
 
         public Expression Index { get; set; }
 
-        public Expression Target
+        public Expression Object
         {
             get
             {
                 return this.childrens[0] as Expression;
             }
         }
+
+
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitArrayAccessExpression(this);
+            visitor.VisitGetElementExpression(this);
         }
 
         public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
         {
-            Target.GenerateCode(writer);
+            Object.GenerateCode(writer);
             writer.Write(Operator.ArrayLiteral.Symbol.Name);
             Index.GenerateCode(writer);
             writer.Write(Operator.ArrayLiteral.SecondarySymbols.Name);

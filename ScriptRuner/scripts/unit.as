@@ -1,7 +1,17 @@
-﻿
-
+﻿var debug;
+var sum;
+var say;
 var ss = 123;
-xxx = 1234;
+ss[1] = ss[2];
+ss["a"] = ss["b"];
+ss.LK = 1234;
+debug(ss.LK);
+
+//ss.1 = 123;
+
+
+var playerScore = 123;
+
 var rollBackLexer = () => {
     while (ss1.Position > startPointer) this.ss.RollBack();
 };

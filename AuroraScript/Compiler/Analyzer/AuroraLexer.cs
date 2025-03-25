@@ -249,7 +249,7 @@ namespace AuroraScript.Analyzer
             {
                 if (result.Type == TokenTyped.String) token = new StringToken(false);
                 if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
-                if (result.Type == TokenTyped.Number) token = new NumberToken();
+                if (result.Type == TokenTyped.Number) token = new NumberToken(result.Value);
                 if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
             }
             if (token == null) throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");

@@ -1,5 +1,7 @@
 ﻿using AuroraScript.Core;
+using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 
 namespace AuroraScript.Compiler.Emits
@@ -72,7 +74,7 @@ namespace AuroraScript.Compiler.Emits
             return Emit(OpCode.PUSH_CONST_INT, operand);
         }
 
-        
+
         public Instruction Position()
         {
             return new Instruction(OpCode.NOP, _position);
@@ -88,9 +90,27 @@ namespace AuroraScript.Compiler.Emits
         {
             return Emit(OpCode.SET_ELEMENT);
         }
-        
+        public Instruction SetProperty()
+        {
+            return Emit(OpCode.SET_PROPERTY);
+        }
+        public Instruction GetProperty()
+        {
+            return Emit(OpCode.GET_PROPERTY);
+        }
+        public Instruction GetElement()
+        {
+            return Emit(OpCode.GET_ELEMENT);
+        }
+        public Instruction PushString(int index)
+        {
+            return Emit(OpCode.PUSH_CONST_STR, index);
+        }
 
-
+        public Instruction PushBoolean(Boolean value)
+        {
+            return Emit(value ? OpCode.PUSH_TRUE : OpCode.PUSH_FALSE);
+        }
 
         public Instruction PushNull()
         {
@@ -102,11 +122,16 @@ namespace AuroraScript.Compiler.Emits
             return Emit(OpCode.DUP);
         }
 
-        public Instruction NewArray( int count)
+        public Instruction NewArray(int count)
         {
             return Emit(OpCode.NEW_ARRAY, count);
         }
 
+
+        public Instruction NewMap(int count)
+        {
+            return Emit(OpCode.NEW_MAP, count);
+        }
 
 
         public Instruction PushConstDouble(Double operand)
@@ -134,9 +159,12 @@ namespace AuroraScript.Compiler.Emits
             jump.Operands[0] = offset;
             return jump;
         }
+
+        public Instruction Call(int argsCount)
+        {
+            return Emit(OpCode.CALL, argsCount);
+        }
         
-
-
 
         public Instruction JumpFalse()
         {
@@ -160,6 +188,11 @@ namespace AuroraScript.Compiler.Emits
             return Emit(OpCode.LOAD_ARG, index);
         }
 
+        public Instruction LoadLocal(int index)
+        {
+            return Emit(OpCode.LOAD_LOCAL, index);
+        }
+        
 
         public Instruction StoreLocal(int index)
         {
@@ -170,6 +203,36 @@ namespace AuroraScript.Compiler.Emits
         public Instruction Return()
         {
             return Emit(OpCode.RETURN);
+        }
+
+
+
+
+
+
+
+
+
+        public Byte[] Build()
+        {
+            using (var stream  = new MemoryStream())
+            {
+                using (var write = new BinaryWriter(stream, Encoding.UTF8, true))
+                {
+                    foreach (var instruction in _instructions)
+                    {
+                        write.Write((Byte)instruction.OpCode);
+                        if (instruction.Operands != null)
+                        {
+                            foreach (var operand in instruction.Operands)
+                            {
+                                write.Write(operand);
+                            }
+                        }
+                    }
+                }
+                return stream.ToArray();
+            }
         }
 
     }

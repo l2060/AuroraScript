@@ -27,7 +27,7 @@ namespace AuroraScript.Compiler
 
         internal AuroraParser Parser { get; private set; }
         public List<Scope> Childrens { get; private set; } = new List<Scope>();
-        public Dictionary<string, ParameterDeclaration> Variables { get; private set; } = new Dictionary<string, ParameterDeclaration>();
+        public Dictionary<string, VariableDeclaration> Variables { get; private set; } = new Dictionary<string, VariableDeclaration>();
 
         public ScopeType ScopeType { get; private set; }
 
@@ -50,18 +50,18 @@ namespace AuroraScript.Compiler
             return scope;
         }
 
-        internal void DeclareVariable(ParameterDeclaration parameter)
+        internal void DeclareVariable(VariableDeclaration parameter)
         {
             var declarationScope = this;
             while (declarationScope != null)
             {
-                if (declarationScope.Variables.ContainsKey(parameter.Variable.Value))
+                if (declarationScope.Variables.ContainsKey(parameter.Variables[0].Value))
                 {
-                    throw new ParseException(Parser.lexer.FullPath, parameter.Variable, "Duplicate variable declaration in ");
+                    throw new ParseException(Parser.lexer.FullPath, parameter.Variables[0], "Duplicate variable declaration in ");
                 }
                 declarationScope = declarationScope.Parent;
             }
-            Variables.Add(parameter.Variable.Value, parameter);
+            Variables.Add(parameter.Variables[0].Value, parameter);
         }
 
         internal void DefineVariable(VariableDeclaration parameter)

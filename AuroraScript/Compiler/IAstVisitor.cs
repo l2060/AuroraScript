@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
+using AuroraScript.Compiler.Ast.Expressions;
 
 
 namespace AuroraScript.Compiler
@@ -31,17 +32,21 @@ namespace AuroraScript.Compiler
         void VisitBinaryExpression(BinaryExpression node);
         void VisitUnaryExpression(UnaryExpression node);
         void VisitCallExpression(FunctionCallExpression node);
-        void VisitGetPropertyExpression(MemberAccessExpression node);
-        void VisitSetPropertyExpression(PropertyAssignmentExpression node);
+
         //void VisitGetElementExpression(GetElementExpressionNode node);
         //void VisitSetElementExpression(SetElementExpressionNode node);
         void VisitLiteralExpression(LiteralExpression node);
         void VisitGroupingExpression(GroupExpression node);
         void VisitArrayExpression(ArrayLiteralExpression node);
 
-        void VisitArrayAccessExpression(ArrayAccessExpression node);
+        void VisitGetElementExpression(GetElementExpression node);
+        void VisitSetElementExpression(SetElementExpression node);
+        void VisitGetPropertyExpression(GetPropertyExpression node);
 
-        void VisitMapExpression(ObjectLiteralExpression node);
+        void VisitSetPropertyExpression(SetPropertyExpression node);
+
+
+        void VisitMapExpression(MapExpression node);
 
         void VisitDeconstructionExpression(DeconstructionExpression node);
         void VisitBreakExpression(BreakStatement node);

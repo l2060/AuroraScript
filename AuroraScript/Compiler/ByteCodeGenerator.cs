@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
+using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Core;
 
@@ -17,7 +18,8 @@ namespace AuroraScript.Compiler
 
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
 
-        
+        private readonly List<string> _stringTable = new List<string>();
+
         private void BeginScope()
         {
             _scope = _scope.Promotion();
@@ -27,16 +29,26 @@ namespace AuroraScript.Compiler
         {
             _scope = _scope.Demotion();
         }
-        private void DeclareLocalVariable()
+
+
+        private int GetOrAddStringTable(String str)
         {
+            var index = _stringTable.IndexOf(str);
+            if (index > -1) return index;
+            _stringTable.Add(str);
+            return _stringTable.Count - 1;
 
         }
 
 
-
-
         public void VisitProgram(ModuleDeclaration node)
         {
+            foreach (var statement in node.ChildNodes)
+            {
+                statement.Accept(this);
+            }
+            _instructionBuilder.PushNull();
+            _instructionBuilder.Return();
             // Second pass: compile each function
             foreach (var function in node.Functions)
             {
@@ -48,39 +60,14 @@ namespace AuroraScript.Compiler
                 function.Accept(this);
             }
 
-            _functionLocations["__DOMAIN__"] = _instructionBuilder.Position();
-            
-            foreach (var statement in node.ChildNodes)
-            {
-                statement.Accept(this);
-            }
-
-
             // Convert instructions to bytecode
-            //var bytecode = new List<byte>();
-            //foreach (var instruction in _instructions)
-            //{
-            //    bytecode.Add((byte)instruction.OpCode);
-
-            //    // Add operands if any
-            //    if (instruction.Operands != null)
-            //    {
-            //        foreach (var operand in instruction.Operands)
-            //        {
-            //            bytecode.AddRange(BitConverter.GetBytes(operand));
-            //        }
-            //    }
-            //}
+            var bytes = _instructionBuilder.Build();
 
             //return bytecode.ToArray();
-            Console.WriteLine(_instructionBuilder);
+             Console.WriteLine(bytes);
         }
 
 
-        public void VisitArrayAccessExpression(ArrayAccessExpression node)
-        {
-            Console.WriteLine("ArrayAccess");
-        }
 
         public void VisitArrayExpression(ArrayLiteralExpression node)
         {
@@ -110,20 +97,8 @@ namespace AuroraScript.Compiler
         {
             // Compile the value expression
             node.Right.Accept(this);
-
             // Duplicate the value on the stack (for the assignment expression's own value)
             _instructionBuilder.Duplicate();
-
-            if (node.Left is NameExpression varName)
-            {
-
-            } else if (node.Left is MemberAccessExpression access)
-            {
-                // set
-            }
-
-            // 如果赋值表达式左边为成员访问则将赋值/成员访问表达式换为 属性设置表达式
-
             // Store the value in the variable
             if (_scope.TryGetVariablee(node.Left.ToString(), out var slot))
             {
@@ -164,6 +139,16 @@ namespace AuroraScript.Compiler
 
         public void VisitCallExpression(FunctionCallExpression node)
         {
+            // Compile each argument
+            foreach (var arg in node.Arguments)
+            {
+                arg.Accept(this);
+            }
+
+            // Compile the callee
+            node.Target.Accept(this);
+            // Emit the call instruction with the argument count
+            _instructionBuilder.Call(node.Arguments.Count);
 
         }
 
@@ -204,9 +189,81 @@ namespace AuroraScript.Compiler
             }
             EndScope();
         }
-
-        public void VisitGetPropertyExpression(MemberAccessExpression node)
+        public void VisitGetElementExpression(GetElementExpression node)
         {
+            node.Object.Accept(this);
+            var index = (LiteralExpression)node.Index;
+            if (index.Token.Type == Tokens.ValueType.String)
+            {
+                // get property
+                var strIndex = GetOrAddStringTable(index.Token.Value);
+                _instructionBuilder.PushConstInt(strIndex);
+                _instructionBuilder.GetProperty();
+            }
+            else if (index.Token.Type == Tokens.ValueType.IntegerNumber)
+            {
+                // get element
+                _instructionBuilder.PushConstInt((int)index.Value);
+                _instructionBuilder.GetElement();
+            }
+            else
+            {
+                throw new Exception("无效的索引");
+            }
+        }
+
+        public void VisitGetPropertyExpression(GetPropertyExpression node)
+        {
+            node.Object.Accept(this);
+            var propery = (NameExpression)node.Property;
+            var index = GetOrAddStringTable(propery.Identifier.Value);
+            _instructionBuilder.PushConstInt(index);
+            //node.Property.Accept(this);
+            _instructionBuilder.GetProperty();
+        }
+
+
+
+        public void VisitSetElementExpression(SetElementExpression node)
+        {
+            // Compile the value expression
+            node.Value.Accept(this);
+            // Compile the object expression
+            node.Object.Accept(this);
+            var index = (LiteralExpression)node.Index;
+            if (index.Token.Type == Tokens.ValueType.IntegerNumber)
+            {
+                _instructionBuilder.PushConstInt((int)index.Value);
+                _instructionBuilder.SetProperty();
+            }
+            else if (index.Token.Type == Tokens.ValueType.String)
+            {
+                // Compile the value expression
+                var strIndex = GetOrAddStringTable(index.Token.Value);
+                _instructionBuilder.PushConstInt(strIndex);
+                _instructionBuilder.SetProperty();
+            }
+            else
+            {
+                throw new Exception("无效的索引");
+            }
+
+
+        }
+
+
+
+        public void VisitSetPropertyExpression(SetPropertyExpression node)
+        {            
+            // Compile the value expression
+            node.Value.Accept(this);
+            // Compile the object expression
+            node.Object.Accept(this);
+            // Compile the value expression
+            var propery = (NameExpression)node.Property;
+            var index = GetOrAddStringTable(propery.Identifier.Value);
+            _instructionBuilder.PushConstInt(index);
+            _instructionBuilder.SetProperty();
 
         }
 
@@ -217,7 +274,27 @@ namespace AuroraScript.Compiler
 
         public void VisitIfStatement(IfStatement node)
         {
-
+            // Compile condition
+            node.Condition.Accept(this);
+            // Jump to else branch if condition is false
+            var jumpToElse = _instructionBuilder.JumpFalse();
+            // Pop the condition value (not needed anymore)
+            _instructionBuilder.Pop();
+            // Compile the then branch
+            node.Body.Accept(this);
+            // Jump over the else branch
+            var jumpOverElse = _instructionBuilder.Jump();
+            // Patch the jump to else
+            _instructionBuilder.FixJump(jumpToElse);
+            // Pop the condition value
+            _instructionBuilder.Pop();
+            // Compile the else branch if present
+            if (node.Else != null)
+            {
+                node.Else.Accept(this);
+            }
+            // Patch the jump over else
+            _instructionBuilder.FixJump(jumpOverElse);
         }
 
         public void VisitLambdaExpression(LambdaExpression node)
@@ -227,29 +304,92 @@ namespace AuroraScript.Compiler
 
         public void VisitLiteralExpression(LiteralExpression node)
         {
-
+            var token = node.Token;
+            if (token.Type == Tokens.ValueType.Null)
+            {
+                _instructionBuilder.PushNull();
+            }
+            else if (token.Type == Tokens.ValueType.IntegerNumber)
+            {
+                _instructionBuilder.PushConstInt((Int32)node.Value);
+            }
+            else if (token.Type == Tokens.ValueType.DoubleNumber)
+            {
+                _instructionBuilder.PushConstDouble((Double)node.Value);
+            }
+            else if (token.Type == Tokens.ValueType.String)
+            {
+                var index = GetOrAddStringTable((String)node.Value);
+                _instructionBuilder.PushString(index);
+            }
+            else if (token.Type == Tokens.ValueType.Boolean)
+            {
+                _instructionBuilder.PushBoolean((Boolean)node.Value);
+            }
         }
 
-        public void VisitMapExpression(ObjectLiteralExpression node)
-        {
-
-        }
 
         public void VisitName(NameExpression node)
         {
+            if (_scope.TryGetVariablee(node.Identifier.Value, out int slot))
+            {
+                _instructionBuilder.LoadLocal(slot);
+                return;
+            }
+            throw new Exception("无效的变量");
+        }
 
+
+
+        public void VisitMapExpression(MapExpression node)
+        {
+            // Create a new map with the specified initial capacity
+            //EmitInstruction(OpCode.NEW_MAP, node.Entries.Count);
+            _instructionBuilder.NewMap(node.ChildNodes.Count);
+            // Populate the map with each entry
+            foreach (var entry in node.ChildNodes)
+            {
+                // Duplicate the map reference
+                _instructionBuilder.Duplicate() ;
+
+                // Push the key
+                //int keyIndex = GetOrAddConstant(entry.Key);
+                //EmitInstruction(OpCode.PUSH_CONST, keyIndex);
+
+                if (entry is MapKeyValueExpression property)
+                {
+                    property.Value.Accept(this);
+                    // MAP 和 数组 无法在 GetElement/SetElement GetProperty/SetProperty中区分。 需要到运行时虚拟机中鉴定
+                    // 所以   GetElement=GetProperty  SetElement=SetProperty
+                    //property.Key
+                }
+
+
+                // Push the value
+                entry.Accept(this);
+                
+                // Set the entry
+                //EmitInstruction(OpCode.SET_PROPERTY, keyIndex);
+                _instructionBuilder.SetProperty();
+                // Pop the result of SET_PROPERTY (the value)
+                _instructionBuilder.Pop();
+            }
         }
 
 
         public void VisitReturnStatement(ReturnStatement node)
         {
-
+            if (node.Expression != null)
+            {
+                node.Expression.Accept(this);
+            }
+            else
+            {
+                _instructionBuilder.PushNull();
+            }
+            _instructionBuilder.Return();
         }
 
-        public void VisitSetPropertyExpression(PropertyAssignmentExpression node)
-        {
-
-        }
 
 
         public void VisitBinaryExpression(BinaryExpression node)
@@ -262,7 +402,8 @@ namespace AuroraScript.Compiler
             if (node.Operator.Symbol == Symbols.OP_PLUS)
             {
                 _instructionBuilder.Emit(OpCode.ADD);
-            }else if (node.Operator.Symbol == Symbols.OP_MINUS)
+            }
+            else if (node.Operator.Symbol == Symbols.OP_MINUS)
             {
                 _instructionBuilder.Emit(OpCode.SUBTRACT);
             }
@@ -310,7 +451,6 @@ namespace AuroraScript.Compiler
 
             if (node.Type == UnaryType.Prefix)
             {
-
 
             }
             else
@@ -384,5 +524,6 @@ namespace AuroraScript.Compiler
             _instructionBuilder.JumpTo(begin);
             _instructionBuilder.FixJump(exitJump);
         }
+
     }
 }

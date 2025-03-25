@@ -3,9 +3,9 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class ObjectLiteralExpression : OperatorExpression
+    public class MapExpression : OperatorExpression
     {
-        internal ObjectLiteralExpression(Operator @operator) : base(@operator)
+        internal MapExpression(Operator @operator) : base(@operator)
         {
         }
 

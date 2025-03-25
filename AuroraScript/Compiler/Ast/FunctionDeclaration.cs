@@ -1,4 +1,5 @@
-﻿using AuroraScript.Ast.Statements;
+﻿using AuroraScript.Ast.Expressions;
+using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 using AuroraScript.Stream;
 
@@ -29,7 +30,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// parameters
         /// </summary>
-        public List<ParameterDeclaration> Parameters { get; set; }
+        public List<VariableDeclaration> Parameters { get; set; }
 
         /// <summary>
         /// function code

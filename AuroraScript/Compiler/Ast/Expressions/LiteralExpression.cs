@@ -10,28 +10,32 @@ namespace AuroraScript.Ast.Expressions
         {
             this.Token = token;
 
-            if (token.Type == Tokens.ValueType.Null)
+            if (token is NumberToken numberToken)
             {
-                this.Value = null;
-            }
-            else if (token.Type == Tokens.ValueType.Number)
-            {
-                if (token.Value.StartsWith("0x"))
+                if (numberToken.Type == Tokens.ValueType.DoubleNumber)
                 {
-                    this.Value = Convert.ToUInt64(token.Value, 16);
+                    this.Value = numberToken.DoubleValue;
                 }
                 else
                 {
-                    this.Value = Double.Parse(token.Value.Replace("_", ""));
+                    this.Value = numberToken.IntegerValue;
                 }
             }
-            else if (token.Type == Tokens.ValueType.String)
+            else if (token is NullToken)
             {
-                this.Value = token.Value;
+                this.Value = null;
             }
-            else if (token.Type == Tokens.ValueType.Boolean)
+            else if (token is BooleanToken booleanToken)
             {
                 this.Value = Boolean.Parse(token.Value);
+            }
+            else if (token is StringToken stringToken)
+            {
+                this.Value = stringToken.Value;
+            }
+            else
+            {
+                throw new Exception("无效的Token");
             }
         }
 

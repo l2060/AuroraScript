@@ -3,9 +3,9 @@ using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class PropertyAssignmentExpression : BinaryExpression
+    public class MapKeyValueExpression : BinaryExpression
     {
-        internal PropertyAssignmentExpression(Operator @operator) : base(@operator)
+        internal MapKeyValueExpression(Operator @operator) : base(@operator)
         {
         }
 
@@ -20,7 +20,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitSetPropertyExpression(this);
+            //visitor.VisitSetPropertyExpression(this);
         }
     }
 }

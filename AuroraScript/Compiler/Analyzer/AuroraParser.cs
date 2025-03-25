@@ -2,6 +2,7 @@
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
+using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
 
@@ -493,7 +494,8 @@ namespace AuroraScript.Analyzer
                 if (token is ValueToken)
                 {
                     var valueExpression = token as ValueToken;
-                    if (valueExpression.Type == Tokens.ValueType.Number) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.DoubleNumber) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.IntegerNumber) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.String) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new LiteralExpression(valueExpression);
@@ -597,13 +599,13 @@ namespace AuroraScript.Analyzer
                             }
                         }
                         // new Anonymous object expression
-                        else if (tempExp is ObjectLiteralExpression constructExpression)
+                        else if (tempExp is MapExpression constructExpression)
                         {
                             rollBackLexer();
                             return ParseObjectConstructor(currentScope);
                         }
                         // Array Index Access expression
-                        else if (tempExp is ArrayAccessExpression indexAccess)
+                        else if (tempExp is GetElementExpression indexAccess)
                         {
                             // Parse[] block, from here recursively parse expressions to minor symbols
                             indexAccess.Index = this.ParseExpression(currentScope, indexAccess.Operator.SecondarySymbols);
@@ -663,6 +665,34 @@ namespace AuroraScript.Analyzer
                         var pNode = node.Parent;
                         node.Remove();
                         tempExp.AddNode(node);
+
+
+
+                        if (tempExp is AssignmentExpression assignmentExpression)
+                        {
+                            if(node is GetPropertyExpression getProperty)
+                            {
+                                // convert set property
+                                var setProperty = new SetPropertyExpression();
+                                var _object = getProperty.Pop();
+                                var _property = getProperty.Pop();
+                                setProperty.AddNode(_object);
+                                setProperty.AddNode(_property);
+                                tempExp = setProperty;
+                            } else if (node is GetElementExpression getElement)
+                            {
+                                var setElement = new SetElementExpression();
+                                var _object = getElement.Pop();
+                                var _property = getElement.Index;
+                                setElement.AddNode(_object);
+                                setElement.AddNode(_property);
+                                tempExp = setElement;
+                            }
+                        }
+                        
+
+
+
                         pNode.AddNode(tempExp);
                     }
                     // == operator the end ==
@@ -710,12 +740,12 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.CompoundMultiply) return new AssignmentExpression(_operator);
             // new expression
             if (_operator == Operator.New) return new BinaryExpression(_operator);
-            if (_operator == Operator.ObjectLiteral) return new ObjectLiteralExpression(_operator);
+            if (_operator == Operator.ObjectLiteral) return new MapExpression(_operator);
             // function call expression
             if (_operator == Operator.FunctionCall)
             {
                 if (!(previousToken is PunctuatorToken) ||
-                    lastExpression is ArrayAccessExpression)
+                    lastExpression is GetElementExpression)
                 {
                     return new FunctionCallExpression(_operator);
                 }
@@ -725,10 +755,10 @@ namespace AuroraScript.Analyzer
             // member access expression
             if (_operator == Operator.ArrayLiteral) return new ArrayLiteralExpression();
             // member index expression
-            if (_operator == Operator.Index) return new ArrayAccessExpression(_operator);
+            if (_operator == Operator.Index) return new GetElementExpression(_operator);
 
             // member access expression
-            if (_operator == Operator.MemberAccess) return new MemberAccessExpression(_operator);
+            if (_operator == Operator.MemberAccess) return new GetPropertyExpression(_operator);
             // binary expression
             if (_operator == Operator.Add) return new BinaryExpression(_operator);
             if (_operator == Operator.Divide) return new BinaryExpression(_operator);
@@ -745,7 +775,7 @@ namespace AuroraScript.Analyzer
             //if (_operator == Operator.CastType) return new CastTypeExpression(_operator);
 
 
-            if (_operator == Operator.SetMember) return new PropertyAssignmentExpression(_operator);
+            if (_operator == Operator.SetMember) return new MapKeyValueExpression(_operator);
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
             if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
@@ -773,7 +803,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
 
-            var constructExpression = new ObjectLiteralExpression(Operator.ObjectLiteral);
+            var constructExpression = new MapExpression(Operator.ObjectLiteral);
             while (true)
             {
                 if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE))
@@ -807,13 +837,13 @@ namespace AuroraScript.Analyzer
                     var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
                     if (this.lexer.Previous(1).Symbol == Symbols.PT_RIGHTBRACE)
                     {
-                        if (!(value is ObjectLiteralExpression || value is LambdaExpression))
+                        if (!(value is MapExpression || value is LambdaExpression))
                         {
                             // TODO
                             this.lexer.RollBack();
                         }
                     }
-                    var newExp = new PropertyAssignmentExpression(Operator.SetMember);
+                    var newExp = new MapKeyValueExpression(Operator.SetMember);
                     newExp.Key = varName;
                     newExp.Value = value;
                     constructExpression.AddNode(newExp);
@@ -832,9 +862,9 @@ namespace AuroraScript.Analyzer
         /// starting with “arg1: number, argn: string)”
         /// </summary>
         /// <returns></returns>
-        private List<ParameterDeclaration> ParseFunctionArguments(Scope currentScope)
+        private List<VariableDeclaration> ParseFunctionArguments(Scope currentScope)
         {
-            var arguments = new List<ParameterDeclaration>();
+            var arguments = new List<VariableDeclaration>();
             while (true)
             {
                 // Parsing modifier
@@ -861,11 +891,13 @@ namespace AuroraScript.Analyzer
                     defaultValue = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                     this.lexer.RollBack();
                 }
-                var declaration = new ParameterDeclaration()
+                var declaration = new VariableDeclaration()
                 {
-                    Variable = varname,
-                    DefaultValue = defaultValue,
-                    IsSpreadOperator = spreadOperator,
+                    Variables = new List<Token>() { varname },
+                    Initializer = defaultValue,
+                    //Variable = varname,
+                    //DefaultValue = defaultValue,
+                    //IsSpreadOperator = spreadOperator,
                     //Typed = typed
                 };
                 arguments.Add(declaration);
