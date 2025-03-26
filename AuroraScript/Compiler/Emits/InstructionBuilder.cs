@@ -221,10 +221,20 @@ namespace AuroraScript.Compiler.Emits
             return Emit(OpCode.LOAD_LOCAL, index);
         }
 
-
+        public Instruction LoadGlobal(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            return Emit(OpCode.LOAD_GLOBAL, strAddress);
+        }
         public Instruction StoreLocal(int index)
         {
             return Emit(OpCode.STORE_LOCAL, index);
+        }
+
+        public Instruction StoreGlobal(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            return Emit(OpCode.STORE_GLOBAL, strAddress);
         }
 
 
@@ -268,9 +278,11 @@ namespace AuroraScript.Compiler.Emits
             write.WriteLine();
             write.WriteLine();
             write.WriteLine(".code");
-            foreach (var instruction in _instructions)
+
+
+            for (int i = 0; i < _instructions.Count; i++)
             {
-                write.WriteLine(instruction.ToString());
+                write.WriteLine($"[{i:0000}] {_instructions[i]}");
             }
         }
     }

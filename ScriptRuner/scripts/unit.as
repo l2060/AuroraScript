@@ -1,8 +1,22 @@
-﻿var debug;
-var sum;
-var console;
-var say;
-var ss = 123;
+﻿var px = 1233 * (-444 + add(444 + (-33 + 15++), ++23)) / (6 + 5);
+
+
+
+s = 4++;
+s = ++5;
+
+s = s++;
+s = ++s;
+
+
+ffff = 666 + 123;
+var ss = 123 + 456;
+//var debug;
+//var sum;
+//var console;
+//var say;
+//var add;
+
 ss[1] = ss[2];
 ss["a"] = ss["b"];
 ss.LK = 123.123456789;
@@ -10,13 +24,17 @@ debug(ss.LK);
 
 //ss.1 = 123;
 
-
-
+// new exec-context
+// ...
 
 var a1 = [];
 
 
+
 function someMethod() {
+    // load exec-context
+    // new exec-context
+
     var a2 = 0;
     var funcA = () => {
         a2++;
@@ -167,4 +185,3 @@ function showMerchantGreeting() {
 debug("Domain: " + ss);
 
 
-var px = 1233 * (-444 + add(444 + (-33 + 15++), ++23)) / (6 + 5);

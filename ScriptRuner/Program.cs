@@ -1,7 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AuroraScript;
+using AuroraScript.Core;
 
 //rsTest.Run();
+
+
 
 
 var engine = new ScriptEngine();

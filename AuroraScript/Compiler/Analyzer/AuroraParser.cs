@@ -697,7 +697,13 @@ namespace AuroraScript.Analyzer
                             {
                                 // 解决 variable = ()=>{ }; 问题
                                 var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+
+
+
+
                                 tempExp.AddNode(argument);
+
+                                return tempExp;
                             }
                         }
                         

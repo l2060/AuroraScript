@@ -5,6 +5,11 @@ namespace AuroraScript.Tokens
 {
     public class NumberToken : ValueToken
     {
+        public readonly static NumberToken Zero = new NumberToken("0");
+        public readonly static NumberToken One = new NumberToken("1");
+
+
+
         internal NumberToken(String value)
         {
             this.Type = ValueType.Number;

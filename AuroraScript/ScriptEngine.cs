@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Compiler;
+using AuroraScript.Core;
 
 namespace AuroraScript
 {
@@ -17,5 +18,23 @@ namespace AuroraScript
 
             compiler.PrintGenerateCode(root);
         }
+
+
+
+        private unsafe void test()
+        {
+            NumberUnion nu = new NumberUnion(Int16.MaxValue, 0, 0, 0);
+            var bytes = new Byte[] { 255, 127, 0, 0 };
+            fixed (Byte* s = bytes)
+            {
+                NumberUnion* union = (NumberUnion*)s;
+                Console.WriteLine(*union);
+            }
+        }
+
+
+
+
+
     }
 }

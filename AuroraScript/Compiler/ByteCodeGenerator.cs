@@ -42,7 +42,8 @@ namespace AuroraScript.Compiler
             // Convert instructions to bytecode
             var bytes = _instructionBuilder.Build();
             //return bytecode.ToArray();
-            Console.WriteLine(bytes);
+            Console.WriteLine(asm);
+
         }
 
 
@@ -88,15 +89,23 @@ namespace AuroraScript.Compiler
                     for (int i = 0; i < _stringTable.Count; i++)
                     {
                         var str = _stringTable[i];
-                        write.WriteLine($"[{i}] {str.Replace("\n", "\\n")}");
+                        write.WriteLine($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}");
                     }
                     write.WriteLine();
                     write.WriteLine();
                     write.WriteLine();
 
+
+
+
+
+
                     write.WriteLine(".func_index");
 
-
+                    foreach (var item in _functionLocations)
+                    {
+                        write.WriteLine($"{item.Key} {item.Value.Offset}");
+                    }
 
 
                     _instructionBuilder.Dump(write);
@@ -139,7 +148,7 @@ namespace AuroraScript.Compiler
             // Compile the value expression
             node.Right.Accept(this);
             // Duplicate the value on the stack (for the assignment expression's own value)
-            _instructionBuilder.Duplicate();
+            //_instructionBuilder.Duplicate();
             // Store the value in the variable
             if (_scope.Resolve(DeclareType.Variable, node.Left.ToString(), out var slot))
             {
@@ -147,10 +156,7 @@ namespace AuroraScript.Compiler
             }
             else
             {
-                // If not a local, it's a global
-                //_globalVariables.Add(node.Name);
-                //int constIndex = GetOrAddConstant(node.Name);
-                //EmitInstruction(OpCode.STORE_GLOBAL, constIndex);
+                _instructionBuilder.StoreGlobal(node.Left.ToString());
             }
         }
 
@@ -255,20 +261,23 @@ namespace AuroraScript.Compiler
 
         public void VisitSetElementExpression(SetElementExpression node)
         {
-            // Compile the object expression
-            node.Object.Accept(this);
             // Compile the value expression
             node.Value.Accept(this);
+
             var index = (LiteralExpression)node.Index;
             if (index.Token.Type == Tokens.ValueType.Number)
             {
                 _instructionBuilder.PushConstantNumber((Double)index.Value);
+                // Compile the object expression
+                node.Object.Accept(this);
                 _instructionBuilder.SetElement();
             }
             else if (index.Token.Type == Tokens.ValueType.String)
             {
                 // Compile the value expression
                 _instructionBuilder.PushConstantString(index.Token.Value);
+                // Compile the object expression
+                node.Object.Accept(this);
                 _instructionBuilder.SetProperty();
             }
             else
@@ -281,19 +290,23 @@ namespace AuroraScript.Compiler
 
         public void VisitSetPropertyExpression(SetPropertyExpression node)
         {
-            // Compile the object expression
-            node.Object.Accept(this);
             // Compile the value expression
             node.Value.Accept(this);
             // Compile the value expression
             var propery = (NameExpression)node.Property;
             _instructionBuilder.PushConstantString(propery.Identifier.Value);
+            // Compile the object expression
+            node.Object.Accept(this);
             _instructionBuilder.SetProperty();
 
         }
 
         public void VisitGroupingExpression(GroupExpression node)
         {
+            foreach (var item in node.ChildNodes)
+            {
+                item.Accept(this);
+            }
 
         }
 
@@ -356,7 +369,10 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.LoadLocal(slot);
                 return;
             }
-            throw new Exception("无效的变量");
+            else
+            {
+                _instructionBuilder.LoadGlobal(node.Identifier.Value);
+            }
         }
 
 
@@ -476,34 +492,75 @@ namespace AuroraScript.Compiler
 
         public void VisitUnaryExpression(UnaryExpression node)
         {
-
-            if (node.Type == UnaryType.Prefix)
+            OpCode opCode = OpCode.NOP;
+            if (node.Operator == Operator.PostIncrement || node.Operator == Operator.PreIncrement)
             {
-
+                opCode = OpCode.INCREMENT;
+            }
+            else if (node.Operator == Operator.PreDecrement || node.Operator == Operator.PostDecrement)
+            {
+                opCode = OpCode.DECREMENT;
             }
             else
             {
+                throw new Exception($"无效的操作符:{node.Operator}");
+            }
+            var exp = node.ChildNodes[0];
+            if (node.Type == UnaryType.Prefix)
+            {
+                exp.Accept(this);
+                _instructionBuilder.Emit(opCode);
+                if (exp is LiteralExpression literal)
+                {
+                }
+                else if (exp is NameExpression nameExpression)
+                {
+                    _instructionBuilder.Duplicate();
+                    if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
+                    {
+                        _instructionBuilder.StoreLocal(slot);
+                    }
+                    else
+                    {
+                        _instructionBuilder.StoreGlobal(nameExpression.Identifier.Value);
+                    }
+                }
+                else
+                {
+                    throw new Exception($"无效的表达式:{exp}");
+                }
+            }
+            else
+            {
+                exp.Accept(this);
+                // 后缀时 常量不处理
+                if (exp is LiteralExpression literal)
+                {
+                }
+                else if (exp is NameExpression nameExpression)
+                {
+                    _instructionBuilder.Duplicate();
+                    _instructionBuilder.Emit(opCode);
+                    if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
+                    {
+                        _instructionBuilder.StoreLocal(slot);
+                    }
+                    else
+                    {
+                        _instructionBuilder.StoreGlobal(nameExpression.Identifier.Value);
+                    }
+                }
+                else
+                {
+                    throw new Exception($"无效的表达式:{exp}");
+                }
 
             }
-
-
-            // Compile the operand
-            //node.Right.Accept(this);
-
-            //// Emit the appropriate instruction based on the operator
-            //switch (node.Operator.Type)
-            //{
-            //    case TokenType.Minus:
-            //        EmitInstruction(OpCode.NEGATE);
-            //        break;
-            //    case TokenType.Not:
-            //        EmitInstruction(OpCode.NOT);
-            //        break;
-            //    default:
-            //        throw new NotSupportedException($"Unsupported unary operator: {node.Operator.Type}");
-            //}
-
         }
+
+
+
+
 
 
 
@@ -520,12 +577,12 @@ namespace AuroraScript.Compiler
             // Local variable
             foreach (var item in node.Variables)
             {
-                _instructionBuilder.Duplicate();
+               // _instructionBuilder.Duplicate();
                 var slot = _scope.Declare(DeclareType.Variable, item.Value);
                 _instructionBuilder.StoreLocal(slot);
             }
             // 暂时先这么写 前面 Duplicate 冗余了一个
-            _instructionBuilder.Pop();
+           // _instructionBuilder.Pop();
         }
 
         public void VisitWhileStatement(WhileStatement node)

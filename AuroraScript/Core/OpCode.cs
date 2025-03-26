@@ -13,7 +13,8 @@ namespace AuroraScript.Core
         LOAD_ARG = 4,    // Load a function argument onto the stack (takes argument index)
         LOAD_LOCAL = 5,  // Load a local variable onto the stack (takes variable slot)
         STORE_LOCAL = 6, // Store the top value in a local variable (takes variable slot)
-
+        LOAD_GLOBAL = 7,  // Load a local variable onto the stack (takes variable slot)
+        STORE_GLOBAL = 8, // Store the top value in a local variable (takes variable slot)
 
 
         // Constants 
@@ -58,6 +59,9 @@ namespace AuroraScript.Core
         MULTIPLY = 72,     // Multiply the top two values
         DIVIDE = 73,       // Divide the second value by the top value
         NEGATE = 74,       // Negate the top value
+        INCREMENT = 75,
+        DECREMENT = 76,
+
 
 
         // Logical Operations
