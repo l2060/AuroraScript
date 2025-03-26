@@ -10,6 +10,37 @@ debug(ss.LK);
 //ss.1 = 123;
 
 
+
+
+var a1 = [];
+
+
+function nameS() {
+    var a2 = 0;
+    var ddd = () => {
+        a2++;
+        a1.push(a2);
+        return a2;
+    }
+    
+    if (true) {
+        ddd = () => {
+            a2++;
+            a1.push(a2);
+            return a2;
+        }
+    }
+    return ddd;
+}
+
+
+var func = nameS();
+
+console.log(func());
+console.log(func());
+
+
+
 var playerScore = 123;
 
 var rollBackLexer = () => {
