@@ -673,7 +673,9 @@ namespace AuroraScript.Analyzer
 
                         if (tempExp is AssignmentExpression assignmentExpression)
                         {
-                            if(node is GetPropertyExpression getProperty)
+                
+
+                            if (node is GetPropertyExpression getProperty)
                             {
                                 // convert set property
                                 var setProperty = new SetPropertyExpression();
@@ -690,6 +692,12 @@ namespace AuroraScript.Analyzer
                                 setElement.AddNode(_object);
                                 setElement.AddNode(_property);
                                 tempExp = setElement;
+                            }
+                            else
+                            {
+                                // 解决 variable = ()=>{ }; 问题
+                                var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+                                tempExp.AddNode(argument);
                             }
                         }
                         

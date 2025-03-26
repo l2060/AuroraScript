@@ -1,5 +1,6 @@
 ﻿var debug;
 var sum;
+var console;
 var say;
 var ss = 123;
 ss[1] = ss[2];
@@ -15,26 +16,28 @@ debug(ss.LK);
 var a1 = [];
 
 
-function nameS() {
+function someMethod() {
     var a2 = 0;
-    var ddd = () => {
+    var funcA = () => {
         a2++;
         a1.push(a2);
         return a2;
     }
     
     if (true) {
-        ddd = () => {
+       funcA = () => {
             a2++;
             a1.push(a2);
             return a2;
-        }
+        };
     }
-    return ddd;
+    return {
+        funcA
+    };
 }
 
 
-var func = nameS();
+var func = someMethod();
 
 console.log(func());
 console.log(func());
@@ -164,4 +167,4 @@ function showMerchantGreeting() {
 debug("Domain: " + ss);
 
 
-var px = 1233 * (-444 + add(444 + (33 + 15), 23)) / (6 + 5);
+var px = 1233 * (-444 + add(444 + (-33 + 15++), ++23)) / (6 + 5);
