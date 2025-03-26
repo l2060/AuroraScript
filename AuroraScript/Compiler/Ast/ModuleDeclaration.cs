@@ -10,7 +10,7 @@ namespace AuroraScript.Ast
         // 引用
         public readonly List<ModuleDeclaration> Imports = new List<ModuleDeclaration>();
 
-        public readonly List<FunctionDeclaration> Functions = new List<FunctionDeclaration>();
+
 
         // 文件名
 

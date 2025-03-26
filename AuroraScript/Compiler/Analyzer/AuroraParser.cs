@@ -244,7 +244,11 @@ namespace AuroraScript.Analyzer
                 if (token.Symbol == Symbols.PT_RIGHTBRACE) break;
                 // Parse a single statement.
                 var exp = this.ParseStatement(scope);
-                if (exp != null)
+                if (exp is FunctionDeclaration functionDeclaration)
+                {
+                    result.Functions.Add(functionDeclaration);
+                }
+                else if (exp != null)
                 {
                     result.AddNode(exp);
                 }
@@ -494,8 +498,7 @@ namespace AuroraScript.Analyzer
                 if (token is ValueToken)
                 {
                     var valueExpression = token as ValueToken;
-                    if (valueExpression.Type == Tokens.ValueType.DoubleNumber) tempExp = new LiteralExpression(valueExpression);
-                    if (valueExpression.Type == Tokens.ValueType.IntegerNumber) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Number) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.String) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new LiteralExpression(valueExpression);
@@ -823,15 +826,15 @@ namespace AuroraScript.Analyzer
                     break;
                 }
                 Token varName = this.lexer.TestNextOfKind<IdentifierToken>();
+                if (varName == null) varName = this.lexer.TestNextOfKind<StringToken>();
+                if (varName == null) varName = this.lexer.TestNextOfKind<NumberToken>();
+                if (varName == null) varName = this.lexer.TestNextOfKind<BooleanToken>();
+                if (varName == null) varName = this.lexer.TestNextOfKind<NullToken>();
                 if (varName == null)
                 {
-                    varName = this.lexer.TestNextOfKind<StringToken>();
+                    throw new Exception("无效的Map构建语法");
                 }
 
-                if (varName == null)
-                {
-                    varName = this.lexer.TestNextOfKind<NumberToken>();
-                }
                 if (this.lexer.TestNext(Symbols.PT_COLON))
                 {
                     var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);

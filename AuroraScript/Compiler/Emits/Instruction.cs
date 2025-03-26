@@ -37,6 +37,11 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        public override string ToString()
+        {
+            if (Operands.Length == 0) return OpCode.ToString();
+            return $"{OpCode} {String.Join(", ", Operands)}";
+        }
 
     }
 }

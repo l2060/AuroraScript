@@ -8,6 +8,14 @@ namespace AuroraScript.Compiler.Emits
 {
     internal class InstructionBuilder
     {
+        private readonly List<string> _stringTable = new List<string>();
+        public InstructionBuilder(List<string> stringTable)
+        {
+            _stringTable = stringTable;
+        }
+
+
+
         private readonly List<Instruction> _instructions = new List<Instruction>();
 
         public int _position { get; private set; }
@@ -29,7 +37,13 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-
+        private int GetOrAddStringTable(String str)
+        {
+            var index = _stringTable.IndexOf(str);
+            if (index > -1) return index;
+            _stringTable.Add(str);
+            return _stringTable.Count - 1;
+        }
 
 
         private Byte[] _buffer = new byte[1024];
@@ -38,10 +52,6 @@ namespace AuroraScript.Compiler.Emits
         {
             return AppendInstruction(opCode, _position);
         }
-
-
-
-
 
         public Instruction Emit(OpCode opCode, params int[] param)
         {
@@ -64,21 +74,54 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-
-        public Instruction PushConstInt(int operand)
-        {
-            if (operand >= 0 && operand <= 5)
-            {
-                return Emit((OpCode)((int)OpCode.PUSH_0 + operand));
-            }
-            return Emit(OpCode.PUSH_CONST_INT, operand);
-        }
-
-
         public Instruction Position()
         {
             return new Instruction(OpCode.NOP, _position);
         }
+        public Instruction PushConstantString(int index)
+        {
+            return Emit(OpCode.PUSH_STRING, index);
+        }
+
+        public Instruction PushConstantString(String str)
+        {
+            var strAddress = GetOrAddStringTable(str);
+            return Emit(OpCode.PUSH_STRING, strAddress);
+        }
+
+        public Instruction PushConstantNumber(Double operand)
+        {
+            if (operand % 1 == 0 && operand >= SByte.MinValue && operand <= SByte.MaxValue)
+            {
+                if (operand >= 0 && operand <= 9)
+                {
+                    return Emit((OpCode)((Int32)OpCode.PUSH_0 + (Int32)operand));
+                }
+                return Emit(OpCode.PUSH_I8, (Int32)operand);
+            }
+            if (operand % 1 == 0 && operand >= Int16.MinValue && operand <= Int16.MaxValue)
+            {
+                return Emit(OpCode.PUSH_I16, (Int32)operand);
+            }
+            if (operand % 1 == 0 && operand >= Int32.MinValue && operand <= Int32.MaxValue)
+            {
+                return Emit(OpCode.PUSH_I32, (Int32)operand);
+            }
+            if (operand >= Single.MinValue && operand <= Single.MaxValue)
+            {
+                NumberUnion union = new NumberUnion((Single)operand);
+                return Emit(OpCode.PUSH_F32, union.Int32Value1);
+            }
+            long bits = Unsafe.As<double, long>(ref operand);
+            int high = (int)(bits >> 32);
+            int low = (int)(bits & 0xFFFFFFFF);
+            //NumberUnion union2 = new NumberUnion(operand);
+            return Emit(OpCode.PUSH_F64, low, high);
+        }
+
+
+
+
 
 
         public Instruction Pop()
@@ -102,12 +145,9 @@ namespace AuroraScript.Compiler.Emits
         {
             return Emit(OpCode.GET_ELEMENT);
         }
-        public Instruction PushString(int index)
-        {
-            return Emit(OpCode.PUSH_CONST_STR, index);
-        }
 
-        public Instruction PushBoolean(Boolean value)
+
+        public Instruction PushConstantBoolean(Boolean value)
         {
             return Emit(value ? OpCode.PUSH_TRUE : OpCode.PUSH_FALSE);
         }
@@ -134,18 +174,6 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public Instruction PushConstDouble(Double operand)
-        {
-            if (operand % 1 == 0 && operand < Int32.MaxValue)
-            {
-                return Emit(OpCode.PUSH_CONST_INT, (Int32)operand);
-            }
-            long bits = Unsafe.As<double, long>(ref operand);
-            int high = (int)(bits >> 32);
-            int low = (int)(bits & 0xFFFFFFFF);
-            return Emit(OpCode.PUSH_CONST_DOUBLE, low, high);
-        }
-
         public Instruction Jump()
         {
             return Emit(OpCode.JUMP, 0);
@@ -164,7 +192,7 @@ namespace AuroraScript.Compiler.Emits
         {
             return Emit(OpCode.CALL, argsCount);
         }
-        
+
 
         public Instruction JumpFalse()
         {
@@ -192,7 +220,7 @@ namespace AuroraScript.Compiler.Emits
         {
             return Emit(OpCode.LOAD_LOCAL, index);
         }
-        
+
 
         public Instruction StoreLocal(int index)
         {
@@ -215,7 +243,7 @@ namespace AuroraScript.Compiler.Emits
 
         public Byte[] Build()
         {
-            using (var stream  = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 using (var write = new BinaryWriter(stream, Encoding.UTF8, true))
                 {
@@ -235,5 +263,16 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
+        public void Dump(StreamWriter write)
+        {
+            write.WriteLine();
+            write.WriteLine();
+            write.WriteLine(".code");
+            foreach (var instruction in _instructions)
+            {
+                write.WriteLine(instruction.ToString());
+            }
+        }
     }
+
 }

@@ -4,7 +4,7 @@ var say;
 var ss = 123;
 ss[1] = ss[2];
 ss["a"] = ss["b"];
-ss.LK = 1234;
+ss.LK = 123.123456789;
 debug(ss.LK);
 
 //ss.1 = 123;
@@ -16,6 +16,11 @@ var rollBackLexer = () => {
     while (ss1.Position > startPointer) this.ss.RollBack();
 };
 function getPlayerStatus() {
+
+    function ttt(){
+    
+    }
+
 
     //  debug("While loop:");
     var count = 0;
@@ -43,6 +48,10 @@ function getPlayerStatus() {
 
 
     var player = {
+        1: 111,
+        null: 222,
+        true: 333,
+        false: 444,
         name: "Hero",
         health: 100,
         mana: 50,

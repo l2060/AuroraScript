@@ -12,14 +12,7 @@ namespace AuroraScript.Ast.Expressions
 
             if (token is NumberToken numberToken)
             {
-                if (numberToken.Type == Tokens.ValueType.DoubleNumber)
-                {
-                    this.Value = numberToken.DoubleValue;
-                }
-                else
-                {
-                    this.Value = numberToken.IntegerValue;
-                }
+                this.Value = numberToken.NumberValue;
             }
             else if (token is NullToken)
             {
@@ -27,7 +20,7 @@ namespace AuroraScript.Ast.Expressions
             }
             else if (token is BooleanToken booleanToken)
             {
-                this.Value = Boolean.Parse(token.Value);
+                this.Value = booleanToken.BoolValue;
             }
             else if (token is StringToken stringToken)
             {

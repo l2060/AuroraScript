@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.Ast;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,26 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Core
 {
+    public enum DeclareType
+    {
+        Function,
+        Variable
+    }
+
+    public class DeclareObject
+    {
+        public DeclareObject(DeclareType type,  Int32 index)
+        {
+            Type = type;
+            Index = index;
+        }
+        public readonly DeclareType Type;
+        public readonly int Index;
+    }
+
+
+
+
     public class CodeScope
     {
 
@@ -15,7 +36,7 @@ namespace AuroraScript.Core
 
         private int _variableBaseCount = 0;
 
-        private readonly Dictionary<string, int> variables = new Dictionary<string, int>();
+        private readonly Dictionary<string, DeclareObject> variables = new Dictionary<string, DeclareObject>();
 
         public CodeScope(CodeScope current)
         {
@@ -48,23 +69,41 @@ namespace AuroraScript.Core
             return _parent;
         }
 
-        public int DeclareLocalVariable(string name)
+
+
+
+        public int Declare(DeclareType type, string name)
         {
             int slot = _variableBaseCount++;
-            variables[name] = slot;
+            var declare = new DeclareObject(type, slot);
+            variables[name] = declare;
             return slot;
         }
 
 
-        public Boolean TryGetVariablee(string name, out int value)
+        public Boolean Resolve(string name, out DeclareObject value)
         {
             if (variables.TryGetValue(name, out value))
             {
                 return true;
             }
-            if (_parent != null) return _parent.TryGetVariablee(name, out value);
+            if (_parent != null) return _parent.Resolve(name, out value);
             return false;
         }
+
+
+        public Boolean Resolve(DeclareType type, string name, out int value)
+        {
+            value = 0;
+            if (variables.TryGetValue(name, out var declareObject))
+            {
+                value = declareObject.Index;
+                return true;
+            }
+            if (_parent != null) return _parent.Resolve(type,name, out value);
+            return false;
+        }
+
 
     }
 }

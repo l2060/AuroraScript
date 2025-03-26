@@ -4,6 +4,8 @@ using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Core;
+using AuroraScript.Tokens;
+using System.Text;
 
 
 namespace AuroraScript.Compiler
@@ -11,14 +13,17 @@ namespace AuroraScript.Compiler
     public class ByteCodeGenerator : IAstVisitor
     {
         private CodeScope _scope = new CodeScope(null);
-        private InstructionBuilder _instructionBuilder = new InstructionBuilder();
-
         private Stack<List<Instruction>> _breakJumps = new Stack<List<Instruction>>();
         private Stack<List<Instruction>> _continueJumps = new Stack<List<Instruction>>();
-
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
-
         private readonly List<string> _stringTable = new List<string>();
+        private readonly InstructionBuilder _instructionBuilder;
+
+        public ByteCodeGenerator()
+        {
+            _instructionBuilder = new InstructionBuilder(_stringTable);
+        }
+
 
         private void BeginScope()
         {
@@ -30,42 +35,78 @@ namespace AuroraScript.Compiler
             _scope = _scope.Demotion();
         }
 
-
-        private int GetOrAddStringTable(String str)
+        public void VisitProgram(ModuleDeclaration node)
         {
-            var index = _stringTable.IndexOf(str);
-            if (index > -1) return index;
-            _stringTable.Add(str);
-            return _stringTable.Count - 1;
-
+            VisitBlock(node);
+            var asm = Dump();
+            // Convert instructions to bytecode
+            var bytes = _instructionBuilder.Build();
+            //return bytecode.ToArray();
+            Console.WriteLine(bytes);
         }
 
 
-        public void VisitProgram(ModuleDeclaration node)
+
+        public void VisitBlock(BlockStatement node)
         {
+            // 方法指针应该是带执行上下文的。
+            // 方法引用外层scope内的变量 ， 外层SCOPE内变量引用了方法。 互修复
+            BeginScope();
+            // 1. Compile function declare ..
+            foreach (var function in node.Functions)
+            {
+                _scope.Declare(DeclareType.Variable, function.Identifier.Value);
+            }
+            // 2. Compile variables or init code. 
             foreach (var statement in node.ChildNodes)
             {
                 statement.Accept(this);
             }
-            _instructionBuilder.PushNull();
-            _instructionBuilder.Return();
-            // Second pass: compile each function
+            if (node is ModuleDeclaration)
+            {
+                _instructionBuilder.PushNull();
+                _instructionBuilder.Return();
+            }
+            // 3. compile each function
             foreach (var function in node.Functions)
             {
-                // Reset local state for each function
-                //_currentFunctionName = function.Identifier.Symbol.Name;
-                // Record the function's location
                 _functionLocations[function.Identifier.Value] = _instructionBuilder.Position();
-                // Compile the function
                 function.Accept(this);
             }
-
-            // Convert instructions to bytecode
-            var bytes = _instructionBuilder.Build();
-
-            //return bytecode.ToArray();
-             Console.WriteLine(bytes);
+            EndScope();
         }
+
+
+
+        public String Dump()
+        {
+            using (var stream = new MemoryStream())
+            {
+                using (var write = new StreamWriter(stream, Encoding.UTF8))
+                {
+                    write.WriteLine(".str_table");
+                    for (int i = 0; i < _stringTable.Count; i++)
+                    {
+                        var str = _stringTable[i];
+                        write.WriteLine($"[{i}] {str.Replace("\n", "\\n")}");
+                    }
+                    write.WriteLine();
+                    write.WriteLine();
+                    write.WriteLine();
+
+                    write.WriteLine(".func_index");
+
+
+
+
+                    _instructionBuilder.Dump(write);
+                }
+                return Encoding.UTF8.GetString(stream.ToArray());
+            }
+        }
+
+
+
 
 
 
@@ -79,7 +120,7 @@ namespace AuroraScript.Compiler
                 // Duplicate the array reference
                 _instructionBuilder.Duplicate();
                 // Push the index
-                _instructionBuilder.PushConstInt(i);
+                _instructionBuilder.PushConstantNumber(i);
                 // Push the element value
                 node.ChildNodes[i].Accept(this);
                 // Set the element
@@ -100,7 +141,7 @@ namespace AuroraScript.Compiler
             // Duplicate the value on the stack (for the assignment expression's own value)
             _instructionBuilder.Duplicate();
             // Store the value in the variable
-            if (_scope.TryGetVariablee(node.Left.ToString(), out var slot))
+            if (_scope.Resolve(DeclareType.Variable, node.Left.ToString(), out var slot))
             {
                 _instructionBuilder.StoreLocal(slot);
             }
@@ -115,15 +156,6 @@ namespace AuroraScript.Compiler
 
 
 
-        public void VisitBlock(BlockStatement node)
-        {
-            BeginScope();
-            foreach (var statement in node.ChildNodes)
-            {
-                statement.Accept(this);
-            }
-            EndScope();
-        }
 
         public void VisitBreakExpression(BreakStatement node)
         {
@@ -196,14 +228,13 @@ namespace AuroraScript.Compiler
             if (index.Token.Type == Tokens.ValueType.String)
             {
                 // get property
-                var strIndex = GetOrAddStringTable(index.Token.Value);
-                _instructionBuilder.PushConstInt(strIndex);
+                _instructionBuilder.PushConstantString(index.Token.Value);
                 _instructionBuilder.GetProperty();
             }
-            else if (index.Token.Type == Tokens.ValueType.IntegerNumber)
+            else if (index.Token.Type == Tokens.ValueType.Number)
             {
                 // get element
-                _instructionBuilder.PushConstInt((int)index.Value);
+                _instructionBuilder.PushConstantNumber((Double)index.Value);
                 _instructionBuilder.GetElement();
             }
             else
@@ -216,9 +247,7 @@ namespace AuroraScript.Compiler
         {
             node.Object.Accept(this);
             var propery = (NameExpression)node.Property;
-            var index = GetOrAddStringTable(propery.Identifier.Value);
-            _instructionBuilder.PushConstInt(index);
-            //node.Property.Accept(this);
+            _instructionBuilder.PushConstantString(propery.Identifier.Value);
             _instructionBuilder.GetProperty();
         }
 
@@ -226,43 +255,39 @@ namespace AuroraScript.Compiler
 
         public void VisitSetElementExpression(SetElementExpression node)
         {
-            // Compile the value expression
-            node.Value.Accept(this);
             // Compile the object expression
             node.Object.Accept(this);
+            // Compile the value expression
+            node.Value.Accept(this);
             var index = (LiteralExpression)node.Index;
-            if (index.Token.Type == Tokens.ValueType.IntegerNumber)
+            if (index.Token.Type == Tokens.ValueType.Number)
             {
-                _instructionBuilder.PushConstInt((int)index.Value);
-                _instructionBuilder.SetProperty();
+                _instructionBuilder.PushConstantNumber((Double)index.Value);
+                _instructionBuilder.SetElement();
             }
             else if (index.Token.Type == Tokens.ValueType.String)
             {
                 // Compile the value expression
-                var strIndex = GetOrAddStringTable(index.Token.Value);
-                _instructionBuilder.PushConstInt(strIndex);
+                _instructionBuilder.PushConstantString(index.Token.Value);
                 _instructionBuilder.SetProperty();
             }
             else
             {
                 throw new Exception("无效的索引");
             }
-
-
         }
 
 
 
         public void VisitSetPropertyExpression(SetPropertyExpression node)
-        {            
-            // Compile the value expression
-            node.Value.Accept(this);
+        {
             // Compile the object expression
             node.Object.Accept(this);
             // Compile the value expression
+            node.Value.Accept(this);
+            // Compile the value expression
             var propery = (NameExpression)node.Property;
-            var index = GetOrAddStringTable(propery.Identifier.Value);
-            _instructionBuilder.PushConstInt(index);
+            _instructionBuilder.PushConstantString(propery.Identifier.Value);
             _instructionBuilder.SetProperty();
 
         }
@@ -309,29 +334,24 @@ namespace AuroraScript.Compiler
             {
                 _instructionBuilder.PushNull();
             }
-            else if (token.Type == Tokens.ValueType.IntegerNumber)
+            else if (token.Type == Tokens.ValueType.Number)
             {
-                _instructionBuilder.PushConstInt((Int32)node.Value);
-            }
-            else if (token.Type == Tokens.ValueType.DoubleNumber)
-            {
-                _instructionBuilder.PushConstDouble((Double)node.Value);
+                _instructionBuilder.PushConstantNumber((Double)node.Value);
             }
             else if (token.Type == Tokens.ValueType.String)
             {
-                var index = GetOrAddStringTable((String)node.Value);
-                _instructionBuilder.PushString(index);
+                _instructionBuilder.PushConstantString((String)node.Value);
             }
             else if (token.Type == Tokens.ValueType.Boolean)
             {
-                _instructionBuilder.PushBoolean((Boolean)node.Value);
+                _instructionBuilder.PushConstantBoolean((Boolean)node.Value);
             }
         }
 
 
         public void VisitName(NameExpression node)
         {
-            if (_scope.TryGetVariablee(node.Identifier.Value, out int slot))
+            if (_scope.Resolve(DeclareType.Variable, node.Identifier.Value, out int slot))
             {
                 _instructionBuilder.LoadLocal(slot);
                 return;
@@ -350,27 +370,35 @@ namespace AuroraScript.Compiler
             foreach (var entry in node.ChildNodes)
             {
                 // Duplicate the map reference
-                _instructionBuilder.Duplicate() ;
-
-                // Push the key
-                //int keyIndex = GetOrAddConstant(entry.Key);
-                //EmitInstruction(OpCode.PUSH_CONST, keyIndex);
-
+                _instructionBuilder.Duplicate();
                 if (entry is MapKeyValueExpression property)
                 {
+                    // Push the value
                     property.Value.Accept(this);
-                    // MAP 和 数组 无法在 GetElement/SetElement GetProperty/SetProperty中区分。 需要到运行时虚拟机中鉴定
-                    // 所以   GetElement=GetProperty  SetElement=SetProperty
-                    //property.Key
+                    // Push the key
+                    if (property.Key is IdentifierToken identifierToken)
+                    {
+                        _instructionBuilder.PushConstantString(identifierToken.Value);
+                    }
+                    else if (property.Key is NumberToken numberToken)
+                    {
+                        _instructionBuilder.PushConstantNumber(numberToken.NumberValue);
+                    }
+                    else if (property.Key is BooleanToken boolToken)
+                    {
+                        _instructionBuilder.PushConstantBoolean(boolToken.BoolValue);
+                    }
+                    else if (property.Key is NullToken nullToken)
+                    {
+                        _instructionBuilder.PushConstantString("null");
+                    }
+                    else
+                    {
+                        throw new Exception("无效的Map 键");
+                    }
+                    //property
+                    _instructionBuilder.SetProperty();
                 }
-
-
-                // Push the value
-                entry.Accept(this);
-                
-                // Set the entry
-                //EmitInstruction(OpCode.SET_PROPERTY, keyIndex);
-                _instructionBuilder.SetProperty();
                 // Pop the result of SET_PROPERTY (the value)
                 _instructionBuilder.Pop();
             }
@@ -493,7 +521,7 @@ namespace AuroraScript.Compiler
             foreach (var item in node.Variables)
             {
                 _instructionBuilder.Duplicate();
-                var slot = _scope.DeclareLocalVariable(item.Value);
+                var slot = _scope.Declare(DeclareType.Variable, item.Value);
                 _instructionBuilder.StoreLocal(slot);
             }
             // 暂时先这么写 前面 Duplicate 冗余了一个
