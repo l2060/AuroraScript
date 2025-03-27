@@ -1,6 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
-using System.Reflection.Emit;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast
@@ -11,8 +9,11 @@ namespace AuroraScript.Ast
 
         public Int32 Position;
 
+        public Boolean IsStateSegment { get; internal set; }
+
+
         [JsonIgnore]
-        public AstNode Parent { get; private set; }
+        public AstNode Parent { get; internal set; }
 
         internal AstNode()
         {
@@ -58,38 +59,8 @@ namespace AuroraScript.Ast
             node.Parent = this;
         }
 
-        /// <summary>
-        /// ???????????????????????????
-        /// </summary>
-        /// <param name="writer"></param>
-        public virtual void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-        }
-
-        public virtual void GenerateCode(ILGenerator generator, OptimizationInfo optimizationInfo)
-        {
-        }
-
 
         public abstract void Accept(IAstVisitor visitor);
 
-
-        protected void writeParameters<T>(TextCodeWriter writer, List<T> nodes, string sp) where T : AstNode
-        {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].GenerateCode(writer);
-                if (!String.IsNullOrEmpty(sp) && i < nodes.Count - 1) writer.Write(sp);
-            }
-        }
-
-        protected void writeParameters<T>(TextCodeWriter writer, List<T> nodes, Action ss) where T : AstNode
-        {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].GenerateCode(writer);
-                ss?.Invoke();
-            }
-        }
     }
 }

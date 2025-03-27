@@ -1,11 +1,4 @@
-﻿using AuroraScript.Ast;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraScript.Core
+﻿namespace AuroraScript.Core
 {
     public enum DeclareType
     {
@@ -15,7 +8,7 @@ namespace AuroraScript.Core
 
     public class DeclareObject
     {
-        public DeclareObject(DeclareType type,  Int32 index)
+        public DeclareObject(DeclareType type, Int32 index)
         {
             Type = type;
             Index = index;
@@ -30,7 +23,7 @@ namespace AuroraScript.Core
     public class CodeScope
     {
 
-        private CodeScope? _parent;
+        private CodeScope _parent;
 
         public int ScopeDepth { get; private set; } = 0;
 
@@ -100,7 +93,7 @@ namespace AuroraScript.Core
                 value = declareObject.Index;
                 return true;
             }
-            if (_parent != null) return _parent.Resolve(type,name, out value);
+            if (_parent != null) return _parent.Resolve(type, name, out value);
             return false;
         }
 

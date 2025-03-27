@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -8,11 +8,18 @@ namespace AuroraScript.Ast.Expressions
     /// </summary>
     public class VariableDeclaration : Expression
     {
-        internal VariableDeclaration()
+        internal VariableDeclaration(Token nameToken, Expression initializer)
         {
-            Variables = new List<Token>();
+            Variables = new List<Token>() { nameToken };
+            Initializer = initializer;
         }
-
+        internal VariableDeclaration(Symbols access, Boolean isConst, List<Token> nameTokens, Expression initializer)
+        {
+            Access = access;
+            IsConst = isConst;
+            Variables = nameTokens;
+            Initializer = initializer;
+        }
         /// <summary>
         /// parameter Modifier  ....
         /// </summary>
@@ -39,17 +46,16 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public bool IsConst { get; set; }
 
-        public override void GenerateCode(TextCodeWriter writer, int depth = 0)
-        {
-            var key = IsConst ? Symbols.KW_CONST.Name : Symbols.KW_VAR.Name;
-            writer.Write($"{key} ");
-            writer.Write(string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value)));
-            writer.Write($" {Symbols.OP_ASSIGNMENT.Name} ");
-            if (Initializer != null) Initializer.GenerateCode(writer);
-        }
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitVarDeclaration(this);
         }
+
+        public override string ToString()
+        {
+            return $"var {string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value))} = {Initializer}";
+        }
+
+
     }
 }

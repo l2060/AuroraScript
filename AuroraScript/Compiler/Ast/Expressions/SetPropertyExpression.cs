@@ -1,15 +1,10 @@
 ﻿using AuroraScript.Ast.Expressions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraScript.Compiler.Ast.Expressions
 {
     public class SetPropertyExpression : OperatorExpression
     {
-        public SetPropertyExpression() : base( Operator.Assignment)
+        public SetPropertyExpression() : base(Operator.Assignment)
         {
         }
 
@@ -43,6 +38,11 @@ namespace AuroraScript.Compiler.Ast.Expressions
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitSetPropertyExpression(this);
+        }
+
+        public override string ToString()
+        {
+            return $"{Object}.{Property} = {Value}";
         }
     }
 }

@@ -29,10 +29,12 @@ namespace AuroraScript.Analyzer
                 var node = ParseStatement(this.root.Scope);
                 if (node is FunctionDeclaration func)
                 {
+                    node.IsStateSegment = true;
                     this.root.Functions.Add(func);
                 }
                 else if (node != null)
                 {
+                    node.IsStateSegment = true;
                     this.root.AddNode(node);
                 }
             }
@@ -73,10 +75,8 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
             if (token.Symbol == Symbols.KW_CLASS) return this.ParseClass(currentScope, Symbols.KW_INTERNAL);
-            {
-
-            }
             var exp = this.ParseExpression(currentScope);
+            exp.IsStateSegment = true;
             return new ExpressionStatement(exp);
         }
 
@@ -247,10 +247,12 @@ namespace AuroraScript.Analyzer
                 if (exp is FunctionDeclaration functionDeclaration)
                 {
                     result.Functions.Add(functionDeclaration);
+                    functionDeclaration.IsStateSegment = true;
                 }
                 else if (exp != null)
                 {
                     result.AddNode(exp);
+                    exp.IsStateSegment = true;
                 }
             }
             // Consume the end brace.
@@ -289,13 +291,7 @@ namespace AuroraScript.Analyzer
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
 
             // parse for body
-            return new ForStatement()
-            {
-                Condition = condition,
-                Incrementor = incrementor,
-                Initializer = initializer,
-                Body = body
-            };
+            return new ForStatement(condition, initializer, incrementor, body);
         }
 
         /// <summary>
@@ -314,11 +310,7 @@ namespace AuroraScript.Analyzer
             var body = this.ParseStatement(currentScope);
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "while body statement should not be empty");
             // parse while body
-            return new WhileStatement()
-            {
-                Condition = condition,
-                Body = body
-            };
+            return new WhileStatement(condition, body);
         }
 
         /// <summary>
@@ -329,15 +321,15 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseVariableDeclaration(Scope currentScope, Symbols access = null)
         {
-            var variables = new VariableDeclaration() { Access = access };
+            var isConst = false;
             // const
             if (this.lexer.TestNext(Symbols.KW_CONST))
             {
-                variables.IsConst = true;
+                isConst = true;
             }
             else if (this.lexer.TestNext(Symbols.KW_VAR))
             {
-                variables.IsConst = false;
+                isConst = false;
             }
             else
             {
@@ -345,12 +337,14 @@ namespace AuroraScript.Analyzer
             }
 
             var varName = this.lexer.NextOfKind<IdentifierToken>();
-            variables.Variables.Add(varName);
+
             // next token is : define var typed
             //if (this.lexer.TestNext(Symbols.PT_COLON))
             //{
             //    variables.Typed = this.ParseObjectType(currentScope);
             //}
+            var varNames = new List<Token>() { varName };
+            Expression initializer = null;
             while (true)
             {
                 var nextToken = this.lexer.Next();
@@ -362,14 +356,14 @@ namespace AuroraScript.Analyzer
                 // =
                 else if (nextToken.Symbol == Symbols.OP_ASSIGNMENT)
                 {
-                    variables.Initializer = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+                    initializer = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
                     break;
                 }
                 // ,
                 else if (nextToken.Symbol == Symbols.PT_COMMA)
                 {
                     varName = this.lexer.NextOfKind<IdentifierToken>();
-                    variables.Variables.Add(varName);
+                    varNames.Add(varName);
                 }
                 else
                 {
@@ -377,6 +371,8 @@ namespace AuroraScript.Analyzer
                 }
             }
             // define variables
+
+            var variables = new VariableDeclaration(access, isConst, varNames, initializer);
             currentScope.DefineVariable(variables);
             return new ExpressionStatement(variables);
         }
@@ -403,14 +399,17 @@ namespace AuroraScript.Analyzer
             // parse if body
             Statement body = this.ParseStatement(currentScope);
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "if body statement should not be empty");
-            var ifStatement = new IfStatement() { Condition = condition };
-            ifStatement.Body = body;
+
+            Statement elseStatement = null;
             var nextToken = this.lexer.LookAtHead();
             if (nextToken.Symbol == Symbols.KW_ELSE)
             {
                 // parse else
-                ifStatement.Else = this.ParseElseBlock(currentScope);
+                elseStatement = this.ParseElseBlock(currentScope);
             }
+
+            var ifStatement = new IfStatement(condition, body, elseStatement);
+
             return ifStatement;
         }
 
@@ -440,12 +439,14 @@ namespace AuroraScript.Analyzer
             if (this.lexer.TestSymbol(Symbols.KW_IF))
             {
                 var statement = this.ParseIfBlock(currentScope);
+
                 block.AddNode(statement);
             }
             else
             {
                 var expression = this.ParseStatement(currentScope);
                 if (expression == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
+                expression.IsStateSegment = true;
                 block.AddNode(expression);
             }
             return this.opaimizeStatement(block);
@@ -566,7 +567,10 @@ namespace AuroraScript.Analyzer
                             {
                                 // parse function call arguments
                                 var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
-                                if (argument != null) callExpression.Arguments.Add(argument);
+                                if (argument != null)
+                                {
+                                    callExpression.Arguments.Add(argument);
+                                }
                                 var last = this.lexer.Previous(1);
                                 // If the symbol ends with a closing parenthesis, the parsing is complete
                                 if (last.Symbol == Symbols.PT_RIGHTPARENTHESIS) break;
@@ -673,7 +677,7 @@ namespace AuroraScript.Analyzer
 
                         if (tempExp is AssignmentExpression assignmentExpression)
                         {
-                
+
 
                             if (node is GetPropertyExpression getProperty)
                             {
@@ -684,7 +688,8 @@ namespace AuroraScript.Analyzer
                                 setProperty.AddNode(_object);
                                 setProperty.AddNode(_property);
                                 tempExp = setProperty;
-                            } else if (node is GetElementExpression getElement)
+                            }
+                            else if (node is GetElementExpression getElement)
                             {
                                 var setElement = new SetElementExpression();
                                 var _object = getElement.Pop();
@@ -697,16 +702,11 @@ namespace AuroraScript.Analyzer
                             {
                                 // 解决 variable = ()=>{ }; 问题
                                 var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
-
-
-
-
                                 tempExp.AddNode(argument);
-
                                 return tempExp;
                             }
                         }
-                        
+
 
 
 
@@ -792,7 +792,7 @@ namespace AuroraScript.Analyzer
             //if (_operator == Operator.CastType) return new CastTypeExpression(_operator);
 
 
-            if (_operator == Operator.SetMember) return new MapKeyValueExpression(_operator);
+            //if (_operator == Operator.SetMember) return new MapKeyValueExpression(_operator);
             if (_operator == Operator.LogicalOr) return new BinaryExpression(_operator);
             if (_operator == Operator.Modulo) return new BinaryExpression(_operator);
             if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
@@ -860,9 +860,7 @@ namespace AuroraScript.Analyzer
                             this.lexer.RollBack();
                         }
                     }
-                    var newExp = new MapKeyValueExpression(Operator.SetMember);
-                    newExp.Key = varName;
-                    newExp.Value = value;
+                    var newExp = new MapKeyValueExpression(varName, value);
                     constructExpression.AddNode(newExp);
                 }
                 var token = this.lexer.Previous(1);
@@ -908,15 +906,7 @@ namespace AuroraScript.Analyzer
                     defaultValue = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                     this.lexer.RollBack();
                 }
-                var declaration = new VariableDeclaration()
-                {
-                    Variables = new List<Token>() { varname },
-                    Initializer = defaultValue,
-                    //Variable = varname,
-                    //DefaultValue = defaultValue,
-                    //IsSpreadOperator = spreadOperator,
-                    //Typed = typed
-                };
+                var declaration = new VariableDeclaration(varname, defaultValue);
                 arguments.Add(declaration);
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);

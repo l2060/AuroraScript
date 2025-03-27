@@ -1,13 +1,17 @@
 ﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Statements
 {
     public class ForStatement : Statement
     {
-        internal ForStatement()
+        internal ForStatement(Expression condition, AstNode initializer, Expression incrementor, Statement body)
         {
+            Condition = condition;
+            Initializer = initializer;
+            Incrementor = incrementor;
+            Body = body;
         }
 
         public Expression Condition { get; set; }
@@ -27,19 +31,6 @@ namespace AuroraScript.Ast.Statements
         /// </summary>
         public Expression Incrementor { get; set; }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.Write(Symbols.KW_FOR.Name);
-            writer.Write(" {0}", Symbols.PT_LEFTPARENTHESIS.Name);
-            this.Initializer.GenerateCode(writer);
-            writer.Write("{0} ", Symbols.PT_SEMICOLON.Name);
-            this.Condition.GenerateCode(writer);
-            writer.Write("{0} ", Symbols.PT_SEMICOLON.Name);
-            this.Incrementor.GenerateCode(writer);
-            writer.Write("{0} ", Symbols.PT_RIGHTPARENTHESIS.Name);
-
-            this.Body.GenerateCode(writer);
-        }
 
         public override void Accept(IAstVisitor visitor)
         {

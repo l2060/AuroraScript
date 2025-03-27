@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Statements
 {
@@ -13,11 +13,6 @@ namespace AuroraScript.Ast.Statements
             this.Expression = expression;
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            Expression.GenerateCode(writer);
-            writer.WriteLine(Symbols.PT_SEMICOLON.Name);
-        }
         public override void Accept(IAstVisitor visitor)
         {
             this.Expression.Accept(visitor);

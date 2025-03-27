@@ -37,6 +37,7 @@ namespace AuroraScript.Compiler
 
         public void VisitProgram(ModuleDeclaration node)
         {
+            _instructionBuilder.Comment("# module");
             VisitBlock(node);
             var asm = Dump();
             // Convert instructions to bytecode
@@ -85,7 +86,7 @@ namespace AuroraScript.Compiler
             {
                 using (var write = new StreamWriter(stream, Encoding.UTF8))
                 {
-                    write.WriteLine(".str_table");
+                    write.WriteLine("# str_table");
                     for (int i = 0; i < _stringTable.Count; i++)
                     {
                         var str = _stringTable[i];
@@ -100,7 +101,7 @@ namespace AuroraScript.Compiler
 
 
 
-                    write.WriteLine(".func_index");
+                    write.WriteLine("# func_index");
 
                     foreach (var item in _functionLocations)
                     {
@@ -145,6 +146,7 @@ namespace AuroraScript.Compiler
 
         public void VisitAssignmentExpression(AssignmentExpression node)
         {
+            _instructionBuilder.Comment($"# {node.ToString()}");
             // Compile the value expression
             node.Right.Accept(this);
             // Duplicate the value on the stack (for the assignment expression's own value)
@@ -165,18 +167,20 @@ namespace AuroraScript.Compiler
 
         public void VisitBreakExpression(BreakStatement node)
         {
+            _instructionBuilder.Comment($"# break;");
             _breakJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
         public void VisitContinueExpression(ContinueStatement node)
         {
+            _instructionBuilder.Comment($"# continue;");
             _continueJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
-
-
         public void VisitCallExpression(FunctionCallExpression node)
         {
+            if (node.IsStateSegment) _instructionBuilder.Comment($"# {node}");
+
             // Compile each argument
             foreach (var arg in node.Arguments)
             {
@@ -203,6 +207,7 @@ namespace AuroraScript.Compiler
 
         public void VisitFunction(FunctionDeclaration node)
         {
+            _instructionBuilder.Comment($"# begin_func {node.Identifier?.Value}", 4);
             BeginScope();
 
             // define arg var
@@ -226,6 +231,7 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.Return();
             }
             EndScope();
+            _instructionBuilder.Comment($"# end_func {node.Identifier?.Value}");
         }
         public void VisitGetElementExpression(GetElementExpression node)
         {
@@ -261,6 +267,7 @@ namespace AuroraScript.Compiler
 
         public void VisitSetElementExpression(SetElementExpression node)
         {
+            _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
             node.Value.Accept(this);
 
@@ -290,6 +297,7 @@ namespace AuroraScript.Compiler
 
         public void VisitSetPropertyExpression(SetPropertyExpression node)
         {
+            _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
             node.Value.Accept(this);
             // Compile the value expression
@@ -312,6 +320,7 @@ namespace AuroraScript.Compiler
 
         public void VisitIfStatement(IfStatement node)
         {
+
             // Compile condition
             node.Condition.Accept(this);
             // Jump to else branch if condition is false
@@ -337,6 +346,9 @@ namespace AuroraScript.Compiler
 
         public void VisitLambdaExpression(LambdaExpression node)
         {
+            //  
+            this.VisitFunction(node.Function);
+
 
         }
 
@@ -423,6 +435,7 @@ namespace AuroraScript.Compiler
 
         public void VisitReturnStatement(ReturnStatement node)
         {
+            _instructionBuilder.Comment($"# {node}");
             if (node.Expression != null)
             {
                 node.Expression.Accept(this);
@@ -438,6 +451,7 @@ namespace AuroraScript.Compiler
 
         public void VisitBinaryExpression(BinaryExpression node)
         {
+
             node.Left.Accept(this);
             node.Right.Accept(this);
 
@@ -492,6 +506,7 @@ namespace AuroraScript.Compiler
 
         public void VisitUnaryExpression(UnaryExpression node)
         {
+            if (node.IsStateSegment) _instructionBuilder.Comment($"# {node.ToString()}");
             OpCode opCode = OpCode.NOP;
             if (node.Operator == Operator.PostIncrement || node.Operator == Operator.PreIncrement)
             {
@@ -566,6 +581,7 @@ namespace AuroraScript.Compiler
 
         public void VisitVarDeclaration(VariableDeclaration node)
         {
+            _instructionBuilder.Comment($"# {node}");
             if (node.Initializer != null)
             {
                 node.Initializer.Accept(this);
@@ -577,12 +593,12 @@ namespace AuroraScript.Compiler
             // Local variable
             foreach (var item in node.Variables)
             {
-               // _instructionBuilder.Duplicate();
+                // _instructionBuilder.Duplicate();
                 var slot = _scope.Declare(DeclareType.Variable, item.Value);
                 _instructionBuilder.StoreLocal(slot);
             }
             // 暂时先这么写 前面 Duplicate 冗余了一个
-           // _instructionBuilder.Pop();
+            // _instructionBuilder.Pop();
         }
 
         public void VisitWhileStatement(WhileStatement node)

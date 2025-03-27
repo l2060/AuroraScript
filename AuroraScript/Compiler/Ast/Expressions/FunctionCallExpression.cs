@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -22,18 +22,16 @@ namespace AuroraScript.Ast.Expressions
                 return this.childrens[0] as Expression;
             }
         }
-
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            Target.GenerateCode(writer);
-            writer.Write(Operator.FunctionCall.Symbol.Name);
-            this.writeParameters(writer, Arguments, Symbols.PT_COMMA.Name + " ");
-            writer.Write(Operator.FunctionCall.SecondarySymbols.Name);
-        }
-
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitCallExpression(this);
         }
+
+
+        public override string ToString()
+        {
+            return $"{Target}({String.Join(", ", Arguments)})";
+        }
+
     }
 }

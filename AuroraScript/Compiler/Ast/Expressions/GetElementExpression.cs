@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -10,6 +9,8 @@ namespace AuroraScript.Ast.Expressions
         }
 
         public Expression Index { get; set; }
+
+
 
         public Expression Object
         {
@@ -25,12 +26,11 @@ namespace AuroraScript.Ast.Expressions
             visitor.VisitGetElementExpression(this);
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
+
+        public override string ToString()
         {
-            Object.GenerateCode(writer);
-            writer.Write(Operator.ArrayLiteral.Symbol.Name);
-            Index.GenerateCode(writer);
-            writer.Write(Operator.ArrayLiteral.SecondarySymbols.Name);
+            return $"{Object}[{Index}]";
         }
+
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -22,11 +22,6 @@ namespace AuroraScript.Ast.Expressions
             var node = this.childrens[0];
             node.Remove();
             return (Expression)node;
-        }
-
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.WriteLine($"...");
         }
     }
 

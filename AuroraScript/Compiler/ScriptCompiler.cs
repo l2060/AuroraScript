@@ -2,7 +2,7 @@
 using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler.Exceptions;
-using AuroraScript.Stream;
+
 using AuroraScript.Uilty;
 using System.Collections.Concurrent;
 using System.Text;
@@ -74,74 +74,6 @@ namespace AuroraScript.Compiler
             AstNode root = buildAst(filepath);
             opaimizeTree(root);
             //this.PrintTreeCode(root);
-        }
-
-        public void PrintGenerateCode(ModuleDeclaration root)
-        {
-            List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
-            moduleList.Insert(0, root);
-            Queue<ModuleDeclaration> moduleImports = new Queue<ModuleDeclaration>(root.Imports);
-            while (moduleImports.Count > 0)
-            {
-                var module = moduleImports.Dequeue();
-                foreach (var import in module.Imports)
-                {
-                    if (!moduleList.Contains(import))
-                    {
-                        moduleList.Add(import);
-                        import.Imports.ForEach(x => moduleImports.Enqueue(x));
-                    }
-                }
-            }
-
-            using (var stream = Console.OpenStandardOutput())
-            {
-                using (var writer = new TextCodeWriter(stream))
-                {
-                    foreach (ModuleDeclaration module in moduleList)
-                    {
-                        module.GenerateCode(writer);
-                        writer.WriteLine();
-                        writer.WriteLine();
-                    }
-                }
-            }
-        }
-
-        public string GenerateCode(ModuleDeclaration root)
-        {
-            List<ModuleDeclaration> moduleList = new List<ModuleDeclaration>(root.Imports);
-            moduleList.Insert(0, root);
-            Queue<ModuleDeclaration> moduleImports = new Queue<ModuleDeclaration>(root.Imports);
-            while (moduleImports.Count > 0)
-            {
-                var module = moduleImports.Dequeue();
-                foreach (var import in module.Imports)
-                {
-                    if (!moduleList.Contains(import))
-                    {
-                        moduleList.Add(import);
-                        import.Imports.ForEach(x => moduleImports.Enqueue(x));
-                    }
-                }
-            }
-            using (var stream = new MemoryStream())
-            {
-                using (var writer = new TextCodeWriter(stream, Encoding.UTF8, 1024, true))
-                {
-                    foreach (ModuleDeclaration module in moduleList)
-                    {
-                        module.GenerateCode(writer);
-                        writer.WriteLine();
-                        writer.WriteLine();
-                    }
-                }
-                stream.Position = 0;
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
         }
 
         /// <summary>

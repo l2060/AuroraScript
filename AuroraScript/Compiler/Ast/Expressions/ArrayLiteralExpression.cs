@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -9,16 +8,16 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.Write(Operator.ArrayLiteral.Symbol.Name);
-            writeParameters(writer, ChildNodes, Symbols.PT_COMMA.Name + " ");
-            writer.Write(Operator.ArrayLiteral.SecondarySymbols.Name);
-        }
-
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitArrayExpression(this);
         }
+
+        public override string ToString()
+        {
+            return $"[{String.Join(", ", ChildNodes)}]";
+        }
+
+
     }
 }

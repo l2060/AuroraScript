@@ -1,7 +1,4 @@
-﻿using AuroraScript.Compiler;
-using System;
-
-namespace AuroraScript.Tokens
+﻿namespace AuroraScript.Tokens
 {
     public class NumberToken : ValueToken
     {
@@ -24,6 +21,10 @@ namespace AuroraScript.Tokens
             }
         }
 
+        public override string ToString()
+        {
+            return NumberValue.ToString();
+        }
         public Double NumberValue { get; private set; }
     }
 

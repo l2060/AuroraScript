@@ -9,5 +9,9 @@
         {
             this.Type = ValueType.Null;
         }
+        public override string ToString()
+        {
+            return "null";
+        }
     }
 }

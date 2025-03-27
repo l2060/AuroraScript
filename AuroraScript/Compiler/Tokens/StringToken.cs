@@ -14,7 +14,7 @@
 
             if (this.Blocked)
             {
-                var lines = this.Value.Split(Environment.NewLine).Select(e=> "|> " + e);
+                var lines = this.Value.Split(Environment.NewLine).Select(e => "|> " + e);
                 return Environment.NewLine + string.Join(Environment.NewLine, lines) + Environment.NewLine;
             }
             return $"'{this.Value.Replace("\r", "\\r").Replace("\n", "\\n")}'";

@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
 using AuroraScript.Tokens;
 
 namespace AuroraScript.Ast.Expressions
@@ -36,14 +35,17 @@ namespace AuroraScript.Ast.Expressions
 
         public Object Value { get; protected set; }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.Write(Token.ToValue());
-        }
-
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitLiteralExpression(this);
         }
+
+        public override string ToString()
+        {
+            return Token.ToValue();
+        }
+
+
+
     }
 }

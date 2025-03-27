@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace AuroraScript.Core
 {
@@ -19,7 +14,7 @@ namespace AuroraScript.Core
             Int16Value4 = v4;
         }
 
-        public NumberUnion(Int32 v1, Int32 v2 )
+        public NumberUnion(Int32 v1, Int32 v2)
         {
             Int32Value1 = v1;
             Int32Value2 = v2;

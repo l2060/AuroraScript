@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Statements
 {
@@ -21,16 +21,6 @@ namespace AuroraScript.Ast.Statements
             {
                 return childrens;
             }
-        }
-
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.WriteLine(Symbols.PT_LEFTBRACE.Name);
-            using (writer.IncIndented())
-            {
-                this.writeParameters(writer, ChildNodes, "");
-            }
-            writer.WriteLine(Symbols.PT_RIGHTBRACE.Name);
         }
 
         public override void Accept(IAstVisitor visitor)

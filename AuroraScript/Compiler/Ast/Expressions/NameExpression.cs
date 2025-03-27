@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -10,14 +10,13 @@ namespace AuroraScript.Ast.Expressions
         /// </summary>
         public Token Identifier { get; set; }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.Write(this.Identifier.Value);
-        }
-
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitName(this);
+        }
+        public override string ToString()
+        {
+            return this.Identifier.Value;
         }
     }
 }

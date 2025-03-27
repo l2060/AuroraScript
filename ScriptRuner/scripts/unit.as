@@ -37,12 +37,12 @@ function someMethod() {
 
     var a2 = 0;
     var funcA = () => {
-        a2++;
+        a2++; //
         a1.push(a2);
         return a2;
     }
     
-    if (true) {
+    if (true) {  //
        funcA = () => {
             a2++;
             a1.push(a2);
@@ -76,7 +76,7 @@ function getPlayerStatus() {
 
     //  debug("While loop:");
     var count = 0;
-    while (count < 100) {
+    while (count < 100) {   //
         count++;
         // if( count == 5)  continue;
         // if( count == 800000)  break; 

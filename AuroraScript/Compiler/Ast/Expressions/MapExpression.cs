@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -14,18 +13,10 @@ namespace AuroraScript.Ast.Expressions
             visitor.VisitMapExpression(this);
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
+
+        public override string ToString()
         {
-            writer.WriteLine(Operator.ObjectLiteral.Symbol.Name);
-            using (writer.IncIndented()) writeParameters(writer, ChildNodes, () =>
-            {
-                writer.WriteLine(Symbols.PT_COMMA.Name);
-            });
-            writer.Write(Operator.ObjectLiteral.SecondarySymbols.Name);
+            return $"{{ {String.Join(", ", ChildNodes)} }}";
         }
-
-
-
-
     }
 }

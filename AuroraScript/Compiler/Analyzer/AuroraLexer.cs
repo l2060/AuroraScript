@@ -59,7 +59,7 @@ namespace AuroraScript.Analyzer
             this.AddRegex(TokenRules.Number);
             this.AddRegex(TokenRules.Punctuator);
             this.AddRegex(TokenRules.StringTemplate);
- 
+
         }
 
         /// <summary>

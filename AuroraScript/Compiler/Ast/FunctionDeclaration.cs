@@ -1,7 +1,7 @@
 ﻿using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast
 {
@@ -53,27 +53,6 @@ namespace AuroraScript.Ast
         public Token Identifier { get; set; }
 
         public FunctionFlags Flags { get; set; }
-
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            var kw = "";
-            if (Flags == FunctionFlags.General)
-            {
-                kw = Symbols.KW_FUNCTION.Name;
-            }
-            writer.Write($"{Access?.Name} {kw} {Identifier?.Value}{Symbols.PT_LEFTPARENTHESIS.Name}");
-            this.writeParameters(writer, Parameters, ", ");
-            writer.Write("{0}", Symbols.PT_RIGHTPARENTHESIS.Name);
-            if (Flags == FunctionFlags.Lambda)
-            {
-                writer.Write(" {0} ", Symbols.PT_LAMBDA.Name);
-            }
-            else
-            {
-                writer.WriteLine();
-            }
-            if (Body != null) this.Body.GenerateCode(writer);
-        }
 
         public override void Accept(IAstVisitor visitor)
         {

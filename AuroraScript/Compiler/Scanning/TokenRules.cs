@@ -256,8 +256,8 @@ namespace AuroraScript.Scanning
 
         public Char Peek(in ReadOnlySpan<Char> codeSpan)
         {
-            var pos = _current +1;
-            return _current < codeSpan.Length? codeSpan[pos] : '\0';
+            var pos = _current + 1;
+            return _current < codeSpan.Length ? codeSpan[pos] : '\0';
         }
 
         public void Advance(int len = 1)
@@ -297,11 +297,11 @@ namespace AuroraScript.Scanning
                     if (reader.Current(codeSpan) == '\n')
                     {
                         reader.Advance();
-                        while (reader.Current(codeSpan) == ' ' || reader.Current(codeSpan) == '\t' )
+                        while (reader.Current(codeSpan) == ' ' || reader.Current(codeSpan) == '\t')
                         {
                             reader.Advance();
                         }
-                        
+
                         if (reader.Current(codeSpan) == '|' && reader.Peek(codeSpan) == '>')
                         {
                             reader.Advance(2);

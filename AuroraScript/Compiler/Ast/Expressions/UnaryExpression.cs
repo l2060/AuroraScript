@@ -1,11 +1,11 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 
 namespace AuroraScript.Ast.Expressions
 {
     public enum UnaryType
     {
-        Prefix ,
+        Prefix,
         Post
     }
 
@@ -48,22 +48,22 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
+
+        public override string ToString()
         {
             if (Type == UnaryType.Post)
             {
-                this.Left.GenerateCode(writer);
-                writer.Write(this.Operator.Symbol.Name);
+                return $"{Left}{this.Operator}";
             }
             else
             {
-                writer.Write(this.Operator.Symbol.Name);
-                this.Right.GenerateCode(writer);
+                return $"{this.Operator}{Right}";
             }
-
-
-
-
         }
+
+
+
+
     }
+
 }

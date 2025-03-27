@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
-using AuroraScript.Stream;
+
 using System.Text.Json;
 
 namespace AuroraScript.Ast
@@ -28,15 +28,6 @@ namespace AuroraScript.Ast
         {
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
-        {
-            writer.WriteLine();
-            writer.WriteLine("// ==========" + "=".PadLeft(ModulePath.Length, '='));
-            writer.WriteLine("// FileName: " + ModulePath);
-            writer.WriteLine("// ==========" + "=".PadLeft(ModulePath.Length, '='));
-            writer.WriteLine();
-            this.writeParameters(writer, ChildNodes, "");
-        }
 
         public String ToJson()
         {

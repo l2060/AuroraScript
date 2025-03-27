@@ -1,14 +1,8 @@
 ﻿using AuroraScript.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraScript.Compiler.Emits
 {
     public class Instruction
-
     {
         /// <summary>
         /// The operation code.
@@ -28,6 +22,7 @@ namespace AuroraScript.Compiler.Emits
 
         public Instruction Next;
 
+
         public Instruction(OpCode opCode, int offset, params int[] operands)
         {
             OpCode = opCode;
@@ -44,4 +39,28 @@ namespace AuroraScript.Compiler.Emits
         }
 
     }
+
+
+    public class CommentInstruction : Instruction
+    {
+        public String Comment;
+        private int PreEmptyLine;
+        public CommentInstruction(String comment, int preEmptyLine) : base(OpCode.NOP, 0)
+        {
+            this.Comment = comment;
+            this.PreEmptyLine = preEmptyLine;
+        }
+
+        public override string ToString()
+        {
+            if (this.PreEmptyLine > 0)
+            {
+                return $"{"".PadLeft(PreEmptyLine, '\n')}{Comment}";
+            }
+            return Comment;
+        }
+
+    }
+
+
 }

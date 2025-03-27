@@ -11,5 +11,12 @@
 
 
         public Boolean BoolValue { get; private set; }
+
+        public override string ToString()
+        {
+            return BoolValue.ToString();
+        }
+
+
     }
 }

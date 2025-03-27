@@ -359,5 +359,12 @@ namespace AuroraScript.Compiler
             _OperatorMaps.TryGetValue(key, out var symbol);
             return symbol;
         }
+
+        public override string ToString()
+        {
+            return Symbol.Name;
+        }
+
+
     }
 }

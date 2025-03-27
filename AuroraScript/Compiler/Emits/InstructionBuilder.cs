@@ -1,5 +1,5 @@
 ﻿using AuroraScript.Core;
-using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -24,8 +24,12 @@ namespace AuroraScript.Compiler.Emits
         {
             get
             {
-                var count = _instructions.Count;
-                return count > 0 ? _instructions[count - 1] : null;
+                for (int i = _instructions.Count - 1; i >= 0; i--)
+                {
+                    if (_instructions[i] is CommentInstruction) continue;
+                    return _instructions[i];
+                }
+                return null;
             }
         }
 
@@ -152,6 +156,13 @@ namespace AuroraScript.Compiler.Emits
             return Emit(value ? OpCode.PUSH_TRUE : OpCode.PUSH_FALSE);
         }
 
+        [Conditional("DEBUG")]
+        public void Comment(String comment, int preEmptyLine = 0)
+        {
+            _instructions.Add(new CommentInstruction(comment, preEmptyLine));
+        }
+
+
         public Instruction PushNull()
         {
             return Emit(OpCode.PUSH_NULL);
@@ -275,15 +286,22 @@ namespace AuroraScript.Compiler.Emits
 
         public void Dump(StreamWriter write)
         {
-            write.WriteLine();
-            write.WriteLine();
-            write.WriteLine(".code");
-
-
-            for (int i = 0; i < _instructions.Count; i++)
+            var index = 0;
+            foreach (var instruction in _instructions)
             {
-                write.WriteLine($"[{i:0000}] {_instructions[i]}");
+                if (instruction is CommentInstruction)
+                {
+                    var color = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    write.WriteLine(instruction);
+                    Console.ForegroundColor = color;
+                }
+                else
+                {
+                    write.WriteLine($"[{index++:0000}] {instruction}");
+                }
             }
+
         }
     }
 

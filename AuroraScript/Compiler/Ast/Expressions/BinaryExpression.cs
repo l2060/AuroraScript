@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Compiler;
-using AuroraScript.Stream;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -30,23 +29,23 @@ namespace AuroraScript.Ast.Expressions
             }
         }
 
-        public override void GenerateCode(TextCodeWriter writer, Int32 depth = 0)
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.VisitBinaryExpression(this);
+        }
+
+
+        public override string ToString()
         {
             var isPriority = false;
             if (this.Parent is BinaryExpression parent)
             {
                 isPriority = parent.Operator.Precedence > this.Operator.Precedence;
             }
-            if (isPriority) writer.Write(Symbols.PT_LEFTPARENTHESIS.Name);
-            this.Left.GenerateCode(writer);
-            writer.Write($" {this.Operator.Symbol.Name} ");
-            this.Right.GenerateCode(writer);
-            if (isPriority) writer.Write(Symbols.PT_RIGHTPARENTHESIS.Name);
+            var value = $"{Left} {Operator} {Right}";
+            if (isPriority) return $"({value})";
+            return value;
         }
 
-        public override void Accept(IAstVisitor visitor)
-        {
-            visitor.VisitBinaryExpression(this);
-        }
     }
 }
