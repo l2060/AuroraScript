@@ -39,7 +39,7 @@ namespace AuroraScript.Compiler
         {
             _instructionBuilder.Comment("# module");
             VisitBlock(node);
-            var asm = Dump();
+            DumpCode();
             // Convert instructions to bytecode
             var bytes = _instructionBuilder.Build();
             //return bytecode.ToArray();
@@ -79,41 +79,36 @@ namespace AuroraScript.Compiler
 
 
 
-        public String Dump()
+        public void DumpCode()
         {
-            using (var stream = new MemoryStream())
+
+            Print("# str_table", ConsoleColor.Yellow);
+            for (int i = 0; i < _stringTable.Count; i++)
             {
-                using (var write = new StreamWriter(stream, Encoding.UTF8))
-                {
-                    write.WriteLine("# str_table");
-                    for (int i = 0; i < _stringTable.Count; i++)
-                    {
-                        var str = _stringTable[i];
-                        write.WriteLine($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}");
-                    }
-                    write.WriteLine();
-                    write.WriteLine();
-                    write.WriteLine();
-
-
-
-
-
-
-                    write.WriteLine("# func_index");
-
-                    foreach (var item in _functionLocations)
-                    {
-                        write.WriteLine($"{item.Key} {item.Value.Offset}");
-                    }
-
-
-                    _instructionBuilder.Dump(write);
-                }
-                return Encoding.UTF8.GetString(stream.ToArray());
+                var str = _stringTable[i];
+                Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}", ConsoleColor.Blue);
             }
+            Console.WriteLine();
+            Console.WriteLine();
+            Print("# func_index", ConsoleColor.Yellow);
+            foreach (var item in _functionLocations)
+            {
+                Print($"{item.Key} {item.Value.Offset}", ConsoleColor.Blue);
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+            _instructionBuilder.DumpCode();
+
         }
 
+
+        private void Print(String text, ConsoleColor fontColor)
+        {
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = fontColor;
+            Console.WriteLine(text);
+            Console.ForegroundColor = color;
+        }
 
 
 
@@ -190,7 +185,7 @@ namespace AuroraScript.Compiler
             node.Target.Accept(this);
             // Emit the call instruction with the argument count
             _instructionBuilder.Call(node.Arguments.Count);
-            if (node.Parent == null) 
+            if (node.Parent == null)
                 _instructionBuilder.Pop();
         }
 
@@ -535,7 +530,7 @@ namespace AuroraScript.Compiler
                 }
                 else if (exp is NameExpression nameExpression)
                 {
-                   if(node.Parent != null)    _instructionBuilder.Duplicate();
+                    if (node.Parent != null) _instructionBuilder.Duplicate();
                     if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
                     {
                         _instructionBuilder.PopLocal(slot);

@@ -291,7 +291,7 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public void Dump(StreamWriter write)
+        public void DumpCode()
         {
             var index = 0;
             foreach (var instruction in _instructions)
