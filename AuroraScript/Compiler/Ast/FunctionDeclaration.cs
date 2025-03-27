@@ -30,7 +30,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// parameters
         /// </summary>
-        public List<VariableDeclaration> Parameters { get; set; }
+        public List<ParameterDeclaration> Parameters { get; set; }
 
         /// <summary>
         /// function code

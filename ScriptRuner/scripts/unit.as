@@ -1,5 +1,17 @@
-﻿var px = 1233 * (-444 + add(444 + (-33 + 15++), ++23)) / (6 + 5);
+﻿var func = someMethod();
 
+var aaa,bbb,ccc = someMethod();
+var i = 0;
+for (; i < 100; )
+{
+    debug(i);
+    i++;
+}
+for (i = 0; i < 100; i++)
+{
+    debug(i);
+}
+var px = 1233 * (-444 + add(444 + (-33 + 15++), ++23)) / (6 + 5);
 
 
 s = 4++;
@@ -55,7 +67,7 @@ function someMethod() {
 }
 
 
-var func = someMethod();
+
 
 console.log(func());
 console.log(func());
@@ -78,8 +90,8 @@ function getPlayerStatus() {
     var count = 0;
     while (count < 100) {   //
         count++;
-        // if( count == 5)  continue;
-        // if( count == 800000)  break; 
+        if( count == 5)  continue;
+        if( count == 800000)  break; 
         // debug("While iteration " + count);
         var s = 12345;
     }
@@ -140,7 +152,7 @@ function getPlayerStatus() {
 
 
 // Test script for GameScriptInterpreter
-export function calculateTotal(a, b) {
+export function calculateTotal(a, b=true) {
     // global.print("Player score: " + 1);
     // Basic arithmetic
     var total = a + b;

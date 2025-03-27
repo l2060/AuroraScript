@@ -53,5 +53,8 @@ namespace AuroraScript.Compiler
         void VisitContinueExpression(ContinueStatement node);
 
 
+        void VisitParameterDeclaration(ParameterDeclaration node);
+
+
     }
 }

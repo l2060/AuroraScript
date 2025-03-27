@@ -43,7 +43,6 @@ namespace AuroraScript.Compiler
             // Convert instructions to bytecode
             var bytes = _instructionBuilder.Build();
             //return bytecode.ToArray();
-            Console.WriteLine(asm);
 
         }
 
@@ -136,7 +135,7 @@ namespace AuroraScript.Compiler
                 // Set the element
                 _instructionBuilder.SetElement();
                 // Pop the result of SET_ELEMENT (the value)
-                _instructionBuilder.Pop();
+                //_instructionBuilder.Pop();
             }
 
         }
@@ -154,11 +153,11 @@ namespace AuroraScript.Compiler
             // Store the value in the variable
             if (_scope.Resolve(DeclareType.Variable, node.Left.ToString(), out var slot))
             {
-                _instructionBuilder.StoreLocal(slot);
+                _instructionBuilder.PopLocal(slot);
             }
             else
             {
-                _instructionBuilder.StoreGlobal(node.Left.ToString());
+                _instructionBuilder.PopGlobal(node.Left.ToString());
             }
         }
 
@@ -191,7 +190,8 @@ namespace AuroraScript.Compiler
             node.Target.Accept(this);
             // Emit the call instruction with the argument count
             _instructionBuilder.Call(node.Arguments.Count);
-
+            if (node.Parent == null) 
+                _instructionBuilder.Pop();
         }
 
 
@@ -200,10 +200,25 @@ namespace AuroraScript.Compiler
 
         }
 
-        public void VisitForStatement(ForStatement node)
-        {
 
+
+        public void VisitParameterDeclaration(ParameterDeclaration node)
+        {
+            var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
+            if (node.DefaultValue != null)
+            {
+                node.DefaultValue?.Accept(this);
+                _instructionBuilder.PushArgExist(node.Index);
+            }
+            else
+            {
+                // load args
+                _instructionBuilder.PushArg(node.Index);
+            }
+            _instructionBuilder.PopLocal(slot);
         }
+
+
 
         public void VisitFunction(FunctionDeclaration node)
         {
@@ -214,12 +229,6 @@ namespace AuroraScript.Compiler
             foreach (var statement in node.Parameters)
             {
                 statement.Accept(this);
-            }
-            // load args
-            for (int i = 0; i < node.Parameters.Count; i++)
-            {
-                _instructionBuilder.LoadArg(i);
-                _instructionBuilder.StoreLocal(1 /* ResolveLocalVariable(node.Parameters[i]) */);
             }
             // Compile the function body
             node.Body.Accept(this);
@@ -320,28 +329,24 @@ namespace AuroraScript.Compiler
 
         public void VisitIfStatement(IfStatement node)
         {
-
             // Compile condition
             node.Condition.Accept(this);
             // Jump to else branch if condition is false
             var jumpToElse = _instructionBuilder.JumpFalse();
-            // Pop the condition value (not needed anymore)
-            _instructionBuilder.Pop();
             // Compile the then branch
             node.Body.Accept(this);
-            // Jump over the else branch
-            var jumpOverElse = _instructionBuilder.Jump();
             // Patch the jump to else
             _instructionBuilder.FixJump(jumpToElse);
-            // Pop the condition value
-            _instructionBuilder.Pop();
             // Compile the else branch if present
             if (node.Else != null)
             {
+                // Jump over the else branch
+                var jumpOverElse = _instructionBuilder.Jump();
                 node.Else.Accept(this);
+                // Patch the jump over else
+                _instructionBuilder.FixJump(jumpOverElse);
             }
-            // Patch the jump over else
-            _instructionBuilder.FixJump(jumpOverElse);
+
         }
 
         public void VisitLambdaExpression(LambdaExpression node)
@@ -378,12 +383,12 @@ namespace AuroraScript.Compiler
         {
             if (_scope.Resolve(DeclareType.Variable, node.Identifier.Value, out int slot))
             {
-                _instructionBuilder.LoadLocal(slot);
+                _instructionBuilder.PushLocal(slot);
                 return;
             }
             else
             {
-                _instructionBuilder.LoadGlobal(node.Identifier.Value);
+                _instructionBuilder.PushGlobal(node.Identifier.Value);
             }
         }
 
@@ -428,7 +433,7 @@ namespace AuroraScript.Compiler
                     _instructionBuilder.SetProperty();
                 }
                 // Pop the result of SET_PROPERTY (the value)
-                _instructionBuilder.Pop();
+                //_instructionBuilder.Pop();
             }
         }
 
@@ -530,14 +535,14 @@ namespace AuroraScript.Compiler
                 }
                 else if (exp is NameExpression nameExpression)
                 {
-                    _instructionBuilder.Duplicate();
+                   if(node.Parent != null)    _instructionBuilder.Duplicate();
                     if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
                     {
-                        _instructionBuilder.StoreLocal(slot);
+                        _instructionBuilder.PopLocal(slot);
                     }
                     else
                     {
-                        _instructionBuilder.StoreGlobal(nameExpression.Identifier.Value);
+                        _instructionBuilder.PopGlobal(nameExpression.Identifier.Value);
                     }
                 }
                 else
@@ -554,15 +559,15 @@ namespace AuroraScript.Compiler
                 }
                 else if (exp is NameExpression nameExpression)
                 {
-                    _instructionBuilder.Duplicate();
+                    if (node.Parent != null) _instructionBuilder.Duplicate();
                     _instructionBuilder.Emit(opCode);
                     if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
                     {
-                        _instructionBuilder.StoreLocal(slot);
+                        _instructionBuilder.PopLocal(slot);
                     }
                     else
                     {
-                        _instructionBuilder.StoreGlobal(nameExpression.Identifier.Value);
+                        _instructionBuilder.PopGlobal(nameExpression.Identifier.Value);
                     }
                 }
                 else
@@ -591,15 +596,37 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.PushNull();
             }
             // Local variable
-            foreach (var item in node.Variables)
-            {
-                // _instructionBuilder.Duplicate();
-                var slot = _scope.Declare(DeclareType.Variable, item.Value);
-                _instructionBuilder.StoreLocal(slot);
-            }
-            // 暂时先这么写 前面 Duplicate 冗余了一个
-            // _instructionBuilder.Pop();
+            // _instructionBuilder.Duplicate();
+            var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
+            _instructionBuilder.PopLocal(slot);
         }
+
+
+        public void VisitForStatement(ForStatement node)
+        {
+            node.Initializer?.Accept(this);
+            var begin = _instructionBuilder.Position();
+            _breakJumps.Push(new List<Instruction>());
+            _continueJumps.Push(new List<Instruction>());
+            node.Condition?.Accept(this);
+            // Jump out of loop if condition is false
+            var exitJump = _instructionBuilder.JumpFalse();
+            // Compile the loop body
+            node.Body.Accept(this);
+            foreach (var continueJump in _continueJumps.Peek())
+            {
+                _instructionBuilder.FixJump(continueJump);
+            }
+            var end = _instructionBuilder.Position();
+            node.Incrementor?.Accept(this);
+            _instructionBuilder.JumpTo(begin);
+            _instructionBuilder.FixJump(exitJump);
+            foreach (var breakJump in _breakJumps.Peek())
+            {
+                _instructionBuilder.FixJump(breakJump);
+            }
+        }
+
 
         public void VisitWhileStatement(WhileStatement node)
         {
@@ -611,20 +638,24 @@ namespace AuroraScript.Compiler
             node.Condition.Accept(this);
             // Jump out of loop if condition is false
             var exitJump = _instructionBuilder.JumpFalse();
-            // Pop the condition value
-            _instructionBuilder.Pop();
             // Compile the loop body
             node.Body.Accept(this);
 
             // Patch continue jumps to point to the condition check
             foreach (var continueJump in _continueJumps.Peek())
             {
-                //PatchJumpTo(continueJump, loopStart);
                 _instructionBuilder.FixJump(continueJump, begin);
             }
             _instructionBuilder.JumpTo(begin);
             _instructionBuilder.FixJump(exitJump);
+            // Patch continue jumps to point to the condition check
+            foreach (var breakJump in _breakJumps.Peek())
+            {
+                _instructionBuilder.FixJump(breakJump);
+            }
+
         }
+
 
     }
 }

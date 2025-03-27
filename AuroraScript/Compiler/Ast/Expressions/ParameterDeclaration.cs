@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Ast.Expressions;
+using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 
 
@@ -7,21 +8,21 @@ namespace AuroraScript.Ast
     /// <summary>
     /// function parameter declaration
     /// </summary>
-    public class ParameterDeclaration : AstNode
+    public class ParameterDeclaration : Statement
     {
-        internal ParameterDeclaration()
+        internal ParameterDeclaration(int index,  Token name, Expression defaultValue)
         {
+            Name = name;
+            DefaultValue = defaultValue;
+            Index = index;
         }
 
-        /// <summary>
-        /// parameter Modifier  ....
-        /// </summary>
-        public Token Modifier { get; set; }
+        public int Index { get; set; }  
 
         /// <summary>
         /// Parameter
         /// </summary>
-        public Token Variable { get; set; }
+        public Token Name { get; set; }
 
         /// <summary>
         ///
@@ -35,7 +36,7 @@ namespace AuroraScript.Ast
 
         public override void Accept(IAstVisitor visitor)
         {
-
+            visitor.VisitParameterDeclaration(this);
         }
     }
 }

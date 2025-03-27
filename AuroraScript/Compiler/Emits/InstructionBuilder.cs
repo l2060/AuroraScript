@@ -41,7 +41,7 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        private int GetOrAddStringTable(String str)
+        public int GetOrAddStringTable(String str)
         {
             var index = _stringTable.IndexOf(str);
             if (index > -1) return index;
@@ -194,7 +194,7 @@ namespace AuroraScript.Compiler.Emits
         public Instruction JumpTo(Instruction position)
         {
             var jump = Emit(OpCode.JUMP, 0);
-            var offset = _position - position.Offset;
+            var offset =  position.Offset - _position;
             jump.Operands[0] = offset;
             return jump;
         }
@@ -222,30 +222,37 @@ namespace AuroraScript.Compiler.Emits
             jump.Operands[0] = offset;
         }
 
-        public Instruction LoadArg(int index)
+        public Instruction PushArg(int index)
         {
             return Emit(OpCode.LOAD_ARG, index);
         }
 
-        public Instruction LoadLocal(int index)
+        public Instruction PushArgExist(int index)
         {
-            return Emit(OpCode.LOAD_LOCAL, index);
+            return Emit(OpCode.LOAD_ARG2, index);
+        }
+        
+
+
+        public Instruction PushLocal(int index)
+        {
+            return Emit(OpCode.PUSH_LOCAL, index);
         }
 
-        public Instruction LoadGlobal(String varName)
+        public Instruction PushGlobal(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
-            return Emit(OpCode.LOAD_GLOBAL, strAddress);
+            return Emit(OpCode.PUSH_GLOBAL, strAddress);
         }
-        public Instruction StoreLocal(int index)
+        public Instruction PopLocal(int index)
         {
-            return Emit(OpCode.STORE_LOCAL, index);
+            return Emit(OpCode.POP_TO_LOCAL, index);
         }
 
-        public Instruction StoreGlobal(String varName)
+        public Instruction PopGlobal(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
-            return Emit(OpCode.STORE_GLOBAL, strAddress);
+            return Emit(OpCode.POP_TO_GLOBAL, strAddress);
         }
 
 
@@ -293,12 +300,12 @@ namespace AuroraScript.Compiler.Emits
                 {
                     var color = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    write.WriteLine(instruction);
+                    Console.WriteLine(instruction);
                     Console.ForegroundColor = color;
                 }
                 else
                 {
-                    write.WriteLine($"[{index++:0000}] {instruction}");
+                    Console.WriteLine($"[{index++:0000}] {instruction}");
                 }
             }
 

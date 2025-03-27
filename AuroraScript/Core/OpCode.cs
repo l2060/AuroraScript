@@ -11,10 +11,9 @@ namespace AuroraScript.Core
         DUP = 2,         // Duplicate the top value on the stack
         SWAP = 3,        // Swap the top two values on the stack
         LOAD_ARG = 4,    // Load a function argument onto the stack (takes argument index)
-        LOAD_LOCAL = 5,  // Load a local variable onto the stack (takes variable slot)
-        STORE_LOCAL = 6, // Store the top value in a local variable (takes variable slot)
-        LOAD_GLOBAL = 7,  // Load a local variable onto the stack (takes variable slot)
-        STORE_GLOBAL = 8, // Store the top value in a local variable (takes variable slot)
+        LOAD_ARG2 = 5,    // 如果参数存在则先弹出栈顶元素，再加载参数
+
+
 
 
         // Constants 
@@ -23,6 +22,10 @@ namespace AuroraScript.Core
         PUSH_TRUE = 12,  // Push true onto the stack
         PUSH_STRING = 13, // Push a constant from the constant pool onto the stack (takes constant index)
         PUSH_CONTEXT = 14, // Push a current runtime context
+        PUSH_LOCAL = 15,  // Load a local variable onto the stack (takes variable slot)
+        PUSH_GLOBAL = 16,  // Load a local variable onto the stack (takes variable slot)
+        POP_TO_LOCAL = 17, // Store the top value in a local variable (takes variable slot)
+        POP_TO_GLOBAL = 18, // Store the top value in a local variable (takes variable slot)
         // Push Number
         PUSH_0 = 20,     // Push the number 0 onto the stack
         PUSH_1 = 21,     // Push the number 1 onto the stack
@@ -44,9 +47,8 @@ namespace AuroraScript.Core
 
 
         // Objects, Arrays, and Maps
-        NEW_OBJECT = 50,   // Create a new object
+        NEW_MAP = 50,      // Create a new map (takes initial capacity)
         NEW_ARRAY = 51,    // Create a new array (takes initial capacity)
-        NEW_MAP = 52,      // Create a new map (takes initial capacity)
 
         GET_PROPERTY = 60, // Get a property from an object (takes property name index in constant pool)
         SET_PROPERTY = 61, // Set a property on an object (takes property name index in constant pool)
@@ -59,8 +61,8 @@ namespace AuroraScript.Core
         MULTIPLY = 72,     // Multiply the top two values
         DIVIDE = 73,       // Divide the second value by the top value
         NEGATE = 74,       // Negate the top value
-        INCREMENT = 75,
-        DECREMENT = 76,
+        INCREMENT = 75,    // ++
+        DECREMENT = 76,    // --
 
 
 
@@ -77,9 +79,6 @@ namespace AuroraScript.Core
         JUMP = 100,               // Unconditional jump (takes jump offset)
         JUMP_IF_FALSE = 101,      // Jump if the top value is false (takes jump offset)
         JUMP_IF_TRUE = 102,       // Jump if the top value is true (takes jump offset)
-        JUMP_IF_FALSE_NO_POP = 103, // Jump if the top value is false, but don't pop it (takes jump offset)
-        JUMP_IF_TRUE_NO_POP = 104,  // Jump if the top value is true, but don't pop it (takes jump offset)
-        LOOP = 110,               // Jump backward (takes negative jump offset)
 
         // Function Operations
 
@@ -89,9 +88,9 @@ namespace AuroraScript.Core
         RETURN = 130,       // Return from a function
 
 
+
+
         // Continuation/Coroutine Support
-        YIELD = 140,       // Pause execution
-        // Debug/Misc
-        DEBUG_PRINT = 200, // Print the top value for debugging
+        YIELD = 255,       // Pause execution
     }
 }

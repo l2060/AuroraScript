@@ -371,10 +371,25 @@ namespace AuroraScript.Analyzer
                 }
             }
             // define variables
+            var exp = new Statements();
+            var v = new VariableDeclaration(access, isConst, varNames[0]);
+            v.AddNode(initializer);
+            currentScope.DefineVariable(v);
+            exp.AddNode(v);
+            var preVarName = varNames[0];
+            for (int i = 1; i < varNames.Count; i++)
+            {
+                var @var = new VariableDeclaration(access, isConst, varNames[i]);
+                var lexp = new NameExpression();
+                lexp.Identifier = preVarName;
+                @var.AddNode(lexp);
+                currentScope.DefineVariable(@var);
+                exp.AddNode(@var);
+                preVarName = varNames[i];
+            }
 
-            var variables = new VariableDeclaration(access, isConst, varNames, initializer);
-            currentScope.DefineVariable(variables);
-            return new ExpressionStatement(variables);
+
+            return exp;
         }
 
         private Exception InitParseException(String message, Token token)
@@ -569,7 +584,7 @@ namespace AuroraScript.Analyzer
                                 var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
                                 if (argument != null)
                                 {
-                                    callExpression.Arguments.Add(argument);
+                                    callExpression.AddArgument(argument);
                                 }
                                 var last = this.lexer.Previous(1);
                                 // If the symbol ends with a closing parenthesis, the parsing is complete
@@ -703,6 +718,7 @@ namespace AuroraScript.Analyzer
                                 // 解决 variable = ()=>{ }; 问题
                                 var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
                                 tempExp.AddNode(argument);
+            
                                 return tempExp;
                             }
                         }
@@ -877,9 +893,9 @@ namespace AuroraScript.Analyzer
         /// starting with “arg1: number, argn: string)”
         /// </summary>
         /// <returns></returns>
-        private List<VariableDeclaration> ParseFunctionArguments(Scope currentScope)
+        private List<ParameterDeclaration> ParseFunctionArguments(Scope currentScope)
         {
-            var arguments = new List<VariableDeclaration>();
+            var arguments = new List<ParameterDeclaration>();
             while (true)
             {
                 // Parsing modifier
@@ -906,7 +922,7 @@ namespace AuroraScript.Analyzer
                     defaultValue = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                     this.lexer.RollBack();
                 }
-                var declaration = new VariableDeclaration(varname, defaultValue);
+                var declaration = new ParameterDeclaration(arguments.Count, varname, defaultValue);
                 arguments.Add(declaration);
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);

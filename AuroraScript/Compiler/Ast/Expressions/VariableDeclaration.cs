@@ -1,4 +1,5 @@
-﻿using AuroraScript.Compiler;
+﻿using AuroraScript.Ast.Statements;
+using AuroraScript.Compiler;
 
 
 namespace AuroraScript.Ast.Expressions
@@ -6,19 +7,13 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// variable declaration
     /// </summary>
-    public class VariableDeclaration : Expression
+    public class VariableDeclaration : Statement
     {
-        internal VariableDeclaration(Token nameToken, Expression initializer)
-        {
-            Variables = new List<Token>() { nameToken };
-            Initializer = initializer;
-        }
-        internal VariableDeclaration(Symbols access, Boolean isConst, List<Token> nameTokens, Expression initializer)
+        internal VariableDeclaration(Symbols access, Boolean isConst, Token nameToken)
         {
             Access = access;
             IsConst = isConst;
-            Variables = nameTokens;
-            Initializer = initializer;
+            Name = nameToken;
         }
         /// <summary>
         /// parameter Modifier  ....
@@ -28,13 +23,12 @@ namespace AuroraScript.Ast.Expressions
         /// <summary>
         /// variable names
         /// </summary>
-        public List<Token> Variables { get; set; }
+        public Token Name { get; set; }
 
         /// <summary>
         /// var initialize statement
         /// </summary>
-        public Expression Initializer { get; set; }
-
+        public Expression Initializer => ChildNodes[0] as Expression;
 
         /// <summary>
         /// Function Access
@@ -53,7 +47,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override string ToString()
         {
-            return $"var {string.Join($"{Symbols.PT_COMMA.Name} ", Variables.Select(e => e.Value))} = {Initializer}";
+            return $"var {Name.Value} = {Initializer}";
         }
 
 

@@ -13,7 +13,16 @@ namespace AuroraScript.Ast.Expressions
             this.Arguments = new List<Expression>();
         }
 
-        public List<Expression> Arguments { get; set; }
+        public List<Expression> Arguments;
+
+
+        public void AddArgument(Expression expression)
+        {
+            this.Arguments.Add(expression);
+            expression.Parent = this;
+        }   
+
+
 
         public Expression Target
         {
@@ -22,6 +31,10 @@ namespace AuroraScript.Ast.Expressions
                 return this.childrens[0] as Expression;
             }
         }
+
+
+
+
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitCallExpression(this);
