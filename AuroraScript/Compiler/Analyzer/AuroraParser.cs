@@ -879,7 +879,12 @@ namespace AuroraScript.Analyzer
                     var newExp = new MapKeyValueExpression(varName, value);
                     constructExpression.AddNode(newExp);
                 }
-                var token = this.lexer.Previous(1);
+                //var token = this.lexer.Previous(1);
+                var nameToken = new NameExpression();
+                nameToken.Identifier = varName;
+                constructExpression.AddNode(new MapKeyValueExpression(varName, nameToken));
+
+
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);
                 // Encountered closing parenthesis break ;
