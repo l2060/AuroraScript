@@ -7,26 +7,29 @@ namespace AuroraScript.Ast
 {
     public class ModuleDeclaration : BlockStatement
     {
+        public readonly String Directory;
+
         // 引用
-        public readonly List<ModuleDeclaration> Imports = new List<ModuleDeclaration>();
+        public readonly List<ModuleDeclaration> Dependencys = new List<ModuleDeclaration>();
 
+        public readonly List<ImportDeclaration> Imports = new List<ImportDeclaration>();
 
-
+        internal ModuleDeclaration(Scope currentScope ,String directory) : base(currentScope)
+        {
+            Directory = directory;
+        }
         // 文件名
-
         // 其他
 
         public void Import(ModuleDeclaration module)
         {
-            Imports.Add(module);
+            Dependencys.Add(module);
         }
 
         public String ModuleName { get; set; }
         public String ModulePath { get; set; }
 
-        internal ModuleDeclaration(Scope currentScope) : base(currentScope)
-        {
-        }
+
 
 
         public String ToJson()

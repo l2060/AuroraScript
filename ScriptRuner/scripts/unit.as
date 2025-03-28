@@ -1,4 +1,9 @@
-﻿import './md5';
+﻿import aa from './md5' ;
+
+
+
+
+
 a.c = !a.c;
 
 

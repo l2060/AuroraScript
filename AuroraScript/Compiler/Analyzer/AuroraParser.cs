@@ -18,7 +18,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer = lexer;
             this.Compiler = compiler;
-            this.root = new ModuleDeclaration(new Scope(this));
+            this.root = new ModuleDeclaration(new Scope(this), this.lexer.Directory);
             this.root.ModulePath = lexer.FullPath;
         }
 
@@ -32,6 +32,10 @@ namespace AuroraScript.Analyzer
                 {
                     node.IsStateSegment = true;
                     this.root.Functions.Add(func);
+                }
+                else if (node is ImportDeclaration importDeclaration)
+                {
+                    this.root.Imports.Add(importDeclaration);
                 }
                 else if (node != null)
                 {
@@ -1118,27 +1122,10 @@ namespace AuroraScript.Analyzer
         private Statement ParseImport()
         {
             this.lexer.NextOfKind(Symbols.KW_IMPORT);
-            Token module = null;
-            Token fileToken = this.lexer.TestNextOfKind<StringToken>();
-            if (fileToken != null)
-            {
-                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            }
-            else
-            {
-                this.lexer.NextOfKind(Symbols.OP_MULTIPLY);
-                this.lexer.NextOfKind(Symbols.KW_AS);
-                module = this.lexer.NextOfKind<IdentifierToken>();
-                this.lexer.NextOfKind(Symbols.KW_FROM);
-                fileToken = this.lexer.NextOfKind<StringToken>();
-                this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            }
-            // import ast
-            // 查缓存
-            var moduleAst = this.Compiler.buildAst(fileToken.Value, this.lexer.Directory);
-            this.root.Import(moduleAst);
-            // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
-            //最终由link-module 链接起来
+            var module = this.lexer.NextOfKind<IdentifierToken>();
+            this.lexer.NextOfKind(Symbols.KW_FROM);
+            Token fileToken = this.lexer.NextOfKind<StringToken>();
+            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             return new ImportDeclaration() { Module = module, File = fileToken };
         }
     }

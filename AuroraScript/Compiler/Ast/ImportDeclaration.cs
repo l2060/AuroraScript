@@ -9,7 +9,6 @@ namespace AuroraScript.Ast
         internal ImportDeclaration()
         {
         }
-
         public Token Module { get; set; }
         public Token File { get; set; }
 
