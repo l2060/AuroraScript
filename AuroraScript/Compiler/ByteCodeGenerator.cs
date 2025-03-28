@@ -240,22 +240,20 @@ namespace AuroraScript.Compiler
         public void VisitGetElementExpression(GetElementExpression node)
         {
             node.Object.Accept(this);
-            var index = (LiteralExpression)node.Index;
-            if (index.Token.Type == Tokens.ValueType.String)
+            if (node.Index is NameExpression name)
             {
                 // get property
-                _instructionBuilder.PushConstantString(index.Token.Value);
-                _instructionBuilder.GetProperty();
+                VisitName(name);
+                _instructionBuilder.GetElement();
             }
-            else if (index.Token.Type == Tokens.ValueType.Number)
+            else if (node.Index is LiteralExpression literal)
             {
-                // get element
-                _instructionBuilder.PushConstantNumber((Double)index.Value);
+                VisitLiteralExpression(literal);
                 _instructionBuilder.GetElement();
             }
             else
             {
-                throw new Exception("无效的索引");
+                node.Index.Accept(this);
             }
         }
 
@@ -274,26 +272,22 @@ namespace AuroraScript.Compiler
             _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
             node.Value.Accept(this);
-
-            var index = (LiteralExpression)node.Index;
-            if (index.Token.Type == Tokens.ValueType.Number)
+            if (node.Index is NameExpression name)
             {
-                _instructionBuilder.PushConstantNumber((Double)index.Value);
-                // Compile the object expression
+                // get property
+                VisitName(name);
                 node.Object.Accept(this);
                 _instructionBuilder.SetElement();
             }
-            else if (index.Token.Type == Tokens.ValueType.String)
+            else if (node.Index is LiteralExpression literal)
             {
-                // Compile the value expression
-                _instructionBuilder.PushConstantString(index.Token.Value);
-                // Compile the object expression
+                VisitLiteralExpression(literal);
                 node.Object.Accept(this);
-                _instructionBuilder.SetProperty();
+                _instructionBuilder.GetElement();
             }
             else
             {
-                throw new Exception("无效的索引");
+                node.Index.Accept(this);
             }
         }
 
@@ -497,6 +491,18 @@ namespace AuroraScript.Compiler
             {
                 _instructionBuilder.Emit(OpCode.GREATER_EQUAL);
             }
+            else if (node.Operator.Symbol == Symbols.OP_LEFTSHIFT)
+            {
+                _instructionBuilder.Emit(OpCode.L_SHIFT);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_SIGNEDRIGHTSHIFT)
+            {
+                _instructionBuilder.Emit(OpCode.R_SHIFT);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_BITWISEOR)
+            {
+                _instructionBuilder.Emit(OpCode.BITWISEOR);
+            }
             else
             {
                 throw new NotSupportedException($"Unsupported binary operator: {node.Operator.Symbol}");
@@ -599,13 +605,16 @@ namespace AuroraScript.Compiler
 
         public void VisitForStatement(ForStatement node)
         {
+            _instructionBuilder.Comment($"# for");
             node.Initializer?.Accept(this);
             var begin = _instructionBuilder.Position();
             _breakJumps.Push(new List<Instruction>());
             _continueJumps.Push(new List<Instruction>());
+            _instructionBuilder.Comment($"# condition {node.Condition}");
             node.Condition?.Accept(this);
             // Jump out of loop if condition is false
             var exitJump = _instructionBuilder.JumpFalse();
+            _instructionBuilder.Comment($"# body");
             // Compile the loop body
             node.Body.Accept(this);
             foreach (var continueJump in _continueJumps.Peek())
@@ -613,6 +622,7 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.FixJump(continueJump);
             }
             var end = _instructionBuilder.Position();
+            _instructionBuilder.Comment($"# inc {node.Incrementor}");
             node.Incrementor?.Accept(this);
             _instructionBuilder.JumpTo(begin);
             _instructionBuilder.FixJump(exitJump);
@@ -651,6 +661,9 @@ namespace AuroraScript.Compiler
 
         }
 
+        public void VisitCompoundExpression(CompoundExpression node)
+        {
 
+        }
     }
 }

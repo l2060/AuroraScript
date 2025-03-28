@@ -32,7 +32,7 @@
     <None Update="scripts\unit.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="scripts\md5.ts">
+    <None Update="scripts\md5.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="scripts\document.ts">

@@ -8,15 +8,20 @@ namespace AuroraScript.Ast.Expressions
         {
         }
 
-        public Expression Index { get; set; }
-
+        public Expression Index
+        {
+            get
+            {
+                return this.childrens[0] as Expression;
+            }
+        }
 
 
         public Expression Object
         {
             get
             {
-                return this.childrens[0] as Expression;
+                return this.childrens[1] as Expression;
             }
         }
 

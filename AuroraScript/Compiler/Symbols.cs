@@ -194,7 +194,7 @@ namespace AuroraScript.Compiler
         /// token "<<"
         /// </summary>
         public static readonly Symbols OP_LEFTSHIFT = new Symbols("<<", SymbolTypes.Operator);
-
+        
         /// <summary>
         /// token >>
         /// </summary>

@@ -14,6 +14,7 @@ namespace AuroraScript.Compiler
         void VisitLambdaExpression(LambdaExpression node);
         void VisitBlock(BlockStatement node);
 
+
         void VisitName(NameExpression node);
         void VisitVarDeclaration(VariableDeclaration node);
         void VisitIfStatement(IfStatement node);
@@ -27,7 +28,7 @@ namespace AuroraScript.Compiler
         void VisitAssignmentExpression(AssignmentExpression node);
         //void VisitLogicalExpression(LogicalExpressionNode node);
 
-
+        void VisitCompoundExpression(CompoundExpression node);
 
         void VisitBinaryExpression(BinaryExpression node);
         void VisitUnaryExpression(UnaryExpression node);

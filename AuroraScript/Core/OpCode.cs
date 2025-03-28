@@ -74,6 +74,10 @@ namespace AuroraScript.Core
         GREATER_THAN = 84,   // Compare if the second value is greater than the top value
         LESS_EQUAL = 85,     // Compare if the second value is less than or equal to the top value
         GREATER_EQUAL = 86,  // Compare if the second value is greater than or equal to the top value
+        L_SHIFT = 87,
+        R_SHIFT = 88,
+        BITWISEOR =89,
+
 
         // Control Flow
         JUMP = 100,               // Unconditional jump (takes jump offset)

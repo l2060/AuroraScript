@@ -13,7 +13,7 @@ namespace AuroraScript.Compiler.Ast.Expressions
         {
             get
             {
-                return this.childrens[0] as Expression;
+                return this.childrens[1] as Expression;
             }
         }
 
@@ -22,7 +22,7 @@ namespace AuroraScript.Compiler.Ast.Expressions
         {
             get
             {
-                return this.childrens[1] as Expression;
+                return this.childrens[0] as Expression;
             }
         }
 

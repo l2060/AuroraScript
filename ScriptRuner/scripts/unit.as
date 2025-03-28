@@ -1,4 +1,8 @@
-﻿var func = someMethod();
+﻿// import './md5';
+
+a.bc += 56 +36;
+
+var func = someMethod();
 
 var aaa,bbb,ccc = someMethod();
 var i = 0;
@@ -28,9 +32,12 @@ var ss = 123 + 456;
 //var console;
 //var say;
 //var add;
-
+ss[a] = ss[b];
 ss[1] = ss[2];
 ss["a"] = ss["b"];
+
+
+
 ss.LK = 123.123456789;
 debug(ss.LK);
 

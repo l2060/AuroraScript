@@ -195,7 +195,7 @@ namespace AuroraScript.Compiler.Emits
         {
             var jump = Emit(OpCode.JUMP, 0);
             var offset =  position.Offset - _position;
-            jump.Operands[0] = offset;
+            jump.Operands[0] = offset + jump.Length;
             return jump;
         }
 
@@ -305,7 +305,7 @@ namespace AuroraScript.Compiler.Emits
                 }
                 else
                 {
-                    Console.WriteLine($"[{index++:0000}] {instruction}");
+                    Console.WriteLine($"[{instruction.Offset:0000}] {instruction}");
                 }
             }
 

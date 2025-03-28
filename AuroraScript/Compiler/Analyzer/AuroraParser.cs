@@ -6,6 +6,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
 
+
 namespace AuroraScript.Analyzer
 {
     public class AuroraParser
@@ -373,16 +374,19 @@ namespace AuroraScript.Analyzer
             // define variables
             var exp = new Statements();
             var v = new VariableDeclaration(access, isConst, varNames[0]);
-            v.AddNode(initializer);
+            if (initializer != null) v.AddNode(initializer);
             currentScope.DefineVariable(v);
             exp.AddNode(v);
             var preVarName = varNames[0];
             for (int i = 1; i < varNames.Count; i++)
             {
                 var @var = new VariableDeclaration(access, isConst, varNames[i]);
-                var lexp = new NameExpression();
-                lexp.Identifier = preVarName;
-                @var.AddNode(lexp);
+                if (initializer != null)
+                {
+                    var lexp = new NameExpression();
+                    lexp.Identifier = preVarName;
+                    @var.AddNode(lexp);
+                }
                 currentScope.DefineVariable(@var);
                 exp.AddNode(@var);
                 preVarName = varNames[i];
@@ -630,7 +634,7 @@ namespace AuroraScript.Analyzer
                         else if (tempExp is GetElementExpression indexAccess)
                         {
                             // Parse[] block, from here recursively parse expressions to minor symbols
-                            indexAccess.Index = this.ParseExpression(currentScope, indexAccess.Operator.SecondarySymbols);
+                            indexAccess.AddNode(this.ParseExpression(currentScope, indexAccess.Operator.SecondarySymbols));
                         }
                         //else if (tempExp is CastTypeExpression typeConvert)
                         //{
@@ -687,45 +691,12 @@ namespace AuroraScript.Analyzer
                         var pNode = node.Parent;
                         node.Remove();
                         tempExp.AddNode(node);
-
-
-
                         if (tempExp is AssignmentExpression assignmentExpression)
                         {
-
-
-                            if (node is GetPropertyExpression getProperty)
-                            {
-                                // convert set property
-                                var setProperty = new SetPropertyExpression();
-                                var _object = getProperty.Pop();
-                                var _property = getProperty.Pop();
-                                setProperty.AddNode(_object);
-                                setProperty.AddNode(_property);
-                                tempExp = setProperty;
-                            }
-                            else if (node is GetElementExpression getElement)
-                            {
-                                var setElement = new SetElementExpression();
-                                var _object = getElement.Pop();
-                                var _property = getElement.Index;
-                                setElement.AddNode(_object);
-                                setElement.AddNode(_property);
-                                tempExp = setElement;
-                            }
-                            else
-                            {
-                                // 解决 variable = ()=>{ }; 问题
-                                var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
-                                tempExp.AddNode(argument);
-            
-                                return tempExp;
-                            }
+                            var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+                            tempExp.AddNode(argument);
+                            return optimize(assignmentExpression);
                         }
-
-
-
-
                         pNode.AddNode(tempExp);
                     }
                     // == operator the end ==
@@ -747,8 +718,45 @@ namespace AuroraScript.Analyzer
                 if (rootExpression.Length == 0 && tempExp != null) rootExpression.AddNode(tempExp);
             }
 
-            return rootExpression.Length > 0 ? rootExpression.Pop() : null;
+            return rootExpression.Length > 0 ? optimize(rootExpression.Pop()) : null;
         }
+
+        private Expression optimize(Expression exp)
+        {
+            var assignment = exp as AssignmentExpression;
+            var compound = exp as CompoundExpression;
+            if (assignment != null || compound != null)
+            {
+                if (exp.ChildNodes[0] is GetPropertyExpression || exp.ChildNodes[0] is GetElementExpression)
+                {
+                    var accessExp = exp.Pop();
+                    var value = exp.Pop();
+                    // convert set property
+                    Expression setExpression = (accessExp is GetPropertyExpression) ? new SetPropertyExpression() : new SetElementExpression();
+                    var _object = accessExp.Pop();
+                    var _property = accessExp.Pop();
+                    setExpression.AddNode(_object);
+                    setExpression.AddNode(_property);
+
+                    if (compound != null)
+                    { // a.b += c;
+                      // set   a     b     a.b + c
+
+
+
+
+                    }
+
+
+                    setExpression.AddNode(value);
+                    return setExpression;
+                }
+            }
+            return exp;
+        }
+
+
+
 
         /// <summary>
         /// var fmtString = `load ${num} of ${str}`;
@@ -766,11 +774,11 @@ namespace AuroraScript.Analyzer
         {
             // Assignment Expression
             if (_operator == Operator.Assignment) return new AssignmentExpression(_operator);
-            if (_operator == Operator.CompoundAdd) return new AssignmentExpression(_operator);
-            if (_operator == Operator.CompoundSubtract) return new AssignmentExpression(_operator);
-            if (_operator == Operator.CompoundDivide) return new AssignmentExpression(_operator);
-            if (_operator == Operator.CompoundModulo) return new AssignmentExpression(_operator);
-            if (_operator == Operator.CompoundMultiply) return new AssignmentExpression(_operator);
+            if (_operator == Operator.CompoundAdd) return new CompoundExpression(_operator);
+            if (_operator == Operator.CompoundSubtract) return new CompoundExpression(_operator);
+            if (_operator == Operator.CompoundDivide) return new CompoundExpression(_operator);
+            if (_operator == Operator.CompoundModulo) return new CompoundExpression(_operator);
+            if (_operator == Operator.CompoundMultiply) return new CompoundExpression(_operator);
             // new expression
             if (_operator == Operator.New) return new BinaryExpression(_operator);
             if (_operator == Operator.ObjectLiteral) return new MapExpression(_operator);
