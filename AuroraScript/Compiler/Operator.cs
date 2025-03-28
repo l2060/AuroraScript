@@ -238,27 +238,27 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// operator exp += exp
         /// </summary>
-        public static readonly Operator CompoundAdd = new Operator(Symbols.OP_COMPOUNDADD, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator CompoundAdd = new Operator(Symbols.OP_COMPOUNDADD, 2, OperatorPlacement.Binary, false, null, Add);
 
         /// <summary>
         /// operator exp /= exp
         /// </summary>
-        public static readonly Operator CompoundDivide = new Operator(Symbols.OP_COMPOUNDDIVIDE, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator CompoundDivide = new Operator(Symbols.OP_COMPOUNDDIVIDE, 2, OperatorPlacement.Binary, false, null, Divide);
 
         /// <summary>
         /// operator exp %= exp
         /// </summary>
-        public static readonly Operator CompoundModulo = new Operator(Symbols.OP_COMPOUNDMODULO, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator CompoundModulo = new Operator(Symbols.OP_COMPOUNDMODULO, 2, OperatorPlacement.Binary, false, null, Modulo);
 
         /// <summary>
         /// operator exp *= exp
         /// </summary>
-        public static readonly Operator CompoundMultiply = new Operator(Symbols.OP_COMPOUNDMULTIPLY, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator CompoundMultiply = new Operator(Symbols.OP_COMPOUNDMULTIPLY, 2, OperatorPlacement.Binary, false, null, Multiply);
 
         /// <summary>
         /// operator exp -= exp
         /// </summary>
-        public static readonly Operator CompoundSubtract = new Operator(Symbols.OP_COMPOUNDSUBTRACT, 2, OperatorPlacement.Binary, false);
+        public static readonly Operator CompoundSubtract = new Operator(Symbols.OP_COMPOUNDSUBTRACT, 2, OperatorPlacement.Binary, false, null, Subtract);
 
         public static readonly Operator SetMember = new Operator(Symbols.PT_COLON, 2, OperatorPlacement.Binary, false);
 
@@ -270,7 +270,7 @@ namespace AuroraScript.Compiler
         /// <param name="placement">operator characteristics</param>
         /// <param name="isOperand">current object is an operand</param>
         /// <param name="secondarySymbols">operator secondary symbols</param>
-        private Operator(Symbols symbol, int precedence, OperatorPlacement placement, bool isOperand, Symbols secondarySymbols = null)
+        private Operator(Symbols symbol, int precedence, OperatorPlacement placement, bool isOperand, Symbols secondarySymbols = null, Operator simplerOperator = null)
         {
             Placement = placement;
             Symbol = symbol; ;
@@ -278,6 +278,14 @@ namespace AuroraScript.Compiler
             HasLHSOperand = (placement & OperatorPlacement.Postfix) != 0;
             SecondarySymbols = secondarySymbols;
             IsOperand = isOperand;
+            SimplerOperator = simplerOperator;
+        }
+
+
+        public Operator SimplerOperator
+        {
+            get;
+            private set;
         }
 
         /// <summary>

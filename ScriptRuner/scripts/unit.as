@@ -2,6 +2,10 @@
 
 a.bc += 56 +36;
 
+
+a[c]+=12;
+//a[c]++;
+
 var func = someMethod();
 
 var aaa,bbb,ccc = someMethod();

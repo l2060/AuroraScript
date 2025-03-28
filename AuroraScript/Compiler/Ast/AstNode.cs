@@ -54,7 +54,7 @@ namespace AuroraScript.Ast
 
         public virtual void AddNode(AstNode node)
         {
-            if (node.Parent != null) throw new InvalidOperationException();
+            // if (node.Parent != null) throw new InvalidOperationException();
             this.childrens.Add(node);
             node.Parent = this;
         }

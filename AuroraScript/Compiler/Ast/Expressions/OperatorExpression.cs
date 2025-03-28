@@ -7,12 +7,9 @@ namespace AuroraScript.Ast.Expressions
         internal OperatorExpression(Operator @operator)
         {
             this.Operator = @operator;
-            this.operands = new List<Expression>();
             this.Precedence = this.Operator.Precedence;
             this.IsOperand = this.Operator.IsOperand;
         }
-
-        private List<Expression> operands;
 
         /// <summary>
         /// operator precedence
@@ -41,10 +38,6 @@ namespace AuroraScript.Ast.Expressions
             this.IsOperand = @operator.IsOperand;
         }
 
-        internal void Push(Expression expression)
-        {
-            operands.Add(expression);
-        }
 
         /// <summary>
         /// Gets or sets the operator this expression refers to.

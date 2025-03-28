@@ -723,37 +723,53 @@ namespace AuroraScript.Analyzer
 
         private Expression optimize(Expression exp)
         {
-            var assignment = exp as AssignmentExpression;
-            var compound = exp as CompoundExpression;
-            if (assignment != null || compound != null)
+            if (exp is AssignmentExpression assignment)
             {
-                if (exp.ChildNodes[0] is GetPropertyExpression || exp.ChildNodes[0] is GetElementExpression)
+                if (assignment.Left is GetPropertyExpression getter)
                 {
-                    var accessExp = exp.Pop();
-                    var value = exp.Pop();
-                    // convert set property
-                    Expression setExpression = (accessExp is GetPropertyExpression) ? new SetPropertyExpression() : new SetElementExpression();
-                    var _object = accessExp.Pop();
-                    var _property = accessExp.Pop();
-                    setExpression.AddNode(_object);
-                    setExpression.AddNode(_property);
-
-                    if (compound != null)
-                    { // a.b += c;
-                      // set   a     b     a.b + c
-
-
-
-
-                    }
-
-
-                    setExpression.AddNode(value);
-                    return setExpression;
+                    var setter = new SetPropertyExpression();
+                    setter.AddNode(getter.Object);
+                    setter.AddNode(getter.Property);
+                    setter.AddNode(assignment.Right);
+                    return setter;
+                }
+                else if (assignment.Left is GetElementExpression eleGetter)
+                {
+                    var setter = new SetElementExpression();
+                    setter.AddNode(eleGetter.Index);
+                    setter.AddNode(eleGetter.Object);
+                    setter.AddNode(assignment.Right);
+                    return setter;
+                }
+            }
+            else if (exp is CompoundExpression compound)
+            {
+                if (compound.Left is GetPropertyExpression getter)
+                {
+                    var setter = new SetPropertyExpression();
+                    setter.AddNode(getter.Object);
+                    setter.AddNode(getter.Property);
+                    var binary = new BinaryExpression(compound.Operator.SimplerOperator);
+                    binary.AddNode(getter);
+                    binary.AddNode(compound.Right);
+                    setter.AddNode(binary);
+                    return setter;
+                }
+                else if (compound.Left is GetElementExpression eleGetter)
+                {
+                    var setter = new SetElementExpression();
+                    setter.AddNode(eleGetter.Index);
+                    setter.AddNode(eleGetter.Object);
+                    var binary = new BinaryExpression(compound.Operator.SimplerOperator);
+                    binary.AddNode(eleGetter);
+                    binary.AddNode(compound.Right);
+                    setter.AddNode(binary);
+                    return setter;
                 }
             }
             return exp;
         }
+
 
 
 
