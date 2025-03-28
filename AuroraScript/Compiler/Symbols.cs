@@ -203,17 +203,17 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// token &
         /// </summary>
-        public static readonly Symbols OP_BITWISEAND = new Symbols("&", SymbolTypes.Operator);
+        public static readonly Symbols OP_BIT_AND = new Symbols("&", SymbolTypes.Operator);
 
         /// <summary>
         /// token |
         /// </summary>
-        public static readonly Symbols OP_BITWISEOR = new Symbols("|", SymbolTypes.Operator);
+        public static readonly Symbols OP_BIT_OR = new Symbols("|", SymbolTypes.Operator);
 
         /// <summary>
         /// token ^
         /// </summary>
-        public static readonly Symbols OP_BITWISEXOR = new Symbols("^", SymbolTypes.Operator);
+        public static readonly Symbols OP_BIT_XOR = new Symbols("^", SymbolTypes.Operator);
 
         /// <summary>
         /// token !
@@ -223,17 +223,17 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// token ~
         /// </summary>
-        public static readonly Symbols OP_BITWISENOT = new Symbols("~", SymbolTypes.Operator);
+        public static readonly Symbols OP_BIT_NOT = new Symbols("~", SymbolTypes.Operator);
 
         /// <summary>
         /// token &&
         /// </summary>
-        public static readonly Symbols OP_LOGICALAND = new Symbols("&&", SymbolTypes.Operator);
+        public static readonly Symbols OP_LOGICAL_AND = new Symbols("&&", SymbolTypes.Operator);
 
         /// <summary>
         /// token ||
         /// </summary>
-        public static readonly Symbols OP_LOGICALOR = new Symbols("||", SymbolTypes.Operator);
+        public static readonly Symbols OP_LOGICAL_OR = new Symbols("||", SymbolTypes.Operator);
 
         /// <summary>
         /// token ?

@@ -8,6 +8,10 @@ namespace AuroraScript.Compiler
 {
     public interface IAstVisitor
     {
+
+        void VisitImportDeclaration(ImportDeclaration node); 
+
+
         void VisitProgram(ModuleDeclaration node);
         void VisitFunction(FunctionDeclaration node);
 

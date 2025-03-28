@@ -28,7 +28,7 @@ namespace AuroraScript.Ast.Expressions
         /// <summary>
         /// var initialize statement
         /// </summary>
-        public Expression Initializer => ChildNodes[0] as Expression;
+        public Expression Initializer => ChildNodes.Count > 0? ChildNodes[0] as Expression: null;
 
         /// <summary>
         /// Function Access

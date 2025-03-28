@@ -115,7 +115,7 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// operator ~exp
         /// </summary>
-        public static readonly Operator BitwiseNot = new Operator(Symbols.OP_BITWISENOT, 15, OperatorPlacement.Prefix, false);
+        public static readonly Operator BitwiseNot = new Operator(Symbols.OP_BIT_NOT, 15, OperatorPlacement.Prefix, false);
 
         /// <summary>
         /// operator -exp
@@ -203,28 +203,28 @@ namespace AuroraScript.Compiler
         /// <summary>
         /// operator exp &amp; exp
         /// </summary>
-        public static readonly Operator BitwiseAnd = new Operator(Symbols.OP_BITWISEAND, 8, OperatorPlacement.Binary, false);
+        public static readonly Operator BitwiseAnd = new Operator(Symbols.OP_BIT_AND, 8, OperatorPlacement.Binary, false);
 
         /// <summary>
         /// operator exp ^ exp
         /// </summary>
-        public static readonly Operator BitwiseXor = new Operator(Symbols.OP_BITWISEXOR, 7, OperatorPlacement.Binary, false);
+        public static readonly Operator BitwiseXor = new Operator(Symbols.OP_BIT_XOR, 7, OperatorPlacement.Binary, false);
 
         /// <summary>
         /// operator exp | exp
         /// </summary>
-        public static readonly Operator BitwiseOr = new Operator(Symbols.OP_BITWISEOR, 6, OperatorPlacement.Binary, false);
+        public static readonly Operator BitwiseOr = new Operator(Symbols.OP_BIT_OR, 6, OperatorPlacement.Binary, false);
 
         // Logical operators.
         /// <summary>
         /// operator exp &amp;&amp; exp
         /// </summary>
-        public static readonly Operator LogicalAnd = new Operator(Symbols.OP_LOGICALAND, 5, OperatorPlacement.Binary, false);
+        public static readonly Operator LogicalAnd = new Operator(Symbols.OP_LOGICAL_AND, 5, OperatorPlacement.Binary, false);
 
         /// <summary>
         /// operator exp || exp
         /// </summary>
-        public static readonly Operator LogicalOr = new Operator(Symbols.OP_LOGICALOR, 4, OperatorPlacement.Binary, false);
+        public static readonly Operator LogicalOr = new Operator(Symbols.OP_LOGICAL_OR, 4, OperatorPlacement.Binary, false);
 
         // Conditional operator.
         //public static readonly Operator Conditional = new Operator(PunctuatorToken.Conditional, 3, OperatorPlacement.Ternary, OperatorType.Conditional, PunctuatorToken.Colon, 2);

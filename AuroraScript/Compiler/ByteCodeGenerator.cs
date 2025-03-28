@@ -5,6 +5,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Core;
 using AuroraScript.Tokens;
+using System.Reflection;
 using System.Text;
 
 
@@ -37,6 +38,11 @@ namespace AuroraScript.Compiler
 
         public void VisitProgram(ModuleDeclaration node)
         {
+            foreach (var module in node.Imports)
+            {
+                module.Accept(this);
+            }
+            
             _instructionBuilder.Comment("# module");
             VisitBlock(node);
             DumpCode();
@@ -45,6 +51,14 @@ namespace AuroraScript.Compiler
             //return bytecode.ToArray();
 
         }
+
+
+        public void VisitImportDeclaration(ImportDeclaration node)
+        {
+
+            Console.WriteLine(node);
+        }
+
 
 
 
@@ -493,16 +507,42 @@ namespace AuroraScript.Compiler
             }
             else if (node.Operator.Symbol == Symbols.OP_LEFTSHIFT)
             {
-                _instructionBuilder.Emit(OpCode.L_SHIFT);
+                _instructionBuilder.Emit(OpCode.BIT_SHIFT_L);
             }
             else if (node.Operator.Symbol == Symbols.OP_SIGNEDRIGHTSHIFT)
             {
-                _instructionBuilder.Emit(OpCode.R_SHIFT);
+                _instructionBuilder.Emit(OpCode.BIT_SHIFT_R);
             }
-            else if (node.Operator.Symbol == Symbols.OP_BITWISEOR)
+            else if (node.Operator.Symbol == Symbols.OP_LOGICAL_AND)
             {
-                _instructionBuilder.Emit(OpCode.BITWISEOR);
+                _instructionBuilder.Emit(OpCode.LOGIC_AND);
             }
+            else if (node.Operator.Symbol == Symbols.OP_LOGICAL_OR)
+            {
+                _instructionBuilder.Emit(OpCode.LOGIC_OR);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_BIT_AND)
+            {
+                _instructionBuilder.Emit(OpCode.LOGIC_AND);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_BIT_OR)
+            {
+                _instructionBuilder.Emit(OpCode.BIT_OR);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_BIT_XOR)
+            {
+                _instructionBuilder.Emit(OpCode.BIT_XOR);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_BIT_NOT)
+            {
+                _instructionBuilder.Emit(OpCode.BIT_NOT);
+            }
+            else if (node.Operator.Symbol == Symbols.OP_MODULO)
+            {
+                _instructionBuilder.Emit(OpCode.LOGIC_MOD);
+            }
+
+            
             else
             {
                 throw new NotSupportedException($"Unsupported binary operator: {node.Operator.Symbol}");
@@ -524,7 +564,11 @@ namespace AuroraScript.Compiler
             }
             else if (node.Operator == Operator.LogicalNot)
             {
-                opCode = OpCode.LOGICL_NOT;
+                opCode = OpCode.LOGIC_NOT;
+            }
+            else if (node.Operator == Operator.BitwiseNot)
+            {
+                opCode = OpCode.BIT_NOT;
             }
             else
             {

@@ -63,8 +63,10 @@ namespace AuroraScript.Core
         NEGATE = 74,       // Negate the top value
         INCREMENT = 75,    // ++
         DECREMENT = 76,    // --
-        LOGICL_NOT= 77,    // !
-
+        LOGIC_NOT = 77,    // !
+        LOGIC_AND = 78,    // &&
+        LOGIC_OR = 79,     // ||
+        LOGIC_MOD = 93,    // %   
 
         // Logical Operations
         NOT = 80,            // Logical NOT of the top value
@@ -74,9 +76,14 @@ namespace AuroraScript.Core
         GREATER_THAN = 84,   // Compare if the second value is greater than the top value
         LESS_EQUAL = 85,     // Compare if the second value is less than or equal to the top value
         GREATER_EQUAL = 86,  // Compare if the second value is greater than or equal to the top value
-        L_SHIFT = 87,
-        R_SHIFT = 88,
-        BITWISEOR =89,
+        BIT_SHIFT_L = 87,   // <<
+        BIT_SHIFT_R = 88,   // >>
+        BIT_OR = 89,    // |
+        BIT_XOR = 90,   // ^
+        BIT_AND = 91,   // &
+        BIT_NOT = 92,   // ~
+
+
 
 
         // Control Flow
