@@ -12,7 +12,7 @@ namespace AuroraScript.Compiler
         void VisitImportDeclaration(ImportDeclaration node); 
 
 
-        void VisitProgram(ModuleDeclaration node);
+        void VisitModule(ModuleDeclaration node);
         void VisitFunction(FunctionDeclaration node);
 
         void VisitLambdaExpression(LambdaExpression node);

@@ -35,21 +35,22 @@ namespace AuroraScript.Compiler
         {
             _scope = _scope.Demotion();
         }
-
-        public void VisitProgram(ModuleDeclaration node)
+        /// <summary>
+        /// 记录每个模块的地址
+        /// 记录每个模块下方法地址
+        /// 记录每个模块下导出方法
+        /// 记录每个模块下导出变量
+        /// </summary>
+        /// <param name="node"></param>
+        public void VisitModule(ModuleDeclaration node)
         {
             foreach (var module in node.Imports)
             {
                 module.Accept(this);
             }
             
-            _instructionBuilder.Comment("# module");
+            _instructionBuilder.Comment("# module: " + node.ModuleName);
             VisitBlock(node);
-            DumpCode();
-            // Convert instructions to bytecode
-            var bytes = _instructionBuilder.Build();
-            //return bytecode.ToArray();
-
         }
 
 
@@ -114,6 +115,13 @@ namespace AuroraScript.Compiler
             _instructionBuilder.DumpCode();
 
         }
+
+        public Byte [] Build()
+        {
+          return  _instructionBuilder.Build();
+        }
+
+
 
 
         private void Print(String text, ConsoleColor fontColor)
@@ -217,12 +225,12 @@ namespace AuroraScript.Compiler
             if (node.DefaultValue != null)
             {
                 node.DefaultValue?.Accept(this);
-                _instructionBuilder.PushArgExist(node.Index);
+                _instructionBuilder.LoadArgIsExist(node.Index);
             }
             else
             {
                 // load args
-                _instructionBuilder.PushArg(node.Index);
+                _instructionBuilder.LoadArg(node.Index);
             }
             _instructionBuilder.PopLocal(slot);
         }
@@ -339,7 +347,7 @@ namespace AuroraScript.Compiler
             // Compile the then branch
             node.Body.Accept(this);
             // Patch the jump to else
-            _instructionBuilder.FixJump(jumpToElse);
+            _instructionBuilder.FixJumpToHere(jumpToElse);
             // Compile the else branch if present
             if (node.Else != null)
             {
@@ -347,7 +355,7 @@ namespace AuroraScript.Compiler
                 var jumpOverElse = _instructionBuilder.Jump();
                 node.Else.Accept(this);
                 // Patch the jump over else
-                _instructionBuilder.FixJump(jumpOverElse);
+                _instructionBuilder.FixJumpToHere(jumpOverElse);
             }
 
         }
@@ -667,16 +675,16 @@ namespace AuroraScript.Compiler
             node.Body.Accept(this);
             foreach (var continueJump in _continueJumps.Peek())
             {
-                _instructionBuilder.FixJump(continueJump);
+                _instructionBuilder.FixJumpToHere(continueJump);
             }
             var end = _instructionBuilder.Position();
             _instructionBuilder.Comment($"# inc {node.Incrementor}");
             node.Incrementor?.Accept(this);
             _instructionBuilder.JumpTo(begin);
-            _instructionBuilder.FixJump(exitJump);
+            _instructionBuilder.FixJumpToHere(exitJump);
             foreach (var breakJump in _breakJumps.Peek())
             {
-                _instructionBuilder.FixJump(breakJump);
+                _instructionBuilder.FixJumpToHere(breakJump);
             }
         }
 
@@ -700,11 +708,11 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.FixJump(continueJump, begin);
             }
             _instructionBuilder.JumpTo(begin);
-            _instructionBuilder.FixJump(exitJump);
+            _instructionBuilder.FixJumpToHere(exitJump);
             // Patch continue jumps to point to the condition check
             foreach (var breakJump in _breakJumps.Peek())
             {
-                _instructionBuilder.FixJump(breakJump);
+                _instructionBuilder.FixJumpToHere(breakJump);
             }
 
         }

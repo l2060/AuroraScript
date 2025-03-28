@@ -189,13 +189,16 @@ namespace AuroraScript.Compiler.Emits
         {
             return Emit(OpCode.JUMP, 0);
         }
-
+        public Instruction JumpFalse()
+        {
+            return Emit(OpCode.JUMP_IF_FALSE, 0);
+        }
 
         public Instruction JumpTo(Instruction position)
         {
             var jump = Emit(OpCode.JUMP, 0);
-            var offset =  position.Offset - _position;
-            jump.Operands[0] = offset + jump.Length;
+            var offset = position.Offset - _position;
+            jump.Operands[0] = offset;
             return jump;
         }
 
@@ -205,33 +208,29 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public Instruction JumpFalse()
-        {
-            return Emit(OpCode.JUMP_IF_FALSE, 0);
-        }
 
         public void FixJump(Instruction jump, Instruction to)
         {
-            var offset = to.Offset - jump.Offset;
+            var offset = to.Offset - (jump.Offset + jump.Length);
             jump.Operands[0] = offset;
         }
 
-        public void FixJump(Instruction jump)
+        public void FixJumpToHere(Instruction jump)
         {
-            var offset = _position - jump.Offset;
+            var offset = _position - (jump.Offset + jump.Length);
             jump.Operands[0] = offset;
         }
 
-        public Instruction PushArg(int index)
+        public Instruction LoadArg(int index)
         {
             return Emit(OpCode.LOAD_ARG, index);
         }
 
-        public Instruction PushArgExist(int index)
+        public Instruction LoadArgIsExist(int index)
         {
             return Emit(OpCode.LOAD_ARG2, index);
         }
-        
+
 
 
         public Instruction PushLocal(int index)
@@ -244,6 +243,7 @@ namespace AuroraScript.Compiler.Emits
             var strAddress = GetOrAddStringTable(varName);
             return Emit(OpCode.PUSH_GLOBAL, strAddress);
         }
+
         public Instruction PopLocal(int index)
         {
             return Emit(OpCode.POP_TO_LOCAL, index);
@@ -293,7 +293,6 @@ namespace AuroraScript.Compiler.Emits
 
         public void DumpCode()
         {
-            var index = 0;
             foreach (var instruction in _instructions)
             {
                 if (instruction is CommentInstruction)

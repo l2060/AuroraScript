@@ -1,11 +1,15 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Compiler;
+using AuroraScript.Compiler.Emits;
 using AuroraScript.Core;
 
 namespace AuroraScript
 {
     public class ScriptEngine
     {
+
+        private ByteCodeGenerator codeGenerator = new ByteCodeGenerator();
+
         /// <summary>
         /// </summary>
         /// <param name="filename"></param>
@@ -14,8 +18,16 @@ namespace AuroraScript
             //最终由link-module 链接起来
             // 这个地方不应该由这里加载引入模块，而是由其他线程加载。
             var root = buildModule(filename);
-            var codeGenerator = new ByteCodeGenerator();
+
             root.Accept(codeGenerator);
+
+            codeGenerator.DumpCode();
+            // Convert instructions to bytecode
+            var bytes = codeGenerator.Build();
+            //return bytecode.ToArray();
+
+
+
         }
 
 
@@ -27,6 +39,8 @@ namespace AuroraScript
             {
                 var moduleAst = buildModule(dependency.File.Value, root.Directory);
                 root.Dependencys.Add(moduleAst);
+                moduleAst.Accept(codeGenerator);
+
             }
             return root;
         }

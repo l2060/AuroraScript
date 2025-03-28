@@ -20,6 +20,7 @@ namespace AuroraScript.Analyzer
             this.Compiler = compiler;
             this.root = new ModuleDeclaration(new Scope(this), this.lexer.Directory);
             this.root.ModulePath = lexer.FullPath;
+            this.root.ModuleName = lexer.FullPath;
         }
 
         public AstNode Parse()

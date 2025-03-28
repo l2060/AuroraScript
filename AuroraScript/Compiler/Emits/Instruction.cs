@@ -37,7 +37,7 @@ namespace AuroraScript.Compiler.Emits
 
             if (OpCode == OpCode.JUMP || OpCode == OpCode.JUMP_IF_FALSE || OpCode == OpCode.JUMP_IF_TRUE)
             {
-                return $"{OpCode} [{Operands[0] + Offset:0000}]";
+                return $"{OpCode} [{Offset + Length + Operands[0] :0000}]";
             }
 
 
