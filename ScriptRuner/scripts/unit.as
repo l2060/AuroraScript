@@ -1,10 +1,13 @@
-﻿// import './md5';
+﻿import './md5';
+a.c = !a.c;
+
 
 a.bc += 56 +36;
 
 
 a[c]+=12;
-//a[c]++;
+a.c++; // ByteCode有问题
+a[c]++;
 
 var func = someMethod();
 

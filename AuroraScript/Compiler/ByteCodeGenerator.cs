@@ -522,6 +522,10 @@ namespace AuroraScript.Compiler
             {
                 opCode = OpCode.DECREMENT;
             }
+            else if (node.Operator == Operator.LogicalNot)
+            {
+                opCode = OpCode.LOGICL_NOT;
+            }
             else
             {
                 throw new Exception($"无效的操作符:{node.Operator}");
@@ -548,7 +552,7 @@ namespace AuroraScript.Compiler
                 }
                 else
                 {
-                    throw new Exception($"无效的表达式:{exp}");
+                   // throw new Exception($"无效的表达式:{exp}");
                 }
             }
             else
@@ -573,7 +577,7 @@ namespace AuroraScript.Compiler
                 }
                 else
                 {
-                    throw new Exception($"无效的表达式:{exp}");
+                 //   throw new Exception($"无效的表达式:{exp}");
                 }
 
             }

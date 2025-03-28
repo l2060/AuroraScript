@@ -63,7 +63,7 @@ namespace AuroraScript.Core
         NEGATE = 74,       // Negate the top value
         INCREMENT = 75,    // ++
         DECREMENT = 76,    // --
-
+        LOGICL_NOT= 77,    // !
 
 
         // Logical Operations
