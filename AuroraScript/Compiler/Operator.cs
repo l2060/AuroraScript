@@ -118,9 +118,9 @@ namespace AuroraScript.Compiler
         public static readonly Operator BitwiseNot = new Operator(Symbols.OP_BIT_NOT, 15, OperatorPlacement.Prefix, false);
 
         /// <summary>
-        /// operator -exp
+        /// operator -exp 
         /// </summary>
-        public static readonly Operator Minus = new Operator(Symbols.OP_MINUS, 15, OperatorPlacement.Prefix, false);
+        public static readonly Operator Negate = new Operator(Symbols.OP_MINUS, 15, OperatorPlacement.Prefix, false);
 
         /// <summary>
         /// operator typeof exp

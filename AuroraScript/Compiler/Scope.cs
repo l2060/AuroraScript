@@ -1,7 +1,4 @@
 ﻿using AuroraScript.Analyzer;
-using AuroraScript.Ast;
-using AuroraScript.Ast.Expressions;
-using AuroraScript.Compiler.Exceptions;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Compiler
@@ -27,67 +24,21 @@ namespace AuroraScript.Compiler
 
         internal AuroraParser Parser { get; private set; }
         public List<Scope> Childrens { get; private set; } = new List<Scope>();
-        public Dictionary<string, AstNode> Variables { get; private set; } = new Dictionary<string, AstNode>();
-
-        public ScopeType ScopeType { get; private set; }
+        public ScopeType Type { get; private set; }
 
         internal Scope(AuroraParser parser)
         {
             Parser = parser;
-            ScopeType = ScopeType.MODULE;
-        }
-
-        public void FindToken(Token token)
-        {
+            Type = ScopeType.MODULE;
         }
 
         public Scope CreateScope(ScopeType scopeType)
         {
             var scope = new Scope(Parser);
             scope.Parent = this;
-            scope.ScopeType = scopeType;
+            scope.Type = scopeType;
             Childrens.Add(scope);
             return scope;
-        }
-
-        internal void DeclareVariable(ParameterDeclaration parameter)
-        {
-            var declarationScope = this;
-            while (declarationScope != null)
-            {
-                if (declarationScope.Variables.ContainsKey(parameter.Name.Value))
-                {
-                    throw new ParseException(Parser.lexer.FullPath, parameter.Name, "Duplicate variable declaration in ");
-                }
-                declarationScope = declarationScope.Parent;
-            }
-            Variables.Add(parameter.Name.Value, parameter);
-        }
-
-        internal void DeclareVariable(VariableDeclaration parameter)
-        {
-            var declarationScope = this;
-            while (declarationScope != null)
-            {
-                if (declarationScope.Variables.ContainsKey(parameter.Name.Value))
-                {
-                    throw new ParseException(Parser.lexer.FullPath, parameter.Name, "Duplicate variable declaration in ");
-                }
-                declarationScope = declarationScope.Parent;
-            }
-            Variables.Add(parameter.Name.Value, parameter);
-        }
-
-        internal void DefineVariable(VariableDeclaration parameter)
-        {
-        }
-
-        internal void DeclareFunction(FunctionDeclaration parameter)
-        {
-        }
-
-        internal void DefineFunction(FunctionDeclaration parameter)
-        {
         }
     }
 }

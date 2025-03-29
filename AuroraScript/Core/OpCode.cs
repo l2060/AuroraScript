@@ -26,6 +26,10 @@ namespace AuroraScript.Core
         PUSH_GLOBAL = 16,  // Load a local variable onto the stack (takes variable slot)
         POP_TO_LOCAL = 17, // Store the top value in a local variable (takes variable slot)
         POP_TO_GLOBAL = 18, // Store the top value in a local variable (takes variable slot)
+        MOV_TO_LOCAL = 19, // Store the top value in a local variable 
+        MOV_TO_GLOBAL = 20, // Store the top value in a local variable
+
+
         // Push Number
         PUSH_0 = 20,     // Push the number 0 onto the stack
         PUSH_1 = 21,     // Push the number 1 onto the stack
@@ -60,7 +64,7 @@ namespace AuroraScript.Core
         SUBTRACT = 71,     // Subtract the top value from the second value
         MULTIPLY = 72,     // Multiply the top two values
         DIVIDE = 73,       // Divide the second value by the top value
-        NEGATE = 74,       // Negate the top value
+        NEGATE = 74,       // - Negate the top value
         INCREMENT = 75,    // ++
         DECREMENT = 76,    // --
         LOGIC_NOT = 77,    // !
@@ -97,8 +101,6 @@ namespace AuroraScript.Core
         CALL = 120,         // Call a function
         CALL_NATIVE = 128,  // Call a function
         RETURN = 130,       // Return from a function
-
-
 
 
         // Continuation/Coroutine Support

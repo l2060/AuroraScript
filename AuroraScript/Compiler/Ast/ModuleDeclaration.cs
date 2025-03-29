@@ -10,21 +10,16 @@ namespace AuroraScript.Ast
         public readonly String Directory;
 
         // 引用
-        public readonly List<ModuleDeclaration> Dependencys = new List<ModuleDeclaration>();
+        public readonly List<ModuleSyntaxRef> Dependencys = new List<ModuleSyntaxRef>();
 
         public readonly List<ImportDeclaration> Imports = new List<ImportDeclaration>();
 
-        internal ModuleDeclaration(Scope currentScope ,String directory) : base(currentScope)
+        internal ModuleDeclaration(Scope currentScope, String directory) : base(currentScope)
         {
             Directory = directory;
         }
         // 文件名
         // 其他
-
-        public void Import(ModuleDeclaration module)
-        {
-            Dependencys.Add(module);
-        }
 
         public String ModuleName { get; set; }
         public String ModulePath { get; set; }

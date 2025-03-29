@@ -2,10 +2,10 @@
  * aurora script
  * */
 /* external declare */
-import './libs/common';
-import './md5';
+import common from './libs/common';
+import md5 from './md5';
 /* Import the exported objects in the script `test` to the `Test` namespace  */
-import * as Document from './document';
+import Document from './document';
 
 
 name = 123456;

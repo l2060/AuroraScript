@@ -43,21 +43,21 @@
         }
 
         /// <summary>
-        /// 提升
+        /// 进入新的范围
         /// </summary>
         /// <returns></returns>
 
-        public CodeScope Promotion()
+        public CodeScope Enter()
         {
             var scope = new CodeScope(this);
             return scope;
         }
 
         /// <summary>
-        /// 降级
+        /// 离开范围
         /// </summary>
         /// <returns></returns>
-        public CodeScope Demotion()
+        public CodeScope Leave()
         {
             return _parent;
         }

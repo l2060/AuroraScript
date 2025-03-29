@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Analyzer;
 using AuroraScript.Ast;
-using AuroraScript.Ast.Expressions;
+using AuroraScript.Compiler.Emits;
 using AuroraScript.Compiler.Exceptions;
 
 using AuroraScript.Uilty;
@@ -9,23 +9,57 @@ using System.Text;
 
 namespace AuroraScript.Compiler
 {
+    public class ModuleResolver
+    {
+
+    }
+
+    public class ModuleSyntaxRef
+    {
+        public String ModulePath { get; set; }
+
+        public ModuleDeclaration SyntaxTree { get; set; }
+
+
+    }
+
+
+
     public class ScriptCompiler
     {
+        private readonly String _baseDirectory;
         public string FileExtension { get; set; } = ".as";
+        private ByteCodeGenerator codeGenerator = new ByteCodeGenerator();
+        private ConcurrentDictionary<string, ModuleSyntaxRef> scriptModules = new ConcurrentDictionary<string, ModuleSyntaxRef>();
 
-        private ConcurrentDictionary<string, AuroraParser> scriptParsers = new ConcurrentDictionary<string, AuroraParser>();
 
-        /// <summary>
-        /// Fill in the file extension
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        private string fillExtension(string filename)
+        public ScriptCompiler(String baseDirectory)
         {
-            var extension = Path.GetExtension(filename);
-            if (extension.ToLower() != FileExtension) filename = filename + FileExtension;
-            return filename;
+
+            _baseDirectory = Path.GetFullPath(baseDirectory);
         }
+
+        public async Task Build(string filepath)
+        {
+            var files = Directory.GetFiles(_baseDirectory, "*.as", SearchOption.AllDirectories);
+            ModuleSyntaxRef[] syntaxRefs = [];
+            using (var s = new WitchTimer("BUILD USE XX :"))
+            {
+                syntaxRefs = await Task.WhenAll(files.Select(BuildSyntaxTreeAsync));
+            }
+            foreach (var item in syntaxRefs)
+            {
+                item.SyntaxTree.Accept(codeGenerator);
+            }
+            codeGenerator.DumpCode();
+            var bytes = codeGenerator.Build();
+        }
+
+
+
+
+
+
 
         /// <summary>
         /// build Abstract syntax tree
@@ -34,47 +68,30 @@ namespace AuroraScript.Compiler
         /// <param name="filepath"></param>
         /// <param name="relativePath"></param>
         /// <returns></returns>
-        public ModuleDeclaration buildAst(string filepath, string relativePath = null)
+        public async Task<ModuleSyntaxRef> BuildSyntaxTreeAsync(string fileFullPath)
         {
-            AuroraLexer lexer;
-            AstNode root;
-            if (relativePath == null) relativePath = "";
-            // get import fileName
-            var filename = filepath.Replace("/", "\\");
-            // full extension
-            filename = fillExtension(filename);
-            // get import file fullPath
-            var fileFullPath = Path.GetFullPath(Path.Combine(relativePath, filename));
             if (!File.Exists(fileFullPath))
             {
                 throw new CompilerException(fileFullPath, "Import file path not found ");
             }
-            scriptParsers.TryGetValue(fileFullPath, out AuroraParser parser);
-            if (parser != null)
+            var module = scriptModules.GetOrAdd(fileFullPath, (key) =>
             {
-                return parser.root;
-            }
-            using (var time = new WitchTimer("Lexer：" + fileFullPath))
+                return new ModuleSyntaxRef() { ModulePath = fileFullPath };
+            });
+            if (module.SyntaxTree != null) return module;
+            var lexer = new AuroraLexer(fileFullPath, Encoding.UTF8);
+            var parser = new AuroraParser(this, lexer);
+            module.SyntaxTree = parser.Parse();
+            scriptModules.TryAdd(fileFullPath, module);
+            // load dependencys 
+            foreach (var dependency in module.SyntaxTree.Imports)
             {
-                lexer = new AuroraLexer(fileFullPath, Encoding.UTF8);
+                var moduleAst = await BuildSyntaxTreeAsync(dependency.FullPath);
+                module.SyntaxTree.Dependencys.Add(moduleAst);
             }
-            using (var time = new WitchTimer("Parser：" + fileFullPath))
-            {
-                parser = new AuroraParser(this, lexer);
-                scriptParsers.TryAdd(fileFullPath, parser);
-                root = parser.Parse();
-            }
-            //
-            opaimizeTree(root);
-            return root as ModuleDeclaration;
+            return module;
         }
 
-        public void buildFile(string filepath)
-        {
-            AstNode root = buildAst(filepath);
-            opaimizeTree(root);
-            //this.PrintTreeCode(root);
-        }
 
         /// <summary>
         /// optimize abstract syntax tree
@@ -82,23 +99,17 @@ namespace AuroraScript.Compiler
         /// <param name="root"></param>
         public void opaimizeTree(AstNode parent)
         {
-            for (int i = parent.Length - 1; i >= 0; i--)
-            {
-                var node = parent[i];
-
-                if (node is AssignmentExpression assignmentExpression)
-                {
-                    Console.WriteLine();
-                }
-
-
-                //if (node is GroupExpression || (node is BlockStatement block && block.Length == 1))
-                //{
-                //    node.Remove();
-                //    parent.AddNode(node);
-                //}
-                opaimizeTree(node);
-            }
+            //for (int i = parent.Length - 1; i >= 0; i--)
+            //{
+            //    var node = parent[i];
+            //    if (node is AssignmentExpression assignmentExpression)
+            //    {
+            //        Console.WriteLine();
+            //    }
+            //    opaimizeTree(node);
+            //}
         }
+
+
     }
 }

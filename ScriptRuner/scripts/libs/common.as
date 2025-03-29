@@ -1,4 +1,4 @@
-﻿import '../main';
+﻿import main from '../main';
 
 /**
  * declare external Enum

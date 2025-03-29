@@ -65,7 +65,6 @@ var a1 = [];
 function someMethod() {
     // load exec-context
     // new exec-context
-
     var a2 = 0;
     var funcA = () => {
         a2++; //

@@ -2,10 +2,10 @@
  * block comment
  * */
 
-import './libs/common';
-import 'main';
+import common from './libs/common';
+import main from 'main';
 
-
+export const PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
 export var TextContent = `
 this is line 1
 this is line 2
@@ -111,7 +111,7 @@ var s = {
         console.log("12345");
         return true;
     },
-    mini: (arg1, arg2 = 1) => {
+    mini: (arg1, arg2) => {
         var s = true;
         return [s, ""];
     },
@@ -131,7 +131,7 @@ s.call("", true, false, false);
 s.mini(100, 120);
 s.func({ a: 1, b: 2 }, [a, b, c, ...array]);
 
-var func = (event, event2 = 1) => {
+var func = (event, event2) => {
     var s = true;
     return s;
 };

@@ -20,7 +20,7 @@ namespace AuroraScript.Ast.Expressions
         {
             this.Arguments.Add(expression);
             expression.Parent = this;
-        }   
+        }
 
 
 

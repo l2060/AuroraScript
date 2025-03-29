@@ -10,14 +10,14 @@ namespace AuroraScript.Ast
     /// </summary>
     public class ParameterDeclaration : Statement
     {
-        internal ParameterDeclaration(int index,  Token name, Expression defaultValue)
+        internal ParameterDeclaration(int index, Token name, Expression defaultValue)
         {
             Name = name;
             DefaultValue = defaultValue;
             Index = index;
         }
 
-        public int Index { get; set; }  
+        public int Index { get; set; }
 
         /// <summary>
         /// Parameter

@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="scripts\libs\common.ts">
+    <None Update="scripts\libs\common.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="scripts\unit.as">
@@ -35,10 +35,10 @@
     <None Update="scripts\md5.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="scripts\document.ts">
+    <None Update="scripts\document.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="scripts\main.ts">
+    <None Update="scripts\main.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

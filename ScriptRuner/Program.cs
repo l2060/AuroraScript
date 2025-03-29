@@ -7,9 +7,16 @@ using AuroraScript.Core;
 
 
 
-var engine = new ScriptEngine();
+var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./scripts/" });
+try
+{
+    engine.BuildAsync("./unit.as").Wait();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[Error]: {ex.Message}");
+}
 
-engine.build("./scripts/unit.as");
 
 Console.WriteLine("=====================================================================================");
 Console.ReadKey();

@@ -9,7 +9,7 @@ namespace AuroraScript.Ast.Expressions
     /// </summary>
     public class VariableDeclaration : Statement
     {
-        internal VariableDeclaration(Symbols access, Boolean isConst, Token nameToken)
+        internal VariableDeclaration(MemberAccess access, Boolean isConst, Token nameToken)
         {
             Access = access;
             IsConst = isConst;
@@ -28,12 +28,12 @@ namespace AuroraScript.Ast.Expressions
         /// <summary>
         /// var initialize statement
         /// </summary>
-        public Expression Initializer => ChildNodes.Count > 0? ChildNodes[0] as Expression: null;
+        public Expression Initializer => ChildNodes.Count > 0 ? ChildNodes[0] as Expression : null;
 
         /// <summary>
         /// Function Access
         /// </summary>
-        public Symbols Access { get; set; }
+        public MemberAccess Access { get; set; }
 
         /// <summary>
         /// this variable use const declare

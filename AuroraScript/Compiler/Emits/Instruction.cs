@@ -1,58 +1,153 @@
 ﻿using AuroraScript.Core;
 
+
 namespace AuroraScript.Compiler.Emits
 {
-    public class Instruction
+    public abstract class Instruction
     {
         /// <summary>
         /// The operation code.
         /// </summary>
-        public readonly OpCode OpCode;
-
-        /// <summary>
-        /// The instruction operands, if any.
-        /// </summary>
-        public readonly int[] Operands;
+        public OpCode OpCode { get; private set; }
 
         public readonly int Offset;
-
-        public readonly int Length;
+        public abstract int Length { get; }
 
         public Instruction Previous;
 
         public Instruction Next;
 
-
-        public Instruction(OpCode opCode, int offset, params int[] operands)
+        public void Change(OpCode opCode)
         {
             OpCode = opCode;
-            Operands = operands;
-            Offset = offset;
-            Length = operands.Length * sizeof(int) + 1;
         }
 
+
+        public Instruction(OpCode opCode, int offset)
+        {
+            OpCode = opCode;
+            Offset = offset;
+        }
+
+        public abstract void WriteTo(BinaryWriter writer);
+
+    }
+
+    public class Instruction1 : Instruction
+    {
+        public override int Length => 1;
+
+        public Instruction1(OpCode opCode, int offset) : base(opCode, offset)
+        {
+        }
 
         public override string ToString()
         {
-
-            if (OpCode == OpCode.JUMP || OpCode == OpCode.JUMP_IF_FALSE || OpCode == OpCode.JUMP_IF_TRUE)
-            {
-                return $"{OpCode} [{Offset + Length + Operands[0] :0000}]";
-            }
-
-
-            if (Operands.Length == 0) return OpCode.ToString();
-            return $"{OpCode} {String.Join(", ", Operands)}";
+            return OpCode.ToString();
         }
 
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+        }
+    }
+
+    public class Instruction5 : Instruction
+    {
+        public int Value;
+
+        public override int Length => 5;
+
+        public Instruction5(OpCode opCode, int offset, int value) : base(opCode, offset)
+        {
+            this.Value = value;
+        }
+
+        public override string ToString()
+        {
+            if (OpCode == OpCode.PUSH_F32)
+            {
+                NumberUnion union = new NumberUnion(Value, 0);
+                return OpCode + " " + union.FloatValue1;
+            }
+            return OpCode.ToString() + " " + Value;
+        }
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value);
+        }
+    }
+
+    public class Instruction9 : Instruction
+    {
+
+        public NumberUnion Value;
+
+        public override int Length => 9;
+
+        public Instruction9(OpCode opCode, int offset, Double value) : base(opCode, offset)
+        {
+            this.Value = new NumberUnion(value);
+        }
+
+        public override string ToString()
+        {
+            return OpCode + " " + Value.DoubleValue;
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value.Int32Value1);
+            writer.Write(Value.Int32Value2);
+        }
+        //private void a()
+        //{
+        //    long bits = Unsafe.As<double, long>(ref Value);
+        //    int high = (int)(bits >> 32);
+        //    int low = (int)(bits & 0xFFFFFFFF);
+        //    // low, high
+        //    //NumberUnion union2 = new NumberUnion(operand);
+        //}
+    }
+
+    public class JumpInstruction : Instruction5
+    {
+        internal JumpInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset, addOffset)
+        {
+        }
+
+        public override string ToString()
+        {
+            return $"{OpCode} [{Offset + Length + Value:0000}]";
+        }
+    }
+
+
+
+
+    public class PositionInstruction : Instruction
+    {
+        internal PositionInstruction(int offset) : base(OpCode.NOP, offset)
+        {
+        }
+
+        public override int Length => 0;
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+        }
     }
 
 
     public class CommentInstruction : Instruction
     {
+        public override int Length => 0;
+
         public String Comment;
         private int PreEmptyLine;
-        public CommentInstruction(String comment, int preEmptyLine) : base(OpCode.NOP, 0)
+        internal CommentInstruction(String comment, int preEmptyLine) : base(OpCode.NOP, 0)
         {
             this.Comment = comment;
             this.PreEmptyLine = preEmptyLine;
@@ -66,7 +161,10 @@ namespace AuroraScript.Compiler.Emits
             }
             return Comment;
         }
+        public override void WriteTo(BinaryWriter writer)
+        {
 
+        }
     }
 
 

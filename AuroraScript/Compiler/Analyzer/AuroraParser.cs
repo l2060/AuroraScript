@@ -23,7 +23,7 @@ namespace AuroraScript.Analyzer
             this.root.ModuleName = lexer.FullPath;
         }
 
-        public AstNode Parse()
+        public ModuleDeclaration Parse()
         {
             while (true)
             {
@@ -68,12 +68,12 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
-            if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, Symbols.KW_INTERNAL);
-            if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, Symbols.KW_INTERNAL);
-            if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, MemberAccess.Internal);
+            if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, MemberAccess.Internal);
+            if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
             //if (token.Symbol == Symbols.KW_TYPE) return this.ParseTypeDeclaration(currentScope, Symbols.KW_INTERNAL);
-            if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, Symbols.KW_INTERNAL);
+            if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
@@ -94,7 +94,7 @@ namespace AuroraScript.Analyzer
         /**
          * parse extend type declare
          */
-        private Statement ParseDeclare(Scope currentScope, Symbols access = null)
+        private Statement ParseDeclare(Scope currentScope, MemberAccess access = MemberAccess.Internal)
         {
             this.lexer.NextOfKind(Symbols.KW_DECLARE);
             if (this.lexer.TestNext(Symbols.KW_FUNCTION))
@@ -111,14 +111,7 @@ namespace AuroraScript.Analyzer
                 //var typeds = this.ParseFunctionReturnTypeds(currentScope);
                 // ;
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-                var declaration = new FunctionDeclaration()
-                {
-                    Access = access,
-                    Identifier = funcName,
-                    Parameters = arguments,
-                    //Typeds = typeds,
-                };
-                currentScope.DeclareFunction(declaration);
+                var declaration = new FunctionDeclaration(access, funcName, arguments, null, FunctionFlags.Declare);
                 return declaration;
             }
             throw this.InitParseException("The Declare keyword only allows the declaration of external methods ", this.lexer.LookAtHead());
@@ -325,7 +318,7 @@ namespace AuroraScript.Analyzer
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
-        private Statement ParseVariableDeclaration(Scope currentScope, Symbols access = null)
+        private Statement ParseVariableDeclaration(Scope currentScope, MemberAccess access = MemberAccess.Internal)
         {
             var isConst = false;
             // const
@@ -380,7 +373,6 @@ namespace AuroraScript.Analyzer
             var exp = new Statements();
             var v = new VariableDeclaration(access, isConst, varNames[0]);
             if (initializer != null) v.AddNode(initializer);
-            currentScope.DefineVariable(v);
             exp.AddNode(v);
             var preVarName = varNames[0];
             for (int i = 1; i < varNames.Count; i++)
@@ -392,7 +384,6 @@ namespace AuroraScript.Analyzer
                     lexp.Identifier = preVarName;
                     @var.AddNode(lexp);
                 }
-                currentScope.DefineVariable(@var);
                 exp.AddNode(@var);
                 preVarName = varNames[i];
             }
@@ -850,7 +841,7 @@ namespace AuroraScript.Analyzer
 
 
             if (_operator == Operator.BitwiseNot) return new UnaryExpression(_operator, UnaryType.Prefix);
-            if (_operator == Operator.Minus) return new UnaryExpression(_operator, UnaryType.Prefix);
+            if (_operator == Operator.Negate) return new UnaryExpression(_operator, UnaryType.Prefix);
             if (_operator == Operator.PreDecrement) return new UnaryExpression(_operator, UnaryType.Prefix);
             if (_operator == Operator.PreIncrement) return new UnaryExpression(_operator, UnaryType.Prefix);
             if (_operator == Operator.TypeOf) return new UnaryExpression(_operator, UnaryType.Prefix);
@@ -970,7 +961,7 @@ namespace AuroraScript.Analyzer
 
         private Expression ParseLamdaExpression(Scope currentScope)
         {
-            var func = ParseFunction(null, currentScope, null, FunctionFlags.Lambda);
+            var func = ParseFunction(null, currentScope, MemberAccess.Internal, FunctionFlags.Lambda);
             var lambda = new LambdaExpression();
             lambda.Function = func;
             return lambda;
@@ -984,7 +975,7 @@ namespace AuroraScript.Analyzer
         /// <param name="parentScope"></param>
         /// <param name="access"></param>
         /// <returns></returns>
-        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, Symbols access = null, FunctionFlags flags = FunctionFlags.General)
+        private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, MemberAccess access = MemberAccess.Internal, FunctionFlags flags = FunctionFlags.General)
         {
             // next token (
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
@@ -997,11 +988,6 @@ namespace AuroraScript.Analyzer
             }
             // create function scope
             var scope = currentScope.CreateScope(ScopeType.FUNCTION);
-            // declare arguments variable
-            foreach (var arg in arguments)
-            {
-                scope.DeclareVariable(arg);
-            }
             // parse function body
             var body = this.ParseBlock(scope);
             if (!(body is BlockStatement))
@@ -1010,18 +996,7 @@ namespace AuroraScript.Analyzer
                 newBody.AddNode(body);
                 body = newBody;
             }
-
-            var declaration = new FunctionDeclaration()
-            {
-                Access = access,
-                Body = body,
-                Identifier = functionName,
-                Parameters = arguments,
-                //Typeds = typeds,
-                Flags = flags
-            };
-            // define functions in scope
-            currentScope.DefineFunction(declaration);
+            var declaration = new FunctionDeclaration(access, functionName, arguments, body, flags);
             return declaration;
         }
         private Statement ParseClass(Scope currentScope, Symbols access = null)
@@ -1063,7 +1038,7 @@ namespace AuroraScript.Analyzer
         /// <param name="currentScope"></param>
         /// <param name="access"></param>
         /// <returns></returns>
-        private Statement ParseFunctionDeclaration(Scope currentScope, Symbols access = null)
+        private Statement ParseFunctionDeclaration(Scope currentScope, MemberAccess access = MemberAccess.Internal)
         {
             this.lexer.NextOfKind(Symbols.KW_FUNCTION);
             var functionName = this.lexer.NextOfKind<IdentifierToken>();
@@ -1080,12 +1055,18 @@ namespace AuroraScript.Analyzer
         /// <exception cref="LexerException"></exception>
         private Statement ParseExportStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_EXPORT);
+            var exportToken = this.lexer.NextOfKind(Symbols.KW_EXPORT);
+            if (currentScope.Type != ScopeType.MODULE)
+            {
+                throw new Exception(String.Format("Invalid “export” keyword in row {0}, column {1}, scope not supported.", exportToken.LineNumber, exportToken.ColumnNumber));
+            }
+
+
             var token = this.lexer.LookAtHead();
             if (token is KeywordToken && token.Symbol == Symbols.KW_FUNCTION)
             {
                 // function
-                return ParseFunctionDeclaration(currentScope, Symbols.KW_EXPORT);
+                return ParseFunctionDeclaration(currentScope, MemberAccess.Export);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_CLASS)
             {
@@ -1095,12 +1076,12 @@ namespace AuroraScript.Analyzer
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {
                 // var
-                return ParseVariableDeclaration(currentScope, Symbols.KW_EXPORT);
+                return ParseVariableDeclaration(currentScope, MemberAccess.Export);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_CONST)
             {
                 // const
-                return ParseVariableDeclaration(currentScope, Symbols.KW_EXPORT);
+                return ParseVariableDeclaration(currentScope, MemberAccess.Export);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_ENUM)
             {
@@ -1110,7 +1091,7 @@ namespace AuroraScript.Analyzer
             else if (token is KeywordToken && token.Symbol == Symbols.KW_DECLARE)
             {
                 // type
-                return ParseDeclare(currentScope, Symbols.KW_EXPORT);
+                return ParseDeclare(currentScope);
             }
             throw this.InitParseException("Invalid keywords appear in export declaration .", token);
         }
@@ -1127,7 +1108,20 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.KW_FROM);
             Token fileToken = this.lexer.NextOfKind<StringToken>();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            return new ImportDeclaration() { Module = module, File = fileToken };
+
+            var FileExtension = ".as";
+            var fullPath = Path.GetFullPath(Path.Combine(this.lexer.Directory, fileToken.Value));
+            var extension = Path.GetExtension(fullPath);
+            if (extension.ToLower() != FileExtension) fullPath = fullPath + FileExtension;
+            if (!File.Exists(fullPath))
+            {
+                throw new CompilerException(fullPath, "Import file path not found ");
+            }
+            return new ImportDeclaration() { Module = module, File = fileToken, FullPath = fullPath };
         }
+
+
+
+
     }
 }

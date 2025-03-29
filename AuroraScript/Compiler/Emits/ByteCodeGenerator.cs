@@ -2,20 +2,18 @@
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
-using AuroraScript.Compiler.Emits;
 using AuroraScript.Core;
 using AuroraScript.Tokens;
-using System.Reflection;
-using System.Text;
 
 
-namespace AuroraScript.Compiler
+
+namespace AuroraScript.Compiler.Emits
 {
     public class ByteCodeGenerator : IAstVisitor
     {
         private CodeScope _scope = new CodeScope(null);
-        private Stack<List<Instruction>> _breakJumps = new Stack<List<Instruction>>();
-        private Stack<List<Instruction>> _continueJumps = new Stack<List<Instruction>>();
+        private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
+        private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
         private readonly List<string> _stringTable = new List<string>();
         private readonly InstructionBuilder _instructionBuilder;
@@ -28,12 +26,12 @@ namespace AuroraScript.Compiler
 
         private void BeginScope()
         {
-            _scope = _scope.Promotion();
+            _scope = _scope.Enter();
         }
 
         private void EndScope()
         {
-            _scope = _scope.Demotion();
+            _scope = _scope.Leave();
         }
         /// <summary>
         /// 记录每个模块的地址
@@ -44,20 +42,20 @@ namespace AuroraScript.Compiler
         /// <param name="node"></param>
         public void VisitModule(ModuleDeclaration node)
         {
+            BeginScope();
             foreach (var module in node.Imports)
             {
                 module.Accept(this);
             }
-            
             _instructionBuilder.Comment("# module: " + node.ModuleName);
             VisitBlock(node);
+            EndScope();
         }
 
 
         public void VisitImportDeclaration(ImportDeclaration node)
         {
 
-            Console.WriteLine(node);
         }
 
 
@@ -116,15 +114,15 @@ namespace AuroraScript.Compiler
 
         }
 
-        public Byte [] Build()
+        public byte[] Build()
         {
-          return  _instructionBuilder.Build();
+            return _instructionBuilder.Build();
         }
 
 
 
 
-        private void Print(String text, ConsoleColor fontColor)
+        private void Print(string text, ConsoleColor fontColor)
         {
             var color = Console.ForegroundColor;
             Console.ForegroundColor = fontColor;
@@ -239,19 +237,27 @@ namespace AuroraScript.Compiler
 
         public void VisitFunction(FunctionDeclaration node)
         {
+            if (node.Flags == FunctionFlags.Declare) return;
+
+            if (node.Access == MemberAccess.Export)
+            {
+
+            }
+
+
             _instructionBuilder.Comment($"# begin_func {node.Identifier?.Value}", 4);
             BeginScope();
-
+            var begin = _instructionBuilder.Position();
             // define arg var
             foreach (var statement in node.Parameters)
             {
                 statement.Accept(this);
             }
             // Compile the function body
-            node.Body.Accept(this);
+            node.Body?.Accept(this);
             // If the function doesn't end with a return, add an implicit return null
             var lastInstruction = _instructionBuilder.LastInstruction;
-            if (lastInstruction.OpCode != OpCode.RETURN)
+            if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
             {
                 _instructionBuilder.PushNull();
                 _instructionBuilder.Return();
@@ -346,24 +352,28 @@ namespace AuroraScript.Compiler
             var jumpToElse = _instructionBuilder.JumpFalse();
             // Compile the then branch
             node.Body.Accept(this);
-            // Patch the jump to else
-            _instructionBuilder.FixJumpToHere(jumpToElse);
             // Compile the else branch if present
             if (node.Else != null)
             {
                 // Jump over the else branch
                 var jumpOverElse = _instructionBuilder.Jump();
+                // Patch the jump to end
+                _instructionBuilder.FixJumpToHere(jumpToElse);
                 node.Else.Accept(this);
                 // Patch the jump over else
                 _instructionBuilder.FixJumpToHere(jumpOverElse);
             }
-
+            else
+            {
+                // Patch the jump to end
+                _instructionBuilder.FixJumpToHere(jumpToElse);
+            }
         }
 
         public void VisitLambdaExpression(LambdaExpression node)
         {
             //  
-            this.VisitFunction(node.Function);
+            VisitFunction(node.Function);
 
 
         }
@@ -377,15 +387,15 @@ namespace AuroraScript.Compiler
             }
             else if (token.Type == Tokens.ValueType.Number)
             {
-                _instructionBuilder.PushConstantNumber((Double)node.Value);
+                _instructionBuilder.PushConstantNumber((double)node.Value);
             }
             else if (token.Type == Tokens.ValueType.String)
             {
-                _instructionBuilder.PushConstantString((String)node.Value);
+                _instructionBuilder.PushConstantString((string)node.Value);
             }
             else if (token.Type == Tokens.ValueType.Boolean)
             {
-                _instructionBuilder.PushConstantBoolean((Boolean)node.Value);
+                _instructionBuilder.PushConstantBoolean((bool)node.Value);
             }
         }
 
@@ -550,7 +560,7 @@ namespace AuroraScript.Compiler
                 _instructionBuilder.Emit(OpCode.LOGIC_MOD);
             }
 
-            
+
             else
             {
                 throw new NotSupportedException($"Unsupported binary operator: {node.Operator.Symbol}");
@@ -578,6 +588,10 @@ namespace AuroraScript.Compiler
             {
                 opCode = OpCode.BIT_NOT;
             }
+            else if (node.Operator == Operator.Negate)
+            {
+                opCode = OpCode.NEGATE;
+            }
             else
             {
                 throw new Exception($"无效的操作符:{node.Operator}");
@@ -604,7 +618,7 @@ namespace AuroraScript.Compiler
                 }
                 else
                 {
-                   // throw new Exception($"无效的表达式:{exp}");
+                    // throw new Exception($"无效的表达式:{exp}");
                 }
             }
             else
@@ -629,7 +643,7 @@ namespace AuroraScript.Compiler
                 }
                 else
                 {
-                 //   throw new Exception($"无效的表达式:{exp}");
+                    //   throw new Exception($"无效的表达式:{exp}");
                 }
 
             }
@@ -663,10 +677,10 @@ namespace AuroraScript.Compiler
         {
             _instructionBuilder.Comment($"# for");
             node.Initializer?.Accept(this);
-            var begin = _instructionBuilder.Position();
-            _breakJumps.Push(new List<Instruction>());
-            _continueJumps.Push(new List<Instruction>());
+            _breakJumps.Push(new List<JumpInstruction>());
+            _continueJumps.Push(new List<JumpInstruction>());
             _instructionBuilder.Comment($"# condition {node.Condition}");
+            var begin = _instructionBuilder.Position();
             node.Condition?.Accept(this);
             // Jump out of loop if condition is false
             var exitJump = _instructionBuilder.JumpFalse();
@@ -693,8 +707,8 @@ namespace AuroraScript.Compiler
         {
             var begin = _instructionBuilder.Position();
             // Set up break and continue targets
-            _breakJumps.Push(new List<Instruction>());
-            _continueJumps.Push(new List<Instruction>());
+            _breakJumps.Push(new List<JumpInstruction>());
+            _continueJumps.Push(new List<JumpInstruction>());
             // Compile condition
             node.Condition.Accept(this);
             // Jump out of loop if condition is false

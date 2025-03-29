@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Core;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 
@@ -8,17 +7,15 @@ namespace AuroraScript.Compiler.Emits
 {
     internal class InstructionBuilder
     {
+        public int _position { get; private set; }
         private readonly List<string> _stringTable = new List<string>();
+        private readonly List<Instruction> _instructions = new List<Instruction>();
+
+
         public InstructionBuilder(List<string> stringTable)
         {
             _stringTable = stringTable;
         }
-
-
-
-        private readonly List<Instruction> _instructions = new List<Instruction>();
-
-        public int _position { get; private set; }
 
         public Instruction LastInstruction
         {
@@ -33,13 +30,12 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public Instruction FirstInstruction
+
+        public Boolean IsChanged(Instruction position)
         {
-            get
-            {
-                return _instructions.Count > 0 ? _instructions[0] : null;
-            }
+            return position.Offset != _position;
         }
+
 
         public int GetOrAddStringTable(String str)
         {
@@ -50,21 +46,26 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        private Byte[] _buffer = new byte[1024];
-
         public Instruction Emit(OpCode opCode)
         {
-            return AppendInstruction(opCode, _position);
+            var instruction = new Instruction1(opCode, _position);
+            return AppendInstruction(instruction);
         }
 
-        public Instruction Emit(OpCode opCode, params int[] param)
+        public Instruction Emit(OpCode opCode, int param)
         {
-            return AppendInstruction(opCode, _position, param);
+            var instruction = new Instruction5(opCode, _position, param);
+            return AppendInstruction(instruction);
         }
 
-        private Instruction AppendInstruction(OpCode opCode, int offset, params int[] operands)
+        public Instruction Emit(OpCode opCode, Double param)
         {
-            var instruction = new Instruction(opCode, _position, operands);
+            var instruction = new Instruction9(opCode, _position, param);
+            return AppendInstruction(instruction);
+        }
+
+        private Instruction AppendInstruction(Instruction instruction)
+        {
             var last = LastInstruction;
             if (last != null)
             {
@@ -78,49 +79,75 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public Instruction Position()
+        public PositionInstruction Position()
         {
-            return new Instruction(OpCode.NOP, _position);
-        }
-        public Instruction PushConstantString(int index)
-        {
-            return Emit(OpCode.PUSH_STRING, index);
+            return new PositionInstruction(_position);
         }
 
-        public Instruction PushConstantString(String str)
+        public JumpInstruction Jump()
+        {
+            var instruction = new JumpInstruction(OpCode.JUMP, _position);
+            AppendInstruction(instruction);
+            return instruction;
+        }
+
+        public JumpInstruction JumpFalse()
+        {
+            var instruction = new JumpInstruction(OpCode.JUMP_IF_FALSE, _position);
+            AppendInstruction(instruction);
+            return instruction;
+        }
+
+        public void JumpTo(PositionInstruction position)
+        {
+            var offset = position.Offset - (_position + 5);
+            var instruction = new JumpInstruction(OpCode.JUMP, _position, offset);
+            AppendInstruction(instruction);
+            //var jump = Emit(OpCode.JUMP, 0);
+            //jump.Operands[0] = offset;
+        }
+
+
+        public void PushConstantString(int index)
+        {
+            Emit(OpCode.PUSH_STRING, index);
+        }
+
+        public void PushConstantString(String str)
         {
             var strAddress = GetOrAddStringTable(str);
-            return Emit(OpCode.PUSH_STRING, strAddress);
+            Emit(OpCode.PUSH_STRING, strAddress);
         }
 
-        public Instruction PushConstantNumber(Double operand)
+        public void PushConstantNumber(Double operand)
         {
             if (operand % 1 == 0 && operand >= SByte.MinValue && operand <= SByte.MaxValue)
             {
                 if (operand >= 0 && operand <= 9)
                 {
-                    return Emit((OpCode)((Int32)OpCode.PUSH_0 + (Int32)operand));
+                    Emit((OpCode)((Int32)OpCode.PUSH_0 + (Int32)operand));
+                    return;
                 }
-                return Emit(OpCode.PUSH_I8, (Int32)operand);
+                Emit(OpCode.PUSH_I8, (Int32)operand);
+                return;
             }
             if (operand % 1 == 0 && operand >= Int16.MinValue && operand <= Int16.MaxValue)
             {
-                return Emit(OpCode.PUSH_I16, (Int32)operand);
+                Emit(OpCode.PUSH_I16, (Int32)operand);
+                return;
             }
             if (operand % 1 == 0 && operand >= Int32.MinValue && operand <= Int32.MaxValue)
             {
-                return Emit(OpCode.PUSH_I32, (Int32)operand);
+                Emit(OpCode.PUSH_I32, (Int32)operand);
+                return;
             }
-            if (operand >= Single.MinValue && operand <= Single.MaxValue)
+            if (operand >= Single.MinValue && operand <= Single.MaxValue && (Single)operand == operand)
             {
                 NumberUnion union = new NumberUnion((Single)operand);
-                return Emit(OpCode.PUSH_F32, union.Int32Value1);
+                Emit(OpCode.PUSH_F32, union.Int32Value1);
+                return;
             }
-            long bits = Unsafe.As<double, long>(ref operand);
-            int high = (int)(bits >> 32);
-            int low = (int)(bits & 0xFFFFFFFF);
-            //NumberUnion union2 = new NumberUnion(operand);
-            return Emit(OpCode.PUSH_F64, low, high);
+            Emit(OpCode.PUSH_F64, operand);
         }
 
 
@@ -128,32 +155,32 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public Instruction Pop()
+        public void Pop()
         {
-            return Emit(OpCode.POP);
+            Emit(OpCode.POP);
         }
 
-        public Instruction SetElement()
+        public void SetElement()
         {
-            return Emit(OpCode.SET_ELEMENT);
+            Emit(OpCode.SET_ELEMENT);
         }
-        public Instruction SetProperty()
+        public void SetProperty()
         {
-            return Emit(OpCode.SET_PROPERTY);
+            Emit(OpCode.SET_PROPERTY);
         }
-        public Instruction GetProperty()
+        public void GetProperty()
         {
-            return Emit(OpCode.GET_PROPERTY);
+            Emit(OpCode.GET_PROPERTY);
         }
-        public Instruction GetElement()
+        public void GetElement()
         {
-            return Emit(OpCode.GET_ELEMENT);
+            Emit(OpCode.GET_ELEMENT);
         }
 
 
-        public Instruction PushConstantBoolean(Boolean value)
+        public void PushConstantBoolean(Boolean value)
         {
-            return Emit(value ? OpCode.PUSH_TRUE : OpCode.PUSH_FALSE);
+            Emit(value ? OpCode.PUSH_TRUE : OpCode.PUSH_FALSE);
         }
 
         [Conditional("DEBUG")]
@@ -163,111 +190,97 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public Instruction PushNull()
+        public void PushNull()
         {
-            return Emit(OpCode.PUSH_NULL);
+            Emit(OpCode.PUSH_NULL);
         }
 
-        public Instruction Duplicate()
+        public void Duplicate()
         {
-            return Emit(OpCode.DUP);
+            Emit(OpCode.DUP);
         }
 
-        public Instruction NewArray(int count)
+        public void NewArray(int count)
         {
-            return Emit(OpCode.NEW_ARRAY, count);
-        }
-
-
-        public Instruction NewMap(int count)
-        {
-            return Emit(OpCode.NEW_MAP, count);
+            Emit(OpCode.NEW_ARRAY, count);
         }
 
 
-        public Instruction Jump()
+        public void NewMap(int count)
         {
-            return Emit(OpCode.JUMP, 0);
-        }
-        public Instruction JumpFalse()
-        {
-            return Emit(OpCode.JUMP_IF_FALSE, 0);
+            Emit(OpCode.NEW_MAP, count);
         }
 
-        public Instruction JumpTo(Instruction position)
+        public void Call(int argsCount)
         {
-            var jump = Emit(OpCode.JUMP, 0);
-            var offset = position.Offset - _position;
-            jump.Operands[0] = offset;
-            return jump;
-        }
-
-        public Instruction Call(int argsCount)
-        {
-            return Emit(OpCode.CALL, argsCount);
+            Emit(OpCode.CALL, argsCount);
         }
 
 
 
-        public void FixJump(Instruction jump, Instruction to)
+        public void FixJump(JumpInstruction jump, Instruction to)
         {
             var offset = to.Offset - (jump.Offset + jump.Length);
-            jump.Operands[0] = offset;
+            jump.Value = offset;
         }
 
-        public void FixJumpToHere(Instruction jump)
+        public void FixJumpToHere(JumpInstruction jump)
         {
             var offset = _position - (jump.Offset + jump.Length);
-            jump.Operands[0] = offset;
+            jump.Value = offset;
         }
 
-        public Instruction LoadArg(int index)
+        public void LoadArg(int index)
         {
-            return Emit(OpCode.LOAD_ARG, index);
+            Emit(OpCode.LOAD_ARG, index);
         }
 
-        public Instruction LoadArgIsExist(int index)
+        public void LoadArgIsExist(int index)
         {
-            return Emit(OpCode.LOAD_ARG2, index);
+            Emit(OpCode.LOAD_ARG2, index);
         }
 
-
-
-        public Instruction PushLocal(int index)
+        public void PushLocal(int index)
         {
-            return Emit(OpCode.PUSH_LOCAL, index);
+            //var last = LastInstruction;
+            //if (last != null)
+            //{
+            //    if (last.OpCode == OpCode.POP_TO_LOCAL && index == last.Operands[0])
+            //    {
+            //        last.Change(OpCode.MOV_TO_LOCAL);
+            //        return;
+            //    }
+            //}
+            Emit(OpCode.PUSH_LOCAL, index);
         }
-
-        public Instruction PushGlobal(String varName)
-        {
-            var strAddress = GetOrAddStringTable(varName);
-            return Emit(OpCode.PUSH_GLOBAL, strAddress);
-        }
-
-        public Instruction PopLocal(int index)
-        {
-            return Emit(OpCode.POP_TO_LOCAL, index);
-        }
-
-        public Instruction PopGlobal(String varName)
+        public void PushGlobal(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
-            return Emit(OpCode.POP_TO_GLOBAL, strAddress);
+            //var last = LastInstruction;
+            //if (last.OpCode == OpCode.POP_TO_GLOBAL && strAddress == last.Operands[0])
+            //{
+            //    last.Change(OpCode.MOV_TO_GLOBAL);
+            //    return;
+            //}
+            Emit(OpCode.PUSH_GLOBAL, strAddress);
         }
 
-
-        public Instruction Return()
+        public void PopLocal(int index)
         {
-            return Emit(OpCode.RETURN);
+            Emit(OpCode.POP_TO_LOCAL, index);
+        }
+
+        public void PopGlobal(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            Emit(OpCode.POP_TO_GLOBAL, strAddress);
         }
 
 
-
-
-
-
-
-
+        public void Return()
+        {
+            Emit(OpCode.RETURN);
+        }
 
         public Byte[] Build()
         {
@@ -277,14 +290,7 @@ namespace AuroraScript.Compiler.Emits
                 {
                     foreach (var instruction in _instructions)
                     {
-                        write.Write((Byte)instruction.OpCode);
-                        if (instruction.Operands != null)
-                        {
-                            foreach (var operand in instruction.Operands)
-                            {
-                                write.Write(operand);
-                            }
-                        }
+                        instruction.WriteTo(write);
                     }
                 }
                 return stream.ToArray();

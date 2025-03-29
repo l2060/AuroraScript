@@ -12,6 +12,10 @@ namespace AuroraScript.Ast
         public Token Module { get; set; }
         public Token File { get; set; }
 
+
+        public String FullPath { get; set; }
+
+
         public override void Accept(IAstVisitor visitor)
         {
             visitor.VisitImportDeclaration(this);
