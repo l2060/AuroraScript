@@ -17,6 +17,8 @@ namespace AuroraScript.Compiler.Emits
 
         public Instruction Next;
 
+        public String Comment;
+
         public void Change(OpCode opCode)
         {
             OpCode = opCode;
@@ -51,13 +53,73 @@ namespace AuroraScript.Compiler.Emits
             writer.Write((Byte)OpCode);
         }
     }
+    public class Instruction2U : Instruction
+    {
+        public Byte Value;
+        public override int Length => 2;
+        public Instruction2U(OpCode opCode, int offset, Byte value) : base(opCode, offset)
+        {
+            this.Value = value;
+        }
+
+        public override string ToString()
+        {
+            return OpCode.ToString() + " " + Value;
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value);
+        }
+    }
+
+    public class Instruction2S : Instruction
+    {
+        public SByte Value;
+        public override int Length => 2;
+        public Instruction2S(OpCode opCode, int offset, SByte value) : base(opCode, offset)
+        {
+            this.Value = value;
+        }
+
+        public override string ToString()
+        {
+            return OpCode.ToString() + " " + Value;
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value);
+        }
+    }
+
+    public class Instruction3 : Instruction
+    {
+        public Int16 Value;
+        public override int Length => 3;
+        public Instruction3(OpCode opCode, int offset, Int16 value) : base(opCode, offset)
+        {
+            this.Value = value;
+        }
+
+        public override string ToString()
+        {
+            return OpCode.ToString() + " " + Value;
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value);
+        }
+    }
 
     public class Instruction5 : Instruction
     {
         public int Value;
-
         public override int Length => 5;
-
         public Instruction5(OpCode opCode, int offset, int value) : base(opCode, offset)
         {
             this.Value = value;
@@ -72,6 +134,7 @@ namespace AuroraScript.Compiler.Emits
             }
             return OpCode.ToString() + " " + Value;
         }
+
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write((Byte)OpCode);
@@ -137,33 +200,6 @@ namespace AuroraScript.Compiler.Emits
 
         public override void WriteTo(BinaryWriter writer)
         {
-        }
-    }
-
-
-    public class CommentInstruction : Instruction
-    {
-        public override int Length => 0;
-
-        public String Comment;
-        private int PreEmptyLine;
-        internal CommentInstruction(String comment, int preEmptyLine) : base(OpCode.NOP, 0)
-        {
-            this.Comment = comment;
-            this.PreEmptyLine = preEmptyLine;
-        }
-
-        public override string ToString()
-        {
-            if (this.PreEmptyLine > 0)
-            {
-                return $"{"".PadLeft(PreEmptyLine, '\n')}{Comment}";
-            }
-            return Comment;
-        }
-        public override void WriteTo(BinaryWriter writer)
-        {
-
         }
     }
 

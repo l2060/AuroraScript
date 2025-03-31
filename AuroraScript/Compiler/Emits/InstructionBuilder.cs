@@ -1,4 +1,7 @@
 ﻿using AuroraScript.Core;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 
@@ -12,21 +15,20 @@ namespace AuroraScript.Compiler.Emits
         private readonly List<Instruction> _instructions = new List<Instruction>();
 
 
-        public InstructionBuilder(List<string> stringTable)
+        public ImmutableArray<String> StringTable => _stringTable.ToImmutableArray();
+
+
+
+        public InstructionBuilder()
         {
-            _stringTable = stringTable;
+            _stringTable = new List<string>();
         }
 
         public Instruction LastInstruction
         {
             get
             {
-                for (int i = _instructions.Count - 1; i >= 0; i--)
-                {
-                    if (_instructions[i] is CommentInstruction) continue;
-                    return _instructions[i];
-                }
-                return null;
+                return _instructions.Count > 0 ? _instructions[_instructions.Count - 1] : null;
             }
         }
 
@@ -52,11 +54,33 @@ namespace AuroraScript.Compiler.Emits
             return AppendInstruction(instruction);
         }
 
+
         public Instruction Emit(OpCode opCode, int param)
         {
             var instruction = new Instruction5(opCode, _position, param);
             return AppendInstruction(instruction);
         }
+
+
+        public Instruction Emit(OpCode opCode, SByte param)
+        {
+            var instruction = new Instruction2S(opCode, _position, param);
+            return AppendInstruction(instruction);
+        }
+
+        public Instruction Emit(OpCode opCode, Byte param)
+        {
+            var instruction = new Instruction2U(opCode, _position, param);
+            return AppendInstruction(instruction);
+        }
+
+
+        public Instruction Emit(OpCode opCode, Int16 param)
+        {
+            var instruction = new Instruction3(opCode, _position, param);
+            return AppendInstruction(instruction);
+        }
+
 
         public Instruction Emit(OpCode opCode, Double param)
         {
@@ -103,8 +127,6 @@ namespace AuroraScript.Compiler.Emits
             var offset = position.Offset - (_position + 5);
             var instruction = new JumpInstruction(OpCode.JUMP, _position, offset);
             AppendInstruction(instruction);
-            //var jump = Emit(OpCode.JUMP, 0);
-            //jump.Operands[0] = offset;
         }
 
 
@@ -128,12 +150,12 @@ namespace AuroraScript.Compiler.Emits
                     Emit((OpCode)((Int32)OpCode.PUSH_0 + (Int32)operand));
                     return;
                 }
-                Emit(OpCode.PUSH_I8, (Int32)operand);
+                Emit(OpCode.PUSH_I8, (SByte)operand);
                 return;
             }
             if (operand % 1 == 0 && operand >= Int16.MinValue && operand <= Int16.MaxValue)
             {
-                Emit(OpCode.PUSH_I16, (Int32)operand);
+                Emit(OpCode.PUSH_I16, (Int16)operand);
                 return;
             }
             if (operand % 1 == 0 && operand >= Int32.MinValue && operand <= Int32.MaxValue)
@@ -164,14 +186,17 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.SET_ELEMENT);
         }
+
         public void SetProperty()
         {
             Emit(OpCode.SET_PROPERTY);
         }
+
         public void GetProperty()
         {
             Emit(OpCode.GET_PROPERTY);
         }
+
         public void GetElement()
         {
             Emit(OpCode.GET_ELEMENT);
@@ -186,7 +211,16 @@ namespace AuroraScript.Compiler.Emits
         [Conditional("DEBUG")]
         public void Comment(String comment, int preEmptyLine = 0)
         {
-            _instructions.Add(new CommentInstruction(comment, preEmptyLine));
+            var last = LastInstruction;
+            if (last == null)
+            {
+                return;
+            }
+            last.Comment = comment;
+            if (preEmptyLine > 0)
+            {
+                last.Comment = $"{"".PadLeft(preEmptyLine, '\n')}{comment}";
+            }
         }
 
 
@@ -205,18 +239,10 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.NEW_ARRAY, count);
         }
 
-
         public void NewMap(int count)
         {
             Emit(OpCode.NEW_MAP, count);
         }
-
-        public void Call(int argsCount)
-        {
-            Emit(OpCode.CALL, argsCount);
-        }
-
-
 
         public void FixJump(JumpInstruction jump, Instruction to)
         {
@@ -230,38 +256,23 @@ namespace AuroraScript.Compiler.Emits
             jump.Value = offset;
         }
 
-        public void LoadArg(int index)
+        public void LoadArg(Byte index)
         {
             Emit(OpCode.LOAD_ARG, index);
         }
 
-        public void LoadArgIsExist(int index)
+        public void LoadArgIsExist(Byte index)
         {
-            Emit(OpCode.LOAD_ARG2, index);
+            Emit(OpCode.TRY_LOAD_ARG, index);
         }
 
         public void PushLocal(int index)
         {
-            //var last = LastInstruction;
-            //if (last != null)
-            //{
-            //    if (last.OpCode == OpCode.POP_TO_LOCAL && index == last.Operands[0])
-            //    {
-            //        last.Change(OpCode.MOV_TO_LOCAL);
-            //        return;
-            //    }
-            //}
             Emit(OpCode.PUSH_LOCAL, index);
         }
         public void PushGlobal(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
-            //var last = LastInstruction;
-            //if (last.OpCode == OpCode.POP_TO_GLOBAL && strAddress == last.Operands[0])
-            //{
-            //    last.Change(OpCode.MOV_TO_GLOBAL);
-            //    return;
-            //}
             Emit(OpCode.PUSH_GLOBAL, strAddress);
         }
 
@@ -276,6 +287,10 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.POP_TO_GLOBAL, strAddress);
         }
 
+        public void Call(Byte argsCount)
+        {
+            Emit(OpCode.CALL, argsCount);
+        }
 
         public void Return()
         {
@@ -301,16 +316,13 @@ namespace AuroraScript.Compiler.Emits
         {
             foreach (var instruction in _instructions)
             {
-                if (instruction is CommentInstruction)
+                Console.WriteLine($"[{instruction.Offset:0000}] {instruction}");
+                if (instruction.Comment != null)
                 {
                     var color = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(instruction);
+                    Console.WriteLine(instruction.Comment);
                     Console.ForegroundColor = color;
-                }
-                else
-                {
-                    Console.WriteLine($"[{instruction.Offset:0000}] {instruction}");
                 }
             }
 

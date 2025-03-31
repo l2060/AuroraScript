@@ -947,7 +947,7 @@ namespace AuroraScript.Analyzer
                     defaultValue = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
                     this.lexer.RollBack();
                 }
-                var declaration = new ParameterDeclaration(arguments.Count, varname, defaultValue);
+                var declaration = new ParameterDeclaration((Byte)arguments.Count, varname, defaultValue);
                 arguments.Add(declaration);
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);

@@ -11,43 +11,38 @@ namespace AuroraScript.Core
         DUP = 2,         // Duplicate the top value on the stack
         SWAP = 3,        // Swap the top two values on the stack
         LOAD_ARG = 4,    // Load a function argument onto the stack (takes argument index)
-        LOAD_ARG2 = 5,    // 如果参数存在则先弹出栈顶元素，再加载参数
-
+        TRY_LOAD_ARG = 5,    // 如果参数存在则先弹出栈顶元素，再加载参数
 
 
 
         // Constants 
-        PUSH_NULL = 10,  // Push null onto the stack
-        PUSH_FALSE = 11, // Push false onto the stack
-        PUSH_TRUE = 12,  // Push true onto the stack
-        PUSH_STRING = 13, // Push a constant from the constant pool onto the stack (takes constant index)
-        PUSH_CONTEXT = 14, // Push a current runtime context
-        PUSH_LOCAL = 15,  // Load a local variable onto the stack (takes variable slot)
-        PUSH_GLOBAL = 16,  // Load a local variable onto the stack (takes variable slot)
-        POP_TO_LOCAL = 17, // Store the top value in a local variable (takes variable slot)
-        POP_TO_GLOBAL = 18, // Store the top value in a local variable (takes variable slot)
-        MOV_TO_LOCAL = 19, // Store the top value in a local variable 
-        MOV_TO_GLOBAL = 20, // Store the top value in a local variable
 
 
-        // Push Number
-        PUSH_0 = 20,     // Push the number 0 onto the stack
-        PUSH_1 = 21,     // Push the number 1 onto the stack
-        PUSH_2 = 22,     // Push the number 2 onto the stack
-        PUSH_3 = 23,     // Push the number 3 onto the stack
-        PUSH_4 = 24,     // Push the number 4 onto the stack
-        PUSH_5 = 25,     // Push the number 5 onto the stack
-        PUSH_6 = 26,     // Push the number 1 onto the stack
-        PUSH_7 = 27,     // Push the number 2 onto the stack
-        PUSH_8 = 28,     // Push the number 3 onto the stack
-        PUSH_9 = 29,     // Push the number 4 onto the stack
-        PUSH_I8 = 36,  // SByte
-        PUSH_I16 = 37, // Int16
-        PUSH_I32 = 38, // Int32
-        PUSH_F32 = 39, // Single
-        PUSH_F64 = 40, // Double
+        PUSH_I8 = 20,  // SByte
+        PUSH_I16 = 21, // Int16
+        PUSH_I32 = 22, // Int32
+        PUSH_F32 = 23, // Single
+        PUSH_F64 = 24, // Double
+        PUSH_STRING = 25, // Push a constant from the constant pool onto the stack (takes constant index)
+        PUSH_CONTEXT = 26, // Push a current runtime context
+
+        PUSH_LOCAL = 32,
+        POP_TO_LOCAL = 35,
+        MOV_TO_LOCAL = 38,
+
+        PUSH_GLOBAL = 42,
+        POP_TO_GLOBAL = 45,
+        MOV_TO_GLOBAL = 48,
 
 
+        //
+        //PUSH_LOCAL = 27,  // Load a local variable onto the stack (takes variable slot)
+        //POP_TO_LOCAL = 28, // Store the top value in a local variable (takes variable slot)
+        //MOV_TO_LOCAL = 29, // Store the top value in a local variable 
+
+        //PUSH_GLOBAL = 30,  // Load a local variable onto the stack (takes variable slot)
+        //POP_TO_GLOBAL = 31, // Store the top value in a local variable (takes variable slot)
+        //MOV_TO_GLOBAL = 32, // Store the top value in a local variable
 
 
         // Objects, Arrays, and Maps
@@ -87,23 +82,34 @@ namespace AuroraScript.Core
         BIT_AND = 91,   // &
         BIT_NOT = 92,   // ~
 
-
-
-
-        // Control Flow
+        //
         JUMP = 100,               // Unconditional jump (takes jump offset)
         JUMP_IF_FALSE = 101,      // Jump if the top value is false (takes jump offset)
         JUMP_IF_TRUE = 102,       // Jump if the top value is true (takes jump offset)
-
-        // Function Operations
-
-
+        //
         CALL = 120,         // Call a function
-        CALL_NATIVE = 128,  // Call a function
-        RETURN = 130,       // Return from a function
+        CALL_NATIVE = 121,  // Call a function
 
 
-        // Continuation/Coroutine Support
+
+
+        PUSH_0 = 180,     // Push the number 0 onto the stack
+        PUSH_1 = 181,     // Push the number 1 onto the stack
+        PUSH_2 = 182,     // Push the number 2 onto the stack
+        PUSH_3 = 183,     // Push the number 3 onto the stack
+        PUSH_4 = 184,     // Push the number 4 onto the stack
+        PUSH_5 = 185,     // Push the number 5 onto the stack
+        PUSH_6 = 186,     // Push the number 1 onto the stack
+        PUSH_7 = 187,     // Push the number 2 onto the stack
+        PUSH_8 = 188,     // Push the number 3 onto the stack
+        PUSH_9 = 189,     // Push the number 4 onto the stack
+        PUSH_NULL = 190,  // Push null onto the stack
+        PUSH_FALSE = 191, // Push false onto the stack
+        PUSH_TRUE = 192,  // Push true onto the stack
+
+        //
+        RETURN = 200,       // Return from a function
+        //
         YIELD = 255,       // Pause execution
     }
 }

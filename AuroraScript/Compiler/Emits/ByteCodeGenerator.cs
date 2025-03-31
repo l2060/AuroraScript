@@ -15,12 +15,11 @@ namespace AuroraScript.Compiler.Emits
         private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
         private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
-        private readonly List<string> _stringTable = new List<string>();
         private readonly InstructionBuilder _instructionBuilder;
 
         public ByteCodeGenerator()
         {
-            _instructionBuilder = new InstructionBuilder(_stringTable);
+            _instructionBuilder = new InstructionBuilder();
         }
 
 
@@ -69,7 +68,7 @@ namespace AuroraScript.Compiler.Emits
             // 1. Compile function declare ..
             foreach (var function in node.Functions)
             {
-                _scope.Declare(DeclareType.Variable, function.Identifier.Value);
+                _scope.Declare(DeclareType.Function, function.Identifier.Value);
             }
             // 2. Compile variables or init code. 
             foreach (var statement in node.ChildNodes)
@@ -94,11 +93,11 @@ namespace AuroraScript.Compiler.Emits
 
         public void DumpCode()
         {
-
             Print("# str_table", ConsoleColor.Yellow);
-            for (int i = 0; i < _stringTable.Count; i++)
+            var stringTable = _instructionBuilder.StringTable;
+            for (int i = 0; i < stringTable.Length; i++)
             {
-                var str = _stringTable[i];
+                var str = stringTable[i];
                 Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}", ConsoleColor.Blue);
             }
             Console.WriteLine();
@@ -204,7 +203,7 @@ namespace AuroraScript.Compiler.Emits
             // Compile the callee
             node.Target.Accept(this);
             // Emit the call instruction with the argument count
-            _instructionBuilder.Call(node.Arguments.Count);
+            _instructionBuilder.Call((Byte)node.Arguments.Count);
             if (node.Parent == null)
                 _instructionBuilder.Pop();
         }
