@@ -1,6 +1,6 @@
-﻿import aa from './md5' ;
+﻿// import aa from './md5' ;
 
-
+someMethod();
 
 
 
