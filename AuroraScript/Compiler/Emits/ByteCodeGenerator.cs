@@ -98,6 +98,47 @@ namespace AuroraScript.Compiler.Emits
             EndScope();
         }
 
+        public void VisitFunction(FunctionDeclaration node)
+        {
+            if (node.Flags == FunctionFlags.Declare) return;
+
+            if (node.Access == MemberAccess.Export)
+            {
+
+            }
+
+
+            _instructionBuilder.Comment($"# begin_func {node.Identifier?.Value}", 4);
+            BeginScope();
+            var begin = _instructionBuilder.Position();
+            // define arg var
+            foreach (var statement in node.Parameters)
+            {
+                statement.Accept(this);
+            }
+            // Compile the function body
+            node.Body?.Accept(this);
+            // If the function doesn't end with a return, add an implicit return null
+            var lastInstruction = _instructionBuilder.LastInstruction;
+            if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
+            {
+                _instructionBuilder.PushNull();
+                _instructionBuilder.Return();
+            }
+            EndScope();
+            _instructionBuilder.Comment($"# end_func {node.Identifier?.Value}");
+        }
+
+
+
+        public void VisitLambdaExpression(LambdaExpression node)
+        {
+            //  
+            VisitFunction(node.Function);
+
+
+
+        }
 
 
         public void DumpCode()
@@ -243,36 +284,14 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitFunction(FunctionDeclaration node)
-        {
-            if (node.Flags == FunctionFlags.Declare) return;
-
-            if (node.Access == MemberAccess.Export)
-            {
-
-            }
+      
 
 
-            _instructionBuilder.Comment($"# begin_func {node.Identifier?.Value}", 4);
-            BeginScope();
-            var begin = _instructionBuilder.Position();
-            // define arg var
-            foreach (var statement in node.Parameters)
-            {
-                statement.Accept(this);
-            }
-            // Compile the function body
-            node.Body?.Accept(this);
-            // If the function doesn't end with a return, add an implicit return null
-            var lastInstruction = _instructionBuilder.LastInstruction;
-            if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
-            {
-                _instructionBuilder.PushNull();
-                _instructionBuilder.Return();
-            }
-            EndScope();
-            _instructionBuilder.Comment($"# end_func {node.Identifier?.Value}");
-        }
+
+
+
+
+
         public void VisitGetElementExpression(GetElementExpression node)
         {
             node.Object.Accept(this);
@@ -378,13 +397,6 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public void VisitLambdaExpression(LambdaExpression node)
-        {
-            //  
-            VisitFunction(node.Function);
-
-
-        }
 
         public void VisitLiteralExpression(LiteralExpression node)
         {
@@ -410,10 +422,16 @@ namespace AuroraScript.Compiler.Emits
 
         public void VisitName(NameExpression node)
         {
-            if (_scope.Resolve(DeclareType.Variable, node.Identifier.Value, out int slot))
+            if (_scope.Resolve(node.Identifier.Value, out var declare))
             {
-                _instructionBuilder.PushLocal(slot);
-                return;
+                if (declare.Type == DeclareType.Variable)
+                {
+                    _instructionBuilder.PushLocal(declare.Index);
+                }
+                else if (declare.Type == DeclareType.Function)
+                {
+                    _instructionBuilder.PushMethod(declare.Index);
+                }
             }
             else
             {

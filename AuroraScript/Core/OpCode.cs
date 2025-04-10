@@ -25,6 +25,7 @@ namespace AuroraScript.Core
         PUSH_F64 = 24, // Double
         PUSH_STRING = 25, // Push a constant from the constant pool onto the stack (takes constant index)
         PUSH_CONTEXT = 26, // Push a current runtime context
+        PUSH_METHOD = 27,
 
         PUSH_LOCAL = 32,
         POP_TO_LOCAL = 35,

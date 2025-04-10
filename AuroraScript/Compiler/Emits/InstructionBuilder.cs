@@ -270,6 +270,12 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.PUSH_LOCAL, index);
         }
+
+        public void PushMethod(int index)
+        {
+            Emit(OpCode.PUSH_METHOD, index);
+        }
+
         public void PushGlobal(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
