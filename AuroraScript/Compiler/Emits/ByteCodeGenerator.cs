@@ -37,6 +37,10 @@ namespace AuroraScript.Compiler.Emits
         /// 记录每个模块下方法地址
         /// 记录每个模块下导出方法
         /// 记录每个模块下导出变量
+        /// 
+        /// 
+        /// 模块注册到全局变量  @module1
+        /// 方法和模块变量注册到模块属性
         /// </summary>
         /// <param name="node"></param>
         public void VisitModule(ModuleDeclaration node)
@@ -69,8 +73,13 @@ namespace AuroraScript.Compiler.Emits
             foreach (var function in node.Functions)
             {
                 _scope.Declare(DeclareType.Function, function.Identifier.Value);
+     
             }
-            // 2. Compile variables or init code. 
+
+            // 2. set method to this property
+
+
+            // 3. Compile variables or init code. 
             foreach (var statement in node.ChildNodes)
             {
                 statement.Accept(this);

@@ -13,7 +13,7 @@ a.bc += 56 +36;
 a[c]+=12;
 a.c++; // ByteCode有问题
 a[c]++;
-
+someMethod();
 var func = someMethod();
 
 var aaa,bbb,ccc = someMethod();
@@ -204,7 +204,7 @@ function showMerchantGreeting() {
         |> "Forged from the scales of the ancient dragon Fyrenthal,
         |> this armor still radiates with magical warmth.The
         |> craftmanship is beyond anything seen in the modern age."
-         |>
+        |>
         |> <Equip/@equipItem> <Back/@showInventory>
     );
 
@@ -215,3 +215,7 @@ function showMerchantGreeting() {
 debug("Domain: " + ss);
 
 
+debug("while empty");
+while (true){
+
+}

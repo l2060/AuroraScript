@@ -13,6 +13,8 @@ namespace AuroraScript.Ast
         public readonly List<ModuleSyntaxRef> Dependencys = new List<ModuleSyntaxRef>();
 
         public readonly List<ImportDeclaration> Imports = new List<ImportDeclaration>();
+        // 模块成员，包括方法、lambda表达式、模块级变量
+        public readonly List<ImportDeclaration> Members = new List<ImportDeclaration>();
 
         internal ModuleDeclaration(Scope currentScope, String directory) : base(currentScope)
         {

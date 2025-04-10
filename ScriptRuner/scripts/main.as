@@ -150,3 +150,5 @@ function cancel() {
         |> <Equip/@equipItem> <Back/@showInventory>
     );
 }
+
+
