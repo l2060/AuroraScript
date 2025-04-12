@@ -1,4 +1,6 @@
 ﻿using AuroraScript.Core;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 
 namespace AuroraScript.Compiler.Emits
@@ -17,7 +19,20 @@ namespace AuroraScript.Compiler.Emits
 
         public Instruction Next;
 
-        public String Comment;
+        public List<String> Comments;
+
+
+        public void AddComment(String comment, int preEmptyLine = 0)
+        {
+            if (Comments == null) Comments = new List<String>();
+            var content = comment;
+            if (preEmptyLine > 0)
+            {
+                content = $"{"".PadLeft(preEmptyLine, '\n')}{comment}";
+            }
+            Comments.Add(content);
+        }
+
 
         public void Change(OpCode opCode)
         {

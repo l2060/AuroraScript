@@ -16,6 +16,7 @@ namespace AuroraScript.Compiler
 
     public class ModuleSyntaxRef
     {
+        public String ModuleName { get; set; }
         public String ModulePath { get; set; }
 
         public ModuleDeclaration SyntaxTree { get; set; }
@@ -29,24 +30,32 @@ namespace AuroraScript.Compiler
     {
         private readonly String _baseDirectory;
         public string FileExtension { get; set; } = ".as";
-        private ByteCodeGenerator codeGenerator = new ByteCodeGenerator();
+        private ByteCodeGenerator codeGenerator;
         private ConcurrentDictionary<string, ModuleSyntaxRef> scriptModules = new ConcurrentDictionary<string, ModuleSyntaxRef>();
 
 
         public ScriptCompiler(String baseDirectory)
         {
-
+            codeGenerator = new ByteCodeGenerator();
             _baseDirectory = Path.GetFullPath(baseDirectory);
         }
 
         public async Task Build(string filepath)
         {
             var files = Directory.GetFiles(_baseDirectory, "*.as", SearchOption.AllDirectories);
-            ModuleSyntaxRef[] syntaxRefs = [];
-            using (var s = new WitchTimer("BUILD USE XX :"))
+            ModuleSyntaxRef[] syntaxRefs = new ModuleSyntaxRef[files.Length];
+
+            for (int i = 0; i < files.Length; i++)
             {
-                syntaxRefs = await Task.WhenAll(files.Select(BuildSyntaxTreeAsync));
+                syntaxRefs[i] = await BuildSyntaxTreeAsync(files[i]);
             }
+
+            //syntaxRefs = files.Select(item => BuildSyntaxTreeAsync(item).Result).ToArray();
+
+            //using (var s = new WitchTimer("BUILD USE XX :"))
+            //{
+            //    syntaxRefs = await Task.WhenAll(files.Select(BuildSyntaxTreeAsync));
+            //}
             foreach (var item in syntaxRefs)
             {
                 item.SyntaxTree.Accept(codeGenerator);
@@ -76,7 +85,12 @@ namespace AuroraScript.Compiler
             }
             var module = scriptModules.GetOrAdd(fileFullPath, (key) =>
             {
-                return new ModuleSyntaxRef() { ModulePath = fileFullPath };
+                var moduleName = key.Replace(_baseDirectory, "").Replace("\\", "/");
+                return new ModuleSyntaxRef()
+                {
+                    ModuleName = moduleName,
+                    ModulePath = fileFullPath
+                };
             });
             if (module.SyntaxTree != null) return module;
             var lexer = new AuroraLexer(fileFullPath, Encoding.UTF8);

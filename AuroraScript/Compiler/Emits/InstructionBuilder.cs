@@ -22,6 +22,7 @@ namespace AuroraScript.Compiler.Emits
         public InstructionBuilder()
         {
             _stringTable = new List<string>();
+            Emit(OpCode.NOP);
         }
 
         public Instruction LastInstruction
@@ -212,15 +213,8 @@ namespace AuroraScript.Compiler.Emits
         public void Comment(String comment, int preEmptyLine = 0)
         {
             var last = LastInstruction;
-            if (last == null)
-            {
-                return;
-            }
-            last.Comment = comment;
-            if (preEmptyLine > 0)
-            {
-                last.Comment = $"{"".PadLeft(preEmptyLine, '\n')}{comment}";
-            }
+            if (last == null) return;
+            last.AddComment(comment,preEmptyLine);
         }
 
 
@@ -323,12 +317,15 @@ namespace AuroraScript.Compiler.Emits
             foreach (var instruction in _instructions)
             {
                 Console.WriteLine($"[{instruction.Offset:0000}] {instruction}");
-                if (instruction.Comment != null)
+                if (instruction.Comments != null)
                 {
-                    var color = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(instruction.Comment);
-                    Console.ForegroundColor = color;
+                    foreach (var comment in instruction.Comments)
+                    {
+                        var color = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(comment);
+                        Console.ForegroundColor = color;
+                    }
                 }
             }
 

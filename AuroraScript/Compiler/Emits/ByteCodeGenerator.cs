@@ -32,6 +32,8 @@ namespace AuroraScript.Compiler.Emits
         {
             _scope = _scope.Leave();
         }
+
+
         /// <summary>
         /// 记录每个模块的地址
         /// 记录每个模块下方法地址
@@ -39,18 +41,41 @@ namespace AuroraScript.Compiler.Emits
         /// 记录每个模块下导出变量
         /// 
         /// 
-        /// 模块注册到全局变量  @module1
+        /// 模块注册到 global  @module1
         /// 方法和模块变量注册到模块属性
         /// </summary>
         /// <param name="node"></param>
         public void VisitModule(ModuleDeclaration node)
         {
             BeginScope();
+            _instructionBuilder.Comment("# module: " + node.ModuleName);
+
+
+            // define propertys
+            foreach (var module in node.Members)
+            {
+
+                _instructionBuilder.PushNull();// push this
+
+
+
+
+                _instructionBuilder.SetProperty();
+
+            }
+
+
+
+
             foreach (var module in node.Imports)
             {
                 module.Accept(this);
             }
-            _instructionBuilder.Comment("# module: " + node.ModuleName);
+
+
+
+
+  
             VisitBlock(node);
             EndScope();
         }

@@ -128,7 +128,7 @@ namespace AuroraScript.Scanning
                     codeSpan[0] == '.' || codeSpan[0] == ',' || codeSpan[0] == ';' || codeSpan[0] == ':' ||
                     codeSpan[0] == '?' || codeSpan[0] == '!' || codeSpan[0] == '^' || codeSpan[0] == '{' ||
                     codeSpan[0] == '}' || codeSpan[0] == '[' || codeSpan[0] == ']' || codeSpan[0] == '(' ||
-                    codeSpan[0] == ')' || codeSpan[0] == '|' || codeSpan[0] == '~' || codeSpan[0] == '&'
+                    codeSpan[0] == ')' || codeSpan[0] == '|' || codeSpan[0] == '~' || codeSpan[0] == '&' || codeSpan[0] == '@'
                     )
                 {
                     result.ColumnNumber += 1;
@@ -143,7 +143,7 @@ namespace AuroraScript.Scanning
                     codeSpan[0] == '.' || codeSpan[0] == ',' || codeSpan[0] == ';' || codeSpan[0] == ':' ||
                     codeSpan[0] == '?' || codeSpan[0] == '!' || codeSpan[0] == '^' || codeSpan[0] == '{' ||
                     codeSpan[0] == '}' || codeSpan[0] == '[' || codeSpan[0] == ']' || codeSpan[0] == '(' ||
-                    codeSpan[0] == ')' || codeSpan[0] == '|' || codeSpan[0] == '~' || codeSpan[0] == '&'
+                    codeSpan[0] == ')' || codeSpan[0] == '|' || codeSpan[0] == '~' || codeSpan[0] == '&' || codeSpan[0] == '@'
                     )
             {
                 result.ColumnNumber += 1;
@@ -489,7 +489,7 @@ namespace AuroraScript.Scanning
             var result = new RuleTestResult();
             result.ColumnNumber = ColumnNumber;
             Int32 Index = 0;
-            while (Char.IsWhiteSpace(codeSpan[Index]))
+            while (Index < codeSpan.Length && (codeSpan[Index] == ' ' || codeSpan[Index] == '\t'))
             {
                 Index++;
             }

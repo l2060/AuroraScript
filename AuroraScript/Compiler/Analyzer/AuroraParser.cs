@@ -3,6 +3,7 @@ using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 using AuroraScript.Compiler.Ast.Expressions;
+using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
 
@@ -20,7 +21,8 @@ namespace AuroraScript.Analyzer
             this.Compiler = compiler;
             this.root = new ModuleDeclaration(new Scope(this), this.lexer.Directory);
             this.root.ModulePath = lexer.FullPath;
-            this.root.ModuleName = lexer.FullPath;
+            this.root.ModuleName = lexer.FullPath.Replace(lexer.Directory, "").Replace("\\", "/");
+            this.root.MetaInfos.Add("module", this.root.ModuleName);
         }
 
         public ModuleDeclaration Parse()
@@ -29,10 +31,23 @@ namespace AuroraScript.Analyzer
             {
                 if (this.lexer.TestNext(Symbols.KW_EOF)) break;
                 var node = ParseStatement(this.root.Scope);
-                if (node is FunctionDeclaration func)
+
+                if (node is ModuleMetaStatement meta)
+                {
+                    this.root.MetaInfos[meta.Name.Value] = meta.Value?.Value;
+                }
+
+                if (node is VariableDeclaration variable)
+                {
+                    node.IsStateSegment = true;
+                    this.root.Members.Add(variable);
+                    this.root.AddNode(node);
+                }
+                else if (node is FunctionDeclaration func)
                 {
                     node.IsStateSegment = true;
                     this.root.Functions.Add(func);
+                    this.root.Members.Add(func);
                 }
                 else if (node is ImportDeclaration importDeclaration)
                 {
@@ -65,6 +80,7 @@ namespace AuroraScript.Analyzer
                 this.lexer.Next();
                 return null;
             }
+            if (token.Symbol == Symbols.PT_METAINFO) return this.ParseMetaInfo(currentScope);
             if (token.Symbol == Symbols.PT_LEFTBRACE) return this.ParseBlock(currentScope);
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
@@ -226,6 +242,28 @@ namespace AuroraScript.Analyzer
             return statement;
         }
 
+
+
+        private Statement ParseMetaInfo(Scope currentScope)
+        {
+            this.lexer.NextOfKind(Symbols.PT_METAINFO);
+            var metaName = this.lexer.NextOfKind<IdentifierToken>();
+            this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+            var token = this.lexer.LookAtHead();
+            Token metaValue = null;
+            var defaultValue = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+            if (defaultValue is not MapExpression)
+            {
+                this.lexer.RollBack();
+            }
+            this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
+            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            var statement = new ModuleMetaStatement(metaName, metaValue);
+            return statement;
+        }
+
+
+
         /// <summary>
         /// Parse a block surrounded by {  }
         /// </summary>
@@ -370,32 +408,33 @@ namespace AuroraScript.Analyzer
                 }
             }
             // define variables
-            var exp = new Statements();
+            //var exp = new Statements();
             var v = new VariableDeclaration(access, isConst, varNames[0]);
             if (initializer != null) v.AddNode(initializer);
-            exp.AddNode(v);
-            var preVarName = varNames[0];
-            for (int i = 1; i < varNames.Count; i++)
-            {
-                var @var = new VariableDeclaration(access, isConst, varNames[i]);
-                if (initializer != null)
-                {
-                    var lexp = new NameExpression();
-                    lexp.Identifier = preVarName;
-                    @var.AddNode(lexp);
-                }
-                exp.AddNode(@var);
-                preVarName = varNames[i];
-            }
+            //exp.AddNode(v);
+            //var preVarName = varNames[0];
+            //for (int i = 1; i < varNames.Count; i++)
+            //{
+            //    var @var = new VariableDeclaration(access, isConst, varNames[i]);
+            //    if (initializer != null)
+            //    {
+            //        var lexp = new NameExpression();
+            //        lexp.Identifier = preVarName;
+            //        @var.AddNode(lexp);
+            //    }
+            //    exp.AddNode(@var);
+            //    preVarName = varNames[i];
+            //}
 
 
-            return exp;
+            return v;
         }
 
         private Exception InitParseException(String message, Token token)
         {
+           
             Console.WriteLine($"{token} {message}");
-            return new ParseException(this.lexer.FullPath, token, message);
+            return new ParseException(this.lexer.FullPath, token, String.Format(message, token));
         }
 
         /// <summary>
@@ -565,7 +604,11 @@ namespace AuroraScript.Analyzer
                     //    return ParseFunctionSignatureExpression(currentScope);
                     //}
                 }
-                if (tempExp == null) throw this.InitParseException("Invalid token {0} appears in expression", token);
+                if (tempExp == null)
+                {
+                    throw this.InitParseException("Invalid token {0} appears in expression", token);
+                }
+                
                 // ==============================================
                 //
                 // ==============================================
@@ -624,7 +667,10 @@ namespace AuroraScript.Analyzer
                         else if (tempExp is MapExpression constructExpression)
                         {
                             rollBackLexer();
-                            return ParseObjectConstructor(currentScope);
+                            var construct = ParseObjectConstructor(currentScope);
+                           
+                            return construct;
+
                         }
                         // Array Index Access expression
                         else if (tempExp is GetElementExpression indexAccess)
@@ -866,14 +912,11 @@ namespace AuroraScript.Analyzer
                 if (this.lexer.TestNext(Symbols.OP_SPREAD))
                 {
                     var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
+                    this.lexer.RollBack();
                     var spread = new DeconstructionExpression();
                     spread.AddNode(value);
                     constructExpression.AddNode(spread);
-                    break;
-                }
-                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE))
-                {
-                    break;
+                    continue;
                 }
                 Token varName = this.lexer.TestNextOfKind<IdentifierToken>();
                 if (varName == null) varName = this.lexer.TestNextOfKind<StringToken>();
@@ -888,27 +931,21 @@ namespace AuroraScript.Analyzer
                 if (this.lexer.TestNext(Symbols.PT_COLON))
                 {
                     var value = this.ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
-                    if (this.lexer.Previous(1).Symbol == Symbols.PT_RIGHTBRACE)
-                    {
-                        if (!(value is MapExpression || value is LambdaExpression))
-                        {
-                            // TODO
-                            this.lexer.RollBack();
-                        }
-                    }
                     var newExp = new MapKeyValueExpression(varName, value);
                     constructExpression.AddNode(newExp);
+                    if (value is not MapExpression && value is not LambdaExpression)
+                    {
+                        this.lexer.RollBack();  
+                    }
                 }
-                //var token = this.lexer.Previous(1);
-                var nameToken = new NameExpression();
-                nameToken.Identifier = varName;
-                constructExpression.AddNode(new MapKeyValueExpression(varName, nameToken));
-
-
+                else
+                {
+                    var nameToken = new NameExpression();
+                    nameToken.Identifier = varName;
+                    constructExpression.AddNode(new MapKeyValueExpression(varName, nameToken));
+                }
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);
-                // Encountered closing parenthesis break ;
-                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE)) break;
             }
             return constructExpression;
         }

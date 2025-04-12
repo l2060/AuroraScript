@@ -63,6 +63,15 @@ namespace AuroraScript.Compiler
         /// </summary>
         public static readonly Symbols OP_TYPEOF = new Symbols("typeof", SymbolTypes.Punctuator);
 
+
+        // Punctuator
+        /// <summary>
+        /// token {
+        /// </summary>
+        public static readonly Symbols PT_METAINFO = new Symbols("@", SymbolTypes.Punctuator);
+
+
+
         // Punctuator
         /// <summary>
         /// token {

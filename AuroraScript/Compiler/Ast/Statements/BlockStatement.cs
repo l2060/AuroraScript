@@ -9,6 +9,8 @@ namespace AuroraScript.Ast.Statements
         /// statement scope
         /// </summary>
         public Scope Scope { get; private set; }
+
+
         public readonly List<FunctionDeclaration> Functions = new List<FunctionDeclaration>();
         internal BlockStatement(Scope currentScope)
         {

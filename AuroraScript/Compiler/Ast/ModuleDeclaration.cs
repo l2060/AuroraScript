@@ -9,12 +9,19 @@ namespace AuroraScript.Ast
     {
         public readonly String Directory;
 
+       
+        /// <summary>
+        /// 模块元信息，包括模块名， 脚本中使用 @metaname(value?)定义
+        /// </summary>
+        public Dictionary<String, Object> MetaInfos = new Dictionary<string, object>();
         // 引用
         public readonly List<ModuleSyntaxRef> Dependencys = new List<ModuleSyntaxRef>();
 
         public readonly List<ImportDeclaration> Imports = new List<ImportDeclaration>();
         // 模块成员，包括方法、lambda表达式、模块级变量
-        public readonly List<ImportDeclaration> Members = new List<ImportDeclaration>();
+        public readonly List<Statement> Members = new List<Statement>();
+
+
 
         internal ModuleDeclaration(Scope currentScope, String directory) : base(currentScope)
         {

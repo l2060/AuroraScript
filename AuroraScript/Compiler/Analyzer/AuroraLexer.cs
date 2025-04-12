@@ -253,7 +253,7 @@ namespace AuroraScript.Analyzer
                 if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
             }
             if (token == null) throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");
-            token.LineNumber = this.LineNumber + 1;
+            token.LineNumber = this.LineNumber;
             token.ColumnNumber = this.ColumnNumber;
             token.Value = result.Value;
             return token;

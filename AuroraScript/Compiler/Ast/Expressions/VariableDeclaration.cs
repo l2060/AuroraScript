@@ -47,7 +47,9 @@ namespace AuroraScript.Ast.Expressions
 
         public override string ToString()
         {
-            return $"var {Name.Value} = {Initializer}";
+            var export = "";
+            if (Access == MemberAccess.Export) export = "export ";
+            return $"{export}var {Name.Value} = {Initializer}";
         }
 
 
