@@ -8,11 +8,13 @@
 
     public class DeclareObject
     {
-        public DeclareObject(DeclareType type, Int32 index)
+        public DeclareObject(CodeScope scope, DeclareType type, Int32 index)
         {
             Type = type;
             Index = index;
+            Scope = scope;
         }
+        public readonly CodeScope Scope;
         public readonly DeclareType Type;
         public readonly int Index;
     }
@@ -68,7 +70,7 @@
         public int Declare(DeclareType type, string name)
         {
             int slot = _variableBaseCount++;
-            var declare = new DeclareObject(type, slot);
+            var declare = new DeclareObject(this, type, slot);
             variables[name] = declare;
             return slot;
         }

@@ -27,7 +27,7 @@ public class Program
 
 
 
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./scripts/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
         //try
         //{
         await engine.BuildAsync("./unit.as");

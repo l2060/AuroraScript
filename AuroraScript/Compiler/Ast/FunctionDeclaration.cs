@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
+using AuroraScript.Compiler.Ast;
 
 
 namespace AuroraScript.Ast
@@ -30,13 +31,13 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    public class FunctionDeclaration : Statement
+    public class FunctionDeclaration : Statement, INamedStatement
     {
 
         internal FunctionDeclaration(MemberAccess access, Token identifier, List<ParameterDeclaration> parameters, Statement body, FunctionFlags flags)
         {
             Access = access;
-            Identifier = identifier;
+            Name = identifier;
             Parameters = parameters;
             Body = body;
             Flags = flags;
@@ -68,7 +69,7 @@ namespace AuroraScript.Ast
         /// <summary>
         /// function name
         /// </summary>
-        public Token Identifier { get; private set; }
+        public Token Name { get; private set; }
 
         public FunctionFlags Flags { get; private set; }
 

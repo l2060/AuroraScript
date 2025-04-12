@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
-
+using AuroraScript.Compiler.Ast;
 using System.Text.Json;
 
 namespace AuroraScript.Ast
@@ -19,7 +19,7 @@ namespace AuroraScript.Ast
 
         public readonly List<ImportDeclaration> Imports = new List<ImportDeclaration>();
         // 模块成员，包括方法、lambda表达式、模块级变量
-        public readonly List<Statement> Members = new List<Statement>();
+        public readonly List<INamedStatement> Members = new List<INamedStatement>();
 
 
 

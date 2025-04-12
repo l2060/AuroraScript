@@ -40,9 +40,11 @@ namespace AuroraScript.Compiler.Emits
         /// 记录每个模块下导出方法
         /// 记录每个模块下导出变量
         /// 
-        /// 
         /// 模块注册到 global  @module1
         /// 方法和模块变量注册到模块属性
+        /// 
+        /// 访问global 全部以getproperty 和 setproperty
+        /// 访问module内的变量 全部以getproperty 和 setproperty
         /// </summary>
         /// <param name="node"></param>
         public void VisitModule(ModuleDeclaration node)
@@ -52,19 +54,15 @@ namespace AuroraScript.Compiler.Emits
 
 
             // define propertys
+            _instructionBuilder.Comment("# Variable Define");
             foreach (var module in node.Members)
             {
-
                 _instructionBuilder.PushNull();// push this
-
-
-
-
+                _instructionBuilder.PushConstantString(module.Name.Value);// push this
+                _instructionBuilder.PushThis();// push this
                 _instructionBuilder.SetProperty();
-
             }
-
-
+            _instructionBuilder.Comment("# Module Import");
 
 
             foreach (var module in node.Imports)
@@ -74,8 +72,8 @@ namespace AuroraScript.Compiler.Emits
 
 
 
+            _instructionBuilder.Comment("# Code Block");
 
-  
             VisitBlock(node);
             EndScope();
         }
@@ -97,8 +95,8 @@ namespace AuroraScript.Compiler.Emits
             // 1. Compile function declare ..
             foreach (var function in node.Functions)
             {
-                _scope.Declare(DeclareType.Function, function.Identifier.Value);
-     
+                _scope.Declare(DeclareType.Function, function.Name.Value);
+
             }
 
             // 2. set method to this property
@@ -117,7 +115,7 @@ namespace AuroraScript.Compiler.Emits
             // 3. compile each function
             foreach (var function in node.Functions)
             {
-                _functionLocations[function.Identifier.Value] = _instructionBuilder.Position();
+                _functionLocations[function.Name.Value] = _instructionBuilder.Position();
                 function.Accept(this);
             }
             EndScope();
@@ -133,7 +131,7 @@ namespace AuroraScript.Compiler.Emits
             }
 
 
-            _instructionBuilder.Comment($"# begin_func {node.Identifier?.Value}", 4);
+            _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
             BeginScope();
             var begin = _instructionBuilder.Position();
             // define arg var
@@ -145,13 +143,14 @@ namespace AuroraScript.Compiler.Emits
             node.Body?.Accept(this);
             // If the function doesn't end with a return, add an implicit return null
             var lastInstruction = _instructionBuilder.LastInstruction;
-            if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
-            {
-                _instructionBuilder.PushNull();
-                _instructionBuilder.Return();
-            }
+            //if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
+            //{
+            // default return value
+            _instructionBuilder.PushNull();
+            _instructionBuilder.Return();
+            //}
             EndScope();
-            _instructionBuilder.Comment($"# end_func {node.Identifier?.Value}");
+            _instructionBuilder.Comment($"# end_func {node.Name?.Value}");
         }
 
 
@@ -160,9 +159,6 @@ namespace AuroraScript.Compiler.Emits
         {
             //  
             VisitFunction(node.Function);
-
-
-
         }
 
 
@@ -246,7 +242,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else
             {
-                _instructionBuilder.PopGlobal(node.Left.ToString());
+                _instructionBuilder.SetGlobalProperty(node.Left.ToString());
             }
         }
 
@@ -309,7 +305,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-      
+
 
 
 
@@ -447,6 +443,16 @@ namespace AuroraScript.Compiler.Emits
 
         public void VisitName(NameExpression node)
         {
+            if (node.Identifier.Value == "this")
+            {
+                _instructionBuilder.PushThis();
+                return;
+            }
+            if (node.Identifier.Value == "global")
+            {
+                _instructionBuilder.PushGlobal();
+                return;
+            }
             if (_scope.Resolve(node.Identifier.Value, out var declare))
             {
                 if (declare.Type == DeclareType.Variable)
@@ -460,7 +466,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else
             {
-                _instructionBuilder.PushGlobal(node.Identifier.Value);
+                _instructionBuilder.GetGlobalProperty(node.Identifier.Value);
             }
         }
 
@@ -664,7 +670,7 @@ namespace AuroraScript.Compiler.Emits
                     }
                     else
                     {
-                        _instructionBuilder.PopGlobal(nameExpression.Identifier.Value);
+                        _instructionBuilder.SetGlobalProperty(nameExpression.Identifier.Value);
                     }
                 }
                 else
@@ -689,7 +695,7 @@ namespace AuroraScript.Compiler.Emits
                     }
                     else
                     {
-                        _instructionBuilder.PopGlobal(nameExpression.Identifier.Value);
+                        _instructionBuilder.SetGlobalProperty(nameExpression.Identifier.Value);
                     }
                 }
                 else

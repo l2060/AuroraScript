@@ -107,7 +107,7 @@ namespace AuroraScript.Core
         PUSH_NULL = 190,  // Push null onto the stack
         PUSH_FALSE = 191, // Push false onto the stack
         PUSH_TRUE = 192,  // Push true onto the stack
-
+        PUSH_THIS = 193,  // Push true onto the stack
         //
         RETURN = 200,       // Return from a function
         //

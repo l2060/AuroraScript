@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
+using AuroraScript.Compiler.Ast;
 
 
 namespace AuroraScript.Ast.Expressions
@@ -7,7 +8,7 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// variable declaration
     /// </summary>
-    public class VariableDeclaration : Statement
+    public class VariableDeclaration : Statement, INamedStatement
     {
         internal VariableDeclaration(MemberAccess access, Boolean isConst, Token nameToken)
         {

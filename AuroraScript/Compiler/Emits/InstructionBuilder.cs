@@ -214,10 +214,14 @@ namespace AuroraScript.Compiler.Emits
         {
             var last = LastInstruction;
             if (last == null) return;
-            last.AddComment(comment,preEmptyLine);
+            last.AddComment(comment, preEmptyLine);
         }
 
 
+        public void PushThis()
+        {
+            Emit(OpCode.PUSH_THIS);
+        }
         public void PushNull()
         {
             Emit(OpCode.PUSH_NULL);
@@ -270,21 +274,34 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.PUSH_METHOD, index);
         }
 
-        public void PushGlobal(String varName)
-        {
-            var strAddress = GetOrAddStringTable(varName);
-            Emit(OpCode.PUSH_GLOBAL, strAddress);
-        }
+
 
         public void PopLocal(int index)
         {
             Emit(OpCode.POP_TO_LOCAL, index);
         }
 
-        public void PopGlobal(String varName)
+
+
+        public void PushGlobal()
+        {
+            Emit(OpCode.PUSH_GLOBAL);
+        }
+
+        public void GetGlobalProperty(String varName)
         {
             var strAddress = GetOrAddStringTable(varName);
-            Emit(OpCode.POP_TO_GLOBAL, strAddress);
+            Emit(OpCode.PUSH_GLOBAL);
+            Emit(OpCode.PUSH_STRING, strAddress);
+            Emit(OpCode.GET_PROPERTY);
+        }
+
+        public void SetGlobalProperty(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            Emit(OpCode.PUSH_GLOBAL);
+            Emit(OpCode.PUSH_STRING, strAddress);
+            Emit(OpCode.SET_PROPERTY);
         }
 
         public void Call(Byte argsCount)
