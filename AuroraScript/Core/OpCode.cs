@@ -1,4 +1,4 @@
-namespace AuroraScript.Core
+锘縩amespace AuroraScript.Core
 {
     /// <summary>
     /// Bytecode operation codes for the virtual machine.
@@ -11,7 +11,7 @@ namespace AuroraScript.Core
         DUP = 2,         // Duplicate the top value on the stack
         SWAP = 3,        // Swap the top two values on the stack
         LOAD_ARG = 4,    // Load a function argument onto the stack (takes argument index)
-        TRY_LOAD_ARG = 5,    // 如果参数存在则先弹出栈顶元素，再加载参数
+        TRY_LOAD_ARG = 5,    // 濡傛灉鍙傛暟瀛樺湪鍒欏厛寮瑰嚭鏍堥《鍏冪礌锛屽啀鍔犺浇鍙傛暟
 
 
 
@@ -52,8 +52,12 @@ namespace AuroraScript.Core
 
         GET_PROPERTY = 60, // Get a property from an object (takes property name index in constant pool)
         SET_PROPERTY = 61, // Set a property on an object (takes property name index in constant pool)
-        GET_ELEMENT = 62,  // Get an element from an array or map
-        SET_ELEMENT = 63,  // Set an element in an array or map
+        GET_THIS_PROPERTY = 63, // Get a property from an object (takes property name index in constant pool)
+        SET_THIS_PROPERTY = 64, // Set a property on an object (takes property name index in constant pool)
+        GET_GLOBAL_PROPERTY = 65, // Get a property from an object (takes property name index in constant pool)
+        SET_GLOBAL_PROPERTY = 66, // Set a property on an object (takes property name index in constant pool)
+        GET_ELEMENT = 67,  // Get an element from an array or map
+        SET_ELEMENT = 68,  // Set an element in an array or map
 
         // Arithmetic Operations
         ADD = 70,          // Add the top two values

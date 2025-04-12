@@ -1,6 +1,4 @@
 ﻿using AuroraScript.Core;
-using System.Collections.Generic;
-using System.Xml.Linq;
 
 
 namespace AuroraScript.Compiler.Emits

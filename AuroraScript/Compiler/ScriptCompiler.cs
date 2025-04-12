@@ -2,8 +2,6 @@
 using AuroraScript.Ast;
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Compiler.Exceptions;
-
-using AuroraScript.Uilty;
 using System.Collections.Concurrent;
 using System.Text;
 

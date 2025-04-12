@@ -10,6 +10,10 @@ export const user = {
 };
 
 export var onlineCount = 0;
+var s1 = onlineCount++;
+var s2 = --onlineCount;
+
+
 
 
 function login(info){
@@ -23,16 +27,27 @@ function login(info){
 
 
 function createUser(u,p){
+
 	return {
 		username: u,
 		password: p,
 		getCount:()=>{
 			return onlineCount;
 		}
+	};
+}
+
+
+function createCancel(){
+	var count = 0;
+	return ()=>{
+		count++;
+		onlineCount--;
 	}
 }
 
 
+// 大当时法国地方官法国@！@#~ 🎉😊😂🤣❤️😍❤️😍😘✔️😁🤷‍♀️✖️✖️😁😊😋🥖🍳🍳🍳🧇
 
 var test = createUser('root','100');
 
@@ -49,3 +64,7 @@ vs++;
 vs = vs+ 1;
 
 var c = ++vs;
+
+var cancel = createCancel();
+
+cancel();

@@ -274,6 +274,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
             var scope = currentScope.CreateScope(ScopeType.BLOCK);
             var result = new BlockStatement(scope);
+            result.IsNewScope = true;
             while (true)
             {
                 var token = this.lexer.LookAtHead();
@@ -432,7 +433,7 @@ namespace AuroraScript.Analyzer
 
         private Exception InitParseException(String message, Token token)
         {
-           
+
             Console.WriteLine($"{token} {message}");
             return new ParseException(this.lexer.FullPath, token, String.Format(message, token));
         }
@@ -490,6 +491,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.KW_ELSE);
             BlockStatement block = new BlockStatement(currentScope);
+            block.IsNewScope = true;
             if (this.lexer.TestSymbol(Symbols.KW_IF))
             {
                 var statement = this.ParseIfBlock(currentScope);
@@ -593,22 +595,15 @@ namespace AuroraScript.Analyzer
                 // Lambda Expression &&  Function Signature Type
                 if (token.Symbol == Symbols.PT_LAMBDA)
                 {
-                    //if (lastExpression.Parent is BinaryExpression bin && bin.Operator == Operator.SetMember)
-                    //{
                     rollBackLexer();
-                    return ParseLamdaExpression(currentScope);
-                    //}
-                    //else
-                    //{
-                    //    rollBackLexer();
-                    //    return ParseFunctionSignatureExpression(currentScope);
-                    //}
+                    var lambda = ParseLamdaExpression(currentScope);
+                    return lambda;
                 }
                 if (tempExp == null)
                 {
                     throw this.InitParseException("Invalid token {0} appears in expression", token);
                 }
-                
+
                 // ==============================================
                 //
                 // ==============================================
@@ -668,7 +663,7 @@ namespace AuroraScript.Analyzer
                         {
                             rollBackLexer();
                             var construct = ParseObjectConstructor(currentScope);
-                           
+
                             return construct;
 
                         }
@@ -935,7 +930,7 @@ namespace AuroraScript.Analyzer
                     constructExpression.AddNode(newExp);
                     if (value is not MapExpression && value is not LambdaExpression)
                     {
-                        this.lexer.RollBack();  
+                        this.lexer.RollBack();
                     }
                 }
                 else
@@ -996,9 +991,14 @@ namespace AuroraScript.Analyzer
 
 
 
-        private Expression ParseLamdaExpression(Scope currentScope)
+        private LambdaExpression ParseLamdaExpression(Scope currentScope)
         {
-            var func = ParseFunction(null, currentScope, MemberAccess.Internal, FunctionFlags.Lambda);
+            var name = new IdentifierToken();
+
+            var position = this.lexer.LookAtHead();
+
+            name.Value = "$lambda_" + position.LineNumber +  "_" + position.ColumnNumber;
+            var func = ParseFunction(name, currentScope, MemberAccess.Internal, FunctionFlags.Lambda);
             var lambda = new LambdaExpression();
             lambda.Function = func;
             return lambda;

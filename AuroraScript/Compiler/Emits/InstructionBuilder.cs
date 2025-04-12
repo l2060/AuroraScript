@@ -1,6 +1,4 @@
 ﻿using AuroraScript.Core;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
@@ -188,14 +186,39 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.SET_ELEMENT);
         }
 
-        public void SetProperty()
+        public void SetProperty(String propertyName)
         {
-            Emit(OpCode.SET_PROPERTY);
+            var strAddress = GetOrAddStringTable(propertyName);
+            Emit(OpCode.SET_PROPERTY, strAddress);
         }
 
-        public void GetProperty()
+        public void GetProperty(String propertyName)
         {
-            Emit(OpCode.GET_PROPERTY);
+            var strAddress = GetOrAddStringTable(propertyName);
+            Emit(OpCode.GET_PROPERTY, strAddress);
+        }
+        public void GetThisProperty(String propertyName)
+        {
+            var strAddress = GetOrAddStringTable(propertyName);
+            Emit(OpCode.GET_THIS_PROPERTY, strAddress);
+        }
+
+        public void SetThisProperty(String propertyName)
+        {
+            var strAddress = GetOrAddStringTable(propertyName);
+            Emit(OpCode.SET_THIS_PROPERTY, strAddress);
+        }
+
+        public void GetGlobalProperty(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            Emit(OpCode.GET_GLOBAL_PROPERTY, strAddress);
+        }
+
+        public void SetGlobalProperty(String varName)
+        {
+            var strAddress = GetOrAddStringTable(varName);
+            Emit(OpCode.SET_GLOBAL_PROPERTY, strAddress);
         }
 
         public void GetElement()
@@ -288,21 +311,7 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.PUSH_GLOBAL);
         }
 
-        public void GetGlobalProperty(String varName)
-        {
-            var strAddress = GetOrAddStringTable(varName);
-            Emit(OpCode.PUSH_GLOBAL);
-            Emit(OpCode.PUSH_STRING, strAddress);
-            Emit(OpCode.GET_PROPERTY);
-        }
 
-        public void SetGlobalProperty(String varName)
-        {
-            var strAddress = GetOrAddStringTable(varName);
-            Emit(OpCode.PUSH_GLOBAL);
-            Emit(OpCode.PUSH_STRING, strAddress);
-            Emit(OpCode.SET_PROPERTY);
-        }
 
         public void Call(Byte argsCount)
         {

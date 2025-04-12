@@ -1,7 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AuroraScript;
-using AuroraScript.Core;
-using System.Threading.Tasks;
 
 //rsTest.Run();
 

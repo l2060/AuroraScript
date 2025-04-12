@@ -9,7 +9,7 @@ namespace AuroraScript.Ast
     {
         public readonly String Directory;
 
-       
+
         /// <summary>
         /// 模块元信息，包括模块名， 脚本中使用 @metaname(value?)定义
         /// </summary>

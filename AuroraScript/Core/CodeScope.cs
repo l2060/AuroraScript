@@ -2,8 +2,8 @@
 {
     public enum DeclareType
     {
-        Function,
-        Variable
+        Variable,
+        Property
     }
 
     public class DeclareObject
@@ -20,6 +20,13 @@
     }
 
 
+    public enum DomainType
+    {
+        Global,
+        Module,
+        Function,
+        Code
+    }
 
 
     public class CodeScope
@@ -33,7 +40,10 @@
 
         private readonly Dictionary<string, DeclareObject> variables = new Dictionary<string, DeclareObject>();
 
-        public CodeScope(CodeScope current)
+        public DomainType Domain { get; private set; }
+
+
+        public CodeScope(CodeScope current, DomainType domain   )
         {
             _parent = current;
 
@@ -42,6 +52,8 @@
                 ScopeDepth = _parent.ScopeDepth + 1;
                 _variableBaseCount = _parent._variableBaseCount;
             }
+
+            Domain = domain;
         }
 
         /// <summary>
@@ -49,9 +61,9 @@
         /// </summary>
         /// <returns></returns>
 
-        public CodeScope Enter()
+        public CodeScope Enter(DomainType domain)
         {
-            var scope = new CodeScope(this);
+            var scope = new CodeScope(this, domain);
             return scope;
         }
 

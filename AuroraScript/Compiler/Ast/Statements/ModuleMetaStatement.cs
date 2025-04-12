@@ -1,10 +1,5 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraScript.Compiler.Ast.Statements
 {
@@ -15,7 +10,7 @@ namespace AuroraScript.Compiler.Ast.Statements
 
 
 
-        internal ModuleMetaStatement(IdentifierToken metaName,Token metaValue)
+        internal ModuleMetaStatement(IdentifierToken metaName, Token metaValue)
         {
             Name = metaName;
             Value = metaValue;

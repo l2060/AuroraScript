@@ -11,11 +11,12 @@ namespace AuroraScript.Compiler.Emits
 {
     public class ByteCodeGenerator : IAstVisitor
     {
-        private CodeScope _scope = new CodeScope(null);
+        private CodeScope _scope = new CodeScope(null, DomainType.Global);
         private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
         private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
         private readonly InstructionBuilder _instructionBuilder;
+
 
         public ByteCodeGenerator()
         {
@@ -23,9 +24,9 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        private void BeginScope()
+        private void BeginScope(DomainType domain)
         {
-            _scope = _scope.Enter();
+            _scope = _scope.Enter(domain);
         }
 
         private void EndScope()
@@ -49,18 +50,16 @@ namespace AuroraScript.Compiler.Emits
         /// <param name="node"></param>
         public void VisitModule(ModuleDeclaration node)
         {
-            BeginScope();
+            BeginScope(DomainType.Module);
             _instructionBuilder.Comment("# module: " + node.ModuleName);
-
+            moduleFunctions = new List<FunctionDeclaration>(node.Functions);
 
             // define propertys
             _instructionBuilder.Comment("# Variable Define");
             foreach (var module in node.Members)
             {
                 _instructionBuilder.PushNull();// push this
-                _instructionBuilder.PushConstantString(module.Name.Value);// push this
-                _instructionBuilder.PushThis();// push this
-                _instructionBuilder.SetProperty();
+                _instructionBuilder.SetThisProperty(module.Name.Value);
             }
             _instructionBuilder.Comment("# Module Import");
 
@@ -74,7 +73,38 @@ namespace AuroraScript.Compiler.Emits
 
             _instructionBuilder.Comment("# Code Block");
 
+
+
+            // 1. Compile function declare ..
+            foreach (var function in moduleFunctions)
+            {
+                _scope.Declare(DeclareType.Property, function.Name.Value);
+
+            }
+
+
+
+
+
+
+
             VisitBlock(node);
+
+
+            _instructionBuilder.PushNull();
+            _instructionBuilder.Return();
+
+            // 3. compile each function
+
+            var index = 0;
+            while (index < moduleFunctions.Count)
+            {
+                var function = moduleFunctions[index];
+                _functionLocations[function.Name.Value] = _instructionBuilder.Position();
+                function.Accept(this);
+                index++;
+            }
+
             EndScope();
         }
 
@@ -84,41 +114,17 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-
+        private List<FunctionDeclaration> moduleFunctions = null;
 
 
         public void VisitBlock(BlockStatement node)
         {
-            // 方法指针应该是带执行上下文的。
-            // 方法引用外层scope内的变量 ， 外层SCOPE内变量引用了方法。 互修复
-            BeginScope();
-            // 1. Compile function declare ..
-            foreach (var function in node.Functions)
-            {
-                _scope.Declare(DeclareType.Function, function.Name.Value);
-
-            }
-
-            // 2. set method to this property
-
-
-            // 3. Compile variables or init code. 
+            if (node.IsNewScope) BeginScope(DomainType.Code);
             foreach (var statement in node.ChildNodes)
             {
                 statement.Accept(this);
             }
-            if (node is ModuleDeclaration)
-            {
-                _instructionBuilder.PushNull();
-                _instructionBuilder.Return();
-            }
-            // 3. compile each function
-            foreach (var function in node.Functions)
-            {
-                _functionLocations[function.Name.Value] = _instructionBuilder.Position();
-                function.Accept(this);
-            }
-            EndScope();
+            if (node.IsNewScope) EndScope();
         }
 
         public void VisitFunction(FunctionDeclaration node)
@@ -129,10 +135,13 @@ namespace AuroraScript.Compiler.Emits
             {
 
             }
+            if (node.Flags == FunctionFlags.Lambda)
+            {
 
+            }
 
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
-            BeginScope();
+            BeginScope(DomainType.Function);
             var begin = _instructionBuilder.Position();
             // define arg var
             foreach (var statement in node.Parameters)
@@ -155,10 +164,15 @@ namespace AuroraScript.Compiler.Emits
 
 
 
+
+
         public void VisitLambdaExpression(LambdaExpression node)
         {
             //  
-            VisitFunction(node.Function);
+            this.moduleFunctions.Add(node.Function);
+            _scope.Declare(DeclareType.Property, node.Function.Name.Value);
+            var name = new NameExpression() { Identifier = node.Function.Name };
+            this.VisitName(name);
         }
 
 
@@ -169,7 +183,7 @@ namespace AuroraScript.Compiler.Emits
             for (int i = 0; i < stringTable.Length; i++)
             {
                 var str = stringTable[i];
-                Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}", ConsoleColor.Blue);
+                Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")} \t {str.GetHashCode()}", ConsoleColor.Blue);
             }
             Console.WriteLine();
             Console.WriteLine();
@@ -236,15 +250,9 @@ namespace AuroraScript.Compiler.Emits
             // Duplicate the value on the stack (for the assignment expression's own value)
             //_instructionBuilder.Duplicate();
             // Store the value in the variable
-            if (_scope.Resolve(DeclareType.Variable, node.Left.ToString(), out var slot))
-            {
-                _instructionBuilder.PopLocal(slot);
-            }
-            else
-            {
-                _instructionBuilder.SetGlobalProperty(node.Left.ToString());
-            }
+            MoveValueTo(node.Left.ToString());
         }
+
 
 
 
@@ -337,8 +345,7 @@ namespace AuroraScript.Compiler.Emits
         {
             node.Object.Accept(this);
             var propery = (NameExpression)node.Property;
-            _instructionBuilder.PushConstantString(propery.Identifier.Value);
-            _instructionBuilder.GetProperty();
+            _instructionBuilder.GetProperty(propery.Identifier.Value);
         }
 
 
@@ -372,14 +379,14 @@ namespace AuroraScript.Compiler.Emits
         public void VisitSetPropertyExpression(SetPropertyExpression node)
         {
             _instructionBuilder.Comment($"# {node}");
+
+            // Compile the object expression
+            node.Object.Accept(this);
             // Compile the value expression
             node.Value.Accept(this);
             // Compile the value expression
             var propery = (NameExpression)node.Property;
-            _instructionBuilder.PushConstantString(propery.Identifier.Value);
-            // Compile the object expression
-            node.Object.Accept(this);
-            _instructionBuilder.SetProperty();
+            _instructionBuilder.SetProperty(propery.Identifier.Value);
 
         }
 
@@ -459,9 +466,11 @@ namespace AuroraScript.Compiler.Emits
                 {
                     _instructionBuilder.PushLocal(declare.Index);
                 }
-                else if (declare.Type == DeclareType.Function)
+                else if (declare.Type == DeclareType.Property)
                 {
-                    _instructionBuilder.PushMethod(declare.Index);
+                    //_instructionBuilder.PushThis();
+                    //_instructionBuilder.PushConstantString();
+                    _instructionBuilder.GetThisProperty(node.Identifier.Value);
                 }
             }
             else
@@ -486,29 +495,7 @@ namespace AuroraScript.Compiler.Emits
                 {
                     // Push the value
                     property.Value.Accept(this);
-                    // Push the key
-                    if (property.Key is IdentifierToken identifierToken)
-                    {
-                        _instructionBuilder.PushConstantString(identifierToken.Value);
-                    }
-                    else if (property.Key is NumberToken numberToken)
-                    {
-                        _instructionBuilder.PushConstantNumber(numberToken.NumberValue);
-                    }
-                    else if (property.Key is BooleanToken boolToken)
-                    {
-                        _instructionBuilder.PushConstantBoolean(boolToken.BoolValue);
-                    }
-                    else if (property.Key is NullToken nullToken)
-                    {
-                        _instructionBuilder.PushConstantString("null");
-                    }
-                    else
-                    {
-                        throw new Exception("无效的Map 键");
-                    }
-                    //property
-                    _instructionBuilder.SetProperty();
+                     _instructionBuilder.SetProperty(property.Key.Value);
                 }
                 // Pop the result of SET_PROPERTY (the value)
                 //_instructionBuilder.Pop();
@@ -664,14 +651,7 @@ namespace AuroraScript.Compiler.Emits
                 else if (exp is NameExpression nameExpression)
                 {
                     if (node.Parent != null) _instructionBuilder.Duplicate();
-                    if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
-                    {
-                        _instructionBuilder.PopLocal(slot);
-                    }
-                    else
-                    {
-                        _instructionBuilder.SetGlobalProperty(nameExpression.Identifier.Value);
-                    }
+                    MoveValueTo(nameExpression.Identifier.Value);
                 }
                 else
                 {
@@ -689,14 +669,7 @@ namespace AuroraScript.Compiler.Emits
                 {
                     if (node.Parent != null) _instructionBuilder.Duplicate();
                     _instructionBuilder.Emit(opCode);
-                    if (_scope.Resolve(DeclareType.Variable, nameExpression.Identifier.Value, out var slot))
-                    {
-                        _instructionBuilder.PopLocal(slot);
-                    }
-                    else
-                    {
-                        _instructionBuilder.SetGlobalProperty(nameExpression.Identifier.Value);
-                    }
+                    MoveValueTo(nameExpression.Identifier.Value);
                 }
                 else
                 {
@@ -725,8 +698,19 @@ namespace AuroraScript.Compiler.Emits
             }
             // Local variable
             // _instructionBuilder.Duplicate();
-            var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
-            _instructionBuilder.PopLocal(slot);
+            if (_scope.Domain == DomainType.Module)
+            {
+                _scope.Declare(DeclareType.Property, node.Name.Value);
+                _instructionBuilder.SetThisProperty(node.Name.Value);
+            }
+            else
+            {
+                var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
+                _instructionBuilder.PopLocal(slot);
+            }
+
+
+
         }
 
 
@@ -790,7 +774,28 @@ namespace AuroraScript.Compiler.Emits
 
         public void VisitCompoundExpression(CompoundExpression node)
         {
+            // TODO
+        }
 
+
+
+        private void MoveValueTo(String property)
+        {
+            if (_scope.Resolve(property, out var declareObject))
+            {
+                if (declareObject.Type == DeclareType.Variable)
+                {
+                    _instructionBuilder.PopLocal(declareObject.Index);
+                }
+                else if (declareObject.Type == DeclareType.Property)
+                {
+                    _instructionBuilder.SetThisProperty(property);
+                }
+                else
+                {
+                    _instructionBuilder.SetGlobalProperty(property);
+                }
+            }
         }
     }
 }
