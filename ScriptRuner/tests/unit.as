@@ -3,6 +3,13 @@
 @version({ a:1, b:2, c:3 });
 @description("");
 
+
+vs++;
+
+vs = vs+ 1;
+
+
+
 export const user = {
 	username: 'admin',
 	password: '123',
@@ -58,10 +65,6 @@ debug(test.getCount());
 login({ username: 'admin', password: '123' });
 
 debug(test.getCount());
-
-vs++;
-
-vs = vs+ 1;
 
 var c = ++vs;
 

@@ -164,8 +164,8 @@ namespace AuroraScript.Compiler.Emits
             }
             if (operand >= Single.MinValue && operand <= Single.MaxValue && (Single)operand == operand)
             {
-                NumberUnion union = new NumberUnion((Single)operand);
-                Emit(OpCode.PUSH_F32, union.Int32Value1);
+                UnionNumber union = new UnionNumber((Single)operand, 0.0f);
+                Emit(OpCode.PUSH_F32, union.Int32ValueH);
                 return;
             }
             Emit(OpCode.PUSH_F64, operand);

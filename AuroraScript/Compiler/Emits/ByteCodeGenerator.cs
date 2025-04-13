@@ -495,7 +495,7 @@ namespace AuroraScript.Compiler.Emits
                 {
                     // Push the value
                     property.Value.Accept(this);
-                     _instructionBuilder.SetProperty(property.Key.Value);
+                    _instructionBuilder.SetProperty(property.Key.Value);
                 }
                 // Pop the result of SET_PROPERTY (the value)
                 //_instructionBuilder.Pop();
@@ -786,16 +786,16 @@ namespace AuroraScript.Compiler.Emits
                 if (declareObject.Type == DeclareType.Variable)
                 {
                     _instructionBuilder.PopLocal(declareObject.Index);
+                    return;
                 }
                 else if (declareObject.Type == DeclareType.Property)
                 {
                     _instructionBuilder.SetThisProperty(property);
+                    return;
                 }
-                else
-                {
-                    _instructionBuilder.SetGlobalProperty(property);
-                }
+
             }
+            _instructionBuilder.SetGlobalProperty(property);
         }
     }
 }

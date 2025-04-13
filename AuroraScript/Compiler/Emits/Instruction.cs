@@ -142,8 +142,8 @@ namespace AuroraScript.Compiler.Emits
         {
             if (OpCode == OpCode.PUSH_F32)
             {
-                NumberUnion union = new NumberUnion(Value, 0);
-                return OpCode + " " + union.FloatValue1;
+                UnionNumber union = new UnionNumber(Value, 0);
+                return OpCode + " " + union.FloatValueH;
             }
             return OpCode.ToString() + " " + Value;
         }
@@ -158,13 +158,13 @@ namespace AuroraScript.Compiler.Emits
     public class Instruction9 : Instruction
     {
 
-        public NumberUnion Value;
+        public UnionNumber Value;
 
         public override int Length => 9;
 
         public Instruction9(OpCode opCode, int offset, Double value) : base(opCode, offset)
         {
-            this.Value = new NumberUnion(value);
+            this.Value = new UnionNumber(value);
         }
 
         public override string ToString()
@@ -175,8 +175,8 @@ namespace AuroraScript.Compiler.Emits
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write((Byte)OpCode);
-            writer.Write(Value.Int32Value1);
-            writer.Write(Value.Int32Value2);
+            writer.Write(Value.Int32ValueH);
+            writer.Write(Value.Int32ValueL);
         }
         //private void a()
         //{
