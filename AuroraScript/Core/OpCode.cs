@@ -36,6 +36,8 @@
         MOV_TO_GLOBAL = 48,
 
 
+        CREATE_CLOSURE = 49,
+
         //
         //PUSH_LOCAL = 27,  // Load a local variable onto the stack (takes variable slot)
         //POP_TO_LOCAL = 28, // Store the top value in a local variable (takes variable slot)

@@ -3,6 +3,9 @@
 @version({ a:1, b:2, c:3 });
 @description("");
 
+import common from "common";
+
+
 
 vs++;
 
@@ -31,13 +34,23 @@ function login(info){
 	}
 }
 
+function add(){
+	onlineCount++;
+}
 
 
 function createUser(u,p){
 
+	function add(){
+		onlineCount++;
+	}
+
+
 	return {
 		username: u,
 		password: p,
+		add,
+		login,
 		getCount:()=>{
 			return onlineCount;
 		}

@@ -8,26 +8,28 @@ namespace AuroraScript.Ast
     /// <summary>
     /// function parameter declaration
     /// </summary>
-    public class ParameterDeclaration : Statement
+    public class ParameterDeclaration : VariableDeclaration
     {
-        internal ParameterDeclaration(Byte index, Token name, Expression defaultValue)
+        internal ParameterDeclaration(Byte index, Token name, Expression defaultValue):base(MemberAccess.Internal, false, name) 
         {
             Name = name;
-            DefaultValue = defaultValue;
+            //DefaultValue = defaultValue;
             Index = index;
+            //Initializer = defaultValue;
+            if(defaultValue != null)
+            {
+                this.AddNode(defaultValue);
+            }
+     
         }
 
         public Byte Index { get; set; }
 
-        /// <summary>
-        /// Parameter
-        /// </summary>
-        public Token Name { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public Expression DefaultValue { get; set; }
+        //public Expression DefaultValue { get; set; }
 
         /// <summary>
         /// 扩展运算符（Spread Operator）

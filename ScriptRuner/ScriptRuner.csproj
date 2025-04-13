@@ -44,7 +44,7 @@
     <None Update="tests\unit.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="tests\unit.js">
+    <None Update="tests\common.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

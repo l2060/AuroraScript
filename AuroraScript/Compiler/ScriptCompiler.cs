@@ -28,14 +28,15 @@ namespace AuroraScript.Compiler
     {
         private readonly String _baseDirectory;
         public string FileExtension { get; set; } = ".as";
-        private ByteCodeGenerator codeGenerator;
+
         private ConcurrentDictionary<string, ModuleSyntaxRef> scriptModules = new ConcurrentDictionary<string, ModuleSyntaxRef>();
 
-
-        public ScriptCompiler(String baseDirectory)
+        private ByteCodeGenerator codeGenerator;
+        public ScriptCompiler(String baseDirectory, ByteCodeGenerator codeGenerator )
         {
-            codeGenerator = new ByteCodeGenerator();
+
             _baseDirectory = Path.GetFullPath(baseDirectory);
+            this.codeGenerator = codeGenerator;
         }
 
         public async Task Build(string filepath)
@@ -58,8 +59,7 @@ namespace AuroraScript.Compiler
             {
                 item.SyntaxTree.Accept(codeGenerator);
             }
-            codeGenerator.DumpCode();
-            var bytes = codeGenerator.Build();
+
         }
 
 

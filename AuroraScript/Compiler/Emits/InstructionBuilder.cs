@@ -9,17 +9,13 @@ namespace AuroraScript.Compiler.Emits
     internal class InstructionBuilder
     {
         public int _position { get; private set; }
-        private readonly List<string> _stringTable = new List<string>();
         private readonly List<Instruction> _instructions = new List<Instruction>();
+        private readonly StringList _stringSet;
 
 
-        public ImmutableArray<String> StringTable => _stringTable.ToImmutableArray();
-
-
-
-        public InstructionBuilder()
+        public InstructionBuilder(StringList stringSet)
         {
-            _stringTable = new List<string>();
+            this._stringSet = stringSet;
             Emit(OpCode.NOP);
         }
 
@@ -35,15 +31,6 @@ namespace AuroraScript.Compiler.Emits
         public Boolean IsChanged(Instruction position)
         {
             return position.Offset != _position;
-        }
-
-
-        public int GetOrAddStringTable(String str)
-        {
-            var index = _stringTable.IndexOf(str);
-            if (index > -1) return index;
-            _stringTable.Add(str);
-            return _stringTable.Count - 1;
         }
 
 
@@ -136,7 +123,7 @@ namespace AuroraScript.Compiler.Emits
 
         public void PushConstantString(String str)
         {
-            var strAddress = GetOrAddStringTable(str);
+            var strAddress = _stringSet.GetSlot(str);
             Emit(OpCode.PUSH_STRING, strAddress);
         }
 
@@ -188,36 +175,43 @@ namespace AuroraScript.Compiler.Emits
 
         public void SetProperty(String propertyName)
         {
-            var strAddress = GetOrAddStringTable(propertyName);
+            var strAddress = _stringSet.GetSlot(propertyName);
             Emit(OpCode.SET_PROPERTY, strAddress);
         }
 
         public void GetProperty(String propertyName)
         {
-            var strAddress = GetOrAddStringTable(propertyName);
+            var strAddress = _stringSet.GetSlot(propertyName);
             Emit(OpCode.GET_PROPERTY, strAddress);
         }
+
+
+        public void GetThisProperty(Int32 nameSlot)
+        {
+            Emit(OpCode.GET_THIS_PROPERTY, nameSlot);
+        }
+
         public void GetThisProperty(String propertyName)
         {
-            var strAddress = GetOrAddStringTable(propertyName);
+            var strAddress = _stringSet.GetSlot(propertyName);
             Emit(OpCode.GET_THIS_PROPERTY, strAddress);
         }
 
         public void SetThisProperty(String propertyName)
         {
-            var strAddress = GetOrAddStringTable(propertyName);
+            var strAddress = _stringSet.GetSlot(propertyName);
             Emit(OpCode.SET_THIS_PROPERTY, strAddress);
         }
 
         public void GetGlobalProperty(String varName)
         {
-            var strAddress = GetOrAddStringTable(varName);
+            var strAddress = _stringSet.GetSlot(varName);
             Emit(OpCode.GET_GLOBAL_PROPERTY, strAddress);
         }
 
         public void SetGlobalProperty(String varName)
         {
-            var strAddress = GetOrAddStringTable(varName);
+            var strAddress = _stringSet.GetSlot(varName);
             Emit(OpCode.SET_GLOBAL_PROPERTY, strAddress);
         }
 

@@ -287,7 +287,7 @@ namespace AuroraScript.Analyzer
                     result.Functions.Add(functionDeclaration);
                     functionDeclaration.IsStateSegment = true;
                 }
-                else if (exp != null)
+                else  if (exp != null)
                 {
                     result.AddNode(exp);
                     exp.IsStateSegment = true;
@@ -472,7 +472,7 @@ namespace AuroraScript.Analyzer
         {
             var node = statement;
             var parent = statement.Parent;
-            while (node is BlockStatement block && block.Length == 1)
+            while (node is BlockStatement block && block.Length == 1 && block.Functions.Count == 0)
             {
                 node = (Statement)block.ChildNodes[0];
                 node.Remove();

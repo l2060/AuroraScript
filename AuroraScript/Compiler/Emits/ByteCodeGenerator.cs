@@ -11,22 +11,26 @@ namespace AuroraScript.Compiler.Emits
 {
     public class ByteCodeGenerator : IAstVisitor
     {
-        private CodeScope _scope = new CodeScope(null, DomainType.Global);
+
         private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
         private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
         private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
         private readonly InstructionBuilder _instructionBuilder;
-
+        public readonly StringList _stringSet;
+        private CodeScope _scope;
 
         public ByteCodeGenerator()
         {
-            _instructionBuilder = new InstructionBuilder();
+            _stringSet = new StringList();
+            _scope = new CodeScope(null, DomainType.Global, _stringSet);
+            _instructionBuilder = new InstructionBuilder(_stringSet);
+
         }
 
 
         private void BeginScope(DomainType domain)
         {
-            _scope = _scope.Enter(domain);
+            _scope = _scope.Enter(_stringSet, domain);
         }
 
         private void EndScope()
@@ -54,19 +58,24 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Comment("# module: " + node.ModuleName);
             moduleFunctions = new List<FunctionDeclaration>(node.Functions);
 
-            // define propertys
-            _instructionBuilder.Comment("# Variable Define");
-            foreach (var module in node.Members)
-            {
-                _instructionBuilder.PushNull();// push this
-                _instructionBuilder.SetThisProperty(module.Name.Value);
-            }
+
             _instructionBuilder.Comment("# Module Import");
 
 
             foreach (var module in node.Imports)
             {
                 module.Accept(this);
+            }
+
+
+
+            // TODO 闭包方法提升到module后 如何填缺，lambda表达式内的变量失控怎么搞  增加this?
+            // define propertys
+            _instructionBuilder.Comment("# Variable Define");
+            foreach (var module in node.Members)
+            {
+                _instructionBuilder.PushNull();// push this
+                _instructionBuilder.SetThisProperty(module.Name.Value);
             }
 
 
@@ -78,21 +87,21 @@ namespace AuroraScript.Compiler.Emits
             // 1. Compile function declare ..
             foreach (var function in moduleFunctions)
             {
-                _scope.Declare(DeclareType.Property, function.Name.Value);
-
+                _scope.Declare(function);
             }
 
 
 
 
+            _instructionBuilder.PushNull();
+            _instructionBuilder.Return();
 
 
 
             VisitBlock(node);
 
 
-            _instructionBuilder.PushNull();
-            _instructionBuilder.Return();
+
 
             // 3. compile each function
 
@@ -104,6 +113,9 @@ namespace AuroraScript.Compiler.Emits
                 function.Accept(this);
                 index++;
             }
+
+
+
 
             EndScope();
         }
@@ -120,10 +132,24 @@ namespace AuroraScript.Compiler.Emits
         public void VisitBlock(BlockStatement node)
         {
             if (node.IsNewScope) BeginScope(DomainType.Code);
+
+
+            if (node is not ModuleDeclaration)
+            {
+                foreach (var function in node.Functions)
+                {
+                    //  
+                    this.moduleFunctions.Add(function);
+                    _scope.Declare(function);
+                }
+            }
+
             foreach (var statement in node.ChildNodes)
             {
                 statement.Accept(this);
             }
+
+
             if (node.IsNewScope) EndScope();
         }
 
@@ -170,7 +196,7 @@ namespace AuroraScript.Compiler.Emits
         {
             //  
             this.moduleFunctions.Add(node.Function);
-            _scope.Declare(DeclareType.Property, node.Function.Name.Value);
+            _scope.Declare(node.Function);
             var name = new NameExpression() { Identifier = node.Function.Name };
             this.VisitName(name);
         }
@@ -179,7 +205,7 @@ namespace AuroraScript.Compiler.Emits
         public void DumpCode()
         {
             Print("# str_table", ConsoleColor.Yellow);
-            var stringTable = _instructionBuilder.StringTable;
+            var stringTable = _stringSet.List;
             for (int i = 0; i < stringTable.Length; i++)
             {
                 var str = stringTable[i];
@@ -297,10 +323,10 @@ namespace AuroraScript.Compiler.Emits
 
         public void VisitParameterDeclaration(ParameterDeclaration node)
         {
-            var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
-            if (node.DefaultValue != null)
+            var slot = _scope.Declare(DeclareType.Variable, node);
+            if (node.Initializer != null)
             {
-                node.DefaultValue?.Accept(this);
+                node.Initializer?.Accept(this);
                 _instructionBuilder.LoadArgIsExist(node.Index);
             }
             else
@@ -468,9 +494,7 @@ namespace AuroraScript.Compiler.Emits
                 }
                 else if (declare.Type == DeclareType.Property)
                 {
-                    //_instructionBuilder.PushThis();
-                    //_instructionBuilder.PushConstantString();
-                    _instructionBuilder.GetThisProperty(node.Identifier.Value);
+                    _instructionBuilder.GetThisProperty(declare.Index);
                 }
             }
             else
@@ -700,12 +724,12 @@ namespace AuroraScript.Compiler.Emits
             // _instructionBuilder.Duplicate();
             if (_scope.Domain == DomainType.Module)
             {
-                _scope.Declare(DeclareType.Property, node.Name.Value);
+                _scope.Declare(DeclareType.Property, node);
                 _instructionBuilder.SetThisProperty(node.Name.Value);
             }
             else
             {
-                var slot = _scope.Declare(DeclareType.Variable, node.Name.Value);
+                var slot = _scope.Declare(DeclareType.Variable, node);
                 _instructionBuilder.PopLocal(slot);
             }
 
