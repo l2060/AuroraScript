@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Runtime
 {
-    internal class ObjectProperty
+    public class ObjectProperty
     {
         public Boolean Readable;
         public Boolean Writeeable;

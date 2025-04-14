@@ -30,40 +30,25 @@ namespace AuroraScript.Ast.Expressions
             Type = type;
         }
 
-        public Exception Operand { get; set; }
-
-        public Expression Left
+        public Expression Operand
         {
             get
             {
                 return this.childrens[0] as Expression;
             }
         }
-
-        public Expression Right
-        {
-            get
-            {
-                return this.childrens[0] as Expression;
-            }
-        }
-
 
         public override string ToString()
         {
             if (Type == UnaryType.Post)
             {
-                return $"{Left}{this.Operator}";
+                return $"{Operand}{this.Operator}";
             }
             else
             {
-                return $"{this.Operator}{Right}";
+                return $"{this.Operator}{Operand}";
             }
         }
-
-
-
-
     }
 
 }

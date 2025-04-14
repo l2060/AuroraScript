@@ -282,23 +282,12 @@ namespace AuroraScript.Compiler.Emits
 
         public override void VisitArrayExpression(ArrayLiteralExpression node)
         {
-            // Create a new array with the specified initial capacity
-            _instructionBuilder.NewArray(node.ChildNodes.Count);
-            // Populate the array with each element
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                // Duplicate the array reference
-                _instructionBuilder.Duplicate();
-                // Push the index
-                _instructionBuilder.PushConstantNumber(i);
                 // Push the element value
                 node.ChildNodes[i].Accept(this);
-                // Set the element
-                _instructionBuilder.SetElement();
-                // Pop the result of SET_ELEMENT (the value)
-                //_instructionBuilder.Pop();
             }
-
+            _instructionBuilder.NewArray(node.ChildNodes.Count);
         }
 
 
@@ -675,72 +664,84 @@ namespace AuroraScript.Compiler.Emits
         public override void VisitUnaryExpression(UnaryExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node.ToString()}");
-            OpCode opCode = OpCode.NOP;
-            if (node.Operator == Operator.PostIncrement || node.Operator == Operator.PreIncrement)
-            {
-                opCode = OpCode.INCREMENT;
-            }
-            else if (node.Operator == Operator.PreDecrement || node.Operator == Operator.PostDecrement)
-            {
-                opCode = OpCode.DECREMENT;
-            }
-            else if (node.Operator == Operator.LogicalNot)
-            {
-                opCode = OpCode.LOGIC_NOT;
-            }
-            else if (node.Operator == Operator.BitwiseNot)
-            {
-                opCode = OpCode.BIT_NOT;
-            }
-            else if (node.Operator == Operator.Negate)
-            {
-                opCode = OpCode.NEGATE;
-            }
-            else
-            {
-                throw new Exception($"无效的操作符:{node.Operator}");
-            }
-            var exp = node.ChildNodes[0];
+
+            // 获取操作数
+            var operand = node.Operand;
+
+            // 确定操作码
+            OpCode opCode = DetermineUnaryOpCode(node.Operator);
+
             if (node.Type == UnaryType.Prefix)
             {
-                exp.Accept(this);
+                // 前缀操作：先执行操作，再返回值
+                operand.Accept(this);
                 _instructionBuilder.Emit(opCode);
-                if (exp is LiteralExpression literal)
+                if (node.Parent != null) _instructionBuilder.Duplicate();
+                // 如果是变量，需要保存回变量
+                if (operand is NameExpression nameExpr)
                 {
+                    MoveValueTo(nameExpr.Identifier.Value);
                 }
-                else if (exp is NameExpression nameExpression)
+                else if (operand is GetPropertyExpression propExpr)
                 {
-                    if (node.Parent != null) _instructionBuilder.Duplicate();
-                    MoveValueTo(nameExpression.Identifier.Value);
+                    // 处理属性赋值
+                    HandlePropertyAssignment(propExpr);
                 }
-                else
+                else if (operand is GetElementExpression eleExpr)
                 {
-                    // throw new Exception($"无效的表达式:{exp}");
+                    // 处理索引赋值
+                    HandleElementAssignment(eleExpr);
                 }
             }
-            else
+            else // PostFix
             {
-                exp.Accept(this);
-                // 后缀时 常量不处理
-                if (exp is LiteralExpression literal)
-                {
-                }
-                else if (exp is NameExpression nameExpression)
-                {
-                    if (node.Parent != null) _instructionBuilder.Duplicate();
-                    _instructionBuilder.Emit(opCode);
-                    MoveValueTo(nameExpression.Identifier.Value);
-                }
-                else
-                {
-                    //   throw new Exception($"无效的表达式:{exp}");
-                }
+                // 后缀操作：先加载值，复制一份，执行操作后保存，返回原值
+                operand.Accept(this);
 
+                _instructionBuilder.Emit(opCode);
+                if (node.Parent != null) _instructionBuilder.Duplicate();
+                // 如果是变量，需要保存回变量
+                if (operand is NameExpression nameExpr)
+                {
+                    MoveValueTo(nameExpr.Identifier.Value);
+                    // 不需要额外的Duplicate，因为栈顶已经是原值
+                }
+                else if (operand is GetPropertyExpression propExpr)
+                {
+                    // 处理属性赋值
+                    HandlePropertyAssignment(propExpr);
+                }
+                else if (operand is GetElementExpression eleExpr)
+                {
+                    // 处理索引赋值
+                    HandleElementAssignment(eleExpr);
+                }
             }
         }
 
+        private OpCode DetermineUnaryOpCode(Operator op)
+        {
+            if (Operator.PreIncrement == op || Operator.PostIncrement == op) return OpCode.INCREMENT;
+            if (Operator.PreDecrement == op || Operator.PostDecrement == op) return OpCode.DECREMENT;
+            if (Operator.LogicalNot == op ) return OpCode.LOGIC_NOT;
+            if (Operator.BitwiseNot == op ) return OpCode.BIT_NOT;
+            if (Operator.Negate == op) return OpCode.NEGATE;
+            throw new Exception($"Invalid operator: {op}");
+        }
+
+        private void HandlePropertyAssignment(GetPropertyExpression propExpr)
+        {
+            propExpr.Object.Accept(this);
+            _instructionBuilder.SetProperty(propExpr.Property.ToString());
+        }
 
 
+        private void HandleElementAssignment(GetElementExpression eleExpr)
+        {
+            eleExpr.Object.Accept(this);
+            eleExpr.Index.Accept(this);
+            _instructionBuilder.SetElement();
+        }
 
 
 

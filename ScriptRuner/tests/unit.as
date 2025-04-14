@@ -4,13 +4,13 @@
 @description("");
 
 import common from "common";
-
+Document.Version++;
+a[c]++;
 
 
 vs++;
 
 vs = vs+ 1;
-
 
 
 export const user = {

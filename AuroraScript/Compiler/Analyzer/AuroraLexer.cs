@@ -25,6 +25,13 @@ namespace AuroraScript.Analyzer
         private Int32 bufferLength { get; set; } = 0;
         public Int32 Position { get; private set; } = 0;
 
+        public class LexerSnapshot
+        {
+            public int Position { get; set; }
+            public int LineNumber { get; set; }
+            public int ColumnNumber { get; set; }
+        }
+
         public AuroraLexer(String file, Encoding encoding) : this(File.ReadAllText(file, encoding), file)
         {
         }
@@ -176,6 +183,23 @@ namespace AuroraScript.Analyzer
         public void RollBack()
         {
             this.Position--;
+        }
+
+        public LexerSnapshot CreateSnapshot()
+        {
+            return new LexerSnapshot
+            {
+                Position = this.Position,
+                LineNumber = this.LineNumber,
+                ColumnNumber = this.ColumnNumber
+            };
+        }
+
+        public void RestoreSnapshot(LexerSnapshot snapshot)
+        {
+            this.Position = snapshot.Position;
+            this.LineNumber = snapshot.LineNumber;
+            this.ColumnNumber = snapshot.ColumnNumber;
         }
 
         /// <summary>

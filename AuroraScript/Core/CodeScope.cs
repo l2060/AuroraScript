@@ -117,7 +117,7 @@ namespace AuroraScript.Core
             var dobjeect = findByName(name);
             if (dobjeect != null)
             {
-                throw new Exception("域内变量名重复");
+                //throw new Exception("域内变量名重复");
             }
             if (Resolve(name, out var _))
             {

@@ -6,6 +6,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
+using System.Diagnostics.Metrics;
 
 
 namespace AuroraScript.Analyzer
@@ -75,7 +76,7 @@ namespace AuroraScript.Analyzer
             // 改进错误处理
             if (token == null)
             {
-                throw new ParseException(this.lexer.FullPath, this.lexer.Previous(),  "Unexpected end of input while parsing statement");
+                throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "Unexpected end of input while parsing statement");
             }
             if (token.Symbol == Symbols.PT_SEMICOLON)
             {
@@ -746,6 +747,18 @@ namespace AuroraScript.Analyzer
                     return setter;
                 }
             }
+            else if (exp is UnaryExpression unaryExpression)
+            {
+                if (unaryExpression.ChildNodes[0] is GetPropertyExpression propertyExpression)
+                {
+                }
+                else if (unaryExpression.ChildNodes[0] is GetElementExpression getEleExpression)
+                {
+                }
+                else
+                {
+                }
+            }
             return exp;
         }
 
@@ -924,7 +937,7 @@ namespace AuroraScript.Analyzer
 
             var position = this.lexer.LookAtHead();
 
-            name.Value = "$lambda_" + position.LineNumber +  "_" + position.ColumnNumber;
+            name.Value = "$lambda_" + position.LineNumber + "_" + position.ColumnNumber;
             var func = ParseFunction(name, currentScope, MemberAccess.Internal, FunctionFlags.Lambda);
             var lambda = new LambdaExpression();
             lambda.Function = func;
@@ -954,7 +967,7 @@ namespace AuroraScript.Analyzer
             var scope = currentScope.CreateScope(ScopeType.FUNCTION);
             // parse function body
             var body = this.ParseBlock(scope);
-         
+
             if (!(body is BlockStatement))
             {
                 var newBody = new BlockStatement(scope);
