@@ -72,8 +72,11 @@ namespace AuroraScript.Analyzer
         private Statement ParseStatement(Scope currentScope)
         {
             var token = this.lexer.LookAtHead();
-            if (token == null) throw new ParseException(this.lexer.FullPath, token, "Invalid keywords appear in ");
-            //if (token.Symbol == Symbols.KW_EOF) throw new ParseException(this.lexer.FullPath, token, "Unclosed scope ");
+            // 改进错误处理
+            if (token == null)
+            {
+                throw new ParseException(this.lexer.FullPath, this.lexer.Previous(),  "Unexpected end of input while parsing statement");
+            }
             if (token.Symbol == Symbols.PT_SEMICOLON)
             {
                 // Ignore empty statements;
@@ -88,7 +91,6 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
-            //if (token.Symbol == Symbols.KW_TYPE) return this.ParseTypeDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
@@ -96,7 +98,7 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
-            if (token.Symbol == Symbols.KW_CLASS) return this.ParseClass(currentScope, Symbols.KW_INTERNAL);
+
             var exp = this.ParseExpression(currentScope);
             exp.IsStateSegment = true;
             return new ExpressionStatement(exp);
@@ -121,11 +123,7 @@ namespace AuroraScript.Analyzer
                 this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
                 // parse arguments
                 var arguments = this.ParseFunctionArguments(currentScope);
-                // next token : Typed
-                //this.lexer.NextOfKind(Symbols.PT_COLON);
-                // typed
-                //var typeds = this.ParseFunctionReturnTypeds(currentScope);
-                // ;
+
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
                 var declaration = new FunctionDeclaration(access, funcName, arguments, null, FunctionFlags.Declare);
                 return declaration;
@@ -133,34 +131,6 @@ namespace AuroraScript.Analyzer
             throw this.InitParseException("The Declare keyword only allows the declaration of external methods ", this.lexer.LookAtHead());
         }
 
-        /// <summary>
-        /// parse Object Typed
-        /// </summary>
-        /// <returns></returns>
-        //private TypeNode ParseObjectType(Scope currentScope)
-        //{
-        //    IdentifierToken basicType = null;
-        //    TypeNode node;
-        //    if (this.lexer.TestNext(Symbols.PT_LEFTPARENTHESIS))
-        //    {
-        //        this.lexer.RollBack();
-        //        var type = this.ParseFunctionSignatureExpression(currentScope) as FunctionType;
-        //        node = new FunctionTypeNode() { Parameters = type.Parameters, Typeds = type.Typeds };
-        //    }
-        //    else
-        //    {
-        //        basicType = this.lexer.TestNextOfKind<IdentifierToken>();
-        //        node = new KeywordTypeNode(basicType);
-        //    }
-
-        //    if (this.lexer.TestNext(Symbols.PT_LEFTBRACKET))
-        //    {
-        //        this.lexer.NextOfKind(Symbols.PT_RIGHTBRACKET);
-
-        //        return new ArrayType(node);
-        //    }
-        //    return node;
-        //}
 
         /// <summary>
         /// parse enum declare list
@@ -296,13 +266,6 @@ namespace AuroraScript.Analyzer
             }
             // Consume the end brace.
             this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
-
-            //if (result.Length == 1)
-            //{
-            //    var statement = result.ChildNodes[0];
-            //    statement.Remove();
-            //    return statement as Statement;
-            //}
             return this.opaimizeStatement(result);
         }
 
@@ -377,11 +340,6 @@ namespace AuroraScript.Analyzer
 
             var varName = this.lexer.NextOfKind<IdentifierToken>();
 
-            // next token is : define var typed
-            //if (this.lexer.TestNext(Symbols.PT_COLON))
-            //{
-            //    variables.Typed = this.ParseObjectType(currentScope);
-            //}
             var varNames = new List<Token>() { varName };
             Expression initializer = null;
             while (true)
@@ -410,26 +368,9 @@ namespace AuroraScript.Analyzer
                 }
             }
             // define variables
-            //var exp = new Statements();
-            var v = new VariableDeclaration(access, isConst, varNames[0]);
-            if (initializer != null) v.AddNode(initializer);
-            //exp.AddNode(v);
-            //var preVarName = varNames[0];
-            //for (int i = 1; i < varNames.Count; i++)
-            //{
-            //    var @var = new VariableDeclaration(access, isConst, varNames[i]);
-            //    if (initializer != null)
-            //    {
-            //        var lexp = new NameExpression();
-            //        lexp.Identifier = preVarName;
-            //        @var.AddNode(lexp);
-            //    }
-            //    exp.AddNode(@var);
-            //    preVarName = varNames[i];
-            //}
-
-
-            return v;
+            var var = new VariableDeclaration(access, isConst, varNames[0]);
+            if (initializer != null) var.AddNode(initializer);
+            return var;
         }
 
         private Exception InitParseException(String message, Token token)
@@ -809,21 +750,6 @@ namespace AuroraScript.Analyzer
         }
 
 
-
-
-
-        /// <summary>
-        /// var fmtString = `load ${num} of ${str}`;
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="currentScope"></param>
-        /// <returns></returns>
-        private Expression expandStringTemplate(ValueToken token, Scope currentScope)
-        {
-            var exp = new BinaryExpression(Operator.Add);
-            return exp;
-        }
-
         private Expression createExpression(Scope currentScope, Operator _operator, Token previousToken, Expression lastExpression)
         {
             // Assignment Expression
@@ -1040,35 +966,6 @@ namespace AuroraScript.Analyzer
             var declaration = new FunctionDeclaration(access, functionName, arguments, body, flags);
             return declaration;
         }
-        private Statement ParseClass(Scope currentScope, Symbols access = null)
-        {
-            this.lexer.NextOfKind(Symbols.KW_CLASS);
-            var className = this.lexer.NextOfKind<IdentifierToken>();
-            if (this.lexer.TestNext(Symbols.KW_EXTENDS))
-            {
-                var parentClass = this.lexer.NextOfKind<IdentifierToken>();
-                Console.WriteLine($"extends {parentClass}");
-            }
-
-            if (this.lexer.TestNext(Symbols.KW_IMPLEMENTS))
-            {
-                while (true)
-                {
-                    /* ] */
-                    if (this.lexer.TestSymbol(Symbols.PT_LEFTBRACE)) break;
-                    /* , */
-                    if (this.lexer.TestNext(Symbols.PT_COMMA)) continue;
-                    // typed
-                    var _interface = this.lexer.NextOfKind<IdentifierToken>();
-                    Console.WriteLine($"interface {_interface}");
-                }
-            }
-            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
-
-
-            return null;
-        }
-
 
 
 
@@ -1109,11 +1006,6 @@ namespace AuroraScript.Analyzer
                 // function
                 return ParseFunctionDeclaration(currentScope, MemberAccess.Export);
             }
-            else if (token is KeywordToken && token.Symbol == Symbols.KW_CLASS)
-            {
-                // get function
-                return ParseClass(currentScope, Symbols.KW_EXPORT);
-            }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_VAR)
             {
                 // var
@@ -1150,18 +1042,26 @@ namespace AuroraScript.Analyzer
             Token fileToken = this.lexer.NextOfKind<StringToken>();
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
 
-            var FileExtension = ".as";
-            var fullPath = Path.GetFullPath(Path.Combine(this.lexer.Directory, fileToken.Value));
-            var extension = Path.GetExtension(fullPath);
-            if (extension.ToLower() != FileExtension) fullPath = fullPath + FileExtension;
+
+            var fullPath = ResolveImportPath(fileToken.Value);
             if (!File.Exists(fullPath))
             {
-                throw new CompilerException(fullPath, "Import file path not found ");
+                throw new CompilerException(fullPath, $"Import file not found: {fileToken.Value}");
             }
             return new ImportDeclaration() { Module = module, File = fileToken, FullPath = fullPath };
         }
 
 
+        private string ResolveImportPath(string path)
+        {
+            var fullPath = Path.GetFullPath(Path.Combine(this.lexer.Directory, path));
+            var extension = Path.GetExtension(fullPath).ToLower();
+            if (extension != ".as")
+            {
+                fullPath = Path.ChangeExtension(fullPath, ".as");
+            }
+            return fullPath;
+        }
 
 
     }
