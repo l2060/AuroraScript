@@ -8,13 +8,19 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptArray : ScriptObject
     {
-        private List<ScriptObject> _items = new List<ScriptObject>();
+        private readonly List<ScriptObject> _items;
+
+        public ScriptArray(ScriptObject[] array)
+        {
+            this._prototype = ScriptArray.Prototype;
+            this._items = new List<ScriptObject>(array);
+        }
 
         public ScriptArray()
         {
             this._prototype = ScriptArray.Prototype;
+            this._items = new List<ScriptObject>();
         }
-
 
 
 

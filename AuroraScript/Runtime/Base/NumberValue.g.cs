@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Runtime.Base
 {
@@ -19,6 +20,13 @@ namespace AuroraScript.Runtime.Base
             Prototype._prototype = ScriptObject.Prototype;
             Prototype.IsFrozen = true;
         }
+
+
+
+
+
+
+
 
     }
 }

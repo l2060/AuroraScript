@@ -282,23 +282,12 @@ namespace AuroraScript.Compiler.Emits
 
         public override void VisitArrayExpression(ArrayLiteralExpression node)
         {
-            // Create a new array with the specified initial capacity
-            _instructionBuilder.NewArray(node.ChildNodes.Count);
-            // Populate the array with each element
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                // Duplicate the array reference
-                _instructionBuilder.Duplicate();
-                // Push the index
-                _instructionBuilder.PushConstantNumber(i);
                 // Push the element value
                 node.ChildNodes[i].Accept(this);
-                // Set the element
-                _instructionBuilder.SetElement();
-                // Pop the result of SET_ELEMENT (the value)
-                //_instructionBuilder.Pop();
             }
-
+            _instructionBuilder.NewArray(node.ChildNodes.Count);
         }
 
 

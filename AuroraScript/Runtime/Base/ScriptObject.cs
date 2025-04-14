@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime.Base
     public partial class ScriptObject
     {
         public static readonly ScriptObject Null = NullValue.Instance;
-        private Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
+        protected Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
 
         internal ScriptObject _prototype;
 
@@ -132,7 +132,10 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-
+        public static StringValue operator +(ScriptObject a, ScriptObject b)
+        {
+            return new StringValue(a.ToString() + b.ToString());
+        }
     }
 
 
