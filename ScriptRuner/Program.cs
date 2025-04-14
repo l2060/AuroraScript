@@ -73,7 +73,7 @@ public class Program
 
         Console.WriteLine(array);
 
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./scripts/" });
         //try
         //{
         await engine.BuildAsync("./unit.as");
