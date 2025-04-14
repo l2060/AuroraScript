@@ -6,6 +6,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
+using System.Diagnostics.Metrics;
 
 
 namespace AuroraScript.Analyzer
@@ -219,9 +220,13 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_METAINFO);
             var metaName = this.lexer.NextOfKind<IdentifierToken>();
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
-            //var token = this.lexer.LookAtHead();
+            var token = this.lexer.LookAtHead();
             Token metaValue = null;
             var defaultValue = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+            if (defaultValue is not MapExpression)
+            {
+                this.lexer.RollBack();
+            }
             this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             var statement = new ModuleMetaStatement(metaName, metaValue);
@@ -388,7 +393,6 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
 
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
-            this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line
             // parse if body
             Statement body = this.ParseStatement(currentScope);
@@ -457,495 +461,245 @@ namespace AuroraScript.Analyzer
         /// <exception cref="InvalidOperationException"></exception>
         private Expression ParseExpression(Scope currentScope, params Symbols[] endSymbols)
         {
-            var token = lexer.LookAtHead();
-            if (endSymbols.Contains(token.Symbol))
+            Expression rootExpression = new ExpressionStack();
+            Expression lastExpression = null;
+            Operator lastOperator = null;
+            var startPointer = this.lexer.Position;
+            var rollBackLexer = () =>
             {
-                return null;
-            }
-
-            // 检查是否是箭头函数
-            if (IsArrowFunctionStart())
-            {
-                return ParseArrowFunction(currentScope);
-            }
-
-            return ParseAssignment(currentScope, endSymbols);
-        }
-
-        private bool IsArrowFunctionStart()
-        {
-            var token = lexer.LookAtHead();
-
-            // 检查 () => 形式
-            if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
-            {
-                var snapshot = lexer.CreateSnapshot();
-                lexer.Next(); // 消费 (
-
-                // 跳过参数列表
-                while (!lexer.TestNext(Symbols.PT_RIGHTPARENTHESIS))
-                {
-                    if (!(lexer.Next() is IdentifierToken))
-                    {
-                        lexer.RestoreSnapshot(snapshot);
-                        return false;
-                    }
-                    lexer.TestNext(Symbols.PT_COMMA);
-                }
-
-                // 检查是否后面跟着 =>
-                var isArrow = lexer.TestNext(Symbols.PT_LAMBDA);
-                lexer.RestoreSnapshot(snapshot);
-                return isArrow;
-            }
-
-            // 检查 单参数 => 形式
-            if (token is IdentifierToken)
-            {
-                var snapshot = lexer.CreateSnapshot();
-                lexer.Next(); // 消费标识符
-                var isArrow = lexer.TestNext(Symbols.PT_LAMBDA);
-                lexer.RestoreSnapshot(snapshot);
-                return isArrow;
-            }
-
-            return false;
-        }
-
-        private Expression ParseArrowFunction(Scope currentScope)
-        {
-            var name = new IdentifierToken
-            {
-                Value = $"$arrow_{lexer.LineNumber}_{lexer.ColumnNumber}",
-                LineNumber = lexer.LineNumber,
-                ColumnNumber = lexer.ColumnNumber
+                while (this.lexer.Position > startPointer) this.lexer.RollBack();
             };
 
-            List<ParameterDeclaration> parameters = new List<ParameterDeclaration>();
-
-            // 解析参数
-            if (lexer.LookAtHead().Symbol == Symbols.PT_LEFTPARENTHESIS)
-            {
-                lexer.Next(); // 消费 (
-                parameters = ParseFunctionArguments(currentScope);
-            }
-            else
-            {
-                // 单参数形式
-                var param = lexer.NextOfKind<IdentifierToken>();
-                parameters.Add(new ParameterDeclaration((byte)0, param, null));
-            }
-
-            // 消费 =>
-            lexer.NextOfKind(Symbols.PT_LAMBDA);
-
-            // 创建函数作用域
-            var functionScope = currentScope.CreateScope(ScopeType.FUNCTION);
-
-            // 解析函数体
-            Statement body;
-            if (lexer.TestSymbol(Symbols.PT_LEFTBRACE))
-            {
-                body = ParseBlock(functionScope);
-            }
-            else
-            {
-                // 单表达式箭头函数
-                var expr = ParseExpression(functionScope);
-                var returnStmt = new ReturnStatement(expr);
-                var blockStmt = new BlockStatement(functionScope);
-                blockStmt.AddNode(returnStmt);
-                body = blockStmt;
-            }
-
-            var func = new FunctionDeclaration(MemberAccess.Internal, name, parameters, body, FunctionFlags.Lambda);
-            var lambda = new LambdaExpression { Function = func };
-            return lambda;
-        }
-
-        private Expression ParseAssignment(Scope currentScope, Symbols[] endSymbols)
-        {
-            var left = ParseLogicalOr(currentScope);
-
-            var token = lexer.LookAtHead();
-            if (endSymbols.Contains(token.Symbol))
-            {
-                return left;
-            }
-            if (token.Symbol == null) return left;
-            var op = Operator.FromSymbols(token.Symbol, true);
-            if (op != null && op.Symbol == Symbols.OP_ASSIGNMENT)
-            {
-                lexer.Next(); // consume operator
-                var right = ParseAssignment(currentScope, endSymbols);
-
-                // 处理特殊的赋值表达式
-                if (left is GetPropertyExpression getter)
-                {
-                    var setter = new SetPropertyExpression();
-                    setter.AddNode(getter.Object);
-                    setter.AddNode(getter.Property);
-                    setter.AddNode(right);
-                    return setter;
-                }
-                else if (left is GetElementExpression elementGetter)
-                {
-                    var setter = new SetElementExpression();
-                    setter.AddNode(elementGetter.Object);
-                    setter.AddNode(elementGetter.Index);
-                    setter.AddNode(right);
-                    return setter;
-                }
-
-                var assignment = new AssignmentExpression(op);
-                assignment.AddNode(left);
-                assignment.AddNode(right);
-                return assignment;
-            }
-
-            return left;
-        }
-
-        private Expression ParseLogicalOr(Scope currentScope)
-        {
-            var left = ParseLogicalAnd(currentScope);
-
             while (true)
             {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-
-                if (op != null && op == Operator.LogicalOr)
+                var pos = this.lexer.Position;
+                var token = this.lexer.Next();
+                // over statement
+                if (token == Token.EOF)
                 {
-                    lexer.Next();
-                    var right = ParseLogicalAnd(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
+                    this.lexer.RollBack();
+                    break;
                 }
-                else
+                if (token.Symbol == Symbols.PT_SEMICOLON)
                 {
                     break;
                 }
-            }
-
-            return left;
-        }
-
-        private Expression ParseLogicalAnd(Scope currentScope)
-        {
-            var left = ParseEquality(currentScope);
-
-            while (true)
-            {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-
-                if (op != null && op == Operator.LogicalAnd)
-                {
-                    lexer.Next();
-                    var right = ParseEquality(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
-                }
-                else
+                // encountered the specified symbol, the analysis is complete, jump out
+                if (token.Symbol != null && endSymbols.Contains(token.Symbol))
                 {
                     break;
                 }
-            }
-
-            return left;
-        }
-
-        private Expression ParseEquality(Scope currentScope)
-        {
-            var left = ParseComparison(currentScope);
-
-            while (true)
-            {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-
-                if (op != null && (op == Operator.Equal || op == Operator.NotEqual))
+                // ===========================================================
+                // ==== parse begin
+                // ===========================================================
+                // expression of Token
+                Expression tempExp = null;
+                // value Operand
+                if (token is ValueToken)
                 {
-                    lexer.Next();
-                    var right = ParseComparison(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
+                    var valueExpression = token as ValueToken;
+                    if (valueExpression.Type == Tokens.ValueType.Number) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.String) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new LiteralExpression(valueExpression);
                 }
-                else
+
+                // identifier Operand
+                if (token is IdentifierToken) tempExp = new NameExpression() { Identifier = token };
+                // keywords should not appear here
+                if (token is KeywordToken) throw this.InitParseException("Keyword appears in the wrong place ", token);
+                // punctuator
+                if (token is PunctuatorToken)
                 {
-                    break;
-                }
-            }
-
-            return left;
-        }
-
-        private Expression ParseComparison(Scope currentScope)
-        {
-            var left = ParseAdditive(currentScope);
-
-            while (true)
-            {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-
-                if (op != null && IsComparisonOperator(op))
-                {
-                    lexer.Next();
-                    var right = ParseAdditive(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return left;
-        }
-
-        private Expression ParseAdditive(Scope currentScope)
-        {
-            var left = ParseMultiplicative(currentScope);
-
-            while (true)
-            {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-
-                if (op != null && (op == Operator.Add || op == Operator.Subtract))
-                {
-                    lexer.Next();
-                    var right = ParseMultiplicative(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return left;
-        }
-
-        private Expression ParseMultiplicative(Scope currentScope)
-        {
-            var left = ParseUnary(currentScope);
-
-            while (true)
-            {
-                var token = lexer.LookAtHead();
-                if (token.Symbol == null) break;
-                var op = Operator.FromSymbols(token.Symbol, true);
-                if (op != null && (op == Operator.Multiply || op == Operator.Divide || op == Operator.Modulo))
-                {
-                    lexer.Next();
-                    var right = ParseUnary(currentScope);
-                    var binary = new BinaryExpression(op);
-                    binary.AddNode(left);
-                    binary.AddNode(right);
-                    left = binary;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return left;
-        }
-
-        private Expression ParseUnary(Scope currentScope)
-        {
-            var token = lexer.LookAtHead();
-
-            // 处理前缀运算符 (++x, --x, !x, ~x, -x)
-            if (token.Symbol != null)
-            {
-                var op = Operator.FromSymbols(token.Symbol, false);
-                if (op != null && (
-                    op == Operator.PreIncrement ||
-                    op == Operator.PreDecrement ||
-                    op == Operator.LogicalNot ||
-                    op == Operator.BitwiseNot ||
-                    op == Operator.Negate))
-                {
-                    lexer.Next(); // 消费运算符
-                    var operand = ParsePrimary(currentScope); // 使用ParsePrimary而不是ParseUnary避免递归问题
-
-                    // 验证操作数是否是可赋值的表达式（对于++/--）
-                    if ((op == Operator.PreIncrement || op == Operator.PreDecrement) &&
-                        !(operand is NameExpression || operand is GetPropertyExpression || operand is GetElementExpression))
+                    var previousToken = this.lexer.Previous();
+                    // I'm running, don't move me
+                    var leftExpressionIsOperand = lastExpression != null &&
+                        ((lastExpression is OperatorExpression lastOperatorExpression && lastOperatorExpression.IsOperand) ||
+                            previousToken is IdentifierToken ||
+                            previousToken is ValueToken);
+                    var _operator = Operator.FromSymbols(token.Symbol, leftExpressionIsOperand);
+                    if (_operator == null)
                     {
-                        throw InitParseException("Invalid increment/decrement operand", token);
-                    }
-
-                    var unary = new UnaryExpression(op, UnaryType.Prefix);
-                    unary.AddNode(operand);
-                    return unary;
-                }
-            }
-
-            // 解析基本表达式
-            var expr = ParsePrimary(currentScope);
-
-            // 处理后缀运算符 (x++, x--)
-            token = lexer.LookAtHead();
-            if (token.Symbol != null)
-            {
-                var op = Operator.FromSymbols(token.Symbol, true);
-                if (op != null && (op == Operator.PostIncrement || op == Operator.PostDecrement))
-                {
-                    // 验证操作数是否是可赋值的表达式
-                    if (!(expr is NameExpression || expr is GetPropertyExpression || expr is GetElementExpression))
-                    {
-                        throw InitParseException("Invalid increment/decrement operand", token);
-                    }
-
-                    lexer.Next(); // 消费运算符
-                    var unary = new UnaryExpression(op, UnaryType.Post);
-                    unary.AddNode(expr);
-                    return unary;
-                }
-            }
-
-            return expr;
-        }
-
-        // 添加辅助方法来检查表达式是否可赋值
-        private bool IsAssignable(Expression expr)
-        {
-            return expr is NameExpression ||
-                   expr is GetPropertyExpression ||
-                   expr is GetElementExpression;
-        }
-
-        private Expression ParsePrimary(Scope currentScope)
-        {
-            var token = lexer.Next();
-            Expression expr;
-
-            if (token is ValueToken valueToken)
-            {
-                expr = new LiteralExpression(valueToken);
-            }
-            else if (token is IdentifierToken)
-            {
-                expr = new NameExpression { Identifier = token };
-            }
-            else if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
-            {
-                expr = ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
-                lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
-            }
-            else if (token.Symbol == Symbols.PT_LEFTBRACKET)
-            {
-                expr = ParseArrayLiteral(currentScope);
-            }
-            else if (token.Symbol == Symbols.PT_LEFTBRACE)
-            {
-                expr = ParseObjectLiteral(currentScope);
-            }
-            else
-            {
-                throw InitParseException("Unexpected token in expression", token);
-            }
-
-            // 解析后缀表达式（属性访问、数组索引、函数调用等）
-            while (true)
-            {
-                token = lexer.LookAtHead();
-
-                // 处理属性访问 (a.b)
-                if (token.Symbol == Symbols.PT_DOT)
-                {
-                    lexer.Next(); // 消费点操作符
-                    var property = lexer.NextOfKind<IdentifierToken>();
-                    if (property == null)
-                    {
-                        throw InitParseException("Expected property name after '.'", token);
-                    }
-
-                    var propertyExpr = new GetPropertyExpression(Operator.MemberAccess);
-                    propertyExpr.AddNode(expr);
-                    propertyExpr.AddNode(new NameExpression { Identifier = property });
-                    expr = propertyExpr;
-                }
-                // 处理数组索引 (a[b])
-                else if (token.Symbol == Symbols.PT_LEFTBRACKET)
-                {
-                    lexer.Next(); // 消费左方括号
-                    var index = ParseExpression(currentScope, Symbols.PT_RIGHTBRACKET);
-                    lexer.NextOfKind(Symbols.PT_RIGHTBRACKET);
-
-                    var elementExpr = new GetElementExpression(Operator.Index);
-                    elementExpr.AddNode(expr);
-                    elementExpr.AddNode(index);
-                    expr = elementExpr;
-                }
-                // 处理函数调用 (a())
-                else if (token.Symbol == Symbols.PT_LEFTPARENTHESIS)
-                {
-                    lexer.Next(); // 消费左括号
-                    var callExpr = new FunctionCallExpression(Operator.FunctionCall);
-                    callExpr.AddNode(expr);
-                    // 解析参数列表
-                    while (true)
-                    {
-                        var arg = ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
-                        if(arg != null) callExpr.AddArgument(arg);
-
-                        if (!lexer.TestNext(Symbols.PT_COMMA))
+                        if (endSymbols.Contains(token.Symbol))
                         {
                             break;
                         }
                     }
-                    lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
-                    expr = callExpr;
+                    else
+                    {
+                        tempExp = this.createExpression(currentScope, _operator, previousToken, lastExpression);
+                        if (tempExp != null)
+                        {
+                            tempExp.Position = pos;
+                        }
+                    }
                 }
+
+                // Lambda Expression &&  Function Signature Type
+                if (token.Symbol == Symbols.PT_LAMBDA)
+                {
+                    rollBackLexer();
+                    var lambda = ParseLamdaExpression(currentScope);
+                    return lambda;
+                }
+                if (tempExp == null)
+                {
+                    throw this.InitParseException("Invalid token {0} appears in expression", token);
+                }
+
+                // ==============================================
+                //
+                // ==============================================
+                // this is Operator
+                if (tempExp is OperatorExpression operatorExpression)
+                {
+                    // this operator has secondary sybmol
+                    if (operatorExpression.Operator.SecondarySymbols != null)
+                    {
+                        // this operator is function call
+                        if (tempExp is FunctionCallExpression callExpression)
+                        {
+                            while (true)
+                            {
+                                // parse function call arguments
+                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (argument != null)
+                                {
+                                    callExpression.AddArgument(argument);
+                                }
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete
+                                if (last.Symbol == Symbols.PT_RIGHTPARENTHESIS) break;
+                            }
+                        }
+                        // expressions wrapped in parentheses
+                        else if (tempExp is GroupExpression)
+                        {
+                            var scope = currentScope.CreateScope(ScopeType.GROUP);
+                            // Parse() block, from here recursively parse expressions to minor symbols
+                            while (true)
+                            {
+                                // parse aa : ddd
+                                var exp = this.ParseExpression(scope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA, Symbols.PT_RIGHTPARENTHESIS);
+                                if (exp != null) tempExp.AddNode(exp);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete
+                                if (last.Symbol != Symbols.PT_COMMA) break;
+                            }
+                        }
+                        // new Array expression
+                        else if (tempExp is ArrayLiteralExpression arrayExpression)
+                        {
+                            // Parse new array object
+                            while (true)
+                            {
+                                // parse function call arguments
+                                var argument = this.ParseExpression(currentScope, operatorExpression.Operator.SecondarySymbols, Symbols.PT_COMMA);
+                                if (argument != null) arrayExpression.AddNode(argument);
+                                var last = this.lexer.Previous(1);
+                                // If the symbol ends with a closing parenthesis, the parsing is complete
+                                if (last.Symbol == Symbols.PT_RIGHTBRACKET) break;
+                            }
+                        }
+                        // new Anonymous object expression
+                        else if (tempExp is MapExpression constructExpression)
+                        {
+                            rollBackLexer();
+                            var construct = ParseObjectConstructor(currentScope);
+
+                            return construct;
+
+                        }
+                        // Array Index Access expression
+                        else if (tempExp is GetElementExpression indexAccess)
+                        {
+                            // Parse[] block, from here recursively parse expressions to minor symbols
+                            indexAccess.AddNode(this.ParseExpression(currentScope, indexAccess.Operator.SecondarySymbols));
+                        }
+                        //else if (tempExp is CastTypeExpression typeConvert)
+                        //{
+                        //    typeConvert.Typed = this.ParseExpression(currentScope, typeConvert.Operator.SecondarySymbols);
+                        //}
+                    }
+                    /**
+                     * =====================================================*===========================*
+                     *  11 * 22 + 33 * 44 + 55  |  11 + 22 - 33 * 44 / -55  * (11 + 22) * 33 + 44 / 55  *
+                     * =====================================================*===========================*
+                     *             [+]          |           [-]             *              [+]          *
+                     *             / \          |           / \             *              / \          *
+                     *            /   \         |          /   \            *             /   \         *
+                     *          [+]    55       |         /     \           *            /     \        *
+                     *          / \             |        /       \          *           /       \       *
+                     *         /   \            |      [+]       [/]        *         [*]       [/]     *
+                     *        /     \           |      / \       / \        *         / \       / \     *
+                     *       /       \          |     /   \     /   \       *        /   \     /   \    *
+                     *     [*]       [*]        |    11   22  [*]   [-]     *      [+]   33   44   55   *
+                     *     / \       / \        |             / \     \     *      / \                  *
+                     *    /   \     /   \       |            /   \     55   *     /   \                 *
+                     *   11   22   33   44      |           33   44         *    11   22                *
+                     * =====================================================*===========================*
+                     */
+                    if (operatorExpression.Operator.Placement == OperatorPlacement.Prefix)
+                    {
+                        if (lastExpression != null)
+                        {
+                            if (lastExpression.Length >= 2) throw this.InitParseException("", token);
+                            lastExpression.AddNode(tempExp);
+                        }
+                    }
+                    else
+                    {
+                        // lastExpression is operand
+                        if (lastExpression == null) throw this.InitParseException("", token);
+                        Expression node;
+                        if (lastExpression.Parent is OperatorExpression)
+                        {
+                            node = lastExpression;
+                            while (true)
+                            {
+                                if (node.Parent == rootExpression) break;
+                                var parent = node.Parent as OperatorExpression;
+                                if (parent == null) throw this.InitParseException("", token);
+                                if (operatorExpression.Precedence > parent.Precedence) break;
+                                node = parent;
+                            }
+                        }
+                        else
+                        {
+                            node = lastExpression;
+                        }
+                        var pNode = node.Parent;
+                        node.Remove();
+                        tempExp.AddNode(node);
+                        if (tempExp is AssignmentExpression assignmentExpression)
+                        {
+                            var argument = this.ParseExpression(currentScope, Symbols.PT_SEMICOLON);
+                            tempExp.AddNode(argument);
+                            return optimize(assignmentExpression);
+                        }
+                        pNode.AddNode(tempExp);
+                    }
+                    // == operator the end ==
+                }
+                // token is not an operator, that is the operand
+                else if (lastOperator != null)
+                {
+                    // Add operands to operator expressions
+                    lastExpression.AddNode(tempExp);
+                }
+                // Is not an operator and the previous token is not an operator
                 else
                 {
-                    break;
+                    if (rootExpression.Length > 0)
+                        throw this.InitParseException("Invalid token {token} appears in expression {pos}", token);
                 }
+                lastOperator = (tempExp is OperatorExpression f) ? f.Operator : null;
+                lastExpression = tempExp;
+                if (rootExpression.Length == 0 && tempExp != null) rootExpression.AddNode(tempExp);
             }
 
-            return expr;
+            return rootExpression.Length > 0 ? optimize(rootExpression.Pop()) : null;
         }
-
-        private bool IsComparisonOperator(Operator op)
-        {
-            return op == Operator.LessThan ||
-                   op == Operator.LessThanOrEqual ||
-                   op == Operator.GreaterThan ||
-                   op == Operator.GreaterThanOrEqual;
-        }
-
-        private bool IsUnaryOperator(Operator op)
-        {
-            return op == Operator.LogicalNot ||
-                   op == Operator.Negate ||
-                   op == Operator.PreIncrement ||
-                   op == Operator.PreDecrement;
-        }
-
 
         private Expression optimize(Expression exp)
         {
@@ -991,6 +745,18 @@ namespace AuroraScript.Analyzer
                     binary.AddNode(compound.Right);
                     setter.AddNode(binary);
                     return setter;
+                }
+            }
+            else if (exp is UnaryExpression unaryExpression)
+            {
+                if (unaryExpression.ChildNodes[0] is GetPropertyExpression propertyExpression)
+                {
+                }
+                else if (unaryExpression.ChildNodes[0] is GetElementExpression getEleExpression)
+                {
+                }
+                else
+                {
                 }
             }
             return exp;
@@ -1310,104 +1076,6 @@ namespace AuroraScript.Analyzer
             return fullPath;
         }
 
-        private Expression ParseArrayLiteral(Scope currentScope)
-        {
-            var arrayExpression = new ArrayLiteralExpression();
 
-            // 已经消费了左方括号 [，现在开始解析数组元素
-            while (true)
-            {
-                // 检查是否到达数组结尾
-                if (lexer.TestNext(Symbols.PT_RIGHTBRACKET))
-                {
-                    break;
-                }
-
-                // 检查展开运算符 ...
-                if (lexer.TestNext(Symbols.OP_SPREAD))
-                {
-                    var spreadValue = ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACKET);
-                    var spread = new DeconstructionExpression();
-                    spread.AddNode(spreadValue);
-                    arrayExpression.AddNode(spread);
-                }
-                else
-                {
-                    // 解析普通数组元素
-                    var element = ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACKET);
-                    arrayExpression.AddNode(element);
-                }
-
-                // 如果下一个符号不是逗号，回退一步（可能是右方括号）
-                lexer.TestNext(Symbols.PT_COMMA);
-            }
-
-            return arrayExpression;
-        }
-
-        private Expression ParseObjectLiteral(Scope currentScope)
-        {
-            var objectExpression = new MapExpression(Operator.ObjectLiteral);
-            //lexer.NextOfKind(Symbols.PT_LEFTBRACE);
-
-            while (!lexer.TestNext(Symbols.PT_RIGHTBRACE))
-            {
-                // 处理展开运算符
-                if (lexer.TestNext(Symbols.OP_SPREAD))
-                {
-                    var spreadValue = ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
-                    var spread = new DeconstructionExpression();
-                    spread.AddNode(spreadValue);
-                    objectExpression.AddNode(spread);
-                    lexer.TestNext(Symbols.PT_COMMA);
-                    continue;
-                }
-
-                // 解析属性键
-                Token propertyKey = ParseObjectPropertyKey();
-                if (propertyKey == null)
-                {
-                    throw InitParseException("Invalid object literal property key", lexer.LookAtHead());
-                }
-
-                // 检查是否是简写属性
-                if (lexer.TestNext(Symbols.PT_COLON))
-                {
-                    var propertyValue = ParseExpression(currentScope, Symbols.PT_COMMA, Symbols.PT_RIGHTBRACE);
-                    objectExpression.AddNode(new MapKeyValueExpression(propertyKey, propertyValue));
-                }
-                else
-                {
-                    // 处理简写属性
-                    var nameExp = new NameExpression { Identifier = propertyKey };
-                    objectExpression.AddNode(new MapKeyValueExpression(propertyKey, nameExp));
-                }
-
-                lexer.TestNext(Symbols.PT_COMMA);
-            }
-
-            return objectExpression;
-        }
-
-        private Token ParseObjectPropertyKey()
-        {
-            // 尝试解析各种可能的属性键类型
-            Token key = lexer.TestNextOfKind<IdentifierToken>();
-            if (key != null) return key;
-
-            key = lexer.TestNextOfKind<StringToken>();
-            if (key != null) return key;
-
-            key = lexer.TestNextOfKind<NumberToken>();
-            if (key != null) return key;
-
-            key = lexer.TestNextOfKind<BooleanToken>();
-            if (key != null) return key;
-
-            key = lexer.TestNextOfKind<NullToken>();
-            if (key != null) return key;
-
-            return null;
-        }
     }
 }

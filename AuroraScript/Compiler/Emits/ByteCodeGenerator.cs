@@ -675,39 +675,42 @@ namespace AuroraScript.Compiler.Emits
         public override void VisitUnaryExpression(UnaryExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node.ToString()}");
-            
+
             // 获取操作数
             var operand = node.Operand;
-            
+
             // 确定操作码
             OpCode opCode = DetermineUnaryOpCode(node.Operator);
-            
+
             if (node.Type == UnaryType.Prefix)
             {
                 // 前缀操作：先执行操作，再返回值
                 operand.Accept(this);
                 _instructionBuilder.Emit(opCode);
-                
+                if (node.Parent != null) _instructionBuilder.Duplicate();
                 // 如果是变量，需要保存回变量
                 if (operand is NameExpression nameExpr)
                 {
-                    if (node.Parent != null) _instructionBuilder.Duplicate();
                     MoveValueTo(nameExpr.Identifier.Value);
                 }
                 else if (operand is GetPropertyExpression propExpr)
                 {
-                    if (node.Parent != null) _instructionBuilder.Duplicate();
                     // 处理属性赋值
                     HandlePropertyAssignment(propExpr);
+                }
+                else if (operand is GetElementExpression eleExpr)
+                {
+                    // 处理索引赋值
+                    HandleElementAssignment(eleExpr);
                 }
             }
             else // PostFix
             {
                 // 后缀操作：先加载值，复制一份，执行操作后保存，返回原值
                 operand.Accept(this);
-                _instructionBuilder.Duplicate(); // 复制一份用于操作
+
                 _instructionBuilder.Emit(opCode);
-                
+                if (node.Parent != null) _instructionBuilder.Duplicate();
                 // 如果是变量，需要保存回变量
                 if (operand is NameExpression nameExpr)
                 {
@@ -718,6 +721,11 @@ namespace AuroraScript.Compiler.Emits
                 {
                     // 处理属性赋值
                     HandlePropertyAssignment(propExpr);
+                }
+                else if (operand is GetElementExpression eleExpr)
+                {
+                    // 处理索引赋值
+                    HandleElementAssignment(eleExpr);
                 }
             }
         }
@@ -734,15 +742,17 @@ namespace AuroraScript.Compiler.Emits
 
         private void HandlePropertyAssignment(GetPropertyExpression propExpr)
         {
-            // 创建一个SetPropertyExpression并访问它
-            var setter = new SetPropertyExpression();
-            setter.AddNode(propExpr.Object);
-            setter.AddNode(propExpr.Property);
-            setter.Accept(this);
+            propExpr.Object.Accept(this);
+            _instructionBuilder.SetProperty(propExpr.Property.ToString());
         }
 
 
-
+        private void HandleElementAssignment(GetElementExpression eleExpr)
+        {
+            eleExpr.Object.Accept(this);
+            eleExpr.Index.Accept(this);
+            _instructionBuilder.SetElement();
+        }
 
 
 
