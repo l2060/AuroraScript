@@ -44,12 +44,14 @@ function createUser(u,p){
 	function add(){
 		onlineCount++;
 	}
-
+		function sub(){
+		onlineCount++;
+	}
 
 	return {
 		username: u,
 		password: p,
-		add,
+		add,sub,
 		login,
 		getCount:()=>{
 			return onlineCount;

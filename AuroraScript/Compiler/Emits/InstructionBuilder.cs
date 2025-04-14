@@ -116,6 +116,41 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        /// <summary>
+        /// 已知位置创建闭包指令
+        /// </summary>
+        /// <param name="position"></param>
+        public void NewClosure(PositionInstruction position)
+        {
+            var offset = position.Offset - (_position + 5);
+            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position, offset);
+            AppendInstruction(instruction);
+        }
+
+
+        /// <summary>
+        /// 创建闭包指令
+        /// </summary>
+        /// <returns></returns>
+        public ClosureInstruction NewClosure()
+        {
+            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position,0);
+            AppendInstruction(instruction);
+            return instruction;
+        }
+
+        
+        /// <summary>
+        /// 将闭包指令指向此处
+        /// </summary>
+        /// <param name="closure"></param>
+        public void FixClosure(ClosureInstruction closure)
+        {
+            var offset = _position - (closure.Offset + closure.Length);
+            closure.Value = offset;
+        }
+
+
         public void PushConstantString(int index)
         {
             Emit(OpCode.PUSH_STRING, index);
@@ -233,6 +268,8 @@ namespace AuroraScript.Compiler.Emits
             if (last == null) return;
             last.AddComment(comment, preEmptyLine);
         }
+
+
 
 
         public void PushThis()

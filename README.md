@@ -356,6 +356,7 @@
 
 
 CREATE_CLOSURE MethodAddress // 捕获当前作用域的环境变量等
+
 STORE_LOCAL N                // 闭包对象存储到变量上
 
 执行闭包方法时，以捕获的环境变量为准，而不是当前执行环境
@@ -363,3 +364,66 @@ STORE_LOCAL N                // 闭包对象存储到变量上
 
 
 
+define func1
+
+new closure func1   // need patch
+storelocal 0
+
+:func1 code 
+
+
+    ```plaintext
+    function test(){
+        var y = 6;
+        var a = func1(5)
+
+        function func1(x){
+            return x + y;
+        }
+    }
+
+    SCOPE DEFINE func1, [func1_body]
+    ; var a = func1;
+    CREATE_CLOSURE func1
+    STORE_LOCAL 0
+    
+    ;END 
+    PUSH_NULL
+    RETURN
+
+    func1_body:
+        LOAD_LOCAL 0    ; 加载参数 x
+        LOAD_CAPTURED y ; 加载捕获变量 y
+        ADD             ; 执行加法
+        RETURN          ; 返回结果
+
+
+
+    
+
+    function test(){
+        var r = {
+            a: 1,
+            b: 2,
+            c: ()=>{  },
+            d: ()=>{  }
+        };
+        return r;
+    }
+
+    VisitLambda Function
+    CREATE_CLOSURE [lambda_body]
+    JUMPTO lambdaEnd
+
+    lambda_body:
+
+
+    lambdaEnd:
+    ...
+    ...
+
+
+
+
+
+    ```

@@ -36,7 +36,7 @@
         MOV_TO_GLOBAL = 48,
 
 
-        CREATE_CLOSURE = 49,
+        CREATE_CLOSURE = 49, // 创建闭包
 
         //
         //PUSH_LOCAL = 27,  // Load a local variable onto the stack (takes variable slot)

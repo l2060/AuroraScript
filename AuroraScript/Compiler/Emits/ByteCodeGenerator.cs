@@ -39,6 +39,11 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        public void VisitImportDeclaration(ImportDeclaration node)
+        {
+
+        }
+
         /// <summary>
         /// 记录每个模块的地址
         /// 记录每个模块下方法地址
@@ -56,97 +61,64 @@ namespace AuroraScript.Compiler.Emits
         {
             BeginScope(DomainType.Module);
             _instructionBuilder.Comment("# module: " + node.ModuleName);
-            moduleFunctions = new List<FunctionDeclaration>(node.Functions);
-
-
             _instructionBuilder.Comment("# Module Import");
-
-
             foreach (var module in node.Imports)
             {
                 module.Accept(this);
             }
-
-
-
-            // TODO 闭包方法提升到module后 如何填缺，lambda表达式内的变量失控怎么搞  增加this?
-            // define propertys
             _instructionBuilder.Comment("# Variable Define");
             foreach (var module in node.Members)
             {
                 _instructionBuilder.PushNull();// push this
                 _instructionBuilder.SetThisProperty(module.Name.Value);
             }
-
-
-
             _instructionBuilder.Comment("# Code Block");
-
-
-
-            // 1. Compile function declare ..
-            foreach (var function in moduleFunctions)
-            {
-                _scope.Declare(function);
-            }
-
-
-
+            VisitBlock(node);
 
             _instructionBuilder.PushNull();
             _instructionBuilder.Return();
 
-
-
-            VisitBlock(node);
-
-
-
-
             // 3. compile each function
-
-            var index = 0;
-            while (index < moduleFunctions.Count)
+            foreach (var function in node.Functions)
             {
-                var function = moduleFunctions[index];
                 _functionLocations[function.Name.Value] = _instructionBuilder.Position();
                 function.Accept(this);
-                index++;
             }
-
-
-
-
             EndScope();
         }
 
-
-        public void VisitImportDeclaration(ImportDeclaration node)
-        {
-
-        }
-
-        private List<FunctionDeclaration> moduleFunctions = null;
 
 
         public void VisitBlock(BlockStatement node)
         {
             if (node.IsNewScope) BeginScope(DomainType.Code);
-
-
-            if (node is not ModuleDeclaration)
+            // 1. 声明代码块内方法
+            var closureMap = new Dictionary<string, ClosureInstruction>();
+            foreach (var function in node.Functions)
             {
-                foreach (var function in node.Functions)
+                var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
+                var closure = _instructionBuilder.NewClosure();
+                closureMap[function.Name.UniqueValue] = closure;
+                if (node is ModuleDeclaration)
                 {
-                    //  
-                    this.moduleFunctions.Add(function);
-                    _scope.Declare(function);
+                    _instructionBuilder.SetThisProperty(function.Name.Value);
+                }
+                else
+                {
+                    _instructionBuilder.PopLocal(slot);
                 }
             }
-
+            // 2. 代码块内的语句
             foreach (var statement in node.ChildNodes)
             {
                 statement.Accept(this);
+            }
+            // 3. 代码块内的方法体 
+            foreach (var function in node.Functions)
+            {
+                var closure = closureMap[function.Name.UniqueValue];
+                _instructionBuilder.FixClosure(closure);
+                VisitFunction(function);
             }
 
 
@@ -156,16 +128,6 @@ namespace AuroraScript.Compiler.Emits
         public void VisitFunction(FunctionDeclaration node)
         {
             if (node.Flags == FunctionFlags.Declare) return;
-
-            if (node.Access == MemberAccess.Export)
-            {
-
-            }
-            if (node.Flags == FunctionFlags.Lambda)
-            {
-
-            }
-
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
             BeginScope(DomainType.Function);
             var begin = _instructionBuilder.Position();
@@ -189,17 +151,16 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-
-
-
         public void VisitLambdaExpression(LambdaExpression node)
         {
-            //  
-            this.moduleFunctions.Add(node.Function);
-            _scope.Declare(node.Function);
-            var name = new NameExpression() { Identifier = node.Function.Name };
-            this.VisitName(name);
+            // lambda 作为变量 直接传递创建闭包
+            var closure = _instructionBuilder.NewClosure();
+            var toEndJump = _instructionBuilder.Jump();
+            _instructionBuilder.FixClosure(closure);
+            VisitFunction(node.Function);
+            _instructionBuilder.FixJumpToHere(toEndJump);
         }
+
 
 
         public void DumpCode()

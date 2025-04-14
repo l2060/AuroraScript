@@ -202,6 +202,23 @@ namespace AuroraScript.Compiler.Emits
 
 
 
+    public class ClosureInstruction : Instruction5
+    {
+        internal ClosureInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset, addOffset)
+        {
+        }
+
+        public override string ToString()
+        {
+            return $"{OpCode} [{Offset + Length + Value:0000}]";
+        }
+    }
+
+
+    
+
+
+
 
     public class PositionInstruction : Instruction
     {

@@ -24,6 +24,11 @@ namespace AuroraScript.Compiler
             internal set;
         }
 
+
+        public string UniqueValue => $"{Value}_{LineNumber}_{ColumnNumber}";
+
+
+
         /// <summary>
         /// get token line number
         /// </summary>

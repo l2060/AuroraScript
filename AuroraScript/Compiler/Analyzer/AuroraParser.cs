@@ -47,7 +47,7 @@ namespace AuroraScript.Analyzer
                 {
                     node.IsStateSegment = true;
                     this.root.Functions.Add(func);
-                    this.root.Members.Add(func);
+                    //this.root.Members.Add(func);
                 }
                 else if (node is ImportDeclaration importDeclaration)
                 {
@@ -287,7 +287,8 @@ namespace AuroraScript.Analyzer
                     result.Functions.Add(functionDeclaration);
                     functionDeclaration.IsStateSegment = true;
                 }
-                else  if (exp != null)
+                else
+                if (exp != null)
                 {
                     result.AddNode(exp);
                     exp.IsStateSegment = true;

@@ -110,7 +110,7 @@ namespace AuroraScript.Core
 
 
 
-        public int Declare(FunctionDeclaration func)
+        public int Declare(DeclareType type, FunctionDeclaration func)
         {
             var name = func.Name.Value;
             var alias = name;
@@ -125,7 +125,7 @@ namespace AuroraScript.Core
                 alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
             }
             var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, DeclareType.Property, slot, true);
+            var declare = new DeclareObject(this, name, alias, type, slot, true);
             _variables.Add(declare);
             return slot;
         }
@@ -143,6 +143,7 @@ namespace AuroraScript.Core
                     // 父scope下有重名变量或属性，增加别名
                     alias = name + "_" + variable.Name.LineNumber + "_" + variable.Name.ColumnNumber;
                 }
+                slot = _stringSet.GetSlot(alias);
             }
             else
             {
