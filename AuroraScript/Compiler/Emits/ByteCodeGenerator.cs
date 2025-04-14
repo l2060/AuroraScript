@@ -39,7 +39,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitImportDeclaration(ImportDeclaration node)
+        public override void VisitImportDeclaration(ImportDeclaration node)
         {
 
         }
@@ -49,15 +49,15 @@ namespace AuroraScript.Compiler.Emits
         /// 记录每个模块下方法地址
         /// 记录每个模块下导出方法
         /// 记录每个模块下导出变量
-        /// 
+        ///
         /// 模块注册到 global  @module1
         /// 方法和模块变量注册到模块属性
-        /// 
+        ///
         /// 访问global 全部以getproperty 和 setproperty
         /// 访问module内的变量 全部以getproperty 和 setproperty
         /// </summary>
         /// <param name="node"></param>
-        public void VisitModule(ModuleDeclaration node)
+        public override void VisitModule(ModuleDeclaration node)
         {
             BeginScope(DomainType.Module);
             _instructionBuilder.Comment("# module: " + node.ModuleName);
@@ -79,17 +79,17 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Return();
 
             // 3. compile each function
-            foreach (var function in node.Functions)
-            {
-                _functionLocations[function.Name.Value] = _instructionBuilder.Position();
-                function.Accept(this);
-            }
+            //foreach (var function in node.Functions)
+            //{
+            //    _functionLocations[function.Name.Value] = _instructionBuilder.Position();
+            //    function.Accept(this);
+            //}
             EndScope();
         }
 
 
 
-        public void VisitBlock(BlockStatement node)
+        public override void VisitBlock(BlockStatement node)
         {
             if (node.IsNewScope) BeginScope(DomainType.Code);
             // 1. 声明代码块内方法
@@ -113,7 +113,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 statement.Accept(this);
             }
-            // 3. 代码块内的方法体 
+            // 3. 代码块内的方法体
             foreach (var function in node.Functions)
             {
                 var closure = closureMap[function.Name.UniqueValue];
@@ -125,39 +125,114 @@ namespace AuroraScript.Compiler.Emits
             if (node.IsNewScope) EndScope();
         }
 
-        public void VisitFunction(FunctionDeclaration node)
+        public override void VisitFunction(FunctionDeclaration node)
         {
             if (node.Flags == FunctionFlags.Declare) return;
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
+
+            // 使用 VariableCatcher 分析函数中的变量使用情况
+            var variableCatcher = new VariableCatcher();
+
+            // 分析函数中捕获的变量
+            var capturedVariables = variableCatcher.AnalyzeFunction(node, _scope);
+
+            // 输出调试信息
+            _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables)}");
+
+            // 处理捕获的变量
+            Dictionary<string, int> captureIndexMap = new Dictionary<string, int>();
+            int captureIndex = 0;
+
+            foreach (var varName in capturedVariables)
+            {
+                if (_scope.Resolve(varName, out var declareObject))
+                {
+                    // 将变量值压入栈
+                    if (declareObject.Type == DeclareType.Variable)
+                    {
+                        _instructionBuilder.PushLocal(declareObject.Index);
+                    }
+                    else if (declareObject.Type == DeclareType.Property)
+                    {
+                        _instructionBuilder.GetThisProperty(declareObject.Index);
+                    }
+
+                    // 捕获变量
+                    _instructionBuilder.CaptureVariable(captureIndex);
+                    captureIndexMap[varName] = captureIndex++;
+                }
+            }
+
             BeginScope(DomainType.Function);
             var begin = _instructionBuilder.Position();
-            // define arg var
+
+            // 为捕获的变量创建局部变量
+            foreach (var entry in captureIndexMap)
+            {
+                var slot = _scope.Declare(DeclareType.Variable, entry.Key);
+                _instructionBuilder.LoadCapturedVariable(entry.Value);
+                _instructionBuilder.PopLocal(slot);
+            }
+
+            // 定义参数变量
             foreach (var statement in node.Parameters)
             {
                 statement.Accept(this);
             }
-            // Compile the function body
+
+            // 编译函数体
             node.Body?.Accept(this);
-            // If the function doesn't end with a return, add an implicit return null
-            var lastInstruction = _instructionBuilder.LastInstruction;
-            //if (!_instructionBuilder.IsChanged(begin) || lastInstruction.OpCode != OpCode.RETURN)
-            //{
-            // default return value
+
+            // 添加默认返回值
             _instructionBuilder.PushNull();
             _instructionBuilder.Return();
-            //}
+
             EndScope();
             _instructionBuilder.Comment($"# end_func {node.Name?.Value}");
         }
 
 
-        public void VisitLambdaExpression(LambdaExpression node)
+        public override void VisitLambdaExpression(LambdaExpression node)
         {
-            // lambda 作为变量 直接传递创建闭包
+            // 使用 VariableCatcher 分析 Lambda 函数中的变量使用情况
+            var variableCatcher = new VariableCatcher();
+
+            // 分析 Lambda 函数中捕获的变量
+            var capturedVariables = variableCatcher.AnalyzeFunction(node.Function, _scope);
+
+            // 输出调试信息
+            _instructionBuilder.Comment($"# Lambda captured variables: {string.Join(", ", capturedVariables)}");
+
+            // 处理捕获的变量
+            int captureIndex = 0;
+            foreach (var varName in capturedVariables)
+            {
+                if (_scope.Resolve(varName, out var declareObject))
+                {
+                    // 将变量值压入栈
+                    if (declareObject.Type == DeclareType.Variable)
+                    {
+                        _instructionBuilder.PushLocal(declareObject.Index);
+                    }
+                    else if (declareObject.Type == DeclareType.Property)
+                    {
+                        _instructionBuilder.GetThisProperty(declareObject.Index);
+                    }
+
+                    // 捕获变量
+                    _instructionBuilder.CaptureVariable(captureIndex++);
+                }
+            }
+
+            // 创建闭包
             var closure = _instructionBuilder.NewClosure();
             var toEndJump = _instructionBuilder.Jump();
             _instructionBuilder.FixClosure(closure);
+
+            // 编译函数体
             VisitFunction(node.Function);
+
+            // 修复跳转
             _instructionBuilder.FixJumpToHere(toEndJump);
         }
 
@@ -205,7 +280,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitArrayExpression(ArrayLiteralExpression node)
+        public override void VisitArrayExpression(ArrayLiteralExpression node)
         {
             // Create a new array with the specified initial capacity
             _instructionBuilder.NewArray(node.ChildNodes.Count);
@@ -229,7 +304,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitAssignmentExpression(AssignmentExpression node)
+        public override void VisitAssignmentExpression(AssignmentExpression node)
         {
             _instructionBuilder.Comment($"# {node.ToString()}");
             // Compile the value expression
@@ -244,19 +319,19 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitBreakExpression(BreakStatement node)
+        public override void VisitBreakExpression(BreakStatement node)
         {
             _instructionBuilder.Comment($"# break;");
             _breakJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
-        public void VisitContinueExpression(ContinueStatement node)
+        public override void VisitContinueExpression(ContinueStatement node)
         {
             _instructionBuilder.Comment($"# continue;");
             _continueJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
-        public void VisitCallExpression(FunctionCallExpression node)
+        public override void VisitCallExpression(FunctionCallExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node}");
 
@@ -275,14 +350,14 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitDeconstructionExpression(DeconstructionExpression node)
+        public override void VisitDeconstructionExpression(DeconstructionExpression node)
         {
 
         }
 
 
 
-        public void VisitParameterDeclaration(ParameterDeclaration node)
+        public override void VisitParameterDeclaration(ParameterDeclaration node)
         {
             var slot = _scope.Declare(DeclareType.Variable, node);
             if (node.Initializer != null)
@@ -308,7 +383,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitGetElementExpression(GetElementExpression node)
+        public override void VisitGetElementExpression(GetElementExpression node)
         {
             node.Object.Accept(this);
             if (node.Index is NameExpression name)
@@ -328,7 +403,7 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public void VisitGetPropertyExpression(GetPropertyExpression node)
+        public override void VisitGetPropertyExpression(GetPropertyExpression node)
         {
             node.Object.Accept(this);
             var propery = (NameExpression)node.Property;
@@ -337,7 +412,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitSetElementExpression(SetElementExpression node)
+        public override void VisitSetElementExpression(SetElementExpression node)
         {
             _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
@@ -363,7 +438,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitSetPropertyExpression(SetPropertyExpression node)
+        public override void VisitSetPropertyExpression(SetPropertyExpression node)
         {
             _instructionBuilder.Comment($"# {node}");
 
@@ -377,7 +452,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public void VisitGroupingExpression(GroupExpression node)
+        public override void VisitGroupingExpression(GroupExpression node)
         {
             foreach (var item in node.ChildNodes)
             {
@@ -386,7 +461,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public void VisitIfStatement(IfStatement node)
+        public override void VisitIfStatement(IfStatement node)
         {
             // Compile condition
             node.Condition.Accept(this);
@@ -413,7 +488,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitLiteralExpression(LiteralExpression node)
+        public override void VisitLiteralExpression(LiteralExpression node)
         {
             var token = node.Token;
             if (token.Type == Tokens.ValueType.Null)
@@ -435,7 +510,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitName(NameExpression node)
+        public override void VisitName(NameExpression node)
         {
             if (node.Identifier.Value == "this")
             {
@@ -466,7 +541,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitMapExpression(MapExpression node)
+        public override void VisitMapExpression(MapExpression node)
         {
             // Create a new map with the specified initial capacity
             //EmitInstruction(OpCode.NEW_MAP, node.Entries.Count);
@@ -488,7 +563,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitReturnStatement(ReturnStatement node)
+        public override void VisitReturnStatement(ReturnStatement node)
         {
             _instructionBuilder.Comment($"# {node}");
             if (node.Expression != null)
@@ -504,7 +579,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitBinaryExpression(BinaryExpression node)
+        public override void VisitBinaryExpression(BinaryExpression node)
         {
 
             node.Left.Accept(this);
@@ -597,7 +672,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitUnaryExpression(UnaryExpression node)
+        public override void VisitUnaryExpression(UnaryExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node.ToString()}");
             OpCode opCode = OpCode.NOP;
@@ -670,7 +745,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public void VisitVarDeclaration(VariableDeclaration node)
+        public override void VisitVarDeclaration(VariableDeclaration node)
         {
             _instructionBuilder.Comment($"# {node}");
             if (node.Initializer != null)
@@ -699,7 +774,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitForStatement(ForStatement node)
+        public override void VisitForStatement(ForStatement node)
         {
             _instructionBuilder.Comment($"# for");
             node.Initializer?.Accept(this);
@@ -729,7 +804,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void VisitWhileStatement(WhileStatement node)
+        public override void VisitWhileStatement(WhileStatement node)
         {
             var begin = _instructionBuilder.Position();
             // Set up break and continue targets
@@ -757,7 +832,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public void VisitCompoundExpression(CompoundExpression node)
+        public override void VisitCompoundExpression(CompoundExpression node)
         {
             // TODO
         }

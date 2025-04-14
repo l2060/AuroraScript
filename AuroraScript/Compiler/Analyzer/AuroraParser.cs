@@ -1028,12 +1028,15 @@ namespace AuroraScript.Analyzer
             var scope = currentScope.CreateScope(ScopeType.FUNCTION);
             // parse function body
             var body = this.ParseBlock(scope);
+         
             if (!(body is BlockStatement))
             {
                 var newBody = new BlockStatement(scope);
                 newBody.AddNode(body);
+
                 body = newBody;
             }
+            ((BlockStatement)body).IsNewScope = false;
             var declaration = new FunctionDeclaration(access, functionName, arguments, body, flags);
             return declaration;
         }

@@ -15,7 +15,7 @@
 
 
 
-        // Constants 
+        // Constants
 
 
         PUSH_I8 = 20,  // SByte
@@ -37,11 +37,13 @@
 
 
         CREATE_CLOSURE = 49, // 创建闭包
+        CAPTURE_VAR = 52,   // 捕获变量（将变量值存储到闭包环境中）
+        LOAD_CAPTURE = 53,  // 加载捕获的变量（从闭包环境中加载变量值）
 
         //
         //PUSH_LOCAL = 27,  // Load a local variable onto the stack (takes variable slot)
         //POP_TO_LOCAL = 28, // Store the top value in a local variable (takes variable slot)
-        //MOV_TO_LOCAL = 29, // Store the top value in a local variable 
+        //MOV_TO_LOCAL = 29, // Store the top value in a local variable
 
         //PUSH_GLOBAL = 30,  // Load a local variable onto the stack (takes variable slot)
         //POP_TO_GLOBAL = 31, // Store the top value in a local variable (takes variable slot)
@@ -72,7 +74,7 @@
         LOGIC_NOT = 77,    // !
         LOGIC_AND = 78,    // &&
         LOGIC_OR = 79,     // ||
-        LOGIC_MOD = 93,    // %   
+        LOGIC_MOD = 93,    // %
 
         // Logical Operations
         NOT = 80,            // Logical NOT of the top value

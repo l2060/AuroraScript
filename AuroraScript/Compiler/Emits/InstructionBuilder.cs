@@ -139,7 +139,7 @@ namespace AuroraScript.Compiler.Emits
             return instruction;
         }
 
-        
+
         /// <summary>
         /// 将闭包指令指向此处
         /// </summary>
@@ -148,6 +148,24 @@ namespace AuroraScript.Compiler.Emits
         {
             var offset = _position - (closure.Offset + closure.Length);
             closure.Value = offset;
+        }
+
+        /// <summary>
+        /// 捕获变量，将变量值存储到闭包环境中
+        /// </summary>
+        /// <param name="index">捕获变量的索引</param>
+        public void CaptureVariable(int index)
+        {
+            Emit(OpCode.CAPTURE_VAR, index);
+        }
+
+        /// <summary>
+        /// 加载捕获的变量，从闭包环境中加载变量值
+        /// </summary>
+        /// <param name="index">捕获变量的索引</param>
+        public void LoadCapturedVariable(int index)
+        {
+            Emit(OpCode.LOAD_CAPTURE, index);
         }
 
 

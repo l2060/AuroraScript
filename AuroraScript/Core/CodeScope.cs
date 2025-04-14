@@ -48,7 +48,7 @@ namespace AuroraScript.Core
     public class CodeScope
     {
 
-        private CodeScope _parent;
+        public CodeScope _parent { get; private set; }
 
         public int ScopeDepth { get; private set; } = 0;
 
@@ -57,7 +57,7 @@ namespace AuroraScript.Core
         private readonly Dictionary<string, DeclareObject> variables = new Dictionary<string, DeclareObject>();
 
 
-        private readonly List<DeclareObject> _variables = new List<DeclareObject>();
+        public readonly List<DeclareObject> _variables = new List<DeclareObject>();
 
         public readonly StringList _stringSet;
         public DomainType Domain { get; private set; }

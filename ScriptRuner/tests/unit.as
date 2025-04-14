@@ -44,7 +44,8 @@ function createUser(u,p){
 	function add(){
 		onlineCount++;
 	}
-		function sub(){
+
+	function sub(){
 		onlineCount++;
 	}
 
