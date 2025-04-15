@@ -9,7 +9,8 @@ function createUser(a,b){
 		var b2 = 1;
 		test1();
 	}
-
+	// 直接捕获变量表和变量索引？  LOAD_CLOSURE_VAR  STORE_CLOSURE_VAR ?
+	// 还是用现在的 变量表指针便宜量方式？
 	for(i = 0; i < 5 ;i++ ){
 	
 		var b3 = 0;
