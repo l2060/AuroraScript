@@ -14,12 +14,9 @@ namespace AuroraScript.Compiler
 
     public class ModuleSyntaxRef
     {
-        public String ModuleName { get; set; }
         public String ModulePath { get; set; }
 
         public ModuleDeclaration SyntaxTree { get; set; }
-
-
     }
 
 
@@ -32,7 +29,7 @@ namespace AuroraScript.Compiler
         private ConcurrentDictionary<string, ModuleSyntaxRef> scriptModules = new ConcurrentDictionary<string, ModuleSyntaxRef>();
 
         private ByteCodeGenerator codeGenerator;
-        public ScriptCompiler(String baseDirectory, ByteCodeGenerator codeGenerator )
+        public ScriptCompiler(String baseDirectory, ByteCodeGenerator codeGenerator)
         {
 
             _baseDirectory = Path.GetFullPath(baseDirectory);
@@ -43,25 +40,12 @@ namespace AuroraScript.Compiler
         {
             var files = Directory.GetFiles(_baseDirectory, "*.as", SearchOption.AllDirectories);
             ModuleSyntaxRef[] syntaxRefs = new ModuleSyntaxRef[files.Length];
-
             for (int i = 0; i < files.Length; i++)
             {
                 syntaxRefs[i] = await BuildSyntaxTreeAsync(files[i]);
             }
-
-            //syntaxRefs = files.Select(item => BuildSyntaxTreeAsync(item).Result).ToArray();
-
-            //using (var s = new WitchTimer("BUILD USE XX :"))
-            //{
-            //    syntaxRefs = await Task.WhenAll(files.Select(BuildSyntaxTreeAsync));
-            //}
-            foreach (var item in syntaxRefs)
-            {
-                item.SyntaxTree.Accept(codeGenerator);
-            }
-
+            codeGenerator.Visit(syntaxRefs);
         }
-
 
 
 
@@ -83,10 +67,9 @@ namespace AuroraScript.Compiler
             }
             var module = scriptModules.GetOrAdd(fileFullPath, (key) =>
             {
-                var moduleName = key.Replace(_baseDirectory, "").Replace("\\", "/");
+                //var moduleName = key.Replace(_baseDirectory, "").Replace("\\", "/");
                 return new ModuleSyntaxRef()
                 {
-                    ModuleName = moduleName,
                     ModulePath = fileFullPath
                 };
             });
@@ -94,11 +77,16 @@ namespace AuroraScript.Compiler
             var lexer = new AuroraLexer(fileFullPath, Encoding.UTF8);
             var parser = new AuroraParser(this, lexer);
             module.SyntaxTree = parser.Parse();
+            if (module.SyntaxTree.MetaInfos.TryGetValue("module", out var value))
+            {
+                module.SyntaxTree.ModuleName = value.ToString();
+            }
             scriptModules.TryAdd(fileFullPath, module);
             // load dependencys 
             foreach (var dependency in module.SyntaxTree.Imports)
             {
                 var moduleAst = await BuildSyntaxTreeAsync(dependency.FullPath);
+                dependency.ModuleName = moduleAst.SyntaxTree.ModuleName;
                 module.SyntaxTree.Dependencys.Add(moduleAst);
             }
             return module;

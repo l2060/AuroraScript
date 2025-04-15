@@ -21,8 +21,12 @@ namespace AuroraScript.Analyzer
             this.lexer = lexer;
             this.Compiler = compiler;
             this.root = new ModuleDeclaration(new Scope(this), this.lexer.Directory);
-            this.root.ModulePath = lexer.FullPath;
-            this.root.ModuleName = lexer.FullPath.Replace(lexer.Directory, "").Replace("\\", "/");
+            this.root.FullPath = lexer.FullPath;
+            this.root.ModulePath = lexer.FullPath.Replace(lexer.Directory, "").Replace("\\", "/");
+            if (this.root.ModulePath.StartsWith("/"))
+            {
+                this.root.ModulePath = this.root.ModulePath.Substring(1);
+            }
             this.root.MetaInfos.Add("module", this.root.ModuleName);
         }
 
@@ -220,16 +224,10 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_METAINFO);
             var metaName = this.lexer.NextOfKind<IdentifierToken>();
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
-            var token = this.lexer.LookAtHead();
-            Token metaValue = null;
-            var defaultValue = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
-            if (defaultValue is not MapExpression)
-            {
-                this.lexer.RollBack();
-            }
+            var token = this.lexer.TestNextOfKind<StringToken>();
             this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var statement = new ModuleMetaStatement(metaName, metaValue);
+            var statement = new ModuleMetaStatement(metaName, token);
             return statement;
         }
 
@@ -1061,7 +1059,7 @@ namespace AuroraScript.Analyzer
             {
                 throw new CompilerException(fullPath, $"Import file not found: {fileToken.Value}");
             }
-            return new ImportDeclaration() { Module = module, File = fileToken, FullPath = fullPath };
+            return new ImportDeclaration() { Name = module, File = fileToken, FullPath = fullPath };
         }
 
 

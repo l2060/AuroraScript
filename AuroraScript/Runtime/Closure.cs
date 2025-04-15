@@ -12,7 +12,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 函数的字节码
         /// </summary>
-        public byte[] Bytecode { get; }
+        public Int32 EntryPointer { get; }
 
         /// <summary>
         /// 捕获的环境
@@ -36,9 +36,9 @@ namespace AuroraScript.Runtime
         /// <param name="capturedEnv">捕获的环境</param>
         /// <param name="name">函数名称（可选）</param>
         /// <param name="argCount">参数数量</param>
-        public Closure(byte[] bytecode, Environment capturedEnv, string name = null, int argCount = 0)
+        public Closure(Int32 entryPointer, Environment capturedEnv, string name = null, int argCount = 0)
         {
-            Bytecode = bytecode;
+            EntryPointer = entryPointer;
             CapturedEnv = capturedEnv;
             Name = name;
             ArgCount = argCount;

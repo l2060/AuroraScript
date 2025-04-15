@@ -117,7 +117,7 @@ namespace AuroraScript.Core
             var dobjeect = findByName(name);
             if (dobjeect != null)
             {
-                //throw new Exception("域内变量名重复");
+                throw new Exception("域内变量名重复");
             }
             if (Resolve(name, out var _))
             {
@@ -129,6 +129,29 @@ namespace AuroraScript.Core
             _variables.Add(declare);
             return slot;
         }
+
+
+
+        public int Declare(DeclareType type, ImportDeclaration func)
+        {
+            var name = func.Name.Value;
+            var alias = name;
+            var dobjeect = findByName(name);
+            if (dobjeect != null)
+            {
+                throw new Exception("域内变量名重复");
+            }
+            if (Resolve(name, out var _))
+            {
+                // 父scope下有重名变量或属性，增加别名
+                alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
+            }
+            var slot = _stringSet.GetSlot(alias);
+            var declare = new DeclareObject(this, name, alias, type, slot, false);
+            _variables.Add(declare);
+            return slot;
+        }
+
 
 
         public int Declare(DeclareType type, VariableDeclaration variable)

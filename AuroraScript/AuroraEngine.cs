@@ -7,14 +7,24 @@ namespace AuroraScript
 {
     public class AuroraEngine
     {
+        public readonly StringList _stringSet;
+        private readonly InstructionBuilder _instructionBuilder;
         private readonly ScriptCompiler compiler;
-        private ByteCodeGenerator codeGenerator;
+        private readonly ByteCodeGenerator codeGenerator;
         private RuntimeVM runtimeVM;
+        private readonly Runtime.Environment Global;
+        private readonly List<Closure> Modules;
+
+
 
 
         public AuroraEngine(EngineOptions options)
         {
-            codeGenerator = new ByteCodeGenerator();
+            Modules = new List<Closure>();
+            Global = new Runtime.Environment(null);
+            _stringSet = new StringList();
+            _instructionBuilder = new InstructionBuilder(_stringSet);
+            codeGenerator = new ByteCodeGenerator(_instructionBuilder, _stringSet);
             compiler = new ScriptCompiler(options.BaseDirectory, codeGenerator);
             runtimeVM = new RuntimeVM();
         }
@@ -26,8 +36,7 @@ namespace AuroraScript
         /// <returns>全局对象</returns>
         public ScriptObject GetGlobal(string name)
         {
-            // 这里需要实现从运行时环境中获取全局对象的逻辑
-            return null;
+            return Global.GetPropertyValue(name);
         }
 
         /// <summary>
@@ -37,8 +46,10 @@ namespace AuroraScript
         /// <param name="value">全局对象值</param>
         public void SetGlobal(string name, ScriptObject value)
         {
-            // 这里需要实现设置全局对象的逻辑
+            Global.SetPropertyValue(name, value);
         }
+
+
 
 
 
@@ -51,30 +62,38 @@ namespace AuroraScript
         public async Task BuildAsync(String filename)
         {
             await compiler.Build(filename);
-
-            codeGenerator.DumpCode();
-            var bytes = codeGenerator.Build();
             var stringConstants = codeGenerator._stringSet.List;
+            foreach (var item in _instructionBuilder.ModuleEntrys)
+            {
+                Modules.Add(new Closure(item.Value, Global, item.Key, 0));
+            }
+            var bytes = codeGenerator.Build();
+            codeGenerator.DumpCode();
 
-            var vm = new RuntimeVM(bytes, stringConstants);
+            runtimeVM = new RuntimeVM(bytes, stringConstants);
+            //return vm.Execute(null);
             return;
         }
 
-        /// <summary>
-        /// 编译并执行脚本
-        /// </summary>
-        /// <param name="filename">脚本文件名</param>
-        /// <returns>执行结果</returns>
-        public async Task<object> ExecuteAsync(String filename)
+
+
+
+        public void CreateDomain()
         {
-            await compiler.Build(filename);
+            var domainGlobal = new Runtime.Environment(Global);
+            foreach (var module in Modules)
+            {
+                var moduleInstance = new ScriptObject();
+                domainGlobal.Define("@" + module.Name, moduleInstance, true, false);
+                var init = () =>
+                {
+                    //runtimeVM.Call(module);
+                };
+            }
 
-            var bytes = codeGenerator.Build();
-            var stringConstants = codeGenerator._stringSet.List;
-
-            var vm = new RuntimeVM(bytes, stringConstants);
-            return vm.Execute();
         }
+
+
 
 
 

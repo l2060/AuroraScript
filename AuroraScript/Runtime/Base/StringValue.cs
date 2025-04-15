@@ -53,23 +53,19 @@ namespace AuroraScript.Runtime.Base
             return new StringValue(value);
         }
 
-
-
         public static StringValue operator +(ScriptObject a, StringValue b)
         {
-            return new StringValue(a.ToString() + b._value);
+            return Of(a.ToString() + b._value);
         }
-
-
 
         public static StringValue operator +(StringValue a, ScriptObject b)
         {
-            return new StringValue(a._value + b.ToString());
+            return Of(a._value + b.ToString());
         }
 
         public static StringValue operator +(StringValue a, StringValue b)
         {
-            return new StringValue(a._value + b._value);
+            return Of(a._value + b._value);
         }
 
 

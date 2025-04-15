@@ -32,9 +32,7 @@ namespace AuroraScript.Ast
 
         public String ModuleName { get; set; }
         public String ModulePath { get; set; }
-
-
-
+        public String FullPath { get; set; }
 
         public String ToJson()
         {

@@ -3,8 +3,6 @@ using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Core;
-using AuroraScript.Tokens;
-
 
 
 namespace AuroraScript.Compiler.Emits
@@ -19,11 +17,11 @@ namespace AuroraScript.Compiler.Emits
         public readonly StringList _stringSet;
         private CodeScope _scope;
 
-        public ByteCodeGenerator()
+        public ByteCodeGenerator(InstructionBuilder instructionBuilder, StringList stringSet)
         {
-            _stringSet = new StringList();
+            _stringSet = stringSet;
             _scope = new CodeScope(null, DomainType.Global, _stringSet);
-            _instructionBuilder = new InstructionBuilder(_stringSet);
+            _instructionBuilder = instructionBuilder;
 
         }
 
@@ -38,18 +36,45 @@ namespace AuroraScript.Compiler.Emits
             _scope = _scope.Leave();
         }
 
-
-        public override void VisitImportDeclaration(ImportDeclaration node)
+        public void Visit(ModuleSyntaxRef[] syntaxRefs)
         {
+            _instructionBuilder.Emit(OpCode.NOP);
 
+            _instructionBuilder.Comment("Create Domain:");
+            // create module init closure
+            _instructionBuilder.NewMap(syntaxRefs.Length);
+
+            // CREATE DOMAIN CREATE CLOSURE
+            var moduleClosures = new Dictionary<string, ClosureInstruction>();  
+            foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
+            {
+                // NEW_MODULE
+                // DUP
+                // NEW_CLOSSURE $MODULE_ENTRY:   ; Init module
+                // CALL 1
+                // SET_PROPERTY $PROPERTY_NAME   ; Set Global Property
+                // 
+               var closureIns = _instructionBuilder.NewClosure();
+                _instructionBuilder.Call(0);
+                _instructionBuilder.SetProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
+                moduleClosures.Add(syntaxRef.SyntaxTree.ModuleName, closureIns);
+            }
+            _instructionBuilder.Return();
+            foreach (var item in syntaxRefs)
+            {
+                var pos = _instructionBuilder.Position;
+                if(moduleClosures.TryGetValue(item.SyntaxTree.ModuleName, out var instruction))
+                {
+                    _instructionBuilder.FixClosure(instruction);
+                                    }
+                item.SyntaxTree.Accept(this);
+            }
+            // fix module closure
         }
 
+
+
         /// <summary>
-        /// 记录每个模块的地址
-        /// 记录每个模块下方法地址
-        /// 记录每个模块下导出方法
-        /// 记录每个模块下导出变量
-        ///
         /// 模块注册到 global  @module1
         /// 方法和模块变量注册到模块属性
         ///
@@ -59,8 +84,13 @@ namespace AuroraScript.Compiler.Emits
         /// <param name="node"></param>
         public override void VisitModule(ModuleDeclaration node)
         {
+            _instructionBuilder.DefineModule(node);
+
+
+
+
             BeginScope(DomainType.Module);
-            _instructionBuilder.Comment("# module: " + node.ModuleName);
+            _instructionBuilder.Comment($"module: {node.ModuleName} {node.ModulePath}");
             _instructionBuilder.Comment("# Module Import");
             foreach (var module in node.Imports)
             {
@@ -72,11 +102,42 @@ namespace AuroraScript.Compiler.Emits
                 _instructionBuilder.PushNull();// push this
                 _instructionBuilder.SetThisProperty(module.Name.Value);
             }
-            _instructionBuilder.Comment("# Code Block");
-            VisitBlock(node);
 
-            _instructionBuilder.PushNull();
+            _instructionBuilder.Comment("# Code Block");
+            // 1. 声明代码块内方法
+            var closureMap = new Dictionary<string, ClosureInstruction>();
+            foreach (var function in node.Functions)
+            {
+                var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
+                var closure = _instructionBuilder.NewClosure();
+                closureMap[function.Name.UniqueValue] = closure;
+                if (node is ModuleDeclaration)
+                {
+                    _instructionBuilder.SetThisProperty(function.Name.Value);
+                }
+                else
+                {
+                    _instructionBuilder.PopLocal(slot);
+                }
+            }
+
+            // 2. 代码块内的语句
+            foreach (var statement in node.ChildNodes)
+            {
+                statement.Accept(this);
+            }
+
+            _instructionBuilder.PushConstantBoolean(true);
             _instructionBuilder.Return();
+
+            // 3. 代码块内的方法体
+            foreach (var function in node.Functions)
+            {
+                var closure = closureMap[function.Name.UniqueValue];
+                _instructionBuilder.FixClosure(closure);
+                VisitFunction(function);
+            }
+
 
             // 3. compile each function
             //foreach (var function in node.Functions)
@@ -88,6 +149,14 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        public override void VisitImportDeclaration(ImportDeclaration node)
+        {
+            // 加载模块至属性
+            _instructionBuilder.GetGlobalProperty("@" + node.ModuleName);
+            // 将导入的模块声明为当前模块的变量
+            var solt = _scope.Declare(DeclareType.Property, node);
+            _instructionBuilder.SetThisProperty(solt);
+        }
 
         public override void VisitBlock(BlockStatement node)
         {
@@ -723,8 +792,8 @@ namespace AuroraScript.Compiler.Emits
         {
             if (Operator.PreIncrement == op || Operator.PostIncrement == op) return OpCode.INCREMENT;
             if (Operator.PreDecrement == op || Operator.PostDecrement == op) return OpCode.DECREMENT;
-            if (Operator.LogicalNot == op ) return OpCode.LOGIC_NOT;
-            if (Operator.BitwiseNot == op ) return OpCode.BIT_NOT;
+            if (Operator.LogicalNot == op) return OpCode.LOGIC_NOT;
+            if (Operator.BitwiseNot == op) return OpCode.BIT_NOT;
             if (Operator.Negate == op) return OpCode.NEGATE;
             throw new Exception($"Invalid operator: {op}");
         }

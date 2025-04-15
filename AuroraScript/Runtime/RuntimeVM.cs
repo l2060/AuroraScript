@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using AuroraScript.Core;
@@ -12,13 +13,9 @@ namespace AuroraScript.Runtime
     /// <summary>
     /// AuroraScript 运行时虚拟机，负责执行字节码并管理运行时环境
     /// </summary>
+    /// 
     internal class RuntimeVM
     {
-        // 操作数栈，用于存储执行过程中的临时值
-        private readonly Stack<ScriptObject> _operandStack;
-
-        // 调用栈，用于管理函数调用
-        private readonly Stack<CallFrame> _callStack;
 
         // 全局环境，存储全局变量和函数
         private readonly Environment _globalEnv;
@@ -31,16 +28,18 @@ namespace AuroraScript.Runtime
 
 
 
+
         /// <summary>
         /// 初始化运行时虚拟机
         /// </summary>
         public RuntimeVM()
         {
-            _operandStack = new Stack<ScriptObject>();
-            _callStack = new Stack<CallFrame>();
             _globalEnv = new Environment(null);
             _stringConstants = [];
         }
+
+
+
 
         /// <summary>
         /// 使用指定的字节码和字符串常量池初始化虚拟机
@@ -49,8 +48,6 @@ namespace AuroraScript.Runtime
         /// <param name="stringConstants">字符串常量池</param>
         public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants)
         {
-            _operandStack = new Stack<ScriptObject>();
-            _callStack = new Stack<CallFrame>();
             _globalEnv = new Environment(null);
             _currentBytecode = bytecode;
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
@@ -64,15 +61,15 @@ namespace AuroraScript.Runtime
         public void Load(byte[] bytecode, string[] stringConstants)
         {
             _currentBytecode = bytecode;
-            _operandStack.Clear();
-            _callStack.Clear();
+
         }
 
         /// <summary>
         /// 执行已加载的字节码
         /// </summary>
         /// <returns>执行结果</returns>
-        public object Execute()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object Execute(ExecuteContext exeContext)
         {
             if (_currentBytecode == null || _currentBytecode.Length == 0)
             {
@@ -81,9 +78,9 @@ namespace AuroraScript.Runtime
 
             // 创建主调用帧
             var mainFrame = new CallFrame(_currentBytecode, 0, _globalEnv);
-            _callStack.Push(mainFrame);
+            exeContext._callStack.Push(mainFrame);
 
-            return ExecuteFrame();
+            return ExecuteFrame(exeContext);
         }
 
         /// <summary>
@@ -92,30 +89,11 @@ namespace AuroraScript.Runtime
         /// <param name="operation">要执行的操作</param>
         private void PerformBinaryOperation(Func<ScriptObject, ScriptObject, ScriptObject> operation)
         {
-            var right = _operandStack.Pop();
-            var left = _operandStack.Pop();
-            var result = operation(left, right);
-            _operandStack.Push(result);
+            //var right = _operandStack.Pop();
+            //var left = _operandStack.Pop();
+            //var result = operation(left, right);
+            //_operandStack.Push(result);
         }
-
-
-        public void Execute2()
-        {
-            // 获取当前调用帧
-            var frame = _callStack.Peek();
-
-
-
-            //while (true)
-            //{
-
-
-
-            //}
-
-        }
-
-
 
 
 
@@ -125,8 +103,11 @@ namespace AuroraScript.Runtime
         /// 执行当前调用帧
         /// </summary>
         /// <returns>执行结果</returns>
-        private object ExecuteFrame()
+        private object ExecuteFrame(ExecuteContext exeContext)
         {
+            var _callStack = exeContext._callStack;
+            var _operandStack = exeContext._operandStack;
+
 
             // 获取当前调用帧
             var frame = _callStack.Peek();
@@ -252,7 +233,7 @@ namespace AuroraScript.Runtime
                         {
                             targetEnv.Define(propName.Value, value);
                         }
-                        else if (obj is Base.ScriptObject targetScriptObj)
+                        else if (obj is ScriptObject targetScriptObj)
                         {
                             targetScriptObj.SetPropertyValue(propName.Value, (Base.ScriptObject)value);
                         }
@@ -429,7 +410,7 @@ namespace AuroraScript.Runtime
                             var callEnv = new Environment(closure.CapturedEnv);
 
                             // 创建新的调用帧
-                            var callFrame = new CallFrame(closure.Bytecode, 0, callEnv);
+                            var callFrame = new CallFrame([], 0, callEnv);
 
                             // 设置参数
                             for (int i = 0; i < args.Length; i++)

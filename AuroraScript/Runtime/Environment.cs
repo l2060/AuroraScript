@@ -14,6 +14,11 @@ namespace AuroraScript.Runtime
         /// </summary>
         private readonly Environment _parent;
 
+        /// <summary>
+        /// 环境所属对象
+        /// </summary>
+        public readonly ScriptObject This;
+
 
         /// <summary>
         /// 创建一个新的环境

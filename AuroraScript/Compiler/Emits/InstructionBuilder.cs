@@ -1,4 +1,5 @@
-﻿using AuroraScript.Core;
+﻿using AuroraScript.Ast;
+using AuroraScript.Core;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
@@ -6,17 +7,18 @@ using System.Text;
 
 namespace AuroraScript.Compiler.Emits
 {
-    internal class InstructionBuilder
+    public class InstructionBuilder
     {
         public int _position { get; private set; }
         private readonly List<Instruction> _instructions = new List<Instruction>();
         private readonly StringList _stringSet;
 
+        public readonly Dictionary<String, Int32> ModuleEntrys = new Dictionary<string, int>();
 
         public InstructionBuilder(StringList stringSet)
         {
             this._stringSet = stringSet;
-            Emit(OpCode.NOP);
+  
         }
 
         public Instruction LastInstruction
@@ -255,6 +257,10 @@ namespace AuroraScript.Compiler.Emits
             var strAddress = _stringSet.GetSlot(propertyName);
             Emit(OpCode.SET_THIS_PROPERTY, strAddress);
         }
+        public void SetThisProperty(Int32 nameSlot)
+        {
+            Emit(OpCode.SET_THIS_PROPERTY, nameSlot);
+        }
 
         public void GetGlobalProperty(String varName)
         {
@@ -287,6 +293,13 @@ namespace AuroraScript.Compiler.Emits
             last.AddComment(comment, preEmptyLine);
         }
 
+        
+        public void DefineModule(ModuleDeclaration node)
+        {
+            var pos = _position;
+            ModuleEntrys.Add(node.ModuleName, pos);
+        }
+
 
 
 
@@ -298,6 +311,7 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.PUSH_NULL);
         }
+
 
         public void Duplicate()
         {

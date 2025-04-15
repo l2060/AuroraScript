@@ -9,9 +9,20 @@ namespace AuroraScript.Ast
         internal ImportDeclaration()
         {
         }
-        public Token Module { get; set; }
-        public Token File { get; set; }
 
+        /// <summary>
+        /// 导入的模块名称
+        /// </summary>
+        public Token Name { get; set; }
+
+        /// <summary>
+        /// 模块URL
+        /// </summary>
+        public Token File { get; set; }
+        /// <summary>
+        /// 全局模块名  Path 或由 @module() 指定的
+        /// </summary>
+        public String ModuleName { get; set; }
 
         public String FullPath { get; set; }
 

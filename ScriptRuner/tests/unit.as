@@ -1,9 +1,7 @@
-﻿@module("unit");
+﻿@module("UNIT_MODULE");
 @version();
-@version({ a:1, b:2, c:3 });
-@description("");
 
-import common from "common";
+import comLib from "common";
 Document.Version++;
 a[c]++;
 
@@ -76,11 +74,11 @@ var test = createUser('root','100');
 
 global.users.push(test);
 
-debug(test.getCount());
+comLib.debug(test.getCount());
 
 login({ username: 'admin', password: '123' });
 
-debug(test.getCount());
+comLib.debug(test.getCount());
 
 var c = ++vs;
 
