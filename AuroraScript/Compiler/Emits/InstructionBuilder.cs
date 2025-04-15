@@ -158,7 +158,7 @@ namespace AuroraScript.Compiler.Emits
         /// <param name="index">捕获变量的索引</param>
         public void CaptureVariable(int index)
         {
-            Emit(OpCode.CAPTURE_VAR, index);
+            //Emit(OpCode.CAPTURE_VAR, index);
         }
 
         /// <summary>
@@ -323,9 +323,9 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.NEW_ARRAY, count);
         }
 
-        public void NewMap(int count)
+        public void NewMap()
         {
-            Emit(OpCode.NEW_MAP, count);
+            Emit(OpCode.NEW_MAP);
         }
 
         public void FixJump(JumpInstruction jump, Instruction to)

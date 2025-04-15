@@ -29,6 +29,8 @@ namespace AuroraScript.Runtime
         /// </summary>
         public int ArgCount { get; }
 
+        public ScriptObject ThisModule { get; set; }
+
         /// <summary>
         /// 创建一个新的闭包
         /// </summary>
@@ -36,8 +38,9 @@ namespace AuroraScript.Runtime
         /// <param name="capturedEnv">捕获的环境</param>
         /// <param name="name">函数名称（可选）</param>
         /// <param name="argCount">参数数量</param>
-        public Closure(Int32 entryPointer, Environment capturedEnv, string name = null, int argCount = 0)
+        public Closure(Environment capturedEnv, ScriptObject thisModule, Int32 entryPointer,  string name = null, int argCount = 0)
         {
+            ThisModule = thisModule;
             EntryPointer = entryPointer;
             CapturedEnv = capturedEnv;
             Name = name;

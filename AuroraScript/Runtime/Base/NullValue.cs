@@ -44,7 +44,7 @@ namespace AuroraScript.Runtime.Base
 
         public override string ToString()
         {
-            return "null";
+            return "NULL_VALUE";
         }
 
         public override string ToDisplayString()

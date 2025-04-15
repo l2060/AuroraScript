@@ -159,7 +159,7 @@ namespace AuroraScript.Compiler.Emits
             // 不处理块中的函数声明，它们已经被添加到 _nestedFunctions
 
             // 恢复之前的作用域（块级变量离开作用域）
-            if (node.IsNewScope)
+            if (node.IsFunction)
             {
                 _declaredVariables = previousDeclaredVars;
             }

@@ -10,7 +10,7 @@ namespace AuroraScript.Ast.Statements
         /// </summary>
         public Scope Scope { get; private set; }
 
-        public Boolean IsNewScope { get; set; }
+        public Boolean IsFunction { get; set; }
 
         public readonly List<FunctionDeclaration> Functions = new List<FunctionDeclaration>();
         internal BlockStatement(Scope currentScope)

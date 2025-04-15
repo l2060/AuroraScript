@@ -27,7 +27,7 @@ namespace AuroraScript.Analyzer
             {
                 this.root.ModulePath = this.root.ModulePath.Substring(1);
             }
-            this.root.MetaInfos.Add("module", this.root.ModuleName);
+            this.root.MetaInfos.Add("module", this.root.ModulePath);
         }
 
         public ModuleDeclaration Parse()
@@ -243,7 +243,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
             var scope = currentScope.CreateScope(ScopeType.BLOCK);
             var result = new BlockStatement(scope);
-            result.IsNewScope = true;
+            //result.IsNewScope = true;
             while (true)
             {
                 var token = this.lexer.LookAtHead();
@@ -432,7 +432,7 @@ namespace AuroraScript.Analyzer
         {
             this.lexer.NextOfKind(Symbols.KW_ELSE);
             BlockStatement block = new BlockStatement(currentScope);
-            block.IsNewScope = true;
+            //block.IsNewScope = true;
             if (this.lexer.TestSymbol(Symbols.KW_IF))
             {
                 var statement = this.ParseIfBlock(currentScope);
@@ -973,7 +973,7 @@ namespace AuroraScript.Analyzer
 
                 body = newBody;
             }
-            ((BlockStatement)body).IsNewScope = false;
+            ((BlockStatement)body).IsFunction = true;
             var declaration = new FunctionDeclaration(access, functionName, arguments, body, flags);
             return declaration;
         }

@@ -2,13 +2,13 @@
 @version();
 
 import comLib from "common";
-Document.Version++;
-a[c]++;
+//Document.Version++;
+//a[c]++;
 
 
-vs++;
+//vs++;
 
-vs = vs+ 1;
+//vs = vs+ 1;
 
 
 export const user = {

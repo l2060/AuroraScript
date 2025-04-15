@@ -13,20 +13,17 @@ namespace AuroraScript
         private readonly ByteCodeGenerator codeGenerator;
         private RuntimeVM runtimeVM;
         private readonly Runtime.Environment Global;
-        private readonly List<Closure> Modules;
-
+ 
 
 
 
         public AuroraEngine(EngineOptions options)
         {
-            Modules = new List<Closure>();
             Global = new Runtime.Environment(null);
             _stringSet = new StringList();
             _instructionBuilder = new InstructionBuilder(_stringSet);
             codeGenerator = new ByteCodeGenerator(_instructionBuilder, _stringSet);
             compiler = new ScriptCompiler(options.BaseDirectory, codeGenerator);
-            runtimeVM = new RuntimeVM();
         }
 
         /// <summary>
@@ -63,14 +60,11 @@ namespace AuroraScript
         {
             await compiler.Build(filename);
             var stringConstants = codeGenerator._stringSet.List;
-            foreach (var item in _instructionBuilder.ModuleEntrys)
-            {
-                Modules.Add(new Closure(item.Value, Global, item.Key, 0));
-            }
             var bytes = codeGenerator.Build();
-            codeGenerator.DumpCode();
-
             runtimeVM = new RuntimeVM(bytes, stringConstants);
+
+            codeGenerator.DumpCode();
+            CreateDomain();
             //return vm.Execute(null);
             return;
         }
@@ -80,16 +74,8 @@ namespace AuroraScript
 
         public void CreateDomain()
         {
-            var domainGlobal = new Runtime.Environment(Global);
-            foreach (var module in Modules)
-            {
-                var moduleInstance = new ScriptObject();
-                domainGlobal.Define("@" + module.Name, moduleInstance, true, false);
-                var init = () =>
-                {
-                    //runtimeVM.Call(module);
-                };
-            }
+
+            runtimeVM.Execute( new ExecuteContext());   
 
         }
 

@@ -13,18 +13,21 @@ namespace AuroraScript.Core
     }
 
 
+    public class ResolveValue {
+        public  DeclareType Type;
+        public  int Index;
+    }
 
 
     public class DeclareObject
     {
-        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index, Boolean isFunction = false)
+        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index)
         {
             Name = name;
             Alias = alias;
             Type = type;
             Index = index;
             Scope = scope;
-            IsFunction = isFunction;
         }
 
         public readonly String Name;
@@ -32,7 +35,6 @@ namespace AuroraScript.Core
         public readonly CodeScope Scope;
         public readonly DeclareType Type;
         public readonly int Index;
-        public readonly Boolean IsFunction;
     }
 
 
@@ -52,6 +54,8 @@ namespace AuroraScript.Core
 
         public int ScopeDepth { get; private set; } = 0;
 
+ 
+
         private int _variableBaseCount = 0;
 
         private readonly Dictionary<string, DeclareObject> variables = new Dictionary<string, DeclareObject>();
@@ -70,7 +74,12 @@ namespace AuroraScript.Core
             if (_parent != null)
             {
                 ScopeDepth = _parent.ScopeDepth + 1;
-                _variableBaseCount = _parent._variableBaseCount;
+      
+                if (domain == DomainType.Code)
+                {
+                    _variableBaseCount = _parent._variableBaseCount;
+                    variables = new Dictionary<string, DeclareObject>(_parent.variables);
+                }
             }
 
             Domain = domain;
@@ -115,6 +124,7 @@ namespace AuroraScript.Core
             var name = func.Name.Value;
             var alias = name;
             var dobjeect = findByName(name);
+
             if (dobjeect != null)
             {
                 throw new Exception("域内变量名重复");
@@ -122,10 +132,26 @@ namespace AuroraScript.Core
             if (Resolve(name, out var _))
             {
                 // 父scope下有重名变量或属性，增加别名
-                alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
             }
-            var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot, true);
+            int slot = 0;
+            if (type == DeclareType.Property)
+            {
+                if (Resolve(name, out var _))
+                {
+                    // 父scope下有重名变量或属性，增加别名
+                    alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
+                }
+                slot = _stringSet.GetSlot(alias);
+            }
+            else
+            {
+                slot = _variableBaseCount++;
+            }
+
+
+
+            //var slot = _stringSet.GetSlot(alias);
+            var declare = new DeclareObject(this, name, alias, type, slot);
             _variables.Add(declare);
             return slot;
         }
@@ -147,7 +173,7 @@ namespace AuroraScript.Core
                 alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
             }
             var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot, false);
+            var declare = new DeclareObject(this, name, alias, type, slot);
             _variables.Add(declare);
             return slot;
         }
@@ -172,7 +198,7 @@ namespace AuroraScript.Core
             {
                 slot = _variableBaseCount++;
             }
-            var declare = new DeclareObject(this, name, alias, type, slot, false);
+            var declare = new DeclareObject(this, name, alias, type, slot);
             _variables.Add(declare);
             return slot;
         }
@@ -201,32 +227,57 @@ namespace AuroraScript.Core
             {
                 slot = _variableBaseCount++;
             }
-            var declare = new DeclareObject(this, name, name, type, slot, false);
+            var declare = new DeclareObject(this, name, name, type, slot);
             variables[name] = declare;
             return slot;
         }
 
 
-        public Boolean Resolve(string name, out DeclareObject value)
+        // public Boolean Resolve(string name, out DeclareObject value)
+        // {
+        //     value = findByName(name);
+        //     if (value != null) return true;
+        //     if (_parent != null) return _parent.Resolve(name, out value);
+        //     return false;
+        // }
+
+
+        public bool Resolve(string name, out ResolveValue value)
         {
-            value = findByName(name);
-            if (value != null) return true;
-            if (_parent != null) return _parent.Resolve(name, out value);
+            value = null;
+            var val = findByName(name);
+            if (val != null)
+            {
+                value = new ResolveValue() { Type = val.Type, Index = val.Index };
+                return true;
+            }
+            if (_parent != null)
+            {
+                return _parent.FindInParent(name, 0, out value);
+            }
             return false;
         }
 
+  
+        private bool FindInParent(string name, int depth, out ResolveValue value)
+        {
+            value = null;
+            var val = this.findByName(name);
+            if (val != null)
+            {
+                var offset = val.Index - _variableBaseCount;
+                value = new ResolveValue() { Type = val.Type, Index = offset - depth };
+                return true;
+            }
 
-        //public Boolean Resolve(DeclareType type, string name, out int value)
-        //{
-        //    value = 0;
-        //    if (variables.TryGetValue(name, out var declareObject))
-        //    {
-        //        value = declareObject.Index;
-        //        return true;
-        //    }
-        //    if (_parent != null) return _parent.Resolve(type, name, out value);
-        //    return false;
-        //}
+            if (this._parent != null)
+            {
+                return this._parent.FindInParent(name, depth + _variableBaseCount, out value);
+            }
+
+            return false;
+        }
+
 
 
     }
