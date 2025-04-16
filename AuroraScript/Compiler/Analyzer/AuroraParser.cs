@@ -6,7 +6,6 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
-using System.Diagnostics.Metrics;
 
 
 namespace AuroraScript.Analyzer
@@ -505,7 +504,7 @@ namespace AuroraScript.Analyzer
                 // identifier Operand
                 if (token is IdentifierToken)
                 {
-                    tempExp = new NameExpression() { Identifier = token , IsRoot = (lastOperator != Operator.MemberAccess) };
+                    tempExp = new NameExpression() { Identifier = token, IsRoot = (lastOperator != Operator.MemberAccess) };
                 }
                 // keywords should not appear here
                 if (token is KeywordToken) throw this.InitParseException("Keyword appears in the wrong place ", token);

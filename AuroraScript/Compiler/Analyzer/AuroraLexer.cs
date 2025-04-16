@@ -257,25 +257,30 @@ namespace AuroraScript.Analyzer
         private Token CreateToken(in RuleTestResult result)
         {
             Token token = null;
-            var symbol = Symbols.FromString(result.Value);
-            if (symbol != null)
+            if (result.Type == TokenTyped.String) token = new StringToken(false);
+            if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
+            if (result.Type == TokenTyped.Number) token = new NumberToken(result.Value);
+
+            if (token == null)
             {
-                if (symbol.Type == SymbolTypes.KeyWord) token = new KeywordToken();
-                if (symbol.Type == SymbolTypes.Punctuator) token = new PunctuatorToken();
-                if (symbol.Type == SymbolTypes.Operator) token = new OperatorToken();
-                //if (symbol.Type == SymbolTypes.Typed) token = new TypedToken();
-                if (symbol.Type == SymbolTypes.NullValue) token = new NullToken();
-                if (symbol.Type == SymbolTypes.BooleanValue) token = new BooleanToken(result.Value);
-                if (symbol.Type == SymbolTypes.Identifier) token = new IdentifierToken();
-                token.Symbol = symbol;
+                var symbol = Symbols.FromString(result.Value);
+                if (symbol != null)
+                {
+                    if (symbol.Type == SymbolTypes.KeyWord) token = new KeywordToken();
+                    if (symbol.Type == SymbolTypes.Punctuator) token = new PunctuatorToken();
+                    if (symbol.Type == SymbolTypes.Operator) token = new OperatorToken();
+                    //if (symbol.Type == SymbolTypes.Typed) token = new TypedToken();
+                    if (symbol.Type == SymbolTypes.NullValue) token = new NullToken();
+                    if (symbol.Type == SymbolTypes.BooleanValue) token = new BooleanToken(result.Value);
+                    if (symbol.Type == SymbolTypes.Identifier) token = new IdentifierToken();
+                    token.Symbol = symbol;
+                }
+                else
+                {
+                    if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
+                }
             }
-            else
-            {
-                if (result.Type == TokenTyped.String) token = new StringToken(false);
-                if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
-                if (result.Type == TokenTyped.Number) token = new NumberToken(result.Value);
-                if (result.Type == TokenTyped.Identifier) token = new IdentifierToken();
-            }
+
             if (token == null) throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");
             token.LineNumber = this.LineNumber;
             token.ColumnNumber = this.ColumnNumber;

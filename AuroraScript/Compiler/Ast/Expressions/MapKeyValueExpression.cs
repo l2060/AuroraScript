@@ -9,7 +9,9 @@ namespace AuroraScript.Ast.Expressions
         {
             this.Key = key;
             this.Value = value;
+            value.Parent = this;
         }
+
 
         public Token Key { get; set; }
         public AstNode Value { get; set; }

@@ -1,10 +1,7 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
-using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Core;
-using AuroraScript.Tokens;
-using System.Collections.Generic;
 
 namespace AuroraScript.Compiler.Emits
 {
@@ -53,16 +50,16 @@ namespace AuroraScript.Compiler.Emits
             {
                 var nestedCatcher = new VariableCatcher();
                 // 将当前函数的声明变量作为父作用域传递给嵌套函数
-                var funcScope =  parentScope.Enter(null, DomainType.Function);
+                var funcScope = parentScope.Enter(null, DomainType.Function);
                 nestedCatcher.AnalyzeFunction(nestedFunc, funcScope);
-              
+
                 // 将嵌套函数捕获的变量添加到当前函数的变量引用中
                 foreach (var capturedVar in nestedCatcher.CapturedVariables)
                 {
                     if (!_declaredVariables.Contains(capturedVar))
                     {
                         Variables.Add(capturedVar);
-                        if (parentScope != null && parentScope.Resolve(capturedVar, out var _))
+                        if (parentScope != null && parentScope.Resolve(capturedVar, out var resolveValue) && (resolveValue.Type == DeclareType.Variable || resolveValue.Type == DeclareType.Captured))
                         {
                             CapturedVariables.Add(capturedVar);
                         }
@@ -75,7 +72,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 foreach (var variable in Variables)
                 {
-                    if (!_declaredVariables.Contains(variable) && parentScope.Resolve(variable,out var _))
+                    if (!_declaredVariables.Contains(variable) && parentScope.Resolve(variable, out var resolveValue) && (resolveValue.Type == DeclareType.Variable || resolveValue.Type == DeclareType.Captured))
                     {
                         CapturedVariables.Add(variable);
                     }
@@ -154,7 +151,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 item.Accept(this);
             }
-            
+
 
             // 不处理块中的函数声明，它们已经被添加到 _nestedFunctions
 

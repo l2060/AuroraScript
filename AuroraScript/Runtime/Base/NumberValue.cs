@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
 
     public partial class NumberValue : ScriptValue
@@ -59,8 +52,20 @@ namespace AuroraScript.Runtime.Base
             return new NumberValue(value);
         }
 
+        public override Boolean IsTrue()
+        {
+            return _value != 0;
+        }
 
+        public static BooleanValue operator <(NumberValue a, NumberValue b)
+        {
+            return BooleanValue.Of(a._value < b._value);
+        }
 
+        public static BooleanValue operator >(NumberValue a, NumberValue b)
+        {
+            return BooleanValue.Of(a._value > b._value);
+        }
 
 
         public static NumberValue operator +(NumberValue a, Int32 b)

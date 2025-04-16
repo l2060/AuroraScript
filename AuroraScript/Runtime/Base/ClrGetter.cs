@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
 
     public delegate ScriptObject ClrGetterDelegate(ScriptObject @object);

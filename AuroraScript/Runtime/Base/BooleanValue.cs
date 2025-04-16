@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
     public class BooleanValue : ScriptValue
     {
@@ -45,6 +39,17 @@ namespace AuroraScript.Runtime.Base
         public override string ToDisplayString()
         {
             return _valueString.Value;
+        }
+
+
+        public static BooleanValue Of(Boolean value)
+        {
+            return value ? True : False;
+        }
+
+        public override Boolean IsTrue()
+        {
+            return _value;
         }
     }
 }

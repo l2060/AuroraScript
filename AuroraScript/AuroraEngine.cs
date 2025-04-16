@@ -2,6 +2,7 @@
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using System.Diagnostics;
 
 namespace AuroraScript
 {
@@ -12,14 +13,14 @@ namespace AuroraScript
         private readonly ScriptCompiler compiler;
         private readonly ByteCodeGenerator codeGenerator;
         private RuntimeVM runtimeVM;
-        private readonly Runtime.Environment Global;
- 
+        private readonly ScriptObject Global;
+
 
 
 
         public AuroraEngine(EngineOptions options)
         {
-            Global = new Runtime.Environment(null);
+            Global = new ScriptObject();
             _stringSet = new StringList();
             _instructionBuilder = new InstructionBuilder(_stringSet);
             codeGenerator = new ByteCodeGenerator(_instructionBuilder, _stringSet);
@@ -65,17 +66,61 @@ namespace AuroraScript
 
             codeGenerator.DumpCode();
             CreateDomain();
+
+
+
+
+
             //return vm.Execute(null);
             return;
         }
 
+
+        public static ScriptObject LOG(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        {
+            Console.WriteLine(String.Join(", ", args));
+            return ScriptObject.Null;
+        }
 
 
 
         public void CreateDomain()
         {
 
-            runtimeVM.Execute( new ExecuteContext());   
+
+            var global = runtimeVM.Execute(new ExecuteContext());
+
+
+            var console = new ScriptObject();
+
+            global.SetPropertyValue("console", console);
+            console.SetPropertyValue("log", new ClrFunction(LOG));
+
+            var moduleTimer = global.GetPropertyValue("@TIMER");
+            var createTimerMethod = moduleTimer.GetPropertyValue("createTimer");
+            var testMethod = moduleTimer.GetPropertyValue("test");
+
+
+
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            runtimeVM.Execute(testMethod as Closure);
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
+
+
+            if (createTimerMethod is Closure closure)
+            {
+                var result = runtimeVM.Execute(closure, new StringValue("Hello"), new NumberValue(500));
+                var resetFunc = result.GetPropertyValue("reset");
+                var cancelFunc = result.GetPropertyValue("cancel");
+                var result2 = runtimeVM.Execute(resetFunc as Closure);
+                var result3 = runtimeVM.Execute(cancelFunc as Closure);
+                Console.WriteLine(result);
+            }
+
+
 
         }
 

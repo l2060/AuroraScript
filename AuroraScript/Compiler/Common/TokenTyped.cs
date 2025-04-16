@@ -2,6 +2,7 @@
 {
     public enum TokenTyped
     {
+        Unknown,
         String,
 
         StringBlock,

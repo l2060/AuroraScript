@@ -1,23 +1,16 @@
 ﻿using AuroraScript.Runtime.Base;
-using System;
-using System.Collections.Generic;
 
 namespace AuroraScript.Runtime
 {
     /// <summary>
     /// 表示一个闭包，包含函数字节码和捕获的环境
     /// </summary>
-    internal class Closure: ScriptObject
+    internal class Closure : Callable
     {
         /// <summary>
         /// 函数的字节码
         /// </summary>
         public Int32 EntryPointer { get; }
-
-        /// <summary>
-        /// 捕获的环境
-        /// </summary>
-        public Environment CapturedEnv { get; }
 
         /// <summary>
         /// 函数名称（可选）
@@ -29,7 +22,15 @@ namespace AuroraScript.Runtime
         /// </summary>
         public int ArgCount { get; }
 
+        /// <summary>
+        /// Module对象
+        /// </summary>
         public ScriptObject ThisModule { get; set; }
+
+        /// <summary>
+        /// 闭包This环境
+        /// </summary>
+        public CallFrame CallFrame { get; set; }
 
         /// <summary>
         /// 创建一个新的闭包
@@ -38,11 +39,11 @@ namespace AuroraScript.Runtime
         /// <param name="capturedEnv">捕获的环境</param>
         /// <param name="name">函数名称（可选）</param>
         /// <param name="argCount">参数数量</param>
-        public Closure(Environment capturedEnv, ScriptObject thisModule, Int32 entryPointer,  string name = null, int argCount = 0)
+        public Closure(CallFrame callFrame, ScriptObject thisModule, Int32 entryPointer, string name = null, int argCount = 0)
         {
             ThisModule = thisModule;
             EntryPointer = entryPointer;
-            CapturedEnv = capturedEnv;
+            CallFrame = callFrame;
             Name = name;
             ArgCount = argCount;
         }
@@ -53,6 +54,11 @@ namespace AuroraScript.Runtime
         public override string ToString()
         {
             return $"<function {(string.IsNullOrEmpty(Name) ? "anonymous" : Name)}>";
+        }
+
+        public override ScriptObject Invoke(AuroraEngine engine, ScriptObject module, ScriptObject[] args)
+        {
+            return null;
         }
     }
 }

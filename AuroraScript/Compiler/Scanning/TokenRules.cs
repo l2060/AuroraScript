@@ -94,6 +94,7 @@ namespace AuroraScript.Scanning
                     result.ColumnNumber += 3;
                     result.Length = 3;
                     result.Value = codeSpan.Slice(0, 3).ToString();
+                    result.Type = TokenTyped.Punctuator;
                     result.Success = true;
                     return result;
                 }
@@ -120,6 +121,7 @@ namespace AuroraScript.Scanning
                     result.ColumnNumber += 2;
                     result.Length = 2;
                     result.Value = codeSpan.Slice(0, 2).ToString();
+                    result.Type = TokenTyped.Punctuator;
                     result.Success = true;
                 }
                 else if (
@@ -134,6 +136,7 @@ namespace AuroraScript.Scanning
                     result.ColumnNumber += 1;
                     result.Length = 1;
                     result.Value = codeSpan[0].ToString();
+                    result.Type = TokenTyped.Punctuator;
                     result.Success = true;
                 }
             }
@@ -152,6 +155,7 @@ namespace AuroraScript.Scanning
                 result.Type = TokenTyped.Punctuator;
                 result.Success = true;
             }
+
             return result;
         }
     }

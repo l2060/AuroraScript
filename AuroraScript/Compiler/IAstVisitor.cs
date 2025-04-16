@@ -2,7 +2,6 @@
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
-using AuroraScript.Compiler.Emits;
 
 
 namespace AuroraScript.Compiler
@@ -41,7 +40,7 @@ namespace AuroraScript.Compiler
 
         public virtual void VisitLambdaExpression(LambdaExpression node)
         {
-            VisitFunction(node.Function);
+            node.Function.Accept(this);
         }
 
 
@@ -53,7 +52,7 @@ namespace AuroraScript.Compiler
             }
             foreach (var function in node.Functions)
             {
-                VisitFunction(function);
+                function.Accept(this);
             }
         }
 

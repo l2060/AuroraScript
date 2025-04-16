@@ -1,7 +1,4 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
-using System;
-using System.Collections.Generic;
+﻿using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime
 {
@@ -16,33 +13,33 @@ namespace AuroraScript.Runtime
         public int Pointer { get; set; }
 
         /// <summary>
-        /// 局部变量环境
-        /// </summary>
-        public Environment Environment { get; }
-
-        /// <summary>
         /// 局部变量数组
         /// </summary>
         public ScriptObject[] Locals { get; }
 
 
-        public ScriptObject[] Arguments;
+        public readonly ScriptObject[] Arguments;
 
 
         public ScriptObject ThisModule;
+
+        public Closure Closure;
+
+
+
         /// <summary>
         /// 创建一个新的调用帧
         /// </summary>
         /// <param name="bytecode">要执行的字节码</param>
         /// <param name="ip">初始指令指针位置</param>
         /// <param name="environment">执行环境</param>
-        /// <param name="localCount">局部变量数量</param>
-        public CallFrame(int ip, Environment environment ,ScriptObject thisModule, int localCount = 160)
+        public CallFrame(Closure closure, params ScriptObject[] arguments)
         {
-            Pointer = ip;
-            ThisModule = thisModule;
-            Environment = environment;
-            Locals = new ScriptObject[localCount];
+            Closure = closure;
+            Pointer = closure.EntryPointer;
+            ThisModule = closure.ThisModule;
+            Arguments = arguments;
+            Locals = new ScriptObject[256];
         }
 
 

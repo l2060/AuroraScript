@@ -1,21 +1,32 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
-using System;
-using System.Xml.Linq;
 
 namespace AuroraScript.Core
 {
     public enum DeclareType
     {
+        /// <summary>
+        /// 模块的属性或全局变量属性
+        /// </summary>
+        Property,
+
+        /// <summary>
+        /// 代码段变量
+        /// </summary>
         Variable,
-        Property
+
+        /// <summary>
+        /// 闭包捕获的变量
+        /// </summary>
+        Captured,
     }
 
 
-    public class ResolveValue {
-        public  DeclareType Type;
-        public  int Index;
+    public class ResolveValue
+    {
+        public DeclareType Type;
+        public int Index;
     }
 
 
@@ -54,11 +65,9 @@ namespace AuroraScript.Core
 
         public int ScopeDepth { get; private set; } = 0;
 
- 
+
 
         private int _variableBaseCount = 0;
-
-        private readonly Dictionary<string, DeclareObject> variables = new Dictionary<string, DeclareObject>();
 
 
         public readonly List<DeclareObject> _variables = new List<DeclareObject>();
@@ -74,11 +83,10 @@ namespace AuroraScript.Core
             if (_parent != null)
             {
                 ScopeDepth = _parent.ScopeDepth + 1;
-      
+
                 if (domain == DomainType.Code)
                 {
                     _variableBaseCount = _parent._variableBaseCount;
-                    variables = new Dictionary<string, DeclareObject>(_parent.variables);
                 }
             }
 
@@ -208,7 +216,8 @@ namespace AuroraScript.Core
 
         public int Declare(DeclareType type, string name)
         {
-            if (variables.TryGetValue(name, out var val))
+            var val = findByName(name);
+            if (val != null)
             {
                 throw new Exception("域内变量名重复");
             }
@@ -228,7 +237,7 @@ namespace AuroraScript.Core
                 slot = _variableBaseCount++;
             }
             var declare = new DeclareObject(this, name, name, type, slot);
-            variables[name] = declare;
+            _variables.Add(declare);
             return slot;
         }
 
@@ -253,12 +262,12 @@ namespace AuroraScript.Core
             }
             if (_parent != null)
             {
-                return _parent.FindInParent(name, 0, out value);
+                return _parent.Resolve(name, out value);
             }
             return false;
         }
 
-  
+
         private bool FindInParent(string name, int depth, out ResolveValue value)
         {
             value = null;

@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
 
     public delegate ScriptObject ClrMethodDelegate(AuroraEngine engine, ScriptObject module, ScriptObject[] args);
@@ -19,9 +17,9 @@ namespace AuroraScript.Runtime.Base
             this._callback = callback;
         }
 
-        public ScriptObject Invoke(AuroraEngine engine, ScriptObject module, ScriptObject[] args)
+        public ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            return _callback.Invoke(engine, module, args);
+            return _callback.Invoke(engine, thisObject, args);
         }
 
 

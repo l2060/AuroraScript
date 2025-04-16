@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
     public class NullValue : ScriptObject
     {
@@ -22,7 +16,7 @@ namespace AuroraScript.Runtime.Base
 
 
         public new static ScriptObject TOSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
-        {           
+        {
             return valueString;
         }
 
@@ -50,6 +44,11 @@ namespace AuroraScript.Runtime.Base
         public override string ToDisplayString()
         {
             return "null";
+        }
+
+        public override Boolean IsTrue()
+        {
+            return false;
         }
 
     }

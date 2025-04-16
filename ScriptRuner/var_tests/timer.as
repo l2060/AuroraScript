@@ -1,7 +1,14 @@
-﻿@module("timer");
+﻿@module("TIMER");
 
 var timeCount = 0;
 var resetCount = 0;
+
+function test(){
+    for (var o = 0;  o < 10000;o++){
+    
+    }
+}
+
 
 function createTimer(callback, interval) {
 
@@ -10,17 +17,17 @@ function createTimer(callback, interval) {
         callback,
         interval,
         cancel,
-        count: 0,
+        count: 50,
         reset: () => {
             timer.count = 0;
             log("reset");
         }
     };
 
-    log("Created!");
+    log("    Created!    ");
 
     function log(text) {
-        console.log("Timer:" + timer.timeId + " " + text);
+        console.log("Timer:" + timer.timeId + " [" + text/*.trim()*/ + "]");
     }
 
     function cancel() {
@@ -29,6 +36,9 @@ function createTimer(callback, interval) {
         timer.timeId = null;
         timer.callback = null;
         timer.interval = null;
+        timer.reset = null;
+        timer.count = null;
+        timer.abc = "abc";
         return true;
     }
 

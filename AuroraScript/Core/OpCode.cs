@@ -53,7 +53,7 @@
         // Objects, Arrays, and Maps
         NEW_MAP,      // Create a new map (takes initial capacity)
         NEW_ARRAY,    // Create a new array (takes initial capacity)
-
+        NEW_MODULE,    // Create a new array (takes initial capacity)
         GET_PROPERTY, // Get a property from an object (takes property name index in constant pool)
         SET_PROPERTY, // Set a property on an object (takes property name index in constant pool)
         GET_THIS_PROPERTY, // Get a property from an object (takes property name index in constant pool)
@@ -118,6 +118,8 @@
         PUSH_THIS,  // Push true onto the stack
         //
         RETURN,       // Return from a function
+        RETURN_NULL,       // Return from a function
+        RETURN_GLOBAL,       // Return from a function
         //
         YIELD,       // Pause execution
     }

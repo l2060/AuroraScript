@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraScript.Runtime.Base
+﻿namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue : ScriptValue
     {
@@ -69,6 +63,9 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-
+        public override Boolean IsTrue()
+        {
+            return _value != null && _value.Length > 0;
+        }
     }
 }

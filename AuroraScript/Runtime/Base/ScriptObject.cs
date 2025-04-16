@@ -27,7 +27,7 @@ namespace AuroraScript.Runtime.Base
             }
             set
             {
-                SetPropertyValue(key, value);   
+                SetPropertyValue(key, value);
             }
         }
 
@@ -35,7 +35,7 @@ namespace AuroraScript.Runtime.Base
 
         public virtual ScriptObject GetPropertyValue(String key, ScriptObject thisObject = null)
         {
-            ScriptObject own = thisObject != null? thisObject : this;
+            ScriptObject own = thisObject != null ? thisObject : this;
             _properties.TryGetValue(key, out var value);
             if (value != null)
             {
@@ -49,7 +49,7 @@ namespace AuroraScript.Runtime.Base
             }
             if (_prototype != null)
             {
-               return _prototype.GetPropertyValue(key, own);
+                return _prototype.GetPropertyValue(key, own);
             }
             return Null;
         }
@@ -105,10 +105,10 @@ namespace AuroraScript.Runtime.Base
             foreach (var pair in _properties)
             {
                 sb.Append($"\"{pair.Key}\": ");
-                sb.Append((pair.Value != null && pair.Value.Value != null)?pair.Value.Value.ToString(): "");
+                sb.Append((pair.Value != null && pair.Value.Value != null) ? pair.Value.Value.ToString() : "");
                 sb.Append(", ");
             }
-            sb.Length-=2;
+            sb.Length -= 2;
             sb.Append("}");
             return sb.ToString();
         }
@@ -137,6 +137,13 @@ namespace AuroraScript.Runtime.Base
         {
             return new StringValue(a.ToString() + b.ToString());
         }
+
+
+        public virtual Boolean IsTrue()
+        {
+            return true;
+        }
+
     }
 
 

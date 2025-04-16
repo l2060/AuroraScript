@@ -201,21 +201,50 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-
-    public class ClosureInstruction : Instruction5
+    public class ClosureCaptured
     {
-        internal ClosureInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset, addOffset)
+        public readonly Int32 Index;
+        public readonly String Name;
+
+        public ClosureCaptured(String name, Int32 index)
         {
+            Index = index;
+            Name = name;
         }
 
         public override string ToString()
         {
-            return $"{OpCode} [{Offset + Length + Value:0000}]";
+            return Name;
         }
     }
 
 
-    
+
+    public class ClosureInstruction : Instruction
+    {
+        public override Int32 Length => 5;
+
+        public Int32 Address;
+
+        internal ClosureInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return $"{OpCode} [{Offset + Length + Address:0000}]";
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Address);
+        }
+    }
+
+
+
 
 
 

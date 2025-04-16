@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
 {
@@ -18,7 +13,7 @@ namespace AuroraScript.Runtime
     {
 
         // 全局环境，存储全局变量和函数
-        private readonly Environment _globalEnv;
+        private readonly ScriptObject _globalEnv;
 
         // 字符串常量池
         private readonly ImmutableArray<StringValue> _stringConstants;
@@ -36,7 +31,7 @@ namespace AuroraScript.Runtime
         /// <param name="stringConstants">字符串常量池</param>
         public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants)
         {
-            _globalEnv = new Environment(null);
+            _globalEnv = new ScriptGlobal();
             _codeBuffer = new ByteCodeBuffer(bytecode);
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
         }
@@ -49,10 +44,25 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptObject Execute(ExecuteContext exeContext)
         {
-            var mainFrame = new CallFrame(0, _globalEnv, _globalEnv);
+            var closure = new Closure(null, _globalEnv, 0);
+            var mainFrame = new CallFrame(closure);
             exeContext._callStack.Push(mainFrame);
             return ExecuteFrame(exeContext);
         }
+
+        /// <summary>
+        /// 执行已加载的字节码
+        /// </summary>
+        /// <returns>执行结果</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptObject Execute(Closure closure, params ScriptObject[] arguments)
+        {
+            ExecuteContext exeContext = new ExecuteContext();
+            var mainFrame = new CallFrame(closure, arguments);
+            exeContext._callStack.Push(mainFrame);
+            return ExecuteFrame(exeContext);
+        }
+
 
         /// <summary>
         /// 执行二元操作
@@ -79,13 +89,17 @@ namespace AuroraScript.Runtime
             var _callStack = exeContext._callStack;
             var _operandStack = exeContext._operandStack;
             Int32 propNameIndex = 0;
+            Int32 localIndex = 0;
             NumberValue numValue = null;
             StringValue propName = null;
             ScriptObject value = null;
             ScriptObject obj = null;
-
+            ScriptObject left = null;
+            ScriptObject right = null;
             // 获取当前调用帧
             var frame = _callStack.Peek();
+
+
 
             // 执行循环
             while (true)
@@ -120,27 +134,19 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.NEW_MAP:
-                        // 交换栈顶两个元素
                         _operandStack.Push(new ScriptObject());
                         break;
-                    case OpCode.CREATE_CLOSURE:
-                        // 创建闭包
-                        var thsiModule = _operandStack.Pop();
-                        var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new Closure(frame.Environment, thsiModule, frame.Pointer + closureIndex);
-                        _operandStack.Push(closure);
-                        break;
 
+                    case OpCode.NEW_MODULE:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        _operandStack.Push(new ScriptModule(propName.Value));
+                        break;
                     case OpCode.LOAD_ARG:
                         // 
                         var argIndex = _codeBuffer.ReadByte(frame);
                         var arg = frame.Arguments[argIndex];
                         _operandStack.Push(arg);
-
-                        //var thsiModule = _operandStack.Pop();
-                    
-                        //var closure = new Closure(frame.Environment, thsiModule, frame.Pointer + closureIndex);
-                        //
                         break;
                     // 常量操作
                     case OpCode.PUSH_NULL:
@@ -186,7 +192,7 @@ namespace AuroraScript.Runtime
 
                     // 局部变量操作
                     case OpCode.PUSH_LOCAL:
-                        var localIndex = _codeBuffer.ReadInt32(frame);
+                        localIndex = _codeBuffer.ReadInt32(frame);
                         _operandStack.Push(frame.Locals[localIndex]);
                         break;
 
@@ -235,12 +241,7 @@ namespace AuroraScript.Runtime
                         propName = _stringConstants[propNameIndex];
                         obj = _operandStack.Pop();
 
-                        if (obj is Environment env)
-                        {
-                            var propValue = env.GetPropertyValue(propName.Value);
-                            _operandStack.Push(propValue);
-                        }
-                        else if (obj is ScriptObject scriptObj)
+                        if (obj is ScriptObject scriptObj)
                         {
                             _operandStack.Push(scriptObj.GetPropertyValue(propName.Value));
                         }
@@ -256,11 +257,7 @@ namespace AuroraScript.Runtime
                         value = _operandStack.Pop();
                         obj = _operandStack.Pop();
 
-                        if (obj is Environment targetEnv)
-                        {
-                            targetEnv.Define(propName.Value, value);
-                        }
-                        else if (obj is ScriptObject targetScriptObj)
+                        if (obj is ScriptObject targetScriptObj)
                         {
                             targetScriptObj.SetPropertyValue(propName.Value, (Base.ScriptObject)value);
                         }
@@ -284,20 +281,23 @@ namespace AuroraScript.Runtime
 
                     // 算术操作
                     case OpCode.ADD:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av + bv;
-                            }
-                            else if (a is StringValue strA || b is StringValue strB)
-                            {
-                                return a + b;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        var result = left + right;
+                        _operandStack.Push(result);
                         break;
-
+                    case OpCode.LESS_THAN:
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        if (left is NumberValue lvalue && right is NumberValue rvalue)
+                        {
+                            _operandStack.Push(lvalue < rvalue);
+                        }
+                        else
+                        {
+                            _operandStack.Push(ScriptObject.Null);
+                        }
+                        break;
                     case OpCode.INCREMENT:
                         value = _operandStack.Pop();
                         if (value is NumberValue num)
@@ -323,7 +323,7 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
-                      
+
 
                     case OpCode.SUBTRACT:
                         PerformBinaryOperation((a, b) =>
@@ -434,79 +434,92 @@ namespace AuroraScript.Runtime
 
                     case OpCode.JUMP_IF_FALSE:
                         offset = _codeBuffer.ReadInt32(frame);
-                        if (!Convert.ToBoolean(_operandStack.Pop()))
+                        value = _operandStack.Pop();
+                        if (!value.IsTrue())
                         {
                             frame.Pointer += offset;
                         }
                         break;
-
                     case OpCode.JUMP_IF_TRUE:
                         offset = _codeBuffer.ReadInt32(frame);
-                        if (Convert.ToBoolean(_operandStack.Pop()))
+                        value = _operandStack.Pop();
+                        if (value.IsTrue())
                         {
                             frame.Pointer += offset;
                         }
                         break;
 
+                    // 创建闭包
+                    case OpCode.CREATE_CLOSURE:
+                        // 创建闭包
+                        var thsiModule = _operandStack.Pop();
+                        var closureIndex = _codeBuffer.ReadInt32(frame);
+                        var closure = new Closure(frame, thsiModule, frame.Pointer + closureIndex);
+                        _operandStack.Push(closure);
+                        break;
+
+                    // 捕获变量
+                    case OpCode.CAPTURE_VAR:
+                        var varIndex = _codeBuffer.ReadInt32(frame);
+                        var cv = new CapturedVariablee(frame.Closure.CallFrame, varIndex);
+                        _operandStack.Push(cv);
+                        break;
+
+                    case OpCode.LOAD_CAPTURE:
+                        localIndex = _codeBuffer.ReadInt32(frame);
+                        var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
+                        _operandStack.Push(capturedVar.Read());
+                        break;
                     // 函数调用
                     case OpCode.CALL:
-
                         var callable = _operandStack.Pop();
-
                         var argCount = _codeBuffer.ReadByte(frame);
                         var args = new ScriptObject[argCount];
                         for (int i = argCount - 1; i >= 0; i--)
                         {
                             args[i] = _operandStack.Pop();
                         }
-
-  
                         if (callable is Closure closureFunc)
                         {
-                            // 创建新的环境
-                            var callEnv = new Environment(closureFunc.CapturedEnv);
-
                             // 创建新的调用帧
-                            var callFrame = new CallFrame(closureFunc.EntryPointer, callEnv, closureFunc.ThisModule);
-
-
-                            // 设置参数
-                            callFrame.Arguments = args;
-                            //for (int i = 0; i < args.Length; i++)
-                            //{
-                            //    callFrame.Locals[i] = args[i];
-                            //}
+                            var callFrame = new CallFrame(closureFunc, args);
                             // 切换到新帧
                             _callStack.Push(callFrame);
                             frame = callFrame;
+                        }
+                        else if (callable is ClrFunction clrFunction)
+                        {
+                            ScriptObject thisObject = null;
+                            var callResult = clrFunction.Invoke(null, thisObject, args);
+                            _operandStack.Push(callResult);
                         }
                         else
                         {
                             throw new InvalidOperationException($"Cannot call {callable}");
                         }
                         break;
-
                     // 返回操作
+                    case OpCode.RETURN_GLOBAL:
+                    case OpCode.RETURN_NULL:
                     case OpCode.RETURN:
-                        // 函数返回
-                        var returnValue = _operandStack.Count > 0 ? _operandStack.Pop() : null;
-                        _callStack.Pop(); // 弹出当前调用帧
-
-                        if (_callStack.Count == 0)
+                        if (opCode != OpCode.RETURN)
                         {
-                            // 如果调用栈为空，则返回最终结果
-                            return returnValue;
+                            if (opCode == OpCode.RETURN_GLOBAL) _operandStack.Push(_globalEnv);
+                            if (opCode == OpCode.RETURN_NULL) _operandStack.Push(ScriptObject.Null);
                         }
-
+                        // 函数返回
+                        value = _operandStack.Count > 0 ? _operandStack.Pop() : null;
+                        _callStack.Pop(); // 弹出当前调用帧
+                        // 如果调用栈为空，则返回最终结果
+                        if (_callStack.Count == 0) return value;
                         // 否则，将返回值压入操作数栈，并继续执行调用者的帧
-                        _operandStack.Push(returnValue);
+                        _operandStack.Push(value);
                         frame = _callStack.Peek();
                         break;
 
                     case OpCode.PUSH_0:
-                        _operandStack.Push(NumberValue.Num8);
+                        _operandStack.Push(NumberValue.Zero);
                         break;
-
                     case OpCode.PUSH_1:
                         _operandStack.Push(NumberValue.Num1);
                         break;

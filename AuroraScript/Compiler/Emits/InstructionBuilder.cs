@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Core;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 
@@ -118,26 +117,15 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        /// <summary>
-        /// 已知位置创建闭包指令
-        /// </summary>
-        /// <param name="position"></param>
-        public void NewClosure(PositionInstruction position)
-        {
-            var offset = position.Offset - (_position + 5);
-            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position, offset);
-            AppendInstruction(instruction);
-        }
-
 
         /// <summary>
         /// 创建闭包指令
         /// </summary>
         /// <param name="localVars">捕获的当前域变量</param>
         /// <returns></returns>
-        public ClosureInstruction NewClosure(params Int32[] localVars)
+        public ClosureInstruction NewClosure()
         {
-            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position, 0);
+            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position);
             AppendInstruction(instruction);
             return instruction;
         }
@@ -150,7 +138,7 @@ namespace AuroraScript.Compiler.Emits
         public void FixClosure(ClosureInstruction closure)
         {
             var offset = _position - (closure.Offset + closure.Length);
-            closure.Value = offset;
+            closure.Address = offset;
         }
 
         /// <summary>
@@ -323,6 +311,11 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.NEW_ARRAY, count);
         }
+        public void NewModule(String moduleName)
+        {
+            var strAddress = _stringSet.GetSlot(moduleName);
+            Emit(OpCode.NEW_MODULE, strAddress);
+        }
 
         public void NewMap()
         {
@@ -385,6 +378,18 @@ namespace AuroraScript.Compiler.Emits
         public void Return()
         {
             Emit(OpCode.RETURN);
+        }
+
+
+        public void ReturnNull()
+        {
+            Emit(OpCode.RETURN_NULL);
+        }
+
+
+        public void ReturnGlobal()
+        {
+            Emit(OpCode.RETURN_GLOBAL);
         }
 
         public Byte[] Build()

@@ -39,52 +39,38 @@ namespace AuroraScript.Compiler.Emits
         public void Visit(ModuleSyntaxRef[] syntaxRefs)
         {
             _instructionBuilder.Emit(OpCode.NOP);
-
             _instructionBuilder.Comment("Create Domain:");
             // create module init closure
-            _instructionBuilder.PushGlobal();
-
-            // CREATE DOMAIN CREATE CLOSURE
-            var moduleClosures = new Dictionary<string, ClosureInstruction>();  
+            // 创建Global属性
+            var moduleClosures = new Dictionary<string, ClosureInstruction>();
             foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
             {
-                _instructionBuilder.NewMap();
-                // NEW_MODULE
-                // DUP
-                // NEW_CLOSSURE $MODULE_ENTRY:   ; Init module
-                // CALL 1
-                // SET_PROPERTY $PROPERTY_NAME   ; Set Global Property
-                // 
-                //var closureIns = _instructionBuilder.NewClosure();
-                //_instructionBuilder.Call(0);
+                _instructionBuilder.NewModule(syntaxRef.SyntaxTree.ModuleName);
                 _instructionBuilder.SetGlobalProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
-                //moduleClosures.Add(syntaxRef.SyntaxTree.ModuleName, closureIns);
             }
 
-
+            // 创建模块闭包，并调用闭包初始化
             foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
             {
-                _instructionBuilder.PushGlobal();
-                _instructionBuilder.GetProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
+                _instructionBuilder.GetGlobalProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
                 var closureIns = _instructionBuilder.NewClosure();
                 _instructionBuilder.Call(0);
+                _instructionBuilder.Pop();
                 moduleClosures.Add(syntaxRef.SyntaxTree.ModuleName, closureIns);
             }
+            // 返回初始化完毕
+            _instructionBuilder.ReturnGlobal();
 
-
-
-
-            _instructionBuilder.Return();
             foreach (var item in syntaxRefs)
             {
                 var pos = _instructionBuilder.Position;
-                if(moduleClosures.TryGetValue(item.SyntaxTree.ModuleName, out var instruction))
+                if (moduleClosures.TryGetValue(item.SyntaxTree.ModuleName, out var instruction))
                 {
+                    // fix module closure addreess
                     _instructionBuilder.FixClosure(instruction);
-                                    }
+                }
                 item.SyntaxTree.Accept(this);
             }
-            // fix module closure
         }
 
 
@@ -119,18 +105,10 @@ namespace AuroraScript.Compiler.Emits
             var closureMap = new Dictionary<string, ClosureInstruction>();
             foreach (var function in node.Functions)
             {
-                var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
+                var slot = _scope.Declare(DeclareType.Property, function);
                 _instructionBuilder.PushThis();
-                var closure = _instructionBuilder.NewClosure();
-                closureMap[function.Name.UniqueValue] = closure;
-                if (node is ModuleDeclaration)
-                {
-                    _instructionBuilder.SetThisProperty(function.Name.Value);
-                }
-                else
-                {
-                    _instructionBuilder.PopLocal(slot);
-                }
+                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
+                _instructionBuilder.SetThisProperty(function.Name.Value);
             }
 
             // 2. 代码块内的语句
@@ -147,18 +125,14 @@ namespace AuroraScript.Compiler.Emits
             {
                 var closure = closureMap[function.Name.UniqueValue];
                 _instructionBuilder.FixClosure(closure);
-                VisitFunction(function);
+                function.Accept(this);
             }
 
-
-            // 3. compile each function
-            //foreach (var function in node.Functions)
-            //{
-            //    _functionLocations[function.Name.Value] = _instructionBuilder.Position();
-            //    function.Accept(this);
-            //}
             EndScope();
         }
+
+
+
 
 
         public override void VisitImportDeclaration(ImportDeclaration node)
@@ -179,8 +153,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
                 _instructionBuilder.PushThis();
-                var closure = _instructionBuilder.NewClosure();
-                closureMap[function.Name.UniqueValue] = closure;
+                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
                 if (node is ModuleDeclaration)
                 {
                     _instructionBuilder.SetThisProperty(function.Name.Value);
@@ -200,7 +173,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 var closure = closureMap[function.Name.UniqueValue];
                 _instructionBuilder.FixClosure(closure);
-                VisitFunction(function);
+                function.Accept(this);
             }
             if (!node.IsFunction) EndScope();
         }
@@ -212,47 +185,13 @@ namespace AuroraScript.Compiler.Emits
 
             // 使用 VariableCatcher 分析函数中的变量使用情况
             var variableCatcher = new VariableCatcher();
-
             // 分析函数中捕获的变量
             var capturedVariables = variableCatcher.AnalyzeFunction(node, _scope);
-
             // 输出调试信息
             _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables)}");
 
-            // 处理捕获的变量
-            Dictionary<string, int> captureIndexMap = new Dictionary<string, int>();
-            int captureIndex = 0;
-
-            //foreach (var varName in capturedVariables)
-            //{
-            //    if (_scope.Resolve(varName, out var declareObject))
-            //    {
-            //        //将变量值压入栈
-            //        if (declareObject.Type == DeclareType.Variable)
-            //        {
-            //            _instructionBuilder.PushLocal(declareObject.Index);
-            //        }
-            //        else if (declareObject.Type == DeclareType.Property)
-            //        {
-            //            _instructionBuilder.GetThisProperty(declareObject.Index);
-            //        }
-
-            //        //捕获变量
-            //        _instructionBuilder.CaptureVariable(captureIndex);
-            //        captureIndexMap[varName] = captureIndex++;
-            //    }
-            //}
-
             BeginScope(DomainType.Function);
             var begin = _instructionBuilder.Position();
-
-            // 为捕获的变量创建局部变量
-            foreach (var entry in captureIndexMap)
-            {
-                //var slot = _scope.Declare(DeclareType.Variable, entry.Key);
-                //_instructionBuilder.LoadCapturedVariable(entry.Value);
-                //_instructionBuilder.PopLocal(slot);
-            }
 
             // 定义参数变量
             foreach (var statement in node.Parameters)
@@ -260,12 +199,26 @@ namespace AuroraScript.Compiler.Emits
                 statement.Accept(this);
             }
 
+            // 为捕获的变量创建局部变量
+            foreach (var varName in capturedVariables)
+            {
+                if (_scope.Resolve(varName, out var declareObject))
+                {
+                    //将变量值压入栈
+                    if (declareObject.Type == DeclareType.Variable)
+                    {
+                        var slot = _scope.Declare(DeclareType.Captured, varName);
+                        _instructionBuilder.CaptureVariable(declareObject.Index);
+                        _instructionBuilder.PopLocal(slot);
+                    }
+                }
+            }
+
             // 编译函数体
             node.Body?.Accept(this);
 
             // 添加默认返回值
-            _instructionBuilder.PushNull();
-            _instructionBuilder.Return();
+            _instructionBuilder.ReturnNull();
 
             EndScope();
             _instructionBuilder.Comment($"# end_func {node.Name?.Value}");
@@ -274,45 +227,13 @@ namespace AuroraScript.Compiler.Emits
 
         public override void VisitLambdaExpression(LambdaExpression node)
         {
-            // 使用 VariableCatcher 分析 Lambda 函数中的变量使用情况
-            var variableCatcher = new VariableCatcher();
-
-            // 分析 Lambda 函数中捕获的变量
-            var capturedVariables = variableCatcher.AnalyzeFunction(node.Function, _scope);
-
-            // 输出调试信息
-            _instructionBuilder.Comment($"# Lambda captured variables: {string.Join(", ", capturedVariables)}");
-
-            // 处理捕获的变量
-            int captureIndex = 0;
-            //foreach (var varName in capturedVariables)
-            //{
-            //    if (_scope.Resolve(varName, out var declareObject))
-            //    {
-            //        // 将变量值压入栈
-            //        if (declareObject.Type == DeclareType.Variable)
-            //        {
-            //            _instructionBuilder.PushLocal(declareObject.Index);
-            //        }
-            //        else if (declareObject.Type == DeclareType.Property)
-            //        {
-            //            _instructionBuilder.GetThisProperty(declareObject.Index);
-            //        }
-
-            //        // 捕获变量
-            //        _instructionBuilder.CaptureVariable(captureIndex++);
-            //    }
-            //}
-
             // 创建闭包
             _instructionBuilder.PushThis();
             var closure = _instructionBuilder.NewClosure();
             var toEndJump = _instructionBuilder.Jump();
             _instructionBuilder.FixClosure(closure);
-
             // 编译函数体
-            VisitFunction(node.Function);
-
+            node.Function.Accept(this);
             // 修复跳转
             _instructionBuilder.FixJumpToHere(toEndJump);
         }
@@ -490,7 +411,7 @@ namespace AuroraScript.Compiler.Emits
             if (node.Index is NameExpression name)
             {
                 // get property
-                VisitName(name);
+                name.Accept(this);
                 node.Object.Accept(this);
                 _instructionBuilder.SetElement();
             }
@@ -594,7 +515,12 @@ namespace AuroraScript.Compiler.Emits
             }
             if (_scope.Resolve(node.Identifier.Value, out var declare))
             {
-                if (declare.Type == DeclareType.Variable)
+                if (declare.Type == DeclareType.Captured)
+                {
+                    _instructionBuilder.LoadCapturedVariable(declare.Index);
+                    return;
+                }
+                else if (declare.Type == DeclareType.Variable)
                 {
                     _instructionBuilder.PushLocal(declare.Index);
                 }
@@ -639,12 +565,13 @@ namespace AuroraScript.Compiler.Emits
             if (node.Expression != null)
             {
                 node.Expression.Accept(this);
+                _instructionBuilder.Return();
             }
             else
             {
-                _instructionBuilder.PushNull();
+                _instructionBuilder.ReturnNull();
             }
-            _instructionBuilder.Return();
+
         }
 
 
@@ -930,7 +857,12 @@ namespace AuroraScript.Compiler.Emits
         {
             if (_scope.Resolve(property, out var declareObject))
             {
-                if (declareObject.Type == DeclareType.Variable)
+                if (declareObject.Type == DeclareType.Captured)
+                {
+                    _instructionBuilder.PopLocal(declareObject.Index);
+                    return;
+                }
+                else if (declareObject.Type == DeclareType.Variable)
                 {
                     _instructionBuilder.PopLocal(declareObject.Index);
                     return;

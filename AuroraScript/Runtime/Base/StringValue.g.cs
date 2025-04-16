@@ -146,17 +146,17 @@ namespace AuroraScript.Runtime.Base
         }
         public static ScriptObject PADRIGHT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            if (thisObject is StringValue str)
             {
-                return array.Pop();
+                return StringValue.Of(str.Value.Trim());
             }
             return null;
         }
         public static ScriptObject TRIM(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            if (thisObject is StringValue str)
             {
-                return array.Pop();
+                return StringValue.Of(str.Value.Trim());
             }
             return null;
         }

@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Ast.Expressions;
-using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 
 
@@ -10,17 +9,17 @@ namespace AuroraScript.Ast
     /// </summary>
     public class ParameterDeclaration : VariableDeclaration
     {
-        internal ParameterDeclaration(Byte index, Token name, Expression defaultValue):base(MemberAccess.Internal, false, name) 
+        internal ParameterDeclaration(Byte index, Token name, Expression defaultValue) : base(MemberAccess.Internal, false, name)
         {
             Name = name;
             //DefaultValue = defaultValue;
             Index = index;
             //Initializer = defaultValue;
-            if(defaultValue != null)
+            if (defaultValue != null)
             {
                 this.AddNode(defaultValue);
             }
-     
+
         }
 
         public Byte Index { get; set; }
