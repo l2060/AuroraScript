@@ -829,6 +829,16 @@ namespace AuroraScript.Compiler.Emits
 
         public override void VisitVarDeclaration(VariableDeclaration node)
         {
+            Int32 slot = 0;
+            if (_scope.Domain == DomainType.Module)
+            {
+                _scope.Declare(DeclareType.Property, node);
+            }
+            else
+            {
+                slot = _scope.Declare(DeclareType.Variable, node);
+            }
+
             _instructionBuilder.Comment($"# {node}");
             if (node.Initializer != null)
             {
@@ -838,20 +848,15 @@ namespace AuroraScript.Compiler.Emits
             {
                 _instructionBuilder.PushNull();
             }
-            // Local variable
-            // _instructionBuilder.Duplicate();
+
             if (_scope.Domain == DomainType.Module)
             {
-                _scope.Declare(DeclareType.Property, node);
                 _instructionBuilder.SetThisProperty(node.Name.Value);
             }
             else
             {
-                var slot = _scope.Declare(DeclareType.Variable, node);
                 _instructionBuilder.PopLocal(slot);
             }
-
-
 
         }
 

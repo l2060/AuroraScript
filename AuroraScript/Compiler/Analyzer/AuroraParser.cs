@@ -503,7 +503,10 @@ namespace AuroraScript.Analyzer
                 }
 
                 // identifier Operand
-                if (token is IdentifierToken) tempExp = new NameExpression() { Identifier = token };
+                if (token is IdentifierToken)
+                {
+                    tempExp = new NameExpression() { Identifier = token , IsRoot = (lastOperator != Operator.MemberAccess) };
+                }
                 // keywords should not appear here
                 if (token is KeywordToken) throw this.InitParseException("Keyword appears in the wrong place ", token);
                 // punctuator

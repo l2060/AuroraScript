@@ -371,59 +371,219 @@ storelocal 0
 
 :func1 code 
 
+## Closure Code
 
-    ```plaintext
-    function test(){
-        var y = 6;
-        var a = func1(5)
+``` javascript
 
-        function func1(x){
-            return x + y;
+@module("timer");
+
+var timeCount = 0;
+var resetCount = 0;
+
+function createTimer(callback, interval) {
+    var timer = {
+        timeId: timeCount++,
+        callback,
+        interval,
+        cancel,
+        count: 0,
+        reset: () => {
+            timer.count = 0;
+            log("reset");
         }
+    };
+
+    log("Created!");
+
+    function log(text) {
+        console.log("Timer:" + timer.timeId + " " + text);
     }
 
-    SCOPE DEFINE func1, [func1_body]
-    ; var a = func1;
-    CREATE_CLOSURE func1
-    STORE_LOCAL 0
-    
-    ;END 
-    PUSH_NULL
-    RETURN
-
-    func1_body:
-        LOAD_LOCAL 0    ; 加载参数 x
-        LOAD_CAPTURED y ; 加载捕获变量 y
-        ADD             ; 执行加法
-        RETURN          ; 返回结果
-
-
-
-    
-
-    function test(){
-        var r = {
-            a: 1,
-            b: 2,
-            c: ()=>{  },
-            d: ()=>{  }
-        };
-        return r;
+    function cancel() {
+        timer.cancel = null;
+        timeCount--;
+        timer.timeId = null;
+        timer.callback = null;
+        timer.interval = null;
+        return true;
     }
 
-    VisitLambda Function
-    CREATE_CLOSURE [lambda_body]
-    JUMPTO lambdaEnd
-
-    lambda_body:
-
-
-    lambdaEnd:
-    ...
-    ...
+    return timer;
+}
+  
+```
 
 
+## CIL Code
+
+- 实现创建闭包时捕获方法内变量
+- CREATE_CLOSURE [0059] 1, 2, 3, 4 
+- 实现在方法内解析捕获的变量
+- 实现在方法内对捕获的变量读写
+
+
+``` cil
+[0022] PUSH_NULL
+[0023] SET_THIS_PROPERTY 1
+[0028] PUSH_NULL
+[0029] SET_THIS_PROPERTY 2
+
+; CAPTURED__VAR timeCount
+
+[0034] PUSH_THIS
+[0035] CREATE_CLOSURE [0059] 1, 2, 3, 4
+[0040] SET_THIS_PROPERTY 3
+
+; timeCount
+[0045] PUSH_0
+[0046] SET_THIS_PROPERTY 1
+
+; resetCount
+[0051] PUSH_0
+[0052] SET_THIS_PROPERTY 2
+[0057] PUSH_TRUE
+[0058] RETURN
 
 
 
-    ```
+
+; createTimer: 
+; Captured variables: timeCount
+[0059] LOAD_ARG 0
+[0061] POP_TO_LOCAL 0
+
+[0066] LOAD_ARG 1
+[0068] POP_TO_LOCAL 1
+
+[0073] PUSH_THIS
+[0074] CREATE_CLOSURE [0220]
+[0079] POP_TO_LOCAL 2
+
+[0084] PUSH_THIS
+[0085] CREATE_CLOSURE [0270]
+[0090] POP_TO_LOCAL 3
+
+
+; var timer = { timeId: timeCount++, callback: callback, interval: interval, cancel: cancel, count: 0, reset: AuroraScript.Ast.Expressions.LambdaExpression }
+[0095] NEW_MAP
+[0096] DUP
+[0097] GET_THIS_PROPERTY 1
+[0102] INCREMENT
+[0103] SET_THIS_PROPERTY 1
+[0108] SET_PROPERTY 4
+[0113] DUP
+[0114] PUSH_LOCAL 0
+[0119] SET_PROPERTY 5
+[0124] DUP
+[0125] PUSH_LOCAL 1
+[0130] SET_PROPERTY 6
+[0135] DUP
+[0136] PUSH_LOCAL 3
+[0141] SET_PROPERTY 7
+[0146] DUP
+[0147] PUSH_0
+[0148] SET_PROPERTY 8
+[0153] DUP
+
+; Lambda captured variables: timer, log
+[0154] PUSH_THIS
+[0155] CREATE_CLOSURE [0165] timer, log
+[0160] JUMP [0191]
+
+; lambda_11_15:
+; Captured variables: timer, log
+; timer.count = 0
+[0165] PUSH_LOCAL -1
+[0170] PUSH_0
+[0171] SET_PROPERTY 8
+; log('reset')
+[0176] PUSH_STRING 9
+[0181] PUSH_LOCAL -3
+[0186] CALL 1
+[0188] POP
+[0189] PUSH_NULL
+[0190] RETURN
+; end_func $lambda_11_15
+
+[0191] SET_PROPERTY 9
+
+
+[0196] POP_TO_LOCAL 4
+; log('Created!')
+[0201] PUSH_STRING 10
+[0206] PUSH_LOCAL 2
+[0211] CALL 1
+[0213] POP
+; return timer
+[0214] PUSH_LOCAL 4
+[0219] RETURN
+
+
+
+
+; begin_func log
+; Captured variables: timer
+[0220] LOAD_ARG 0
+[0222] POP_TO_LOCAL 0
+; console.log('Timer:' + timer.timeId + ' ' + text)
+
+[0227] PUSH_STRING 11
+[0232] PUSH_LOCAL -1
+[0237] GET_PROPERTY 4
+[0242] ADD
+[0243] PUSH_STRING 12
+[0248] ADD
+[0249] PUSH_LOCAL 0
+[0254] ADD
+[0255] GET_GLOBAL_PROPERTY 13
+[0260] GET_PROPERTY 14
+[0265] CALL 1
+[0267] POP
+[0268] PUSH_NULL
+[0269] RETURN
+; end_func log
+
+
+
+
+; begin_func cancel
+; Captured variables: timer, timeCount
+
+; timer.cancel = null
+[0270] PUSH_LOCAL -1
+[0275] PUSH_NULL
+[0276] SET_PROPERTY 7
+
+; timeCount--
+[0281] GET_THIS_PROPERTY -4
+[0286] DECREMENT
+[0287] SET_THIS_PROPERTY 1
+
+; timer.Id = null
+[0292] PUSH_LOCAL -1
+[0297] PUSH_NULL
+[0298] SET_PROPERTY 15
+
+; timer.callback = null
+[0303] PUSH_LOCAL -1
+[0308] PUSH_NULL
+[0309] SET_PROPERTY 5
+
+; timer.interval = null
+[0314] PUSH_LOCAL -1
+[0319] PUSH_NULL
+[0320] SET_PROPERTY 6
+
+; return true
+[0325] PUSH_TRUE
+[0326] RETURN
+
+[0327] PUSH_NULL
+[0328] RETURN
+; end_func cancel
+[0329] PUSH_NULL
+[0330] RETURN
+; end_func createTimer
+
+
+```

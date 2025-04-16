@@ -133,7 +133,7 @@ namespace AuroraScript.Compiler.Emits
             string varName = node.Identifier.Value;
 
             // 忽略 this 和 global 关键字
-            if (varName != "this" && varName != "global")
+            if (varName != "this" && varName != "global" && node.IsRoot)
             {
                 Variables.Add(varName);
             }

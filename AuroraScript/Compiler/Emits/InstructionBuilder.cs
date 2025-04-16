@@ -18,7 +18,7 @@ namespace AuroraScript.Compiler.Emits
         public InstructionBuilder(StringList stringSet)
         {
             this._stringSet = stringSet;
-  
+
         }
 
         public Instruction LastInstruction
@@ -133,10 +133,11 @@ namespace AuroraScript.Compiler.Emits
         /// <summary>
         /// 创建闭包指令
         /// </summary>
+        /// <param name="localVars">捕获的当前域变量</param>
         /// <returns></returns>
-        public ClosureInstruction NewClosure()
+        public ClosureInstruction NewClosure(params Int32[] localVars)
         {
-            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position,0);
+            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position, 0);
             AppendInstruction(instruction);
             return instruction;
         }
@@ -158,7 +159,7 @@ namespace AuroraScript.Compiler.Emits
         /// <param name="index">捕获变量的索引</param>
         public void CaptureVariable(int index)
         {
-            //Emit(OpCode.CAPTURE_VAR, index);
+            Emit(OpCode.CAPTURE_VAR, index);
         }
 
         /// <summary>
@@ -293,7 +294,7 @@ namespace AuroraScript.Compiler.Emits
             last.AddComment(comment, preEmptyLine);
         }
 
-        
+
         public void DefineModule(ModuleDeclaration node)
         {
             var pos = _position;
