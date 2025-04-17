@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System;
+
+namespace AuroraScript.Runtime.Base
 {
     public abstract class ScriptValue : ScriptObject
     {

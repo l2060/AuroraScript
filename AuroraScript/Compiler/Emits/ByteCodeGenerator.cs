@@ -3,6 +3,9 @@ using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 

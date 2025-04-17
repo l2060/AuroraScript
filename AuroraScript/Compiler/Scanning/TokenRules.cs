@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Common;
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 

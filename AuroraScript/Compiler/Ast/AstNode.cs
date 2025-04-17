@@ -1,4 +1,6 @@
 ﻿using AuroraScript.Compiler;
+using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast

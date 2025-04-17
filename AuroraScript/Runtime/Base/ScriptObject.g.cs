@@ -27,13 +27,13 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject TOSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             return new StringValue(thisObject.ToString());
         }
 
 
-        public static ScriptObject CONSTRUCTOR(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var array = new ScriptObject();
             return array;

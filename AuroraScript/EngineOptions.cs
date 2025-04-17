@@ -1,4 +1,6 @@
-﻿namespace AuroraScript
+﻿using System;
+
+namespace AuroraScript
 {
     public class EngineOptions
     {

@@ -1,7 +1,8 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System;
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace AuroraScript.Runtime
 {
@@ -32,43 +33,21 @@ namespace AuroraScript.Runtime
         }
 
 
-
-
-
-        /// <summary>
-        /// 执行已加载的字节码
-        /// </summary>
-        /// <returns>执行结果</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptGlobal CreateDomain(ExecuteContext exeContext)
+        public void Execute(ExecuteContext exeContext)
         {
-            var domainGlobal = new ScriptGlobal() { _prototype = exeContext.Global };
-            var mainFrame = new CallFrame(null, domainGlobal, null, 0);
-            exeContext._callStack.Push(mainFrame);
-            return ExecuteFrame(exeContext) as ScriptGlobal;
-        }
-
-        /// <summary>
-        /// 执行已加载的字节码
-        /// </summary>
-        /// <returns>执行结果</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptObject Execute(ClosureFunction closure, params ScriptObject[] arguments)
-        {
-            ExecuteContext exeContext = new ExecuteContext(closure.Global);
-            var mainFrame = new CallFrame(closure.Environment, closure.Global, closure.Module, closure.EntryPointer, arguments);
-            exeContext._callStack.Push(mainFrame);
-            return ExecuteFrame(exeContext);
+            try
+            {
+                exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
+                ExecuteFrame(exeContext);
+            }
+            catch (Exception ex)
+            {
+                exeContext.SetStatus(ExecuteStatus.Error, ScriptObject.Null, ex);
+            }
         }
 
 
-
-
-        /// <summary>
-        /// 执行当前调用帧
-        /// </summary>
-        /// <returns>执行结果</returns>
-        private ScriptObject ExecuteFrame(ExecuteContext exeContext)
+        private void ExecuteFrame(ExecuteContext exeContext)
         {
             var _callStack = exeContext._callStack;
             var _operandStack = exeContext._operandStack;
@@ -206,12 +185,11 @@ namespace AuroraScript.Runtime
 
                     case OpCode.CREATE_CLOSURE:
                         // 创建闭包
-                        var thsiModule = _operandStack.Pop() as ScriptModule;
+                        var thisModule = _operandStack.Pop() as ScriptModule;
                         var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new ClosureFunction(frame, domainGlobal, thsiModule, frame.Pointer + closureIndex);
+                        var closure = new ClosureFunction(frame, thisModule, frame.Pointer + closureIndex);
                         _operandStack.Push(closure);
                         break;
-
 
                     case OpCode.CAPTURE_VAR:
                         // 捕获变量
@@ -467,7 +445,7 @@ namespace AuroraScript.Runtime
                         if (callable is ClosureFunction closureFunc)
                         {
                             // 创建新的调用帧
-                            var callFrame = new CallFrame(closureFunc.Environment, closureFunc.Global, closureFunc.Module, closureFunc.EntryPointer, args);
+                            var callFrame = new CallFrame(closureFunc.Environment, domainGlobal, closureFunc.Module, closureFunc.EntryPointer, args);
                             // 切换到新帧
                             _callStack.Push(callFrame);
                             frame = callFrame;
@@ -488,7 +466,11 @@ namespace AuroraScript.Runtime
                         value = _operandStack.Count > 0 ? _operandStack.Pop() : null;
                         _callStack.Pop(); // 弹出当前调用帧
                         // 如果调用栈为空，则返回最终结果
-                        if (_callStack.Count == 0) return value;
+                        if (_callStack.Count == 0)
+                        {
+                            exeContext.SetStatus(ExecuteStatus.Complete, value, null);
+                            return;
+                        }
                         // 否则，将返回值压入操作数栈，并继续执行调用者的帧
                         _operandStack.Push(value);
                         frame = _callStack.Peek();
@@ -545,18 +527,8 @@ namespace AuroraScript.Runtime
                     case OpCode.PUSH_GLOBAL:
                         _operandStack.Push(domainGlobal);
                         break;
-
-
-
-
                 }
-
-
-
             }
-
-            // 如果执行到这里，说明字节码执行完毕但没有明确的返回值
-            return null;
         }
     }
 }

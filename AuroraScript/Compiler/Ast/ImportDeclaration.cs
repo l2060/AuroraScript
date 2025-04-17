@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
+using System;
 
 
 namespace AuroraScript.Ast

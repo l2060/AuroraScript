@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime
 {
@@ -26,10 +27,10 @@ namespace AuroraScript.Runtime
         }
 
 
-        public override ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            return _callback.Invoke(engine, target, args);
+            return _callback.Invoke(domain, target, args);
         }
 
 

@@ -1,4 +1,7 @@
-﻿namespace AuroraScript.Tokens
+﻿using System;
+using System.Linq;
+
+namespace AuroraScript.Tokens
 {
     public class StringToken : ValueToken
     {

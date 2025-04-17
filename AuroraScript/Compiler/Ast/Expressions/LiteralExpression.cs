@@ -1,5 +1,7 @@
 ﻿using AuroraScript.Compiler;
+using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
+using System;
 
 namespace AuroraScript.Ast.Expressions
 {
@@ -27,7 +29,7 @@ namespace AuroraScript.Ast.Expressions
             }
             else
             {
-                throw new Exception("无效的Token");
+                throw new ParseException("无效的Token", token, "");
             }
         }
 

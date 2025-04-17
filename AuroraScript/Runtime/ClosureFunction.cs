@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime
 {
@@ -23,11 +24,6 @@ namespace AuroraScript.Runtime
         public readonly ScriptModule Module;
 
         /// <summary>
-        /// Domain Global
-        /// </summary>
-        public readonly ScriptGlobal Global;
-
-        /// <summary>
         /// 闭包This环境
         /// </summary>
         public readonly CallFrame Environment;
@@ -40,10 +36,9 @@ namespace AuroraScript.Runtime
         /// <param name="thisModule">闭包所处模块</param>
         /// <param name="entryPointer">闭包方法指针</param>
         /// <param name="funcName">闭包方法名称</param>
-        internal ClosureFunction(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, string funcName = null)
+        internal ClosureFunction(CallFrame environment, ScriptModule thisModule, Int32 entryPointer, string funcName = null)
         {
             Module = thisModule;
-            Global = global;
             EntryPointer = entryPointer;
             Environment = environment;
             FuncName = funcName;
@@ -57,7 +52,7 @@ namespace AuroraScript.Runtime
             return $"<function {(string.IsNullOrEmpty(FuncName) ? "anonymous" : FuncName)}>";
         }
 
-        public override ScriptObject Invoke(AuroraEngine engine, ScriptObject module, ScriptObject[] args)
+        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject module, ScriptObject[] args)
         {
             return null;
         }

@@ -1,6 +1,8 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
+using System;
+using System.Collections.Generic;
 
 namespace AuroraScript.Core
 {

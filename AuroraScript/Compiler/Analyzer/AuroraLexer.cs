@@ -3,6 +3,9 @@ using AuroraScript.Compiler;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Scanning;
 using AuroraScript.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 

@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System;
+
+namespace AuroraScript.Runtime.Base
 {
     public class NumberConstructor : ClrFunction
     {
@@ -36,7 +38,7 @@
             _prototype = NumberConstructor.Prototype;
         }
 
-        public static ScriptObject PARSE(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PARSE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {
@@ -47,7 +49,7 @@
         }
 
 
-        public new static ScriptObject CONSTRUCTOR(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {

@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Compiler.Exceptions
+﻿using System;
+
+namespace AuroraScript.Compiler.Exceptions
 {
     public class LexerException : Exception
     {

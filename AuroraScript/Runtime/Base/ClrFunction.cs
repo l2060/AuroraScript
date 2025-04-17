@@ -1,7 +1,9 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System;
+
+namespace AuroraScript.Runtime.Base
 {
 
-    public delegate ScriptObject ClrMethodDelegate(AuroraEngine engine, ScriptObject module, ScriptObject[] args);
+    public delegate ScriptObject ClrMethodDelegate(ScriptDomain domain, ScriptObject module, ScriptObject[] args);
 
 
     public class ClrFunction : Callable
@@ -17,9 +19,9 @@
             this._callback = callback;
         }
 
-        public override ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            return _callback.Invoke(engine, thisObject, args);
+            return _callback.Invoke(domain, thisObject, args);
         }
         public override BoundFunction Bind(ScriptObject target)
         {

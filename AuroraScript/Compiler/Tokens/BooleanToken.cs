@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Tokens
+﻿using System;
+
+namespace AuroraScript.Tokens
 {
     public class BooleanToken : ValueToken
     {

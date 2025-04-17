@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System;
+
+namespace AuroraScript.Runtime.Base
 {
     public class NullValue : ScriptObject
     {
@@ -15,7 +17,7 @@
         }
 
 
-        public new static ScriptObject TOSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             return valueString;
         }

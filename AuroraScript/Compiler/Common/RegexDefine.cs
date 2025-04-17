@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Scanning;
+using System;
 
 namespace AuroraScript.Common
 {

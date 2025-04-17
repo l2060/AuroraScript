@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
+using System;
 using System.Buffers;
 
 namespace AuroraScript.Runtime

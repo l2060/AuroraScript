@@ -4,8 +4,11 @@ import time from 'timer';
 
 
 function test(){
+	console.time("time.createTimer");
 	var _time = time.createTimer("unit.timer",128);
+	console.timeEnd("time.createTimer");
 	_time.start = start_timer;
+
 	return _time;
 }
 
@@ -14,10 +17,12 @@ function start_timer(){
 	debug("timer start.");
 }
 
-function forTest(){
-    for (var o = 0;  o < 10000;o++){
+function forTest(count = 1000){
+	console.time("for " + count);
+    for (var o = 0;  o < count;o++){
     
     }
+	console.timeEnd("for " + count);
 }
 
 

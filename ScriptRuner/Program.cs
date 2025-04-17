@@ -2,6 +2,8 @@
 using AuroraScript;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using System;
+using System.Threading.Tasks;
 
 
 public class Program
@@ -17,19 +19,24 @@ public class Program
 
         var domain = engine.CreateDomain();
 
-        domain.Execute("UNIT", "forTest");
 
 
-        var var1 = domain.Execute("UNIT", "test");
-        domain.Execute(var1.GetPropertyValue("start") as ClosureFunction);
+        var result = domain.Execute("UNIT", "test");
+        if (result.Status == ExecuteStatus.Complete)
+        {
+            domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
+        }
+
+        domain.Execute("UNIT", "forTest").Done();
+
+        var timerResult = domain.Execute("TIMER", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
+        if (timerResult.Status == ExecuteStatus.Complete)
+        {
+            domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
+            domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
+        }
 
 
-        var timer = domain.Execute("TIMER", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
-
-
-        domain.Execute(timer.GetPropertyValue("reset") as ClosureFunction);
-
-        domain.Execute(timer.GetPropertyValue("cancel") as ClosureFunction);
 
 
         Console.WriteLine("=====================================================================================");

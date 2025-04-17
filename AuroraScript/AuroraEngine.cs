@@ -2,6 +2,10 @@
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace AuroraScript
 {
@@ -27,11 +31,47 @@ namespace AuroraScript
 
 
             var console = new ScriptObject();
-            console.SetPropertyValue("log", new ClrFunction(LOG));
+
             Global.SetPropertyValue("console", console);
             Global.SetPropertyValue("debug", new ClrFunction(LOG));
 
+            console.SetPropertyValue("log", new ClrFunction(LOG));
+            console.SetPropertyValue("time", new ClrFunction(TIME));
+            console.SetPropertyValue("timeEnd", new ClrFunction(TIMEEND));
+
         }
+
+
+        public static ScriptObject LOG(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            Console.WriteLine(String.Join(", ", args));
+            return ScriptObject.Null;
+        }
+
+        private static Stopwatch _stopwatch = Stopwatch.StartNew();
+        private static Dictionary<String, Int64> _times = new();
+
+
+        public static ScriptObject TIME(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            if (args.Length == 1)
+            {
+                _times[args[0].ToString()] = _stopwatch.ElapsedMilliseconds;
+            }
+            return ScriptObject.Null;
+        }
+
+        public static ScriptObject TIMEEND(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            if (args.Length == 1 && _times.TryGetValue(args[0].ToString(), out var value))
+            {
+                var time = _stopwatch.ElapsedMilliseconds - value;
+                _times.Remove(args[0].ToString());
+                Console.WriteLine($"Time {args[0]} {time}ms");
+            }
+            return ScriptObject.Null;
+        }
+
 
         /// <summary>
         /// 获取全局对象
@@ -75,25 +115,20 @@ namespace AuroraScript
         }
 
 
-        public static ScriptObject LOG(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
-        {
-            Console.WriteLine(String.Join(", ", args));
-            return ScriptObject.Null;
-        }
 
 
-
+        /// <summary>
+        /// 创建独立的脚本域环境
+        /// </summary>
+        /// <returns></returns>
         public ScriptDomain CreateDomain()
         {
-            var domainGlobal = runtimeVM.CreateDomain(new ExecuteContext(Global));
+            var domainGlobal = new ScriptGlobal() { _prototype = Global };
+            ExecuteContext exeContext = new ExecuteContext(domainGlobal, runtimeVM);
+            exeContext._callStack.Push(new CallFrame(null, domainGlobal, null, 0));
+            runtimeVM.Execute(exeContext);
             return new ScriptDomain(this, runtimeVM, domainGlobal);
         }
-
-
-
-
-
-
 
 
     }

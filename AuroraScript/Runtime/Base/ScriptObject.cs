@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AuroraScript.Runtime.Base
@@ -103,19 +105,7 @@ namespace AuroraScript.Runtime.Base
 
         public override string ToString()
         {
-            return "";
-            if (_properties.Count == 0) return "";
-            StringBuilder sb = new StringBuilder();
-            sb.Append("{");
-            foreach (var pair in _properties)
-            {
-                sb.Append($"\"{pair.Key}\": ");
-                sb.Append((pair.Value != null && pair.Value.Value != null) ? pair.Value.Value.ToString() : "");
-                sb.Append(", ");
-            }
-            sb.Length -= 2;
-            sb.Append("}");
-            return sb.ToString();
+            return "[object]";
         }
 
 

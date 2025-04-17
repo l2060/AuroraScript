@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base
 {
@@ -19,7 +20,7 @@ namespace AuroraScript.Runtime.Base
             this._prototype.IsFrozen = true;
         }
 
-        public new static ScriptObject TOSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var boolean = thisObject as BooleanValue;
             return boolean._valueString;

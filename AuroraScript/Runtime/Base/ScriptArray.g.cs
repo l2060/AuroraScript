@@ -28,7 +28,7 @@ namespace AuroraScript.Runtime.Base
             return new NumberValue(strValue._items.Count);
         }
 
-        public static ScriptObject PUSH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PUSH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -41,7 +41,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject POP(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject POP(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if(thisObject  is ScriptArray array)
             {
@@ -51,7 +51,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public new static ScriptObject CONSTRUCTOR(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var array = new ScriptArray();
             return array;

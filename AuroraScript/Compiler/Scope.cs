@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Analyzer;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AuroraScript.Compiler

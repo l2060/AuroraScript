@@ -1,6 +1,8 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 using AuroraScript.Compiler.Ast;
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace AuroraScript.Ast

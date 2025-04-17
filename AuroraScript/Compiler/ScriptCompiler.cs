@@ -2,8 +2,11 @@
 using AuroraScript.Ast;
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Compiler.Exceptions;
+using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AuroraScript.Compiler
 {

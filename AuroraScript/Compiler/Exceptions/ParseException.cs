@@ -1,23 +1,25 @@
-﻿namespace AuroraScript.Compiler.Exceptions
+﻿using System;
+
+namespace AuroraScript.Compiler.Exceptions
 {
     public class ParseException : Exception
     {
-        public string fileName { get; private set; }
-        public int lineNumber { get; private set; }
-        public int columnNumber { get; private set; }
-        public Token token { get; private set; }
+        public string FileName { get; private set; }
+        public int LineNumber { get; private set; }
+        public int ColumnNumber { get; private set; }
+        public Token Token { get; private set; }
 
         internal ParseException(string fileName, Token token, string message) : base(message)
         {
-            columnNumber = token.ColumnNumber;
-            this.fileName = fileName;
-            lineNumber = token.LineNumber;
-            this.token = token;
+            ColumnNumber = token.ColumnNumber;
+            this.FileName = fileName;
+            LineNumber = token.LineNumber;
+            this.Token = token;
         }
 
         public override string ToString()
         {
-            return $"Line:{lineNumber} Column:{columnNumber} {GetType().Name.PadRight(15, ' ')} {token.Value} ${Message}";
+            return $"Line:{LineNumber} Column:{ColumnNumber} {GetType().Name.PadRight(15, ' ')} {Token.Value} ${Message}";
         }
     }
 }

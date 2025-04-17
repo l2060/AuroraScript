@@ -6,7 +6,10 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Tokens;
-
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace AuroraScript.Analyzer
 {
@@ -903,11 +906,11 @@ namespace AuroraScript.Analyzer
                 {
                     break;
                 }
-                var spreadOperator = false;
+                //var spreadOperator = false;
                 // 扩展运算符
                 if (this.lexer.TestNext(Symbols.OP_SPREAD))
                 {
-                    spreadOperator = true;
+                    //spreadOperator = true;
                 }
                 var varname = this.lexer.NextOfKind<IdentifierToken>();
                 //this.lexer.NextOfKind(Symbols.PT_COLON);

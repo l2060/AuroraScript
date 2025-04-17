@@ -1,4 +1,8 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptArray : ScriptObject
     {

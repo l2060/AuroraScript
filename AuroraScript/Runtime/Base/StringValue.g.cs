@@ -42,7 +42,7 @@ namespace AuroraScript.Runtime.Base
             Prototype.IsFrozen = true;
         }
 
-        public new static ScriptObject TOSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             return thisObject;
         }
@@ -54,21 +54,21 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject CONTANINS(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONTANINS(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
             return BooleanValue.Of(strValue.Value.Contains(str.Value));
         }
 
-        public static ScriptObject INDEXOF(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject INDEXOF(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
             return NumberValue.Of(strValue.Value.IndexOf(str.Value));
         }
 
-        public static ScriptObject LASTINDEXOF(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject LASTINDEXOF(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -78,7 +78,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject STARTSWITH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject STARTSWITH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -86,7 +86,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject ENDSWITH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject ENDSWITH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -94,14 +94,14 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject SUBSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SUBSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
             return StringValue.Of(strValue.Value.Substring(1, 1));
         }
 
-        public static ScriptObject SPLIT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SPLIT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -111,7 +111,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject MATCH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject MATCH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -121,13 +121,13 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public new static ScriptObject CONSTRUCTOR(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var array = new StringValue("");
             return array;
         }
 
-        public static ScriptObject REPLACE(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject REPLACE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -135,7 +135,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject PADLEFT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PADLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -143,7 +143,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject PADRIGHT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PADRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
@@ -151,7 +151,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject TRIM(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIM(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
@@ -159,7 +159,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject TRIMLEFT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIMLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -167,7 +167,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject TRIMRIGHT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIMRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -175,7 +175,7 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
-        public static ScriptObject SLICE(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SLICE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
