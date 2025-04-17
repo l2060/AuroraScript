@@ -11,10 +11,6 @@ namespace AuroraScript.Runtime
     /// 
     internal class RuntimeVM
     {
-
-        // 全局环境，存储全局变量和函数
-        private readonly ScriptObject _globalEnv;
-
         // 字符串常量池
         private readonly ImmutableArray<StringValue> _stringConstants;
 
@@ -31,51 +27,39 @@ namespace AuroraScript.Runtime
         /// <param name="stringConstants">字符串常量池</param>
         public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants)
         {
-            _globalEnv = new ScriptGlobal();
             _codeBuffer = new ByteCodeBuffer(bytecode);
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
         }
 
 
-        /// <summary>
-        /// 执行已加载的字节码
-        /// </summary>
-        /// <returns>执行结果</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptObject Execute(ExecuteContext exeContext)
-        {
-            var mainFrame = new CallFrame(null, _globalEnv, 0);
-            exeContext._callStack.Push(mainFrame);
-            return ExecuteFrame(exeContext);
-        }
+
+
 
         /// <summary>
         /// 执行已加载的字节码
         /// </summary>
         /// <returns>执行结果</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptObject Execute(Closure closure, params ScriptObject[] arguments)
+        public ScriptGlobal CreateDomain(ExecuteContext exeContext)
         {
-            ExecuteContext exeContext = new ExecuteContext();
-            var mainFrame = new CallFrame(closure.Environment, closure.ThisModule, closure.EntryPointer, arguments);
+            var domainGlobal = new ScriptGlobal() { _prototype = exeContext.Global };
+            var mainFrame = new CallFrame(null, domainGlobal, null, 0);
+            exeContext._callStack.Push(mainFrame);
+            return ExecuteFrame(exeContext) as ScriptGlobal;
+        }
+
+        /// <summary>
+        /// 执行已加载的字节码
+        /// </summary>
+        /// <returns>执行结果</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptObject Execute(ClosureFunction closure, params ScriptObject[] arguments)
+        {
+            ExecuteContext exeContext = new ExecuteContext(closure.Global);
+            var mainFrame = new CallFrame(closure.Environment, closure.Global, closure.Module, closure.EntryPointer, arguments);
             exeContext._callStack.Push(mainFrame);
             return ExecuteFrame(exeContext);
         }
-
-
-        /// <summary>
-        /// 执行二元操作
-        /// </summary>
-        /// <param name="operation">要执行的操作</param>
-        private void PerformBinaryOperation(Func<ScriptObject, ScriptObject, ScriptObject> operation)
-        {
-            //var right = _operandStack.Pop();
-            //var left = _operandStack.Pop();
-            //var result = operation(left, right);
-            //_operandStack.Push(result);
-        }
-
-
 
 
 
@@ -90,7 +74,7 @@ namespace AuroraScript.Runtime
             var _operandStack = exeContext._operandStack;
             Int32 propNameIndex = 0;
             Int32 localIndex = 0;
-            NumberValue numValue = null;
+
             StringValue propName = null;
             ScriptObject temp = null;
             ScriptObject value = null;
@@ -99,6 +83,8 @@ namespace AuroraScript.Runtime
             ScriptObject right = null;
             // 获取当前调用帧
             var frame = _callStack.Peek();
+            ScriptGlobal domainGlobal = frame.Global;
+
 
             var NumberUnaryOperation = (ScriptObject defaultValue, Func<NumberValue, ScriptObject> operation) =>
             {
@@ -168,16 +154,16 @@ namespace AuroraScript.Runtime
                     case OpCode.LOAD_ARG:
                         // 
                         var argIndex = _codeBuffer.ReadByte(frame);
-                        var arg = frame.Arguments[argIndex];
+                        var arg = frame.GetArgument(argIndex);
                         _operandStack.Push(arg);
                         break;
 
                     case OpCode.TRY_LOAD_ARG:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        if (frame.Locals.Length > propNameIndex && frame.Locals[propNameIndex] != null)
+                        propNameIndex = _codeBuffer.ReadByte(frame);
+                        if (frame.TryGetArgument(propNameIndex, out arg))
                         {
                             _operandStack.Pop();
-                            _operandStack.Push(frame.Locals[propNameIndex]);
+                            _operandStack.Push(arg);
                         }
                         break;
 
@@ -220,9 +206,9 @@ namespace AuroraScript.Runtime
 
                     case OpCode.CREATE_CLOSURE:
                         // 创建闭包
-                        var thsiModule = _operandStack.Pop();
+                        var thsiModule = _operandStack.Pop() as ScriptModule;
                         var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new Closure(frame, thsiModule, frame.Pointer + closureIndex);
+                        var closure = new ClosureFunction(frame, domainGlobal, thsiModule, frame.Pointer + closureIndex);
                         _operandStack.Push(closure);
                         break;
 
@@ -297,7 +283,7 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_THIS_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = frame.ThisModule.GetPropertyValue(propName.Value, frame.ThisModule);
+                        value = frame.Module.GetPropertyValue(propName.Value, frame.Module);
                         _operandStack.Push(value);
                         break;
 
@@ -305,13 +291,13 @@ namespace AuroraScript.Runtime
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
                         value = _operandStack.Pop();
-                        frame.ThisModule.SetPropertyValue(propName.Value, value);
+                        frame.Module.SetPropertyValue(propName.Value, value);
                         break;
 
                     case OpCode.GET_GLOBAL_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = _globalEnv.GetPropertyValue(propName.Value, _globalEnv);
+                        value = domainGlobal.GetPropertyValue(propName.Value, domainGlobal);
                         _operandStack.Push(value);
                         break;
 
@@ -319,7 +305,7 @@ namespace AuroraScript.Runtime
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
                         value = _operandStack.Pop();
-                        _globalEnv.SetPropertyValue(propName.Value, value);
+                        domainGlobal.SetPropertyValue(propName.Value, value);
                         break;
 
                     case OpCode.GET_ELEMENT:
@@ -341,9 +327,13 @@ namespace AuroraScript.Runtime
                         obj = _operandStack.Pop();
                         temp = _operandStack.Pop();
                         value = _operandStack.Pop();
-                        if (obj is ScriptArray scriptArray2 && temp is NumberValue numberValue2)
+                        if (obj is ScriptArray scriptArray2)
                         {
-                            scriptArray2.SetElement(numberValue2, value);
+                            if (temp is NumberValue numberValue2) scriptArray2.SetElement(numberValue2, value);
+                        }
+                        else
+                        {
+                            obj.SetPropertyValue(temp.ToString(), value);
                         }
                         break;
 
@@ -474,10 +464,10 @@ namespace AuroraScript.Runtime
                         {
                             args[i] = _operandStack.Pop();
                         }
-                        if (callable is Closure closureFunc)
+                        if (callable is ClosureFunction closureFunc)
                         {
                             // 创建新的调用帧
-                            var callFrame = new CallFrame(closureFunc.Environment, closureFunc.ThisModule, closureFunc.EntryPointer, args);
+                            var callFrame = new CallFrame(closureFunc.Environment, closureFunc.Global, closureFunc.Module, closureFunc.EntryPointer, args);
                             // 切换到新帧
                             _callStack.Push(callFrame);
                             frame = callFrame;
@@ -550,10 +540,10 @@ namespace AuroraScript.Runtime
                         _operandStack.Push(BooleanValue.True);
                         break;
                     case OpCode.PUSH_THIS:
-                        _operandStack.Push(frame.ThisModule);
+                        _operandStack.Push(frame.Module);
                         break;
                     case OpCode.PUSH_GLOBAL:
-                        _operandStack.Push(_globalEnv);
+                        _operandStack.Push(domainGlobal);
                         break;
 
 

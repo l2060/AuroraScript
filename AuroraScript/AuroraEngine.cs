@@ -2,7 +2,6 @@
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
-using System.Diagnostics;
 
 namespace AuroraScript
 {
@@ -13,18 +12,25 @@ namespace AuroraScript
         private readonly ScriptCompiler compiler;
         private readonly ByteCodeGenerator codeGenerator;
         private RuntimeVM runtimeVM;
-        private readonly ScriptObject Global;
+        private readonly ScriptGlobal Global;
 
 
 
 
         public AuroraEngine(EngineOptions options)
         {
-            Global = new ScriptObject();
+            Global = new ScriptGlobal();
             _stringSet = new StringList();
             _instructionBuilder = new InstructionBuilder(_stringSet);
             codeGenerator = new ByteCodeGenerator(_instructionBuilder, _stringSet);
             compiler = new ScriptCompiler(options.BaseDirectory, codeGenerator);
+
+
+            var console = new ScriptObject();
+            console.SetPropertyValue("log", new ClrFunction(LOG));
+            Global.SetPropertyValue("console", console);
+            Global.SetPropertyValue("debug", new ClrFunction(LOG));
+
         }
 
         /// <summary>
@@ -65,13 +71,6 @@ namespace AuroraScript
             runtimeVM = new RuntimeVM(bytes, stringConstants);
 
             codeGenerator.DumpCode();
-            CreateDomain();
-
-
-
-
-
-            //return vm.Execute(null);
             return;
         }
 
@@ -84,41 +83,10 @@ namespace AuroraScript
 
 
 
-        public void CreateDomain()
+        public ScriptDomain CreateDomain()
         {
-
-
-            var global = runtimeVM.Execute(new ExecuteContext());
-
-
-            var console = new ScriptObject();
-
-            global.SetPropertyValue("console", console);
-            console.SetPropertyValue("log", new ClrFunction(LOG));
-
-            var moduleTimer = global.GetPropertyValue("@TIMER");
-            var createTimerMethod = moduleTimer.GetPropertyValue("createTimer");
-            var testMethod = moduleTimer.GetPropertyValue("test");
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            runtimeVM.Execute(testMethod as Closure);
-            stopwatch.Stop();
-            Console.WriteLine(stopwatch.ElapsedMilliseconds);
-
-
-
-            if (createTimerMethod is Closure closure)
-            {
-                var result = runtimeVM.Execute(closure, new StringValue("Hello"), new NumberValue(500));
-                var resetFunc = result.GetPropertyValue("reset");
-                var cancelFunc = result.GetPropertyValue("cancel");
-                var result2 = runtimeVM.Execute(resetFunc as Closure);
-                var result3 = runtimeVM.Execute(cancelFunc as Closure);
-                Console.WriteLine(result);
-            }
-
-
-
+            var domainGlobal = runtimeVM.CreateDomain(new ExecuteContext(Global));
+            return new ScriptDomain(this, runtimeVM, domainGlobal);
         }
 
 

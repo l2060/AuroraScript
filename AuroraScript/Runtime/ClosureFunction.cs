@@ -5,38 +5,45 @@ namespace AuroraScript.Runtime
     /// <summary>
     /// 表示一个闭包，包含函数字节码和捕获的环境
     /// </summary>
-    internal class Closure : Callable
+    public class ClosureFunction : Callable
     {
         /// <summary>
-        /// 函数的字节码
+        /// 闭包指向的方法的字节码地址
         /// </summary>
-        public Int32 EntryPointer { get; }
+        public readonly Int32 EntryPointer;
 
         /// <summary>
         /// 函数名称（可选）
         /// </summary>
-        public string FuncName { get; }
+        public readonly string FuncName;
 
         /// <summary>
-        /// Module对象
+        /// Module Object
         /// </summary>
-        public ScriptObject ThisModule { get; set; }
+        public readonly ScriptModule Module;
+
+        /// <summary>
+        /// Domain Global
+        /// </summary>
+        public readonly ScriptGlobal Global;
 
         /// <summary>
         /// 闭包This环境
         /// </summary>
-        public CallFrame Environment { get; set; }
+        public readonly CallFrame Environment;
 
         /// <summary>
         /// 创建一个新的闭包
         /// </summary>
         /// <param name="environment">闭包捕获的环境</param>
-        /// <param name="thisModule">函数所处模块</param>
-        /// <param name="entryPointer">函数代码指针</param>
-        /// <param name="funcName">函数名称</param>
-        internal Closure(CallFrame environment, ScriptObject thisModule, Int32 entryPointer, string funcName = null)
+        /// <param name="global">闭包所在Domain的Global</param>
+        /// <param name="thisModule">闭包所处模块</param>
+        /// <param name="entryPointer">闭包方法指针</param>
+        /// <param name="funcName">闭包方法名称</param>
+        internal ClosureFunction(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, string funcName = null)
         {
-            ThisModule = thisModule;
+            Module = thisModule;
+            Global = global;
             EntryPointer = entryPointer;
             Environment = environment;
             FuncName = funcName;

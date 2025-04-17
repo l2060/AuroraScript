@@ -44,7 +44,7 @@
     <None Update="var_tests\timer.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="var_tests\unit.as1">
+    <None Update="var_tests\unit.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="tests\unit.as">

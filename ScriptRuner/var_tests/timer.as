@@ -1,19 +1,21 @@
 ﻿@module("TIMER");
 
+declare function debug(msg);
+
+declare function CREATE_TIMER(timer);
+declare function START_TIMER(timer);
+declare function STOP_TIMER(timer);
+declare function DELETE_TIMER(timer);
+
+
 var timeCount = 0;
 var resetCount = 0;
 var timers = [0,1,2,3,4,5];
-function test(){
-    for (var o = 0;  o < 10000;o++){
-    
-    }
-}
-var swap = timers[0];
-timers[0] = timers[5];
-timers[5] = swap;
-timers["abc"] = test;
 
-function createTimer(callback, interval) {
+
+
+
+function createTimer(callback, interval = 521) {
 
     var timer = {
         timeId: timeCount++,
@@ -34,6 +36,7 @@ function createTimer(callback, interval) {
     }
 
     function cancel() {
+        log("canceled");
         timer.cancel = null;
         timeCount--;
         timer.timeId = null;

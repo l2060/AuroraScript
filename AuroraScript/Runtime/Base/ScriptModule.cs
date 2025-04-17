@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Runtime.Base
 {
-    internal class ScriptModule : ScriptObject
+    public class ScriptModule : ScriptObject
     {
         public String Name;
 

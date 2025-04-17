@@ -1,7 +1,7 @@
 ﻿namespace AuroraScript.Runtime.Base
 {
 
-    internal class ScriptGlobal : ScriptObject
+    public class ScriptGlobal : ScriptObject
     {
 
 

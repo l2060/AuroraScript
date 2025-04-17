@@ -12,11 +12,13 @@ namespace AuroraScript.Runtime
 
         public CallFrame CurrentFrame;
 
+        public readonly ScriptGlobal Global;
 
-        public ExecuteContext()
+        public ExecuteContext(ScriptGlobal global)
         {
             _operandStack = new Stack<ScriptObject>();
             _callStack = new Stack<CallFrame>();
+            Global = global;
         }
 
 

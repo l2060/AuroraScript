@@ -5,6 +5,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Core;
 
 
+
 namespace AuroraScript.Compiler.Emits
 {
     public class ByteCodeGenerator : IAstVisitor
@@ -16,11 +17,12 @@ namespace AuroraScript.Compiler.Emits
         private readonly InstructionBuilder _instructionBuilder;
         public readonly StringList _stringSet;
         private CodeScope _scope;
+        private readonly CodeScope _global;
 
         public ByteCodeGenerator(InstructionBuilder instructionBuilder, StringList stringSet)
         {
             _stringSet = stringSet;
-            _scope = new CodeScope(null, DomainType.Global, _stringSet);
+            _global = _scope = new CodeScope(null, DomainType.Global, _stringSet);
             _instructionBuilder = instructionBuilder;
 
         }
@@ -101,10 +103,16 @@ namespace AuroraScript.Compiler.Emits
             }
 
             _instructionBuilder.Comment("# Code Block");
+
+            // skip only declare
+            var functions = node.Functions.Where(e => e.Flags != FunctionFlags.Declare).ToArray();
+
+
             // 1. 声明代码块内方法
             var closureMap = new Dictionary<string, ClosureInstruction>();
-            foreach (var function in node.Functions)
+            foreach (var function in functions)
             {
+
                 var slot = _scope.Declare(DeclareType.Property, function);
                 _instructionBuilder.PushThis();
                 closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
@@ -121,7 +129,7 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Return();
 
             // 3. 代码块内的方法体
-            foreach (var function in node.Functions)
+            foreach (var function in functions)
             {
                 var closure = closureMap[function.Name.UniqueValue];
                 _instructionBuilder.FixClosure(closure);
@@ -147,10 +155,15 @@ namespace AuroraScript.Compiler.Emits
         public override void VisitBlock(BlockStatement node)
         {
             if (!node.IsFunction) BeginScope(DomainType.Code);
+
+            // skip only declare
+            var functions = node.Functions.Where(e => e.Flags != FunctionFlags.Declare).ToArray();
             // 1. 声明代码块内方法
             var closureMap = new Dictionary<string, ClosureInstruction>();
-            foreach (var function in node.Functions)
+            foreach (var function in functions)
             {
+                // skip only declare
+                if (function.Flags == FunctionFlags.Declare) continue;
                 var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
                 _instructionBuilder.PushThis();
                 closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
@@ -169,7 +182,7 @@ namespace AuroraScript.Compiler.Emits
                 statement.Accept(this);
             }
             // 3. 代码块内的方法体
-            foreach (var function in node.Functions)
+            foreach (var function in functions)
             {
                 var closure = closureMap[function.Name.UniqueValue];
                 _instructionBuilder.FixClosure(closure);
