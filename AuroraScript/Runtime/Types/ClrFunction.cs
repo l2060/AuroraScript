@@ -1,6 +1,7 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using System;
 
-namespace AuroraScript.Runtime.Base
+namespace AuroraScript.Runtime.Types
 {
 
     public delegate ScriptObject ClrMethodDelegate(ScriptDomain domain, ScriptObject module, ScriptObject[] args);
@@ -10,13 +11,13 @@ namespace AuroraScript.Runtime.Base
     {
 
         private readonly ClrMethodDelegate _callback;
-        public readonly String Name;
+        public readonly string Name;
 
         public ClrFunction(ClrMethodDelegate callback)
         {
             var method = callback.Method;
             Name = method.DeclaringType.Name + "." + method.Name;
-            this._callback = callback;
+            _callback = callback;
         }
 
         public override ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
@@ -25,7 +26,7 @@ namespace AuroraScript.Runtime.Base
         }
         public override BoundFunction Bind(ScriptObject target)
         {
-            return new BoundFunction(this._callback, target);
+            return new BoundFunction(_callback, target);
         }
 
         public override string ToString()

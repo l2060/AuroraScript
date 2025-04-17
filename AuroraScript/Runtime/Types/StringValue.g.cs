@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Types;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SqlTypes;

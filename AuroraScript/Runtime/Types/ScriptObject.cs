@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AuroraScript.Exceptions;
+using AuroraScript.Runtime.Types;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -9,7 +11,7 @@ namespace AuroraScript.Runtime.Base
     public partial class ScriptObject
     {
         public static readonly ScriptObject Null = NullValue.Instance;
-        protected Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
+        private Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
 
         internal ScriptObject _prototype;
 
@@ -42,7 +44,7 @@ namespace AuroraScript.Runtime.Base
             _properties.TryGetValue(key, out var value);
             if (value != null)
             {
-                if (!value.Readable) throw new Exception("Property disables write");
+                if (!value.Readable) throw new RuntimeException("Property disables write");
 
                 if (value.Value is ClrGetter getter)
                 {
@@ -65,7 +67,7 @@ namespace AuroraScript.Runtime.Base
         {
             if (IsFrozen)
             {
-                throw new Exception("You cannot modify this object");
+                throw new RuntimeException("You cannot modify this object");
             }
             _properties.TryGetValue(key, out var existValue);
             if (existValue == null)
@@ -75,7 +77,7 @@ namespace AuroraScript.Runtime.Base
                 existValue.Writeeable = true;
                 _properties[key] = existValue;
             }
-            if (!existValue.Writeeable) throw new Exception("Property disables write");
+            if (!existValue.Writeeable) throw new RuntimeException("Property disables write");
             existValue.Value = value;
         }
 
@@ -84,7 +86,7 @@ namespace AuroraScript.Runtime.Base
         {
             if (IsFrozen)
             {
-                throw new Exception("You cannot modify this object");
+                throw new RuntimeException("You cannot modify this object");
             }
             _properties.TryGetValue(key, out var existValue);
             if (existValue == null)
@@ -96,7 +98,7 @@ namespace AuroraScript.Runtime.Base
             }
             else
             {
-                if (!existValue.Writeeable) throw new Exception("Property disables write");
+                if (!existValue.Writeeable) throw new RuntimeException("Property disables write");
             }
             existValue.Value = value;
         }

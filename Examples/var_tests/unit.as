@@ -18,11 +18,12 @@ function start_timer(){
 }
 
 function forTest(count = 1000){
-	console.time("for " + count);
+	var timeName = "for:" + count;
+	console.time(timeName);
     for (var o = 0;  o < count;o++){
-    
+		// .....
     }
-	console.timeEnd("for " + count);
+	console.timeEnd(timeName);
 }
 
 

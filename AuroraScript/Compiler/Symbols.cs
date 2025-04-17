@@ -22,6 +22,7 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
         public static readonly Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
         public static readonly Symbols KW_BREAK = new Symbols("break", SymbolTypes.KeyWord);
+        public static readonly Symbols KW_YIELD = new Symbols("yield", SymbolTypes.KeyWord);
         public static readonly Symbols KW_CONTINUE = new Symbols("continue", SymbolTypes.KeyWord);
         public static readonly Symbols KW_ENUM = new Symbols("enum", SymbolTypes.KeyWord);
         public static readonly Symbols KW_FOR = new Symbols("for", SymbolTypes.KeyWord);
@@ -44,16 +45,8 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_IMPLEMENTS = new Symbols("implements", SymbolTypes.KeyWord);
 
 
-
-
-
         // types
         public static readonly Symbols KW_THIS = new Symbols("this", SymbolTypes.Identifier);
-
-        //public static readonly Symbols TYPED_OBJECT = new Symbols("object", SymbolTypes.Identifier);
-        //public static readonly Symbols TYPED_VOID = new Symbols("void", SymbolTypes.Identifier);
-        //public static readonly Symbols TYPED_BOOLEAN = new Symbols("boolean", SymbolTypes.Identifier);
-        //public static readonly Symbols TYPED_STRING = new Symbols("string", SymbolTypes.Identifier);
 
         // byte char short ushort long ulong float double
         // number = double

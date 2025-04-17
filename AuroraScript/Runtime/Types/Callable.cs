@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Runtime.Base;
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Types
 {
     public abstract class Callable : ScriptObject
     {

@@ -1,23 +1,24 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using System;
 using System.Runtime.CompilerServices;
 
-namespace AuroraScript.Runtime.Base
+namespace AuroraScript.Runtime.Types
 {
     public class BooleanValue : ScriptValue
     {
 
         public readonly static BooleanValue True = new BooleanValue(true, new StringValue("true"));
         public readonly static BooleanValue False = new BooleanValue(false, new StringValue("false"));
-        private readonly Boolean _value;
+        private readonly bool _value;
         private readonly StringValue _valueString;
 
-        private BooleanValue(Boolean str, StringValue valueString) : base()
+        private BooleanValue(bool str, StringValue valueString) : base()
         {
             _value = str;
             _valueString = valueString;
-            this._prototype = new ScriptObject();
-            this._prototype.Define("toString", new ClrFunction(TOSTRING), true, false);
-            this._prototype.IsFrozen = true;
+            _prototype = new ScriptObject();
+            _prototype.Define("toString", new ClrFunction(TOSTRING), true, false);
+            _prototype.IsFrozen = true;
         }
 
         public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
@@ -44,13 +45,13 @@ namespace AuroraScript.Runtime.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BooleanValue Of(Boolean value)
+        public static BooleanValue Of(bool value)
         {
             return value ? True : False;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Boolean IsTrue()
+        public override bool IsTrue()
         {
             return _value;
         }

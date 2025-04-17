@@ -2,6 +2,7 @@
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
+using AuroraScript.Compiler.Ast.Statements;
 
 
 namespace AuroraScript.Compiler
@@ -221,6 +222,10 @@ namespace AuroraScript.Compiler
 
         }
 
+        public virtual void VisitYieldExpression(YieldStatement node)
+        {
+
+        }
 
         public virtual void VisitParameterDeclaration(ParameterDeclaration node)
         {

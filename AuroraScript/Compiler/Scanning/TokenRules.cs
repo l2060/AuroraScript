@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Common;
+using AuroraScript.Compiler.Exceptions;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -221,7 +222,7 @@ namespace AuroraScript.Scanning
                         result.ColumnNumber++;
                         if (!base.canEscape(codeSpan[i + 1], out viewChar))
                         {
-                            throw new Exception("xxxxxx");
+                            throw new LexerException("", LineNumber, ColumnNumber, "Unrecognizable escape characters");
                         }
                         result.ColumnNumber++;
                         i++;

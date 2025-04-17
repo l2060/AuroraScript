@@ -2,6 +2,8 @@
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler.Ast.Expressions;
+using AuroraScript.Compiler.Ast.Statements;
+using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Core;
 using System;
 using System.Collections.Generic;
@@ -16,7 +18,6 @@ namespace AuroraScript.Compiler.Emits
 
         private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
         private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
-        private readonly Dictionary<string, Instruction> _functionLocations = new Dictionary<string, Instruction>();
         private readonly InstructionBuilder _instructionBuilder;
         public readonly StringList _stringSet;
         private CodeScope _scope;
@@ -263,17 +264,8 @@ namespace AuroraScript.Compiler.Emits
             for (int i = 0; i < stringTable.Length; i++)
             {
                 var str = stringTable[i];
-                Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")} \t {str.GetHashCode()}", ConsoleColor.Blue);
+                Print($"[{i:0000}] {str.Replace("\n", "\\n").Replace("\r", "")}", ConsoleColor.Blue);
             }
-            Console.WriteLine();
-            Console.WriteLine();
-            Print("# func_index", ConsoleColor.Yellow);
-            foreach (var item in _functionLocations)
-            {
-                Print($"{item.Key} {item.Value.Offset}", ConsoleColor.Blue);
-            }
-            Console.WriteLine();
-            Console.WriteLine();
             _instructionBuilder.DumpCode();
 
         }
@@ -337,6 +329,13 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Comment($"# continue;");
             _continueJumps.Peek().Add(_instructionBuilder.Jump());
         }
+
+        public override void VisitYieldExpression(YieldStatement node)
+        {
+            _instructionBuilder.Comment($"# Yield;");
+            _instructionBuilder.Yield();
+        }
+
 
         public override void VisitCallExpression(FunctionCallExpression node)
         {
@@ -750,7 +749,7 @@ namespace AuroraScript.Compiler.Emits
             if (Operator.LogicalNot == op) return OpCode.LOGIC_NOT;
             if (Operator.BitwiseNot == op) return OpCode.BIT_NOT;
             if (Operator.Negate == op) return OpCode.NEGATE;
-            throw new Exception($"Invalid operator: {op}");
+            throw new CompilerException("", $"Invalid operator: {op}");
         }
 
         private void HandlePropertyAssignment(GetPropertyExpression propExpr)

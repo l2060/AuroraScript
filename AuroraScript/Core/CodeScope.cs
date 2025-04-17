@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast;
 using AuroraScript.Ast.Expressions;
 using AuroraScript.Compiler.Emits;
+using AuroraScript.Compiler.Exceptions;
 using System;
 using System.Collections.Generic;
 
@@ -137,7 +138,7 @@ namespace AuroraScript.Core
 
             if (dobjeect != null)
             {
-                throw new Exception("域内变量名重复");
+                throw new CompilerException("", "域内变量名重复");
             }
             if (Resolve(name, out var _))
             {
@@ -175,7 +176,7 @@ namespace AuroraScript.Core
             var dobjeect = findByName(name);
             if (dobjeect != null)
             {
-                throw new Exception("域内变量名重复");
+                throw new CompilerException("", "域内变量名重复");
             }
             if (Resolve(name, out var _))
             {
@@ -221,7 +222,7 @@ namespace AuroraScript.Core
             var val = findByName(name);
             if (val != null)
             {
-                throw new Exception("域内变量名重复");
+                throw new CompilerException("", "域内变量名重复");
             }
             int slot = 0;
             var alias = name;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Types;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base

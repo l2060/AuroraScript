@@ -9,6 +9,7 @@ namespace AuroraScript.Compiler.Exceptions
         public int ColumnNumber { get; private set; }
         public Token Token { get; private set; }
 
+
         internal ParseException(string fileName, Token token, string message) : base(message)
         {
             ColumnNumber = token.ColumnNumber;

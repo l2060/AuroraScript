@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using AuroraScript.Runtime.Base;
+
+namespace AuroraScript.Runtime.Types
 {
 
     public class ScriptGlobal : ScriptObject

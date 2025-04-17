@@ -4,7 +4,7 @@ using System;
 
 namespace AuroraScript.Runtime
 {
-    public class ObjectProperty
+    internal class ObjectProperty
     {
         public Boolean Readable;
         public Boolean Writeeable;

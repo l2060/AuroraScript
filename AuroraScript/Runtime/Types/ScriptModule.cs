@@ -1,12 +1,13 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using System;
 
-namespace AuroraScript.Runtime.Base
+namespace AuroraScript.Runtime.Types
 {
     public class ScriptModule : ScriptObject
     {
-        public String Name;
+        public string Name;
 
-        public ScriptModule(String moduleName)
+        public ScriptModule(string moduleName)
         {
             Name = moduleName;
         }

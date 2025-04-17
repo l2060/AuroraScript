@@ -1,13 +1,14 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using System;
 
-namespace AuroraScript.Runtime.Base
+namespace AuroraScript.Runtime.Types
 {
 
     public class BooleanConstructor : ClrFunction
     {
-        public readonly static NumberValue POSITIVE_INFINITY = new NumberValue(Double.PositiveInfinity);
-        public readonly static NumberValue NEGATIVE_INFINITY = new NumberValue(Double.NegativeInfinity);
-        public readonly static NumberValue NaN = new NumberValue(Double.NaN);
+        public readonly static NumberValue POSITIVE_INFINITY = new NumberValue(double.PositiveInfinity);
+        public readonly static NumberValue NEGATIVE_INFINITY = new NumberValue(double.NegativeInfinity);
+        public readonly static NumberValue NaN = new NumberValue(double.NaN);
 
 
         private new readonly static ScriptObject Prototype;
@@ -32,14 +33,14 @@ namespace AuroraScript.Runtime.Base
 
         public BooleanConstructor() : base(CONSTRUCTOR)
         {
-            _prototype = BooleanConstructor.Prototype;
+            _prototype = Prototype;
         }
 
         public static ScriptObject PARSE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {
-                var booleanValue = Boolean.Parse(args[0].ToString());
+                var booleanValue = bool.Parse(args[0].ToString());
                 return booleanValue ? BooleanValue.True : BooleanValue.False;
             }
             return BooleanValue.False;
@@ -50,7 +51,7 @@ namespace AuroraScript.Runtime.Base
         {
             if (args.Length > 0)
             {
-                var booleanValue = Boolean.Parse(args[0].ToString());
+                var booleanValue = bool.Parse(args[0].ToString());
                 return booleanValue ? BooleanValue.True : BooleanValue.False;
             }
             return BooleanValue.False;

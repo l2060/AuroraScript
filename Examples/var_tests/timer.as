@@ -29,7 +29,15 @@ function createTimer(callback, interval = 521) {
         }
     };
 
-    log("    Created!    ");
+    log(
+        |> 
+        |> 1. 这是一个特殊的字符串模板
+        |> 2. 支持多行文本
+        |> 3. 它会让代码看起来更舒服
+        |> 4. <Buy/@Buy> <Close/@Close> 
+        |> 
+    );
+    yield;
 
     function log(text) {
         console.log("Timer:" + timer.timeId + " [" + text.trim() + "]");

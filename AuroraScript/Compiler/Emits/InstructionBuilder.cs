@@ -208,6 +208,10 @@ namespace AuroraScript.Compiler.Emits
 
 
 
+        public void Yield()
+        {
+            Emit(OpCode.YIELD);
+        }
 
 
         public void Pop()
@@ -408,6 +412,11 @@ namespace AuroraScript.Compiler.Emits
 
         public void DumpCode()
         {
+            Console.WriteLine($"=====================================================================");
+            Console.WriteLine($"= Start Code ========================================================");
+            Console.WriteLine($"=====================================================================");
+
+
             foreach (var instruction in _instructions)
             {
                 Console.WriteLine($"[{instruction.Offset:0000}] {instruction}");
@@ -422,6 +431,11 @@ namespace AuroraScript.Compiler.Emits
                     }
                 }
             }
+
+            Console.WriteLine($"=====================================================================");
+            Console.WriteLine($"= End Code ==========================================================");
+            Console.WriteLine($"=====================================================================");
+
 
         }
     }

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using System;
 
-namespace AuroraScript.Runtime.Base
+namespace AuroraScript.Runtime.Types
 {
 
     public delegate ScriptObject ClrGetterDelegate(ScriptObject @object);
@@ -10,13 +11,13 @@ namespace AuroraScript.Runtime.Base
     {
 
         private readonly ClrGetterDelegate _callback;
-        public readonly String Name;
+        public readonly string Name;
 
         public ClrGetter(ClrGetterDelegate callback)
         {
             var method = callback.Method;
             Name = method.DeclaringType.Name + "." + method.Name;
-            this._callback = callback;
+            _callback = callback;
         }
 
 

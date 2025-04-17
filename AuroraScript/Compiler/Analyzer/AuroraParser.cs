@@ -103,6 +103,10 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
+            if (token.Symbol == Symbols.KW_YIELD) return this.ParseYieldStatement(currentScope);
+
+
+            
             if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
             if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
 
@@ -205,6 +209,23 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             return new ContinueStatement();
         }
+
+
+        /// <summary>
+        /// parse yield expression
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <returns></returns>
+        private Statement ParseYieldStatement(Scope currentScope)
+        {
+            this.lexer.NextOfKind(Symbols.KW_YIELD);
+            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
+            return new YieldStatement();
+        }
+        
+
+
+
 
         /// <summary>
         /// parse break expression
@@ -863,7 +884,7 @@ namespace AuroraScript.Analyzer
                 if (varName == null) varName = this.lexer.TestNextOfKind<NullToken>();
                 if (varName == null)
                 {
-                    throw new Exception("无效的Map构建语法");
+                    throw new ParseException(this.lexer.FullPath, this.lexer.Next(), "无效的Map构建语法");
                 }
 
                 if (this.lexer.TestNext(Symbols.PT_COLON))
@@ -1012,7 +1033,7 @@ namespace AuroraScript.Analyzer
             var exportToken = this.lexer.NextOfKind(Symbols.KW_EXPORT);
             if (currentScope.Type != ScopeType.MODULE)
             {
-                throw new Exception(String.Format("Invalid “export” keyword in row {0}, column {1}, scope not supported.", exportToken.LineNumber, exportToken.ColumnNumber));
+                throw new ParseException(this.lexer.FullPath, exportToken, String.Format("Invalid “export” keyword in row {0}, column {1}, scope not supported.", exportToken.LineNumber, exportToken.ColumnNumber));
             }
 
 
