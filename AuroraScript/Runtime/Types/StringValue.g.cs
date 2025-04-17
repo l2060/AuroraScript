@@ -39,6 +39,7 @@ namespace AuroraScript.Runtime.Base
             Prototype.Define("trimRight", new ClrFunction(TRIMRIGHT), readable: true, writeable: false);
             Prototype.Define("slice", new ClrFunction(SLICE), readable: true, writeable: false);
             Prototype.Define("toString", new ClrFunction(TOSTRING), readable: true, writeable: false);
+            Prototype.Define("charCodeAt", new ClrFunction(CHARCODEAT), readable: true, writeable: false);
             Prototype._prototype = ScriptObject.Prototype;
             Prototype.IsFrozen = true;
         }
@@ -130,11 +131,14 @@ namespace AuroraScript.Runtime.Base
 
         public static ScriptObject REPLACE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            var strValue = thisObject as StringValue;
+            if (args.Length == 2)
             {
-                return array.Pop();
+                var str1 = args[0] as StringValue;
+                var str2 = args[1] as StringValue;
+                return StringValue.Of(strValue.Value.Replace(str1.Value, str2.Value));
             }
-            return null;
+            return thisObject;
         }
         public static ScriptObject PADLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
@@ -184,6 +188,23 @@ namespace AuroraScript.Runtime.Base
             }
             return null;
         }
+
+
+
+        public static ScriptObject CHARCODEAT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            var strValue = thisObject as StringValue;
+            if (args.Length > 0)
+            {
+                var str1 = args[0] as NumberValue;
+                var index= strValue.Value.IndexOf(str1.Int32Value.ToString());
+                return NumberValue.Of(index);
+            }
+            return NumberValue.Negative1;
+        }
+
+
+        
 
     }
 }

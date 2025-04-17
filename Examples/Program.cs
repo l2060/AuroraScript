@@ -20,7 +20,7 @@ public class Program
         var domain = engine.CreateDomain();
 
 
-        var result = domain.Execute("UNIT", "test");
+        var result = domain.Execute("UNIT", "test").Done();
 
         if (result.Status == ExecuteStatus.Complete)
         {

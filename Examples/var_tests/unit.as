@@ -1,7 +1,7 @@
 ﻿@module("UNIT");
 
 import time from 'timer';
-
+import md5 from 'md5';
 
 export function test(){
 	console.time("time.createTimer");
@@ -9,6 +9,8 @@ export function test(){
 	console.timeEnd("time.createTimer");
 	_time.start = start_timer;
 
+	// var md5Code = md5.MD5("12345");
+	// console.time(md5Code);
 	return _time;
 }
 

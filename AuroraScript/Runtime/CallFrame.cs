@@ -64,7 +64,7 @@ namespace AuroraScript.Runtime
             // 设置函数参数
             Arguments = arguments;
             // 从共享池中获取局部变量数组，提高内存利用率
-            Locals = ArrayPool<ScriptObject>.Shared.Rent(16);
+            Locals = ArrayPool<ScriptObject>.Shared.Rent(64);
         }
 
 

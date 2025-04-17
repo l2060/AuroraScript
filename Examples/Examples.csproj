@@ -41,6 +41,9 @@
     <None Update="scripts\main.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="var_tests\md5.as">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="var_tests\timer.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
