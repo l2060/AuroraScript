@@ -3,7 +3,7 @@
 import time from 'timer';
 
 
-function test(){
+export function test(){
 	console.time("time.createTimer");
 	var _time = time.createTimer("unit.timer",128);
 	console.timeEnd("time.createTimer");
@@ -17,7 +17,7 @@ function start_timer(){
 	debug("timer start.");
 }
 
-function forTest(count = 1000){
+export function forTest(count = 1000){
 	var timeName = "for:" + count;
 	console.time(timeName);
     for (var o = 0;  o < count;o++){

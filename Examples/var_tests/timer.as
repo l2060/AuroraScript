@@ -9,13 +9,13 @@ declare function DELETE_TIMER(timer);
 
 
 var timeCount = 0;
-var resetCount = 0;
-var timers = [0,1,2,3,4,5];
+export var resetCount = 0;
+export var timers = [0,1,2,3,4,5];
 
 
 
 
-function createTimer(callback, interval = 521) {
+export function createTimer(callback, interval = 521) {
 
     var timer = {
         timeId: timeCount++,

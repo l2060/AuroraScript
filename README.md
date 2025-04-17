@@ -48,7 +48,7 @@
 
  ## Interruption & Continue
 
- 脚本中可以通过yield指令进行中断，中断后Execute方法会立即返回，可以通过ExecuteContext的Continue方法从中断未知继续执行。
+ 脚本中可以通过yield指令进行中断，中断后Execute方法会立即返回，可以通过ExecuteContext的Continue方法从中断位置继续执行。
 
  也可以通过ExecuteOptions选项禁用yield指令，或通过AutoInterruption字段定义自动中断机制。
 
@@ -130,7 +130,7 @@ public class Program
 import time from 'timer';
 
 
-function test(){
+export function test(){
 	console.time("time.createTimer");
 	var _time = time.createTimer("unit.timer",128);
 	console.timeEnd("time.createTimer");
@@ -144,7 +144,7 @@ function start_timer(){
 	debug("timer start.");
 }
 
-function forTest(count = 1000){
+export function forTest(count = 1000){
 	var timeName = "for:" + count;
 	console.time(timeName);
 	for (var o = 0;  o < count;o++){
@@ -181,13 +181,13 @@ declare function DELETE_TIMER(timer);
 
 
 var timeCount = 0;
-var resetCount = 0;
-var timers = [0,1,2,3,4,5];
+export var resetCount = 0;
+export var timers = [0,1,2,3,4,5];
 
 
 
 
-function createTimer(callback, interval = 521) {
+export function createTimer(callback, interval = 521) {
 
     var timer = {
         timeId: timeCount++,
