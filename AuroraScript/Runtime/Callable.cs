@@ -2,9 +2,10 @@
 
 namespace AuroraScript.Runtime
 {
-    internal abstract class Callable : ScriptObject
+    public abstract class Callable : ScriptObject
     {
-        public abstract ScriptObject Invoke(AuroraEngine engine, ScriptObject module, ScriptObject[] args);
+        public abstract BoundFunction Bind(ScriptObject target);
+        public abstract ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args);
 
     }
 }

@@ -4,7 +4,7 @@
     public delegate ScriptObject ClrMethodDelegate(AuroraEngine engine, ScriptObject module, ScriptObject[] args);
 
 
-    public class ClrFunction : ScriptObject
+    public class ClrFunction : Callable
     {
 
         private readonly ClrMethodDelegate _callback;
@@ -17,11 +17,14 @@
             this._callback = callback;
         }
 
-        public ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
             return _callback.Invoke(engine, thisObject, args);
         }
-
+        public override BoundFunction Bind(ScriptObject target)
+        {
+            return new BoundFunction(this._callback, target);
+        }
 
         public override string ToString()
         {

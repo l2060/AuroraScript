@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace AuroraScript.Runtime.Base
 {
@@ -23,7 +24,7 @@ namespace AuroraScript.Runtime.Base
         {
             get
             {
-                return GetPropertyValue(key);
+                return GetPropertyValue(key, this);
             }
             set
             {
@@ -44,6 +45,10 @@ namespace AuroraScript.Runtime.Base
                 if (value.Value is ClrGetter getter)
                 {
                     return getter.Invoke(own);
+                }
+                if (value.Value is ClrFunction clrFunc)
+                {
+                    return clrFunc.Bind(thisObject);
                 }
                 return value.Value;
             }
@@ -138,7 +143,7 @@ namespace AuroraScript.Runtime.Base
             return new StringValue(a.ToString() + b.ToString());
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Boolean IsTrue()
         {
             return true;

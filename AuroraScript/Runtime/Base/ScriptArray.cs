@@ -17,6 +17,15 @@
         }
 
 
+        public ScriptObject GetElement(NumberValue index)
+        {
+            return this._items[index.Int32Value];
+        }
+
+        public void SetElement(NumberValue index, ScriptObject value)
+        {
+            this._items[index.Int32Value] = value;
+        }
 
         public void Push(ScriptObject item)
         {

@@ -2,6 +2,12 @@
 {
     public abstract class ScriptValue : ScriptObject
     {
+        protected ScriptValue()
+        {
+            IsFrozen = true;
+        }
+
+
 
         public override void SetPropertyValue(String key, ScriptObject value)
         {

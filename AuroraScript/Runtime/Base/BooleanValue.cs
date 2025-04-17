@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System.Runtime.CompilerServices;
+
+namespace AuroraScript.Runtime.Base
 {
     public class BooleanValue : ScriptValue
     {
@@ -8,11 +10,10 @@
         private readonly Boolean _value;
         private readonly StringValue _valueString;
 
-        private BooleanValue(Boolean str, StringValue valueString)
+        private BooleanValue(Boolean str, StringValue valueString) : base()
         {
             _value = str;
             _valueString = valueString;
-            IsFrozen = true;
             this._prototype = new ScriptObject();
             this._prototype.Define("toString", new ClrFunction(TOSTRING), true, false);
             this._prototype.IsFrozen = true;
@@ -41,12 +42,13 @@
             return _valueString.Value;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BooleanValue Of(Boolean value)
         {
             return value ? True : False;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Boolean IsTrue()
         {
             return _value;

@@ -15,12 +15,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 函数名称（可选）
         /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// 参数数量
-        /// </summary>
-        public int ArgCount { get; }
+        public string FuncName { get; }
 
         /// <summary>
         /// Module对象
@@ -30,22 +25,21 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 闭包This环境
         /// </summary>
-        public CallFrame CallFrame { get; set; }
+        public CallFrame Environment { get; set; }
 
         /// <summary>
         /// 创建一个新的闭包
         /// </summary>
-        /// <param name="bytecode">函数字节码</param>
-        /// <param name="capturedEnv">捕获的环境</param>
-        /// <param name="name">函数名称（可选）</param>
-        /// <param name="argCount">参数数量</param>
-        public Closure(CallFrame callFrame, ScriptObject thisModule, Int32 entryPointer, string name = null, int argCount = 0)
+        /// <param name="environment">闭包捕获的环境</param>
+        /// <param name="thisModule">函数所处模块</param>
+        /// <param name="entryPointer">函数代码指针</param>
+        /// <param name="funcName">函数名称</param>
+        internal Closure(CallFrame environment, ScriptObject thisModule, Int32 entryPointer, string funcName = null)
         {
             ThisModule = thisModule;
             EntryPointer = entryPointer;
-            CallFrame = callFrame;
-            Name = name;
-            ArgCount = argCount;
+            Environment = environment;
+            FuncName = funcName;
         }
 
         /// <summary>
@@ -53,10 +47,15 @@ namespace AuroraScript.Runtime
         /// </summary>
         public override string ToString()
         {
-            return $"<function {(string.IsNullOrEmpty(Name) ? "anonymous" : Name)}>";
+            return $"<function {(string.IsNullOrEmpty(FuncName) ? "anonymous" : FuncName)}>";
         }
 
         public override ScriptObject Invoke(AuroraEngine engine, ScriptObject module, ScriptObject[] args)
+        {
+            return null;
+        }
+
+        public override BoundFunction Bind(ScriptObject target)
         {
             return null;
         }

@@ -44,8 +44,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptObject Execute(ExecuteContext exeContext)
         {
-            var closure = new Closure(null, _globalEnv, 0);
-            var mainFrame = new CallFrame(closure);
+            var mainFrame = new CallFrame(null, _globalEnv, 0);
             exeContext._callStack.Push(mainFrame);
             return ExecuteFrame(exeContext);
         }
@@ -58,7 +57,7 @@ namespace AuroraScript.Runtime
         public ScriptObject Execute(Closure closure, params ScriptObject[] arguments)
         {
             ExecuteContext exeContext = new ExecuteContext();
-            var mainFrame = new CallFrame(closure, arguments);
+            var mainFrame = new CallFrame(closure.Environment, closure.ThisModule, closure.EntryPointer, arguments);
             exeContext._callStack.Push(mainFrame);
             return ExecuteFrame(exeContext);
         }
@@ -80,6 +79,7 @@ namespace AuroraScript.Runtime
 
 
 
+
         /// <summary>
         /// 执行当前调用帧
         /// </summary>
@@ -92,12 +92,44 @@ namespace AuroraScript.Runtime
             Int32 localIndex = 0;
             NumberValue numValue = null;
             StringValue propName = null;
+            ScriptObject temp = null;
             ScriptObject value = null;
             ScriptObject obj = null;
             ScriptObject left = null;
             ScriptObject right = null;
             // 获取当前调用帧
             var frame = _callStack.Peek();
+
+            var NumberUnaryOperation = (ScriptObject defaultValue, Func<NumberValue, ScriptObject> operation) =>
+            {
+                var value = _operandStack.Pop();
+                if (value is NumberValue number)
+                {
+                    _operandStack.Push(operation(number));
+                }
+                else
+                {
+                    _operandStack.Push(defaultValue);
+                }
+            };
+
+
+
+            var NumberBinaryOperation = (ScriptObject defaultValue, Func<NumberValue, NumberValue, ScriptObject> operation) =>
+             {
+                 var right = _operandStack.Pop();
+                 var left = _operandStack.Pop();
+
+                 if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+                 {
+                     var result = operation(leftNumber, rightNumber);
+                     _operandStack.Push(result);
+                 }
+                 else
+                 {
+                     _operandStack.Push(defaultValue);
+                 }
+             };
 
 
 
@@ -133,36 +165,20 @@ namespace AuroraScript.Runtime
                         _operandStack.Push(b);
                         break;
 
-                    case OpCode.NEW_MAP:
-                        _operandStack.Push(new ScriptObject());
-                        break;
-
-                    case OpCode.NEW_MODULE:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        _operandStack.Push(new ScriptModule(propName.Value));
-                        break;
                     case OpCode.LOAD_ARG:
                         // 
                         var argIndex = _codeBuffer.ReadByte(frame);
                         var arg = frame.Arguments[argIndex];
                         _operandStack.Push(arg);
                         break;
-                    // 常量操作
-                    case OpCode.PUSH_NULL:
-                        _operandStack.Push(ScriptObject.Null);
-                        break;
 
-                    case OpCode.PUSH_FALSE:
-                        _operandStack.Push(BooleanValue.False);
-                        break;
-
-                    case OpCode.PUSH_TRUE:
-                        _operandStack.Push(BooleanValue.True);
-                        break;
-
-                    case OpCode.PUSH_THIS:
-                        _operandStack.Push(frame.ThisModule);
+                    case OpCode.TRY_LOAD_ARG:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        if (frame.Locals.Length > propNameIndex && frame.Locals[propNameIndex] != null)
+                        {
+                            _operandStack.Pop();
+                            _operandStack.Push(frame.Locals[propNameIndex]);
+                        }
                         break;
 
                     case OpCode.PUSH_I8:
@@ -190,52 +206,62 @@ namespace AuroraScript.Runtime
                         _operandStack.Push(_stringConstants[stringIndex]);
                         break;
 
-                    // 局部变量操作
-                    case OpCode.PUSH_LOCAL:
+
+                    case OpCode.LOAD_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
                         _operandStack.Push(frame.Locals[localIndex]);
                         break;
 
-                    case OpCode.POP_TO_LOCAL:
+                    case OpCode.STORE_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
                         frame.Locals[localIndex] = _operandStack.Pop();
                         break;
 
-                    // 全局变量操作
-                    case OpCode.PUSH_GLOBAL:
-                        _operandStack.Push(_globalEnv);
+
+                    case OpCode.CREATE_CLOSURE:
+                        // 创建闭包
+                        var thsiModule = _operandStack.Pop();
+                        var closureIndex = _codeBuffer.ReadInt32(frame);
+                        var closure = new Closure(frame, thsiModule, frame.Pointer + closureIndex);
+                        _operandStack.Push(closure);
                         break;
 
-                    case OpCode.GET_GLOBAL_PROPERTY:
+
+                    case OpCode.CAPTURE_VAR:
+                        // 捕获变量
+                        var varIndex = _codeBuffer.ReadInt32(frame);
+                        var cv = new CapturedVariablee(frame.Environment, varIndex);
+                        _operandStack.Push(cv);
+                        break;
+
+                    case OpCode.LOAD_CAPTURE:
+                        localIndex = _codeBuffer.ReadInt32(frame);
+                        var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
+                        _operandStack.Push(capturedVar.Read());
+                        break;
+
+                    case OpCode.NEW_MODULE:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = _globalEnv.GetPropertyValue(propName.Value);
-                        _operandStack.Push(value);
+                        _operandStack.Push(new ScriptModule(propName.Value));
                         break;
 
-                    case OpCode.SET_GLOBAL_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = _operandStack.Pop();
-                        _globalEnv.SetPropertyValue(propName.Value, value);
+                    case OpCode.NEW_MAP:
+                        _operandStack.Push(new ScriptObject());
+                        break;
+
+                    case OpCode.NEW_ARRAY:
+                        var count = _codeBuffer.ReadInt32(frame);
+                        var buffer = new ScriptObject[count];
+                        for (int i = count - 1; i >= 0; i--)
+                        {
+                            buffer[i] = _operandStack.Pop();
+                        }
+                        var array = new ScriptArray(buffer);
+                        _operandStack.Push(array);
                         break;
 
 
-                    case OpCode.SET_THIS_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = _operandStack.Pop();
-                        frame.ThisModule.SetPropertyValue(propName.Value, value);
-                        break;
-
-                    case OpCode.GET_THIS_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = frame.ThisModule.GetPropertyValue(propName.Value);
-                        _operandStack.Push(value);
-                        break;
-
-                    // 属性操作
                     case OpCode.GET_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
@@ -243,7 +269,7 @@ namespace AuroraScript.Runtime
 
                         if (obj is ScriptObject scriptObj)
                         {
-                            _operandStack.Push(scriptObj.GetPropertyValue(propName.Value));
+                            _operandStack.Push(scriptObj.GetPropertyValue(propName.Value, scriptObj));
                         }
                         else
                         {
@@ -267,16 +293,58 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
-                    // 数组和映射操作
-                    case OpCode.NEW_ARRAY:
-                        var count = _codeBuffer.ReadInt32(frame);
-                        var buffer = new ScriptObject[count];
-                        for (int i = count - 1; i >= 0; i--)
+
+                    case OpCode.GET_THIS_PROPERTY:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        value = frame.ThisModule.GetPropertyValue(propName.Value, frame.ThisModule);
+                        _operandStack.Push(value);
+                        break;
+
+                    case OpCode.SET_THIS_PROPERTY:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        value = _operandStack.Pop();
+                        frame.ThisModule.SetPropertyValue(propName.Value, value);
+                        break;
+
+                    case OpCode.GET_GLOBAL_PROPERTY:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        value = _globalEnv.GetPropertyValue(propName.Value, _globalEnv);
+                        _operandStack.Push(value);
+                        break;
+
+                    case OpCode.SET_GLOBAL_PROPERTY:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        value = _operandStack.Pop();
+                        _globalEnv.SetPropertyValue(propName.Value, value);
+                        break;
+
+                    case OpCode.GET_ELEMENT:
+                        // TODO
+                        temp = _operandStack.Pop();
+                        obj = _operandStack.Pop();
+                        if (obj is ScriptArray scriptArray && temp is NumberValue numberValue)
                         {
-                            buffer[i] = _operandStack.Pop();
+                            _operandStack.Push(scriptArray.GetElement(numberValue));
                         }
-                        var array = new ScriptArray(buffer);
-                        _operandStack.Push(array);
+                        else
+                        {
+                            _operandStack.Push(obj.GetPropertyValue(temp.ToString(), obj));
+                        }
+                        break;
+
+                    case OpCode.SET_ELEMENT:
+                        // TODO
+                        obj = _operandStack.Pop();
+                        temp = _operandStack.Pop();
+                        value = _operandStack.Pop();
+                        if (obj is ScriptArray scriptArray2 && temp is NumberValue numberValue2)
+                        {
+                            scriptArray2.SetElement(numberValue2, value);
+                        }
                         break;
 
                     // 算术操作
@@ -286,147 +354,96 @@ namespace AuroraScript.Runtime
                         var result = left + right;
                         _operandStack.Push(result);
                         break;
-                    case OpCode.LESS_THAN:
-                        right = _operandStack.Pop();
-                        left = _operandStack.Pop();
-                        if (left is NumberValue lvalue && right is NumberValue rvalue)
-                        {
-                            _operandStack.Push(lvalue < rvalue);
-                        }
-                        else
-                        {
-                            _operandStack.Push(ScriptObject.Null);
-                        }
+                    case OpCode.SUBTRACT:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l - r);
+                        break;
+                    case OpCode.MULTIPLY:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l * r);
+                        break;
+                    case OpCode.DIVIDE:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l / r);
+                        break;
+                    case OpCode.MOD:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l % r);
+                        break;
+                    case OpCode.NEGATE:
+                        NumberUnaryOperation(NumberValue.NaN, (v) => -v);
                         break;
                     case OpCode.INCREMENT:
-                        value = _operandStack.Pop();
-                        if (value is NumberValue num)
-                        {
-                            _operandStack.Push(num + 1);
-                        }
-                        else
-                        {
-                            _operandStack.Push(ScriptObject.Null);
-                        }
+                        NumberUnaryOperation(NumberValue.NaN, (v) => v + 1);
                         break;
-
-
                     case OpCode.DECREMENT:
+                        NumberUnaryOperation(NumberValue.NaN, (v) => v - 1);
+                        break;
+                    case OpCode.LOGIC_NOT:
                         value = _operandStack.Pop();
-                        if (value is NumberValue num2)
-                        {
-                            _operandStack.Push(num2 - 1);
-                        }
-                        else
-                        {
-                            _operandStack.Push(ScriptObject.Null);
-                        }
+                        _operandStack.Push(BooleanValue.Of(!value.IsTrue()));
+                        break;
+                    case OpCode.LOGIC_AND:
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        _operandStack.Push(BooleanValue.Of(left.IsTrue() && right.IsTrue()));
+                        break;
+                    case OpCode.LOGIC_OR:
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        _operandStack.Push(BooleanValue.Of(left.IsTrue() || right.IsTrue()));
                         break;
 
-
-
-                    case OpCode.SUBTRACT:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av - bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                    case OpCode.EQUAL:
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        // TODO 
+                        _operandStack.Push(BooleanValue.Of(left == right));
                         break;
 
-                    case OpCode.MULTIPLY:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av * bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                    case OpCode.NOT_EQUAL:
+                        right = _operandStack.Pop();
+                        left = _operandStack.Pop();
+                        // TODO 
+                        _operandStack.Push(BooleanValue.Of(left != right));
                         break;
 
-                    case OpCode.DIVIDE:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av / bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                    case OpCode.LESS_THAN:
+                        NumberBinaryOperation(BooleanValue.False, (l, r) => l < r);
                         break;
 
-                    // 位运算操作
+                    case OpCode.LESS_EQUAL:
+                        NumberBinaryOperation(BooleanValue.False, (l, r) => l <= r);
+                        break;
+
+                    case OpCode.GREATER_THAN:
+                        NumberBinaryOperation(BooleanValue.False, (l, r) => l > r);
+                        break;
+                    case OpCode.GREATER_EQUAL:
+                        NumberBinaryOperation(BooleanValue.False, (l, r) => l >= r);
+                        break;
+
                     case OpCode.BIT_SHIFT_L:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av << bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l << r);
                         break;
 
                     case OpCode.BIT_SHIFT_R:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av >> bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l >> r);
                         break;
 
                     case OpCode.BIT_AND:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av & bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l & r);
                         break;
 
                     case OpCode.BIT_OR:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av | bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l | r);
                         break;
 
                     case OpCode.BIT_XOR:
-                        PerformBinaryOperation((a, b) =>
-                        {
-                            if (a is NumberValue av && b is NumberValue bv)
-                            {
-                                return av ^ bv;
-                            }
-                            return ScriptObject.Null;
-                        });
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l ^ r);
                         break;
 
                     case OpCode.BIT_NOT:
-                        var operand = _operandStack.Pop();
-                        if (operand is NumberValue number)
-                        {
-                            _operandStack.Push(~number);
-                        }
-                        else
-                        {
-                            _operandStack.Push(ScriptObject.Null);
-                        }
+                        NumberUnaryOperation(NumberValue.NaN, (v) => ~v);
                         break;
 
-                    // 跳转操作
+
                     case OpCode.JUMP:
                         var offset = _codeBuffer.ReadInt32(frame);
                         frame.Pointer += offset;
@@ -449,28 +466,6 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
-                    // 创建闭包
-                    case OpCode.CREATE_CLOSURE:
-                        // 创建闭包
-                        var thsiModule = _operandStack.Pop();
-                        var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new Closure(frame, thsiModule, frame.Pointer + closureIndex);
-                        _operandStack.Push(closure);
-                        break;
-
-                    // 捕获变量
-                    case OpCode.CAPTURE_VAR:
-                        var varIndex = _codeBuffer.ReadInt32(frame);
-                        var cv = new CapturedVariablee(frame.Closure.CallFrame, varIndex);
-                        _operandStack.Push(cv);
-                        break;
-
-                    case OpCode.LOAD_CAPTURE:
-                        localIndex = _codeBuffer.ReadInt32(frame);
-                        var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
-                        _operandStack.Push(capturedVar.Read());
-                        break;
-                    // 函数调用
                     case OpCode.CALL:
                         var callable = _operandStack.Pop();
                         var argCount = _codeBuffer.ReadByte(frame);
@@ -482,15 +477,14 @@ namespace AuroraScript.Runtime
                         if (callable is Closure closureFunc)
                         {
                             // 创建新的调用帧
-                            var callFrame = new CallFrame(closureFunc, args);
+                            var callFrame = new CallFrame(closureFunc.Environment, closureFunc.ThisModule, closureFunc.EntryPointer, args);
                             // 切换到新帧
                             _callStack.Push(callFrame);
                             frame = callFrame;
                         }
-                        else if (callable is ClrFunction clrFunction)
+                        else if (callable is BoundFunction clrFunction)
                         {
-                            ScriptObject thisObject = null;
-                            var callResult = clrFunction.Invoke(null, thisObject, args);
+                            var callResult = clrFunction.Invoke(null, null, args);
                             _operandStack.Push(callResult);
                         }
                         else
@@ -498,15 +492,8 @@ namespace AuroraScript.Runtime
                             throw new InvalidOperationException($"Cannot call {callable}");
                         }
                         break;
-                    // 返回操作
-                    case OpCode.RETURN_GLOBAL:
-                    case OpCode.RETURN_NULL:
+
                     case OpCode.RETURN:
-                        if (opCode != OpCode.RETURN)
-                        {
-                            if (opCode == OpCode.RETURN_GLOBAL) _operandStack.Push(_globalEnv);
-                            if (opCode == OpCode.RETURN_NULL) _operandStack.Push(ScriptObject.Null);
-                        }
                         // 函数返回
                         value = _operandStack.Count > 0 ? _operandStack.Pop() : null;
                         _callStack.Pop(); // 弹出当前调用帧
@@ -515,6 +502,12 @@ namespace AuroraScript.Runtime
                         // 否则，将返回值压入操作数栈，并继续执行调用者的帧
                         _operandStack.Push(value);
                         frame = _callStack.Peek();
+                        break;
+
+                    case OpCode.YIELD:
+                        // TODO
+
+
                         break;
 
                     case OpCode.PUSH_0:
@@ -532,9 +525,44 @@ namespace AuroraScript.Runtime
                     case OpCode.PUSH_4:
                         _operandStack.Push(NumberValue.Num4);
                         break;
-                    default:
-                        throw new NotImplementedException($"OpCode {opCode} not implemented");
+                    case OpCode.PUSH_5:
+                        _operandStack.Push(NumberValue.Num5);
+                        break;
+                    case OpCode.PUSH_6:
+                        _operandStack.Push(NumberValue.Num6);
+                        break;
+                    case OpCode.PUSH_7:
+                        _operandStack.Push(NumberValue.Num7);
+                        break;
+                    case OpCode.PUSH_8:
+                        _operandStack.Push(NumberValue.Num8);
+                        break;
+                    case OpCode.PUSH_9:
+                        _operandStack.Push(NumberValue.Num9);
+                        break;
+                    case OpCode.PUSH_NULL:
+                        _operandStack.Push(ScriptObject.Null);
+                        break;
+                    case OpCode.PUSH_FALSE:
+                        _operandStack.Push(BooleanValue.False);
+                        break;
+                    case OpCode.PUSH_TRUE:
+                        _operandStack.Push(BooleanValue.True);
+                        break;
+                    case OpCode.PUSH_THIS:
+                        _operandStack.Push(frame.ThisModule);
+                        break;
+                    case OpCode.PUSH_GLOBAL:
+                        _operandStack.Push(_globalEnv);
+                        break;
+
+
+
+
                 }
+
+
+
             }
 
             // 如果执行到这里，说明字节码执行完毕但没有明确的返回值

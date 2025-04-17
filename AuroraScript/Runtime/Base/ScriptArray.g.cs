@@ -22,7 +22,7 @@ namespace AuroraScript.Runtime.Base
             Prototype.IsFrozen = true;
         }
 
-        public static ScriptObject LENGTH(ScriptObject thisObject)
+        public new static ScriptObject LENGTH(ScriptObject thisObject)
         {
             var strValue = thisObject as ScriptArray;
             return new NumberValue(strValue._items.Count);

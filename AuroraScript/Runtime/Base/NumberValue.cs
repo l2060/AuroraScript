@@ -1,8 +1,11 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System.Runtime.CompilerServices;
+
+namespace AuroraScript.Runtime.Base
 {
 
     public partial class NumberValue : ScriptValue
     {
+        public static readonly NumberValue NaN = new NumberValue(Double.NaN);
         public static readonly NumberValue Zero = new NumberValue(0);
         public static readonly NumberValue Num1 = new NumberValue(1);
         public static readonly NumberValue Num2 = new NumberValue(2);
@@ -20,10 +23,9 @@
 
         private readonly Double _value;
 
-        public NumberValue(Double str = 0)
+        public NumberValue(Double str = 0) : base()
         {
             _value = str;
-            IsFrozen = true;
             _prototype = NumberValue.Prototype;
         }
 
@@ -46,27 +48,44 @@
             return _value.ToString();
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NumberValue Of(Double value)
         {
             return new NumberValue(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Boolean IsTrue()
         {
             return _value != 0;
         }
 
+        public static NumberValue operator -(NumberValue a)
+        {
+            return NumberValue.Of(-a._value);
+        }
+
+
+
         public static BooleanValue operator <(NumberValue a, NumberValue b)
         {
             return BooleanValue.Of(a._value < b._value);
         }
+        public static BooleanValue operator <=(NumberValue a, NumberValue b)
+        {
+            return BooleanValue.Of(a._value <= b._value);
+        }
+
+
 
         public static BooleanValue operator >(NumberValue a, NumberValue b)
         {
             return BooleanValue.Of(a._value > b._value);
         }
-
+        public static BooleanValue operator >=(NumberValue a, NumberValue b)
+        {
+            return BooleanValue.Of(a._value >= b._value);
+        }
 
         public static NumberValue operator +(NumberValue a, Int32 b)
         {
@@ -76,6 +95,11 @@
         public static NumberValue operator -(NumberValue a, Int32 b)
         {
             return NumberValue.Of(a._value - b);
+        }
+
+        public static NumberValue operator %(NumberValue a, NumberValue b)
+        {
+            return NumberValue.Of(a._value % b._value);
         }
 
 
@@ -100,10 +124,7 @@
             return NumberValue.Of(a._value / b._value);
         }
 
-        public static NumberValue operator %(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value % b._value);
-        }
+
         public static NumberValue operator &(NumberValue a, NumberValue b)
         {
             return NumberValue.Of((Int64)a._value & (Int64)b._value);

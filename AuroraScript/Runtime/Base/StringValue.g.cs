@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.SqlTypes;
 using System.Drawing;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace AuroraScript.Runtime.Base
 
             Prototype.Define("constructor", new ClrFunction(CONSTRUCTOR), readable: true, writeable: false);
             Prototype.Define("length", new ClrGetter(LENGTH), readable: true, writeable: false);
+            Prototype.Define("contains", new ClrFunction(CONTANINS), readable: true, writeable: false);
             Prototype.Define("indexOf", new ClrFunction(INDEXOF), readable: true, writeable: false);
             Prototype.Define("lastIndexOf", new ClrFunction(LASTINDEXOF), readable: true, writeable: false);
             Prototype.Define("startsWith", new ClrFunction(STARTSWITH), readable: true, writeable: false);
@@ -48,58 +50,55 @@ namespace AuroraScript.Runtime.Base
         public new static ScriptObject LENGTH(ScriptObject thisObject)
         {
             var strValue = thisObject as StringValue;
-            return strValue.Length;
+            return NumberValue.Of(strValue.Value.Length);
         }
 
 
+        public static ScriptObject CONTANINS(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
+        {
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return BooleanValue.Of(strValue.Value.Contains(str.Value));
+        }
+
         public static ScriptObject INDEXOF(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return NumberValue.Of(strValue.Value.IndexOf(str.Value));
         }
 
         public static ScriptObject LASTINDEXOF(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return NumberValue.Of(strValue.Value.LastIndexOf(str.Value));
         }
 
 
-        
+
 
         public static ScriptObject STARTSWITH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return BooleanValue.Of(strValue.Value.StartsWith(str.Value));
         }
 
 
         public static ScriptObject ENDSWITH(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return BooleanValue.Of(strValue.Value.EndsWith(str.Value));
         }
 
 
         public static ScriptObject SUBSTRING(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            var strValue = thisObject as StringValue;
+            var str = args[0] as StringValue;
+            return StringValue.Of(strValue.Value.Substring(1, 1));
         }
 
         public static ScriptObject SPLIT(AuroraEngine engine, ScriptObject thisObject, ScriptObject[] args)

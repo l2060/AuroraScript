@@ -100,9 +100,6 @@ namespace AuroraScript
             var createTimerMethod = moduleTimer.GetPropertyValue("createTimer");
             var testMethod = moduleTimer.GetPropertyValue("test");
 
-
-
-
             Stopwatch stopwatch = Stopwatch.StartNew();
             runtimeVM.Execute(testMethod as Closure);
             stopwatch.Stop();

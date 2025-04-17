@@ -160,7 +160,7 @@ namespace AuroraScript.Compiler.Emits
                 }
                 else
                 {
-                    _instructionBuilder.PopLocal(slot);
+                    _instructionBuilder.StoreLocal(slot);
                 }
             }
             // 2. 代码块内的语句
@@ -209,7 +209,7 @@ namespace AuroraScript.Compiler.Emits
                     {
                         var slot = _scope.Declare(DeclareType.Captured, varName);
                         _instructionBuilder.CaptureVariable(declareObject.Index);
-                        _instructionBuilder.PopLocal(slot);
+                        _instructionBuilder.StoreLocal(slot);
                     }
                 }
             }
@@ -361,7 +361,7 @@ namespace AuroraScript.Compiler.Emits
                 // load args
                 _instructionBuilder.LoadArg(node.Index);
             }
-            _instructionBuilder.PopLocal(slot);
+            _instructionBuilder.StoreLocal(slot);
         }
 
 
@@ -419,7 +419,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 VisitLiteralExpression(literal);
                 node.Object.Accept(this);
-                _instructionBuilder.GetElement();
+                _instructionBuilder.SetElement();
             }
             else
             {
@@ -522,7 +522,7 @@ namespace AuroraScript.Compiler.Emits
                 }
                 else if (declare.Type == DeclareType.Variable)
                 {
-                    _instructionBuilder.PushLocal(declare.Index);
+                    _instructionBuilder.LoadLocal(declare.Index);
                 }
                 else if (declare.Type == DeclareType.Property)
                 {
@@ -658,7 +658,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else if (node.Operator.Symbol == Symbols.OP_MODULO)
             {
-                _instructionBuilder.Emit(OpCode.LOGIC_MOD);
+                _instructionBuilder.Emit(OpCode.MOD);
             }
 
 
@@ -782,7 +782,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else
             {
-                _instructionBuilder.PopLocal(slot);
+                _instructionBuilder.StoreLocal(slot);
             }
 
         }
@@ -859,12 +859,12 @@ namespace AuroraScript.Compiler.Emits
             {
                 if (declareObject.Type == DeclareType.Captured)
                 {
-                    _instructionBuilder.PopLocal(declareObject.Index);
+                    _instructionBuilder.StoreLocal(declareObject.Index);
                     return;
                 }
                 else if (declareObject.Type == DeclareType.Variable)
                 {
-                    _instructionBuilder.PopLocal(declareObject.Index);
+                    _instructionBuilder.StoreLocal(declareObject.Index);
                     return;
                 }
                 else if (declareObject.Type == DeclareType.Property)

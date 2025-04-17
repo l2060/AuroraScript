@@ -344,21 +344,15 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.TRY_LOAD_ARG, index);
         }
 
-        public void PushLocal(int index)
+        public void LoadLocal(int index)
         {
-            Emit(OpCode.PUSH_LOCAL, index);
-        }
-
-        public void PushMethod(int index)
-        {
-            Emit(OpCode.PUSH_METHOD, index);
+            Emit(OpCode.LOAD_LOCAL, index);
         }
 
 
-
-        public void PopLocal(int index)
+        public void StoreLocal(int index)
         {
-            Emit(OpCode.POP_TO_LOCAL, index);
+            Emit(OpCode.STORE_LOCAL, index);
         }
 
 
@@ -383,13 +377,15 @@ namespace AuroraScript.Compiler.Emits
 
         public void ReturnNull()
         {
-            Emit(OpCode.RETURN_NULL);
+            Emit(OpCode.PUSH_NULL);
+            Emit(OpCode.RETURN);
         }
 
 
         public void ReturnGlobal()
         {
-            Emit(OpCode.RETURN_GLOBAL);
+            Emit(OpCode.PUSH_GLOBAL);
+            Emit(OpCode.RETURN);
         }
 
         public Byte[] Build()

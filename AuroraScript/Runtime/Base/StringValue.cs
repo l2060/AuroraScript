@@ -1,29 +1,20 @@
-﻿namespace AuroraScript.Runtime.Base
+﻿using System.Runtime.CompilerServices;
+
+namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue : ScriptValue
     {
         private readonly String _value;
 
-        public StringValue(String str)
+        public StringValue(String str) : base()
         {
             _value = str;
-            IsFrozen = true;
             _prototype = StringValue.Prototype;
         }
 
 
         public String Value => _value;
 
-
-
-
-        public NumberValue Length
-        {
-            get
-            {
-                return new NumberValue(_value.Length);
-            }
-        }
 
 
         public override int GetHashCode()
@@ -36,12 +27,13 @@
             return $"\"{_value}\"";
         }
 
+
         public override string ToString()
         {
             return _value;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static StringValue Of(String value)
         {
             return new StringValue(value);
