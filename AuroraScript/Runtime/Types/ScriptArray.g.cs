@@ -38,23 +38,28 @@ namespace AuroraScript.Runtime.Base
                     array.Push(item);
                 }
             }
-            return null;
+            return ScriptObject.Null;
         }
 
 
         public static ScriptObject POP(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if(thisObject  is ScriptArray array)
+            if(thisObject is ScriptArray array)
             {
                 return array.Pop();
             }
-            return null;
+            return ScriptObject.Null;
         }
 
 
         public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            var array = new ScriptArray();
+            int capacity = 0;
+            if (args.Length == 1 && args[0] is NumberValue numberValue)
+            {
+                capacity = numberValue.Int32Value;
+            }
+            var array = new ScriptArray(capacity);
             return array;
         }
 

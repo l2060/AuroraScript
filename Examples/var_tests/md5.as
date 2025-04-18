@@ -6,11 +6,15 @@
 **/
 
 function RotateLeft(lValue, iShiftBits) {
-    return (lValue << iShiftBits) | (lValue >>/*>*/ (32 - iShiftBits));
+    return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
 }
 
 function AddUnsigned(lX, lY) {
-    var lX4, lY4, lX8, lY8, lResult;
+    var lX4;
+    var lY4;
+    var lX8;
+    var lY8;
+    var lResult;
     lX8 = (lX & 0x80000000);
     lY8 = (lY & 0x80000000);
     lX4 = (lX & 0x40000000);
@@ -85,7 +89,7 @@ function WordToHex(lValue) {
     for (lCount = 0; lCount <= 3; lCount++) {
         lByte = (lValue >> (lCount * 8)) & 255;
         WordToHexValue_temp = "0" + lByte.toString(16);
-        WordToHexValue = WordToHexValue + WordToHexValue_temp.substr(WordToHexValue_temp.length - 2, 2);
+        WordToHexValue = WordToHexValue + WordToHexValue_temp.substring(WordToHexValue_temp.length - 2, 2);
     }
     return WordToHexValue;
 };
@@ -116,7 +120,17 @@ function Utf8Encode(string) {
 
 function MD5(string) {
     var x = [];
-    var k, AA, BB, CC, DD, a, b, c, d;
+    var k; 
+   var  AA;
+   var  BB;
+   var  CC;
+   var  DD;
+  var    a;
+  var    b;
+  var    c;
+  var    d;
+
+
     var S11 = 7; var S12 = 12; var S13 = 17; var S14 = 22;
     var S21 = 5; var S22 = 9; var S23 = 14; var S24 = 20;
     var S31 = 4; var S32 = 11; var S33 = 16; var S34 = 23;
@@ -146,6 +160,7 @@ function MD5(string) {
         d = FF(d, a, b, c, x[k + 13], S12, 0xFD987193);
         c = FF(c, d, a, b, x[k + 14], S13, 0xA679438E);
         b = FF(b, c, d, a, x[k + 15], S14, 0x49B40821);
+
         a = GG(a, b, c, d, x[k + 1], S21, 0xF61E2562);
         d = GG(d, a, b, c, x[k + 6], S22, 0xC040B340);
         c = GG(c, d, a, b, x[k + 11], S23, 0x265E5A51);
@@ -199,6 +214,11 @@ function MD5(string) {
         c = AddUnsigned(c, CC);
         d = AddUnsigned(d, DD);
     }
+    console.log(a);
+    console.log(b);
+    console.log(c);
+    console.log(d);
+
 
     var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
 

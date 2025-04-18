@@ -87,6 +87,15 @@ namespace AuroraScript.Runtime
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Int64 ReadInt64(CallFrame frame)
+        {
+            if (frame.Pointer + 8 > _byteCode.Length)
+                throw new InvalidOperationException("指令指针超出范围");
+            Int64 value = BitConverter.ToInt64(_byteCode, frame.Pointer);
+            frame.Pointer += 8;
+            return value;
+        }
 
 
     }

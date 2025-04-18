@@ -74,7 +74,13 @@ namespace AuroraScript.Compiler.Emits
 
         public Instruction Emit(OpCode opCode, Double param)
         {
-            var instruction = new Instruction9(opCode, _position, param);
+            var instruction = new InstructionDouble(opCode, _position, param);
+            return AppendInstruction(instruction);
+        }
+
+        public Instruction Emit(OpCode opCode, Int64 param)
+        {
+            var instruction = new InstructionInt64(opCode, _position, param);
             return AppendInstruction(instruction);
         }
 
@@ -196,6 +202,12 @@ namespace AuroraScript.Compiler.Emits
                 Emit(OpCode.PUSH_I32, (Int32)operand);
                 return;
             }
+            if (operand % 1 == 0 && operand >= Int64.MinValue && operand <= Int64.MaxValue)
+            {
+                Emit(OpCode.PUSH_I64, (Int64)operand);
+                return;
+            }
+
             if (operand >= Single.MinValue && operand <= Single.MaxValue && (Single)operand == operand)
             {
                 UnionNumber union = new UnionNumber((Single)operand, 0.0f);

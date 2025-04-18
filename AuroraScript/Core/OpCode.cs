@@ -6,24 +6,25 @@
     public enum OpCode : byte
     {
         // Stack Operations
-        NOP,         // No operation
-        POP,         // Pop the top value from the stack
-        DUP,         // Duplicate the top value on the stack
-        SWAP,        // Swap the top two values on the stack
-        LOAD_ARG,    // Load a function argument onto the stack (takes argument index)
-        TRY_LOAD_ARG,    // 如果参数存在则先弹出栈顶元素，再加载参数
+        NOP = 0,         // No operation
+        POP = 1,         // Pop the top value from the stack
+        DUP = 2,         // Duplicate the top value on the stack
+        SWAP = 3,        // Swap the top two values on the stack
+        LOAD_ARG = 4,    // Load a function argument onto the stack (takes argument index)
+        TRY_LOAD_ARG = 5,    // 如果参数存在则先弹出栈顶元素，再加载参数
 
         // Constants
-        PUSH_I8,  // SByte
-        PUSH_I16, // Int16
-        PUSH_I32, // Int32
-        PUSH_F32, // Single
-        PUSH_F64, // Double
-        PUSH_STRING, // Push a constant from the constant pool onto the stack (takes constant index)
+        PUSH_I8 = 6,  // SByte
+        PUSH_I16 = 7, // Int16
+        PUSH_I32 = 8, // Int32
+        PUSH_I64 = 9, // Int32
+        PUSH_F32 = 10, // Single
+        PUSH_F64 = 11, // Double
+        PUSH_STRING = 12, // Push a constant from the constant pool onto the stack (takes constant index)
 
 
-        LOAD_LOCAL,     // 将local变量加载到栈上 
-        STORE_LOCAL,    // 将栈顶元素保存到变量（移除栈顶元素）
+        LOAD_LOCAL = 13,     // 将local变量加载到栈上 
+        STORE_LOCAL = 14,    // 将栈顶元素保存到变量（移除栈顶元素）
 
 
         CREATE_CLOSURE, // 创建闭包
@@ -72,6 +73,7 @@
         GREATER_EQUAL,  // Compare if the second value is greater than or equal to the top value
         BIT_SHIFT_L,   // <<
         BIT_SHIFT_R,   // >>
+        BIT_USHIFT_R,   // >>>
         BIT_AND,   // &
         BIT_OR,    // |
         BIT_XOR,   // ^

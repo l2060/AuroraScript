@@ -37,6 +37,7 @@ namespace AuroraScript.Runtime.Base
 
         public Int32 Int32Value => (Int32)_value;
 
+        public Int64 Int64Value => (Int64)_value;
 
 
 
@@ -128,19 +129,21 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static NumberValue operator &(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of((Int64)a._value & (Int64)b._value);
-        }
 
         public static NumberValue operator <<(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int64)a._value << (Byte)b._value);
+            return NumberValue.Of((Int32)a.Int32Value << (Byte)b.Int32Value);
         }
 
         public static NumberValue operator >>(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int64)a._value >> (Byte)b._value);
+            return NumberValue.Of((Int32)a.Int32Value >> (Byte)b._value);
+        }
+
+
+        public static NumberValue operator >>>(NumberValue a, NumberValue b)
+        {
+            return NumberValue.Of((Int32)a.Int32Value >>> (Byte)b._value);
         }
 
         public static NumberValue operator ~(NumberValue a)
@@ -149,15 +152,25 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+        public static NumberValue operator &(NumberValue a, NumberValue b)
+        {
+            var c = unchecked((Int32)a.Int64Value);
+            var d = unchecked((Int32)b.Int64Value);
+            return NumberValue.Of(c & d);
+        }
 
         public static NumberValue operator |(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int64)a._value | (Int64)b._value);
+            var c = unchecked((Int32)a.Int64Value);
+            var d = unchecked((Int32)b.Int64Value);
+            return NumberValue.Of(c | d);
         }
 
         public static NumberValue operator ^(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int64)a._value ^ (Int64)b._value);
+            var c = unchecked((Int32)a.Int64Value);
+            var d = unchecked((Int32)b.Int64Value);
+            return NumberValue.Of(c ^ d);
         }
 
 

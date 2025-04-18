@@ -9,6 +9,7 @@ namespace AuroraScript.Ast.Statements
         internal ReturnStatement(Expression expression)
         {
             this.Expression = expression;
+            expression.Parent = this;
         }
 
         public Expression Expression { get; private set; }

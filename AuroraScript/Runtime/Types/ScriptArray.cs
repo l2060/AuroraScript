@@ -8,6 +8,16 @@ namespace AuroraScript.Runtime.Base
     {
         private readonly List<ScriptObject> _items;
 
+        public ScriptArray(Int32 capacity)
+        {
+            this._prototype = ScriptArray.Prototype;
+            this._items = new List<ScriptObject>(new ScriptObject[capacity]);
+            for (int i = 0; i < capacity; i++)
+            {
+                this._items[i] = ScriptObject.Null;
+            }
+        }
+
         public ScriptArray(ScriptObject[] array)
         {
             this._prototype = ScriptArray.Prototype;
@@ -28,6 +38,10 @@ namespace AuroraScript.Runtime.Base
 
         public void SetElement(NumberValue index, ScriptObject value)
         {
+            while (this._items.Count <= index.Int32Value)
+            {
+                this._items.Add(ScriptObject.Null);
+            }
             this._items[index.Int32Value] = value;
         }
 

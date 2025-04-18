@@ -12,11 +12,7 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue
     {
-
-
         private new readonly static ScriptObject Prototype;
-
-
         static StringValue()
         {
             Prototype = new ScriptObject();
@@ -40,9 +36,27 @@ namespace AuroraScript.Runtime.Base
             Prototype.Define("slice", new ClrFunction(SLICE), readable: true, writeable: false);
             Prototype.Define("toString", new ClrFunction(TOSTRING), readable: true, writeable: false);
             Prototype.Define("charCodeAt", new ClrFunction(CHARCODEAT), readable: true, writeable: false);
+            Prototype.Define("toLowerCase", new ClrFunction(TOLOWERCASE), readable: true, writeable: false); 
+            Prototype.Define("toUpperCase", new ClrFunction(TOUPPERCASE), readable: true, writeable: false);
+
             Prototype._prototype = ScriptObject.Prototype;
             Prototype.IsFrozen = true;
         }
+
+        public static ScriptObject TOLOWERCASE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            var strValue = thisObject as StringValue;
+            return StringValue.Of(strValue.Value.ToLower());
+        }
+
+        public static ScriptObject TOUPPERCASE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        {
+            var strValue = thisObject as StringValue;
+            return StringValue.Of(strValue.Value.ToUpper());
+        }
+
+
+
 
         public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
@@ -100,7 +114,25 @@ namespace AuroraScript.Runtime.Base
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
-            return StringValue.Of(strValue.Value.Substring(1, 1));
+            var start = 0;
+            var end = 0;
+            if (args.Length > 0 && args[0] is NumberValue posNum)
+            {
+                start = posNum.Int32Value;
+                if (args.Length > 1 && args[1] is NumberValue lenNum)
+                {
+                    end = lenNum.Int32Value;
+                    if (start > end)
+                    {
+                        var e = end; end = start; start = e;
+                    }
+
+
+                    return StringValue.Of(strValue.Value.Substring(start, end - start));
+                }
+                return StringValue.Of(strValue.Value.Substring(start));
+            }
+            return thisObject;
         }
 
         public static ScriptObject SPLIT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
@@ -196,15 +228,16 @@ namespace AuroraScript.Runtime.Base
             var strValue = thisObject as StringValue;
             if (args.Length > 0)
             {
-                var str1 = args[0] as NumberValue;
-                var index= strValue.Value.IndexOf(str1.Int32Value.ToString());
-                return NumberValue.Of(index);
+                var num = args[0] as NumberValue;
+                if (num.Int32Value >= strValue.Value.Length) return NumberValue.NaN;
+                var charCode =  strValue.Value[num.Int32Value];
+                return NumberValue.Of((Int32)charCode);
             }
             return NumberValue.Negative1;
         }
 
 
-        
+
 
     }
 }

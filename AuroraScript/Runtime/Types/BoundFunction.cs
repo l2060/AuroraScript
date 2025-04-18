@@ -13,8 +13,9 @@ namespace AuroraScript.Runtime
         private readonly ClrMethodDelegate _callback;
         public readonly String Name;
 
-        public BoundFunction(ClrMethodDelegate callback, ScriptObject thisObject)
+        public BoundFunction(ClrMethodDelegate callback, ScriptObject _prototype, ScriptObject thisObject)
         {
+            this._prototype = _prototype;
             var method = callback.Method;
             Name = method.DeclaringType.Name + "." + method.Name;
             this._callback = callback;
@@ -24,7 +25,7 @@ namespace AuroraScript.Runtime
 
         public override BoundFunction Bind(ScriptObject target)
         {
-            return new BoundFunction(this._callback, target);
+            return new BoundFunction(this._callback, _prototype, target);
         }
 
 

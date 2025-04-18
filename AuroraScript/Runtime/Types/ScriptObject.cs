@@ -132,7 +132,7 @@ namespace AuroraScript.Runtime.Base
 
         public static StringValue operator +(ScriptObject a, ScriptObject b)
         {
-            return new StringValue(a.ToString() + b.ToString());
+            return new StringValue(a?.ToString() + b?.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

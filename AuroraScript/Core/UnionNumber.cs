@@ -26,6 +26,10 @@ namespace AuroraScript.Core
             DoubleValue = doubleValue;
         }
 
+        public UnionNumber(Int64 int64Value)
+        {
+            Int64Value = int64Value;
+        }
 
         public UnionNumber(Single hight, Single low)
         {
@@ -34,7 +38,7 @@ namespace AuroraScript.Core
         }
 
 
-
+        [FieldOffset(0)] public Int64 Int64Value;
         [FieldOffset(0)] public Double DoubleValue;
 
         [FieldOffset(0)] public Single FloatValueH;

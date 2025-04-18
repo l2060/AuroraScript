@@ -392,21 +392,23 @@ namespace AuroraScript.Compiler.Emits
         public override void VisitGetElementExpression(GetElementExpression node)
         {
             node.Object.Accept(this);
-            if (node.Index is NameExpression name)
-            {
-                // get property
-                name.Accept(this);
-                _instructionBuilder.GetElement();
-            }
-            else if (node.Index is LiteralExpression literal)
-            {
-                VisitLiteralExpression(literal);
-                _instructionBuilder.GetElement();
-            }
-            else
-            {
-                node.Index.Accept(this);
-            }
+            node.Index.Accept(this);
+            _instructionBuilder.GetElement();
+            //if (node.Index is NameExpression name)
+            //{
+            //    // get property
+            //    name.Accept(this);
+            //    _instructionBuilder.GetElement();
+            //}
+            //else if (node.Index is LiteralExpression literal)
+            //{
+            //    VisitLiteralExpression(literal);
+            //    _instructionBuilder.GetElement();
+            //}
+            //else
+            //{
+
+            //}
         }
 
         public override void VisitGetPropertyExpression(GetPropertyExpression node)
@@ -423,23 +425,9 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
             node.Value.Accept(this);
-            if (node.Index is NameExpression name)
-            {
-                // get property
-                name.Accept(this);
-                node.Object.Accept(this);
-                _instructionBuilder.SetElement();
-            }
-            else if (node.Index is LiteralExpression literal)
-            {
-                VisitLiteralExpression(literal);
-                node.Object.Accept(this);
-                _instructionBuilder.SetElement();
-            }
-            else
-            {
-                node.Index.Accept(this);
-            }
+            node.Index.Accept(this);
+            node.Object.Accept(this);
+            _instructionBuilder.SetElement();
         }
 
 
@@ -647,6 +635,10 @@ namespace AuroraScript.Compiler.Emits
             {
                 _instructionBuilder.Emit(OpCode.BIT_SHIFT_R);
             }
+            else if (node.Operator.Symbol == Symbols.OP_UNSIGNEDRIGHTSHIFT)
+            {
+                _instructionBuilder.Emit(OpCode.BIT_USHIFT_R);
+            }
             else if (node.Operator.Symbol == Symbols.OP_LOGICAL_AND)
             {
                 _instructionBuilder.Emit(OpCode.LOGIC_AND);
@@ -657,7 +649,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else if (node.Operator.Symbol == Symbols.OP_BIT_AND)
             {
-                _instructionBuilder.Emit(OpCode.LOGIC_AND);
+                _instructionBuilder.Emit(OpCode.BIT_AND);
             }
             else if (node.Operator.Symbol == Symbols.OP_BIT_OR)
             {
@@ -677,6 +669,7 @@ namespace AuroraScript.Compiler.Emits
             }
 
 
+            
             else
             {
                 throw new NotSupportedException($"Unsupported binary operator: {node.Operator.Symbol}");
@@ -699,22 +692,26 @@ namespace AuroraScript.Compiler.Emits
                 // 前缀操作：先执行操作，再返回值
                 operand.Accept(this);
                 _instructionBuilder.Emit(opCode);
-                if (node.Parent != null) _instructionBuilder.Duplicate();
-                // 如果是变量，需要保存回变量
-                if (operand is NameExpression nameExpr)
+                if ((opCode == OpCode.INCREMENT || opCode == OpCode.DECREMENT))
                 {
-                    MoveValueTo(nameExpr.Identifier.Value);
+                    if (node.Parent != null) _instructionBuilder.Duplicate();
+                    // 如果是变量，需要保存回变量
+                    if (operand is NameExpression nameExpr)
+                    {
+                        MoveValueTo(nameExpr.Identifier.Value);
+                    }
+                    else if (operand is GetPropertyExpression propExpr)
+                    {
+                        // 处理属性赋值
+                        HandlePropertyAssignment(propExpr);
+                    }
+                    else if (operand is GetElementExpression eleExpr)
+                    {
+                        // 处理索引赋值
+                        HandleElementAssignment(eleExpr);
+                    }
                 }
-                else if (operand is GetPropertyExpression propExpr)
-                {
-                    // 处理属性赋值
-                    HandlePropertyAssignment(propExpr);
-                }
-                else if (operand is GetElementExpression eleExpr)
-                {
-                    // 处理索引赋值
-                    HandleElementAssignment(eleExpr);
-                }
+
             }
             else // PostFix
             {
@@ -722,22 +719,25 @@ namespace AuroraScript.Compiler.Emits
                 operand.Accept(this);
 
                 _instructionBuilder.Emit(opCode);
-                if (node.Parent != null) _instructionBuilder.Duplicate();
-                // 如果是变量，需要保存回变量
-                if (operand is NameExpression nameExpr)
+                if ((opCode == OpCode.INCREMENT || opCode == OpCode.DECREMENT))
                 {
-                    MoveValueTo(nameExpr.Identifier.Value);
-                    // 不需要额外的Duplicate，因为栈顶已经是原值
-                }
-                else if (operand is GetPropertyExpression propExpr)
-                {
-                    // 处理属性赋值
-                    HandlePropertyAssignment(propExpr);
-                }
-                else if (operand is GetElementExpression eleExpr)
-                {
-                    // 处理索引赋值
-                    HandleElementAssignment(eleExpr);
+                    if (node.Parent != null) _instructionBuilder.Duplicate();
+                    // 如果是变量，需要保存回变量
+                    if (operand is NameExpression nameExpr)
+                    {
+                        MoveValueTo(nameExpr.Identifier.Value);
+                        // 不需要额外的Duplicate，因为栈顶已经是原值
+                    }
+                    else if (operand is GetPropertyExpression propExpr)
+                    {
+                        // 处理属性赋值
+                        HandlePropertyAssignment(propExpr);
+                    }
+                    else if (operand is GetElementExpression eleExpr)
+                    {
+                        // 处理索引赋值
+                        HandleElementAssignment(eleExpr);
+                    }
                 }
             }
         }
@@ -863,6 +863,17 @@ namespace AuroraScript.Compiler.Emits
 
         public override void VisitCompoundExpression(CompoundExpression node)
         {
+            node.Left.Accept(this);
+            node.Right.Accept(this);
+            if (node.Operator == Operator.CompoundAdd) _instructionBuilder.Emit(OpCode.ADD);
+            if (node.Operator == Operator.CompoundSubtract) _instructionBuilder.Emit(OpCode.SUBTRACT);
+            if (node.Operator == Operator.CompoundMultiply) _instructionBuilder.Emit(OpCode.MULTIPLY);
+            if (node.Operator == Operator.CompoundDivide) _instructionBuilder.Emit(OpCode.DIVIDE);
+            if (node.Operator == Operator.CompoundModulo) _instructionBuilder.Emit(OpCode.MOD);
+
+
+            MoveValueTo(node.Left.ToString());
+
             // TODO
         }
 

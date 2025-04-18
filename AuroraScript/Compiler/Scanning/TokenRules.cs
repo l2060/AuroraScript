@@ -100,6 +100,15 @@ namespace AuroraScript.Scanning
                     result.Success = true;
                     return result;
                 }
+                if (codeSpan[0] == '>' && codeSpan[1] == '>' && codeSpan[2] == '>')
+                {
+                    result.ColumnNumber += 3;
+                    result.Length = 3;
+                    result.Value = codeSpan.Slice(0, 3).ToString();
+                    result.Type = TokenTyped.Punctuator;
+                    result.Success = true;
+                    return result;
+                }
             }
             if (codeSpan.Length >= 2)
             {

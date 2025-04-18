@@ -26,7 +26,7 @@ namespace AuroraScript.Runtime.Types
         }
         public override BoundFunction Bind(ScriptObject target)
         {
-            return new BoundFunction(_callback, target);
+            return new BoundFunction(_callback,_prototype, target);
         }
 
         public override string ToString()

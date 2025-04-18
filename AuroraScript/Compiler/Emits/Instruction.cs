@@ -158,14 +158,14 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
-    public class Instruction9 : Instruction
+    public class InstructionDouble : Instruction
     {
 
         public UnionNumber Value;
 
         public override int Length => 9;
 
-        public Instruction9(OpCode opCode, int offset, Double value) : base(opCode, offset)
+        public InstructionDouble(OpCode opCode, int offset, Double value) : base(opCode, offset)
         {
             this.Value = new UnionNumber(value);
         }
@@ -178,18 +178,35 @@ namespace AuroraScript.Compiler.Emits
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write((Byte)OpCode);
-            writer.Write(Value.Int32ValueH);
-            writer.Write(Value.Int32ValueL);
+            writer.Write(Value.DoubleValue);
         }
-        //private void a()
-        //{
-        //    long bits = Unsafe.As<double, long>(ref Value);
-        //    int high = (int)(bits >> 32);
-        //    int low = (int)(bits & 0xFFFFFFFF);
-        //    // low, high
-        //    //NumberUnion union2 = new NumberUnion(operand);
-        //}
     }
+
+
+    public class InstructionInt64 : Instruction
+    {
+
+        public UnionNumber Value;
+
+        public override int Length => 9;
+
+        public InstructionInt64(OpCode opCode, int offset, Int64 value) : base(opCode, offset)
+        {
+            this.Value = new UnionNumber(value);
+        }
+
+        public override string ToString()
+        {
+            return OpCode + " " + Value.Int64Value;
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value.Int64Value);
+        }
+    }
+
 
     public class JumpInstruction : Instruction5
     {

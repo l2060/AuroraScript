@@ -12,13 +12,14 @@ public class Program
 
     public static async Task Main()
     {
+        Int64 dob = unchecked((int)4023233417) & unchecked((int)2562383102);
+
 
         var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./var_tests/" });
 
         await engine.BuildAsync("./unit.as");
 
         var domain = engine.CreateDomain();
-
 
         var result = domain.Execute("UNIT", "test").Done();
 

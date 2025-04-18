@@ -74,10 +74,7 @@ namespace AuroraScript
             Global.SetPropertyValue("debug", new ClrFunction(LOG));
 
             Global.SetPropertyValue("Array", new ClrFunction(ScriptArray.CONSTRUCTOR));
-
-
-
-
+            Global.SetPropertyValue("String", StringConstructor.INSTANCE);
 
             // 在控制台对象中注册日志、计时和计时结束函数
             console.SetPropertyValue("log", new ClrFunction(LOG));

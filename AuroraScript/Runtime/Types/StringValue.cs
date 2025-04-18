@@ -5,6 +5,9 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue : ScriptValue
     {
+        public readonly static StringValue Empty = new StringValue("");
+
+
         private readonly String _value;
 
         public StringValue(String str) : base()

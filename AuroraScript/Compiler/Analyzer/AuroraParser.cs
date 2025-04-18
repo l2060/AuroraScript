@@ -839,6 +839,10 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.Multiply) return new BinaryExpression(_operator);
             if (_operator == Operator.NotEqual) return new BinaryExpression(_operator);
             if (_operator == Operator.SignedRightShift) return new BinaryExpression(_operator);
+            if (_operator == Operator.UnSignedRightShift) return new BinaryExpression(_operator);
+
+
+            
             if (_operator == Operator.Subtract) return new BinaryExpression(_operator);
 
             // Prefix expression
