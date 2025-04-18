@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Runtime.Base;
-using System;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Types
@@ -16,9 +15,7 @@ namespace AuroraScript.Runtime.Types
         {
             _value = str;
             _valueString = valueString;
-            _prototype = new ScriptObject();
-            _prototype.Define("toString", new ClrFunction(TOSTRING), true, false);
-            _prototype.IsFrozen = true;
+            _prototype = Prototypes.BooleanValuePrototype;
         }
 
         public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)

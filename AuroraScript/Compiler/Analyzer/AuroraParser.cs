@@ -104,11 +104,12 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
             if (token.Symbol == Symbols.KW_CONTINUE) return this.ParseContinueStatement(currentScope);
             if (token.Symbol == Symbols.KW_YIELD) return this.ParseYieldStatement(currentScope);
+            if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
+            if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
+            if (token.Symbol == Symbols.KW_DELETE) return this.ParseDeleteStatement(currentScope);
 
 
             
-            if (token.Symbol == Symbols.KW_BREAK) return this.ParseBreakStatement(currentScope);
-            if (token.Symbol == Symbols.KW_RETURN) return this.ParseReturnStatement(currentScope);
 
             var exp = this.ParseExpression(currentScope);
             exp.IsStateSegment = true;
@@ -186,6 +187,23 @@ namespace AuroraScript.Analyzer
             return declaration;
         }
 
+        
+
+        /// <summary>
+        /// parse return expression
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <returns></returns>
+        private Statement ParseDeleteStatement(Scope currentScope)
+        {
+            this.lexer.NextOfKind(Symbols.KW_DELETE);
+            var exp = this.ParseExpression(currentScope);
+            return new DeleteStatement(exp);
+        }
+
+
+
+
         /// <summary>
         /// parse return expression
         /// </summary>
@@ -222,7 +240,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
             return new YieldStatement();
         }
-        
+
 
 
 
@@ -842,7 +860,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.UnSignedRightShift) return new BinaryExpression(_operator);
 
 
-            
+
             if (_operator == Operator.Subtract) return new BinaryExpression(_operator);
 
             // Prefix expression

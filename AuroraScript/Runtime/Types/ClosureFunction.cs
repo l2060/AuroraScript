@@ -1,5 +1,4 @@
 ﻿using AuroraScript.Runtime.Base;
-using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -8,7 +7,7 @@ namespace AuroraScript.Runtime.Types
     /// 闭包函数可以访问其定义时的环境变量，即使这些变量在定义范围外也可访问
     /// 是脚本中函数的运行时表示，用于实现函数的调用和闭包特性
     /// </summary>
-    public class ClosureFunction : Callable
+    public class ClosureFunction : ScriptObject
     {
         /// <summary>
         /// 闭包指向的方法的字节码地址
@@ -64,32 +63,6 @@ namespace AuroraScript.Runtime.Types
         {
             // 如果函数名为空，显示为匿名函数，否则显示函数名
             return $"<function {(string.IsNullOrEmpty(FuncName) ? "anonymous" : FuncName)}>";
-        }
-
-        /// <summary>
-        /// 调用闭包函数
-        /// 注意：当前实现中不支持直接调用，需要通过ScriptDomain.Execute方法执行
-        /// </summary>
-        /// <param name="domain">脚本域</param>
-        /// <param name="module">模块对象</param>
-        /// <param name="args">函数参数</param>
-        /// <returns>始终返回null，因为当前实现不支持直接调用</returns>
-        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject module, ScriptObject[] args)
-        {
-            // 当前实现不支持直接调用，需要通过ScriptDomain.Execute方法执行
-            return null;
-        }
-
-        /// <summary>
-        /// 将闭包函数绑定到目标对象
-        /// 注意：当前实现中不支持绑定
-        /// </summary>
-        /// <param name="target">目标对象</param>
-        /// <returns>始终返回null，因为当前实现不支持绑定</returns>
-        public override BoundFunction Bind(ScriptObject target)
-        {
-            // 当前实现不支持绑定
-            return null;
         }
     }
 }

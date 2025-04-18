@@ -248,6 +248,10 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.GET_PROPERTY, strAddress);
         }
 
+        public void DeleteProperty()
+        {
+            Emit(OpCode.DELETE_PROPERTY);
+        }
 
         public void GetThisProperty(Int32 nameSlot)
         {
@@ -335,6 +339,14 @@ namespace AuroraScript.Compiler.Emits
             var strAddress = _stringSet.GetSlot(moduleName);
             Emit(OpCode.NEW_MODULE, strAddress);
         }
+
+        public void DefineModule(String moduleName)
+        {
+            var strAddress = _stringSet.GetSlot(moduleName);
+            Emit(OpCode.DEFINE_MODULE, strAddress);
+        }
+
+
 
         public void NewMap()
         {

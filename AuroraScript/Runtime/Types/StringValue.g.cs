@@ -12,36 +12,7 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue
     {
-        private new readonly static ScriptObject Prototype;
-        static StringValue()
-        {
-            Prototype = new ScriptObject();
-
-            Prototype.Define("constructor", new ClrFunction(CONSTRUCTOR), readable: true, writeable: false);
-            Prototype.Define("length", new ClrGetter(LENGTH), readable: true, writeable: false);
-            Prototype.Define("contains", new ClrFunction(CONTANINS), readable: true, writeable: false);
-            Prototype.Define("indexOf", new ClrFunction(INDEXOF), readable: true, writeable: false);
-            Prototype.Define("lastIndexOf", new ClrFunction(LASTINDEXOF), readable: true, writeable: false);
-            Prototype.Define("startsWith", new ClrFunction(STARTSWITH), readable: true, writeable: false);
-            Prototype.Define("endsWith", new ClrFunction(ENDSWITH), readable: true, writeable: false);
-            Prototype.Define("substring", new ClrFunction(SUBSTRING), readable: true, writeable: false);
-            Prototype.Define("split", new ClrFunction(SPLIT), readable: true, writeable: false);
-            Prototype.Define("match", new ClrFunction(MATCH), readable: true, writeable: false);
-            Prototype.Define("replace", new ClrFunction(REPLACE), readable: true, writeable: false);
-            Prototype.Define("padLeft", new ClrFunction(PADLEFT), readable: true, writeable: false);
-            Prototype.Define("padRight", new ClrFunction(PADRIGHT), readable: true, writeable: false);
-            Prototype.Define("trim", new ClrFunction(TRIM), readable: true, writeable: false);
-            Prototype.Define("trimLeft", new ClrFunction(TRIMLEFT), readable: true, writeable: false);
-            Prototype.Define("trimRight", new ClrFunction(TRIMRIGHT), readable: true, writeable: false);
-            Prototype.Define("slice", new ClrFunction(SLICE), readable: true, writeable: false);
-            Prototype.Define("toString", new ClrFunction(TOSTRING), readable: true, writeable: false);
-            Prototype.Define("charCodeAt", new ClrFunction(CHARCODEAT), readable: true, writeable: false);
-            Prototype.Define("toLowerCase", new ClrFunction(TOLOWERCASE), readable: true, writeable: false); 
-            Prototype.Define("toUpperCase", new ClrFunction(TOUPPERCASE), readable: true, writeable: false);
-
-            Prototype._prototype = ScriptObject.Prototype;
-            Prototype.IsFrozen = true;
-        }
+        public readonly static StringValue Empty = new StringValue("");
 
         public static ScriptObject TOLOWERCASE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
@@ -54,9 +25,6 @@ namespace AuroraScript.Runtime.Base
             var strValue = thisObject as StringValue;
             return StringValue.Of(strValue.Value.ToUpper());
         }
-
-
-
 
         public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
@@ -113,7 +81,6 @@ namespace AuroraScript.Runtime.Base
         public static ScriptObject SUBSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
-            var str = args[0] as StringValue;
             var start = 0;
             var end = 0;
             if (args.Length > 0 && args[0] is NumberValue posNum)
@@ -126,8 +93,6 @@ namespace AuroraScript.Runtime.Base
                     {
                         var e = end; end = start; start = e;
                     }
-
-
                     return StringValue.Of(strValue.Value.Substring(start, end - start));
                 }
                 return StringValue.Of(strValue.Value.Substring(start));
@@ -137,28 +102,19 @@ namespace AuroraScript.Runtime.Base
 
         public static ScriptObject SPLIT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            var strValue = thisObject as StringValue;
+            if (args.Length > 0 && args[0] is StringValue stringValue)
             {
-                return array.Pop();
+                return new ScriptArray(strValue.Value.Split(stringValue.Value).Select(e => new StringValue(e)).ToArray());
             }
-            return null;
+            return thisObject;
         }
 
 
         public static ScriptObject MATCH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
-        }
-
-
-        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
-        {
-            var array = new StringValue("");
-            return array;
+            // TODO
+            return thisObject;
         }
 
         public static ScriptObject REPLACE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
@@ -174,51 +130,52 @@ namespace AuroraScript.Runtime.Base
         }
         public static ScriptObject PADLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            var strValue = thisObject as StringValue;
+            if (args.Length == 2)
             {
-                return array.Pop();
+                var len = args[0] as NumberValue;
+                var str2 = args[1] as StringValue;
+                return StringValue.Of(strValue.Value.PadLeft(len.Int32Value, str2.Value[0]));
             }
-            return null;
+            return thisObject;
         }
         public static ScriptObject PADRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is StringValue str)
+            var strValue = thisObject as StringValue;
+            if (args.Length == 2)
             {
-                return StringValue.Of(str.Value.Trim());
+                var len = args[0] as NumberValue;
+                var str2 = args[1] as StringValue;
+                return StringValue.Of(strValue.Value.PadRight(len.Int32Value, str2.Value[0]));
             }
-            return null;
+            return thisObject;
         }
+
         public static ScriptObject TRIM(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
                 return StringValue.Of(str.Value.Trim());
             }
-            return null;
+            return ScriptObject.Null;
         }
+
         public static ScriptObject TRIMLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            if (thisObject is StringValue str)
             {
-                return array.Pop();
+                return StringValue.Of(str.Value.TrimStart());
             }
-            return null;
+            return ScriptObject.Null;
         }
+
         public static ScriptObject TRIMRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (thisObject is ScriptArray array)
+            if (thisObject is StringValue str)
             {
-                return array.Pop();
+                return StringValue.Of(str.Value.TrimEnd());
             }
-            return null;
-        }
-        public static ScriptObject SLICE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
-        {
-            if (thisObject is ScriptArray array)
-            {
-                return array.Pop();
-            }
-            return null;
+            return ScriptObject.Null;
         }
 
 

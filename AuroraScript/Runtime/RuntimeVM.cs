@@ -90,18 +90,10 @@ namespace AuroraScript.Runtime
 
             // 获取当前域的全局对象
             ScriptGlobal domainGlobal = frame.Global;
+
             var popStack = _operandStack.Pop;
 
-            var pushStack = (ScriptObject o) =>
-                {
-                    if (o == null)
-                    {
-                        throw new Exception("");
-                    }
-
-                    _operandStack.Push(o);
-
-                };
+            var pushStack = _operandStack.Push;
 
 
             // 数值一元操作的lambda函数，用于简化代码
@@ -140,11 +132,13 @@ namespace AuroraScript.Runtime
                  }
                  else if (left == ScriptObject.Null)
                  {
+                     // TODO 这里判断不严谨，为了处理 位操作符增加的
                      if (right == null) throw new Exception();
                      pushStack(right);
                  }
                  else
-                 {
+                 {   
+                     // TODO 这里判断不严谨，为了处理 位操作符增加的
                      if (left == null) throw new Exception();
                      pushStack(left);
                  }
@@ -155,12 +149,6 @@ namespace AuroraScript.Runtime
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (true)
             {
-                if (frame.Pointer == 864)
-                {
-
-                }
-
-
                 // 从当前指令指针位置读取操作码
                 var opCode = _codeBuffer.ReadOpCode(frame);
                 // 根据操作码执行相应的操作
@@ -271,6 +259,13 @@ namespace AuroraScript.Runtime
                         pushStack(new ScriptModule(propName.Value));
                         break;
 
+                    case OpCode.DEFINE_MODULE:
+                        propNameIndex = _codeBuffer.ReadInt32(frame);
+                        propName = _stringConstants[propNameIndex];
+                        value = popStack();
+                        domainGlobal.Define(propName.Value, value, writeable: false);
+                        break;
+
                     case OpCode.NEW_MAP:
                         pushStack(new ScriptObject());
                         break;
@@ -294,7 +289,7 @@ namespace AuroraScript.Runtime
 
                         if (obj is ScriptObject scriptObj)
                         {
-                            pushStack(scriptObj.GetPropertyValue(propName.Value, scriptObj));
+                            pushStack(scriptObj.GetPropertyValue(propName.Value));
                         }
                         else
                         {
@@ -318,11 +313,15 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
-
+                    case OpCode.DELETE_PROPERTY:
+                        value = popStack();
+                        obj = popStack();
+                        obj.DeletePropertyValue(value.ToString());
+                        break;
                     case OpCode.GET_THIS_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = frame.Module.GetPropertyValue(propName.Value, frame.Module);
+                        value = frame.Module.GetPropertyValue(propName.Value);
                         pushStack(value);
                         break;
 
@@ -336,7 +335,7 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_GLOBAL_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = domainGlobal.GetPropertyValue(propName.Value, domainGlobal);
+                        value = domainGlobal.GetPropertyValue(propName.Value);
                         pushStack(value);
                         break;
 
@@ -357,7 +356,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            pushStack(obj.GetPropertyValue(temp.ToString(), obj));
+                            pushStack(obj.GetPropertyValue(temp.ToString()));
                         }
                         break;
 
@@ -387,10 +386,6 @@ namespace AuroraScript.Runtime
                             var result = left + right;
                             pushStack(result);
                         }
-
-
-
-
                         break;
                     case OpCode.SUBTRACT:
                         NumberBinaryOperation(NumberValue.NaN, (l, r) => l - r);
@@ -572,15 +567,12 @@ namespace AuroraScript.Runtime
 
                     case OpCode.YIELD:
                         // TODO
-
                         if (exeContext.ExecuteOptions.YieldEnabled)
                         {
                             exeContext.SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
                             return;
                         }
-
                         break;
-
                     case OpCode.PUSH_0:
                         pushStack(NumberValue.Zero);
                         break;

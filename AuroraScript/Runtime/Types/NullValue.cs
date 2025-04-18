@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
-using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -13,9 +12,7 @@ namespace AuroraScript.Runtime.Types
         private NullValue()
         {
             IsFrozen = true;
-            _prototype = new ScriptObject();
-            _prototype.Define("toString", new ClrFunction(TOSTRING), true, false);
-            _prototype.IsFrozen = true;
+            _prototype = Prototypes.NullValuePrototype;
         }
 
 
@@ -24,7 +21,7 @@ namespace AuroraScript.Runtime.Types
             return valueString;
         }
 
-        public override ScriptObject GetPropertyValue(string key, ScriptObject own = null)
+        public override ScriptObject GetPropertyValue(string key)
         {
             throw new RuntimeException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }

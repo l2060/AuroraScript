@@ -7,29 +7,12 @@ namespace AuroraScript.Runtime.Base
 
     public partial class NumberValue : ScriptValue
     {
-        public static readonly NumberValue Negative1 = new NumberValue(-1);
-        public static readonly NumberValue NaN = new NumberValue(Double.NaN);
-        public static readonly NumberValue Zero = new NumberValue(0);
-        public static readonly NumberValue Num1 = new NumberValue(1);
-        public static readonly NumberValue Num2 = new NumberValue(2);
-        public static readonly NumberValue Num3 = new NumberValue(3);
-        public static readonly NumberValue Num4 = new NumberValue(4);
-        public static readonly NumberValue Num5 = new NumberValue(5);
-        public static readonly NumberValue Num6 = new NumberValue(6);
-        public static readonly NumberValue Num7 = new NumberValue(7);
-        public static readonly NumberValue Num8 = new NumberValue(8);
-        public static readonly NumberValue Num9 = new NumberValue(9);
-
-
-
-
-
         private readonly Double _value;
 
-        public NumberValue(Double str = 0) : base()
+        public NumberValue(Double dValue = 0) : base()
         {
-            _value = str;
-            _prototype = NumberValue.Prototype;
+            _value = dValue;
+            _prototype = Prototypes.NumberValuePrototype;
         }
 
 
@@ -132,18 +115,18 @@ namespace AuroraScript.Runtime.Base
 
         public static NumberValue operator <<(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int32)a.Int32Value << (Byte)b.Int32Value);
+            return NumberValue.Of((Int32)a.Int32Value << (Int32)b.Int32Value);
         }
 
         public static NumberValue operator >>(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int32)a.Int32Value >> (Byte)b._value);
+            return NumberValue.Of((Int32)a.Int32Value >> (Int32)b._value);
         }
 
 
         public static NumberValue operator >>>(NumberValue a, NumberValue b)
         {
-            return NumberValue.Of((Int32)a.Int32Value >>> (Byte)b._value);
+            return NumberValue.Of((Int32)a.Int32Value >>> (Int32)b._value);
         }
 
         public static NumberValue operator ~(NumberValue a)

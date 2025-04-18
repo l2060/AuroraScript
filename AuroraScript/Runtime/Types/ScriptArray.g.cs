@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Types;
+﻿using AuroraScript.Exceptions;
+using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,6 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptArray
     {
-        private new readonly static ScriptObject Prototype;
-
-
-        static ScriptArray()
-        {
-            Prototype = new ScriptObject();
-            Prototype.Define("length", new ClrGetter(LENGTH), readable: true, writeable: false);
-            Prototype.Define("push", new ClrFunction(PUSH), readable: true, writeable: false);
-            Prototype.Define("pop", new ClrFunction(POP), readable: true, writeable: false);
-            Prototype.Define("constructor", new ClrFunction(CONSTRUCTOR), readable: true, writeable: false);
-            Prototype._prototype = ScriptObject.Prototype;
-            Prototype.IsFrozen = true;
-        }
-
         public new static ScriptObject LENGTH(ScriptObject thisObject)
         {
             var strValue = thisObject as ScriptArray;
@@ -48,21 +35,27 @@ namespace AuroraScript.Runtime.Base
             {
                 return array.Pop();
             }
-            return ScriptObject.Null;
+            throw new RuntimeException(null, "array is empty!");
         }
 
 
-        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SLICE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            int capacity = 0;
-            if (args.Length == 1 && args[0] is NumberValue numberValue)
+            var strValue = thisObject as ScriptArray;
+            var start = 0;
+            var end = 0;
+            if (args.Length > 0 && args[0] is NumberValue posNum)
             {
-                capacity = numberValue.Int32Value;
+                start = posNum.Int32Value;
+                if (args.Length > 1 && args[1] is NumberValue lenNum)
+                {
+                    end = lenNum.Int32Value;
+                    return strValue.Slice(start,end);
+                }
+                return strValue.Slice(start);
             }
-            var array = new ScriptArray(capacity);
-            return array;
+            return thisObject;
         }
-
 
 
     }

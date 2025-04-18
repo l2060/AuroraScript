@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,23 +11,28 @@ namespace AuroraScript.Runtime.Base
 
         public ScriptArray(Int32 capacity)
         {
-            this._prototype = ScriptArray.Prototype;
+            this._prototype = Prototypes.ScriptArrayPrototype;
             this._items = new List<ScriptObject>(new ScriptObject[capacity]);
             for (int i = 0; i < capacity; i++)
             {
                 this._items[i] = ScriptObject.Null;
             }
         }
+        public ScriptArray(List<ScriptObject> list)
+        {
+            this._prototype = Prototypes.ScriptArrayPrototype;
+            this._items = new List<ScriptObject>(list);
+        }
 
         public ScriptArray(ScriptObject[] array)
         {
-            this._prototype = ScriptArray.Prototype;
+            this._prototype = Prototypes.ScriptArrayPrototype;
             this._items = new List<ScriptObject>(array);
         }
 
         public ScriptArray()
         {
-            this._prototype = ScriptArray.Prototype;
+            this._prototype = Prototypes.ScriptArrayPrototype;
             this._items = new List<ScriptObject>();
         }
 
@@ -50,6 +56,15 @@ namespace AuroraScript.Runtime.Base
             _items.Add(item);
         }
 
+        public ScriptArray Slice(Int32 start, Int32 end)
+        {
+            return new ScriptArray(_items.Slice(start, end - start));
+        }
+
+        public ScriptArray Slice(Int32 start)
+        {
+            return new ScriptArray(_items.Slice(start, _items.Count - start));
+        }
 
         public ScriptObject Pop()
         {

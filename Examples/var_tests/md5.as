@@ -1,4 +1,5 @@
-﻿/**
+﻿@module("MD5");
+/**
 *
 *  MD5 (Message-Digest Algorithm)
 *  http://www.webtoolkit.info/
@@ -85,7 +86,8 @@ function ConvertToWordArray(str) {
 function WordToHex(lValue) {
     var WordToHexValue = "";
     var WordToHexValue_temp = "";
-    var lByte, lCount;
+    var lByte;
+    var lCount;
     for (lCount = 0; lCount <= 3; lCount++) {
         lByte = (lValue >> (lCount * 8)) & 255;
         WordToHexValue_temp = "0" + lByte.toString(16);

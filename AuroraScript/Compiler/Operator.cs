@@ -175,7 +175,7 @@ namespace AuroraScript.Compiler
         public static readonly Operator UnSignedRightShift = new Operator(Symbols.OP_UNSIGNEDRIGHTSHIFT, 11, OperatorPlacement.Binary, false);
 
 
-        
+
 
         // Relational operators.
         /// <summary>

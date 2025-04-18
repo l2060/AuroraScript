@@ -94,6 +94,13 @@ namespace AuroraScript.Compiler
             node.Expression?.Accept(this);
         }
 
+
+        public virtual void VisitDeleteStatement(DeleteStatement node)
+        {
+            node.Expression?.Accept(this);
+        }
+
+
         public virtual void VisitAssignmentExpression(AssignmentExpression node)
         {
             node.Right.Accept(this);

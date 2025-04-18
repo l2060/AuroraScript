@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
-using System;
 
 
 namespace AuroraScript.Runtime.Types

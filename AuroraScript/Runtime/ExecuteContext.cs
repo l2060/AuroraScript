@@ -105,7 +105,7 @@ namespace AuroraScript.Runtime
         /// <returns>当前执行上下文，支持链式调用</returns>
         public ExecuteContext Done(AbnormalStrategy strategy = AbnormalStrategy.Interruption)
         {
-            if (_status == ExecuteStatus.Running)  throw new RuntimeException("Current context is running and cannot be repeated before it is completed");
+            if (_status == ExecuteStatus.Running) throw new RuntimeException("Current context is running and cannot be repeated before it is completed");
             if (_status == ExecuteStatus.Complete) return this;
             // 循环继续执行，直到状态变为完成
             while (true)

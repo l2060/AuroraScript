@@ -34,12 +34,14 @@
 
         // Objects, Arrays, and Maps
         NEW_MODULE,    // Create a new array (takes initial capacity)
+        DEFINE_MODULE,    // Create a new array (takes initial capacity)
         NEW_MAP,      // Create a new map (takes initial capacity)
         NEW_ARRAY,    // Create a new array (takes initial capacity)
 
 
         GET_PROPERTY, // Get a property from an object (takes property name index in constant pool)
         SET_PROPERTY, // Set a property on an object (takes property name index in constant pool)
+        DELETE_PROPERTY, // Set a property on an object (takes property name index in constant pool)
 
         GET_THIS_PROPERTY, // Get a property from an object (takes property name index in constant pool)
         SET_THIS_PROPERTY, // Set a property on an object (takes property name index in constant pool)

@@ -1,13 +1,9 @@
 ﻿using AuroraScript.Runtime.Base;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraScript.Runtime.Types
 {
- 
+
     public class StringConstructor : ClrFunction
     {
 
@@ -16,12 +12,7 @@ namespace AuroraScript.Runtime.Types
 
         public StringConstructor() : base(CONSTRUCTOR)
         {
-            _prototype = new ScriptObject();
-            _prototype.Define("fromCharCode", new ClrFunction(FROMCHARCODE), readable: true, writeable: false);
-            _prototype.Define("valueOf", new ClrFunction(CONSTRUCTOR), readable: true, writeable: false);
-            //Prototype.Define("fromCodePoint", new ClrFunction(PARSE), readable: true, writeable: false);
-            _prototype._prototype = ScriptObject.Prototype;
-            _prototype.IsFrozen = true;
+            _prototype = Prototypes.StringConstructorPrototype;
         }
 
 

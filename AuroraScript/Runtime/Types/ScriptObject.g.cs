@@ -9,18 +9,7 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptObject
     {
-        protected readonly static ScriptObject Prototype;
-
-        static ScriptObject()
-        {
-            Prototype = new ScriptObject();
-            Prototype.Define("toString", new ClrFunction(TOSTRING), readable: true, writeable: false);
-            Prototype.Define("constructor", new ClrFunction(CONSTRUCTOR), readable: true, writeable: false);
-            Prototype.Define("length", new ClrGetter(LENGTH), readable: true, writeable: false);
-            Prototype.IsFrozen = true;
-        }
-
-
+        public static readonly ScriptObject Null = NullValue.Instance;
         public static ScriptObject LENGTH(ScriptObject thisObject)
         {
             var strValue = thisObject as ScriptObject;
@@ -34,10 +23,5 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
-        {
-            var array = new ScriptObject();
-            return array;
-        }
     }
 }

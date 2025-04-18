@@ -8,15 +8,12 @@ export function test(){
 	var _time = time.createTimer("unit.timer",128);
 	console.timeEnd("time.createTimer");
 	_time.start = start_timer;
-
-	//var md5Code = md5.MD5("12345");
-	// console.time(">>>>>>>>>>>>> " + md5Code);
 	return _time;
 }       
 
 
 function start_timer(){
-	debug("timer start.");
+	console.log("timer start.");
 }
 
 
@@ -36,3 +33,15 @@ console.timeEnd("MD5_SUM");
 console.log("\"12345\" md5 is " + md5Code);
 
 
+
+var object = { a:{ a:1, b :{ a:2, callback: "callback", interval: "interval"    }, c: 3 }, b: "b" , c: "c"  };
+
+console.log(object);
+
+var prop = "callback";
+
+delete object.a.b[prop];
+
+delete object.a.b.interval;
+
+console.log(object);

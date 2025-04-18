@@ -1,11 +1,11 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Types;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue : ScriptValue
     {
-        public readonly static StringValue Empty = new StringValue("");
 
 
         private readonly String _value;
@@ -13,7 +13,7 @@ namespace AuroraScript.Runtime.Base
         public StringValue(String str) : base()
         {
             _value = str;
-            _prototype = StringValue.Prototype;
+            _prototype = Prototypes.StringValuePrototype;
         }
 
 

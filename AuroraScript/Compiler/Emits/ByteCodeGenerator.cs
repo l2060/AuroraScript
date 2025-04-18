@@ -52,7 +52,7 @@ namespace AuroraScript.Compiler.Emits
             foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
             {
                 _instructionBuilder.NewModule(syntaxRef.SyntaxTree.ModuleName);
-                _instructionBuilder.SetGlobalProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
+                _instructionBuilder.DefineModule($"@{syntaxRef.SyntaxTree.ModuleName}");
             }
 
             // 创建模块闭包，并调用闭包初始化
@@ -381,6 +381,33 @@ namespace AuroraScript.Compiler.Emits
 
 
 
+        public override void VisitDeleteStatement(DeleteStatement node)
+        {
+            if (node.Expression is GetElementExpression getElementExpression)
+            {
+                getElementExpression.Object.Accept(this);
+
+                if (getElementExpression.Index is LiteralExpression literalExpression)
+                {
+                    _instructionBuilder.PushConstantString(getElementExpression.Index.ToString());
+                }
+                else
+                {
+                    getElementExpression.Index.Accept(this);
+                }
+                _instructionBuilder.DeleteProperty();
+            }
+            else if (node.Expression is GetPropertyExpression getPropertyExpression)
+            {
+                getPropertyExpression.Object.Accept(this);
+                _instructionBuilder.PushConstantString(getPropertyExpression.Property.ToString());
+                _instructionBuilder.DeleteProperty();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
 
 
 
@@ -394,21 +421,6 @@ namespace AuroraScript.Compiler.Emits
             node.Object.Accept(this);
             node.Index.Accept(this);
             _instructionBuilder.GetElement();
-            //if (node.Index is NameExpression name)
-            //{
-            //    // get property
-            //    name.Accept(this);
-            //    _instructionBuilder.GetElement();
-            //}
-            //else if (node.Index is LiteralExpression literal)
-            //{
-            //    VisitLiteralExpression(literal);
-            //    _instructionBuilder.GetElement();
-            //}
-            //else
-            //{
-
-            //}
         }
 
         public override void VisitGetPropertyExpression(GetPropertyExpression node)
@@ -669,7 +681,7 @@ namespace AuroraScript.Compiler.Emits
             }
 
 
-            
+
             else
             {
                 throw new NotSupportedException($"Unsupported binary operator: {node.Operator.Symbol}");

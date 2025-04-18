@@ -10,17 +10,21 @@ namespace AuroraScript.Runtime.Base
 
     public partial class ScriptObject
     {
-        public static readonly ScriptObject Null = NullValue.Instance;
+
         private Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
 
         internal ScriptObject _prototype;
 
         internal Boolean IsFrozen { get; set; } = false;
 
+        internal ScriptObject(ScriptObject prototype)
+        {
+            _prototype = prototype;
+        }
 
         public ScriptObject()
         {
-            _prototype = ScriptObject.Prototype;
+            _prototype = Prototypes.ObjectPrototype;
         }
 
 
@@ -28,7 +32,7 @@ namespace AuroraScript.Runtime.Base
         {
             get
             {
-                return GetPropertyValue(key, this);
+                return GetPropertyValue(key);
             }
             set
             {
@@ -37,32 +41,51 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+        /// <summary>
+        /// 获取对象属性
+        /// </summary>
+        /// <param name="key">属性名</param>
+        /// <param name="thisObject"></param>
+        /// <returns></returns>
+        public virtual ScriptObject GetPropertyValue(String key)
+        {
+            var property = _resolveProperty(key);
+            if (property is ClrGetter getter)
+            {
+                return getter.Invoke(this);
+            }
+            if (property is ClrFunction clrFunc)
+            {
+                property = clrFunc.Bind(this);
+                //if (!IsFrozen) SetPropertyValue(key, property);
+            }
+            return property;
+        }
 
-        public virtual ScriptObject GetPropertyValue(String key, ScriptObject thisObject = null)
+
+
+        private ScriptObject _resolveProperty(String key, ScriptObject thisObject = null)
         {
             ScriptObject own = thisObject != null ? thisObject : this;
             _properties.TryGetValue(key, out var value);
             if (value != null)
             {
                 if (!value.Readable) throw new RuntimeException("Property disables write");
-
-                if (value.Value is ClrGetter getter)
-                {
-                    return getter.Invoke(own);
-                }
-                if (value.Value is ClrFunction clrFunc)
-                {
-                    return clrFunc.Bind(thisObject);
-                }
                 return value.Value;
             }
             if (_prototype != null)
             {
-                return _prototype.GetPropertyValue(key, own);
+                return _prototype._resolveProperty(key, own);
             }
             return Null;
         }
 
+        /// <summary>
+        /// 设置对象属性（可读、可写）
+        /// </summary>
+        /// <param name="key">属性名</param>
+        /// <param name="value">属性值</param>
+        /// <exception cref="RuntimeException"></exception>
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
             if (IsFrozen)
@@ -82,7 +105,35 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public virtual void Define(String key, ScriptObject value, bool readable = true, bool writeable = true)
+        public virtual Boolean DeletePropertyValue(String key)
+        {
+            if (_properties.TryGetValue(key, out var value))
+            {
+                if (!value.Writeeable) throw new RuntimeException("Property disables write");
+                _properties.Remove(key);
+                return true;
+            }
+            if (_prototype != null)
+            {
+                return _prototype.DeletePropertyValue(key);
+            }
+            return false;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// 定义对象属性的高级实现
+        /// </summary>
+        /// <param name="key">属性名</param>
+        /// <param name="value">属性值</param>
+        /// <param name="writeable">属性定义后是否可修改</param>
+        /// <param name="readable">属性是否可读</param>
+        /// <exception cref="RuntimeException"></exception>
+        public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true)
         {
             if (IsFrozen)
             {

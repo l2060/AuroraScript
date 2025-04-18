@@ -10,20 +10,18 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class NumberValue
     {
-
-        private new readonly static ScriptObject Prototype;
-
-
-        static NumberValue()
-        {
-            Prototype = new ScriptObject();
-            Prototype.Define("constructor", new NumberConstructor(), readable: true, writeable: false);
-            Prototype.Define("toString", new ClrFunction(TOSTRING), readable: true, writeable: false);
-            Prototype._prototype = ScriptObject.Prototype;
-            Prototype.IsFrozen = true;
-        }
-
-
+        public static readonly NumberValue Negative1 = new NumberValue(-1);
+        public static readonly NumberValue NaN = new NumberValue(Double.NaN);
+        public static readonly NumberValue Zero = new NumberValue(0);
+        public static readonly NumberValue Num1 = new NumberValue(1);
+        public static readonly NumberValue Num2 = new NumberValue(2);
+        public static readonly NumberValue Num3 = new NumberValue(3);
+        public static readonly NumberValue Num4 = new NumberValue(4);
+        public static readonly NumberValue Num5 = new NumberValue(5);
+        public static readonly NumberValue Num6 = new NumberValue(6);
+        public static readonly NumberValue Num7 = new NumberValue(7);
+        public static readonly NumberValue Num8 = new NumberValue(8);
+        public static readonly NumberValue Num9 = new NumberValue(9);
 
 
         public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)

@@ -54,5 +54,5 @@ export function createTimer(callback, interval = 521) {
         return true;
     }
     timers.push(timer);
-    return timer;
+    return Object(timer);
 }

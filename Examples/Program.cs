@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-using AuroraScript;
+﻿using AuroraScript;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
@@ -10,16 +9,17 @@ using System.Threading.Tasks;
 public class Program
 {
 
+
+
     public static async Task Main()
     {
-        Int64 dob = unchecked((int)4023233417) & unchecked((int)2562383102);
-
-
         var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./var_tests/" });
 
         await engine.BuildAsync("./unit.as");
 
-        var domain = engine.CreateDomain();
+        var g = engine.NewEnvironment();
+
+        var domain = engine.CreateDomain(g);
 
         var result = domain.Execute("UNIT", "test").Done();
 
