@@ -2,7 +2,7 @@
 using AuroraScript.Compiler.Emits;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.debug;
+using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
