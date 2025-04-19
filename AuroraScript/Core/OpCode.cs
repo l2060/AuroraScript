@@ -26,11 +26,12 @@
         LOAD_LOCAL = 13,     // 将local变量加载到栈上 
         STORE_LOCAL = 14,    // 将栈顶元素保存到变量（移除栈顶元素）
 
+        LOAD_CAPTURE,  // 加载捕获的变量（从闭包环境中加载变量值）
+        STORE_CAPTURE,  // 保存捕获的变量（存储到闭包环境）
 
         CREATE_CLOSURE, // 创建闭包
         CAPTURE_VAR,   // 捕获变量（将变量值存储到闭包环境中）
-        LOAD_CAPTURE,  // 加载捕获的变量（从闭包环境中加载变量值）
-        STORE_CAPTURE,  // 加载捕获的变量（从闭包环境中加载变量值）
+
 
 
         // Objects, Arrays, and Maps

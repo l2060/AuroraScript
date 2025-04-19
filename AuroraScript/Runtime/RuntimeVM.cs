@@ -51,8 +51,6 @@ namespace AuroraScript.Runtime
         {
             try
             {
-                // 设置执行状态为运行中
-                exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
                 // 开始执行调用帧
                 ExecuteFrame(exeContext);
             }
@@ -71,6 +69,10 @@ namespace AuroraScript.Runtime
         /// <param name="exeContext">执行上下文，包含操作数栈、调用栈和全局环境</param>
         private void ExecuteFrame(ExecuteContext exeContext)
         {
+            // 设置执行状态为运行中
+            exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
+
+
             // 获取调用栈和操作数栈的引用，提高访问效率
             var _callStack = exeContext._callStack;
             var _operandStack = exeContext._operandStack;
@@ -92,7 +94,6 @@ namespace AuroraScript.Runtime
             ScriptGlobal domainGlobal = frame.Global;
 
             var popStack = _operandStack.Pop;
-
             var pushStack = _operandStack.Push;
 
 
@@ -230,19 +231,6 @@ namespace AuroraScript.Runtime
                         frame.Locals[localIndex] = popStack();
                         break;
 
-                    case OpCode.CREATE_CLOSURE:
-                        var thisModule = popStack() as ScriptModule;
-                        var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new ClosureFunction(frame, thisModule, frame.Pointer + closureIndex);
-                        pushStack(closure);
-                        break;
-
-                    case OpCode.CAPTURE_VAR:
-                        var varIndex = _codeBuffer.ReadInt32(frame);
-                        var cv = new CapturedVariablee(frame.Environment, varIndex);
-                        pushStack(cv);
-                        break;
-
                     case OpCode.LOAD_CAPTURE:
                         localIndex = _codeBuffer.ReadInt32(frame);
                         var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
@@ -254,6 +242,19 @@ namespace AuroraScript.Runtime
                         localIndex = _codeBuffer.ReadInt32(frame);
                         capturedVar = frame.Locals[localIndex] as CapturedVariablee;
                         capturedVar.Write(value);
+                        break;
+
+                    case OpCode.CREATE_CLOSURE:
+                        var thisModule = popStack() as ScriptModule;
+                        var closureIndex = _codeBuffer.ReadInt32(frame);
+                        var closure = new ClosureFunction(frame, thisModule, frame.Pointer + closureIndex);
+                        pushStack(closure);
+                        break;
+
+                    case OpCode.CAPTURE_VAR:
+                        var varIndex = _codeBuffer.ReadInt32(frame);
+                        var cv = new CapturedVariablee(frame.Environment, varIndex);
+                        pushStack(cv);
                         break;
 
                     case OpCode.NEW_MODULE:

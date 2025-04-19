@@ -5,6 +5,7 @@
 
 设计它时借鉴了javascript的一些机制和语法，注意它不是强类型的脚本。
 
+下图中的`MD5_SUM Used 126ms`包含了.net代码预热的执行时间，实际测试`1ms`左右。
 
 ![avatar](/Documents/snipaste.png)
 

@@ -26,11 +26,35 @@ export function forTest(count = 1000){
 	console.timeEnd(timeName);
 }
 
+function testClouse(){
+	var a = 0;
+	return ()=>{
+		a = a+1;
+		return a;
+	}
+}
 
-console.time("MD5_SUM");
-var md5Code = md5.MD5("12345");
-console.timeEnd("MD5_SUM");
-console.log("\"12345\" md5 is " + md5Code);
+
+export function testClrFunc(){
+	for(var i =0;i<100;i++){
+		 md5.MD5("12345");
+	}
+}
+
+
+export function testMD5(){
+	console.time("MD5_SUM");
+	md5Code = md5.MD5("12345");
+	console.timeEnd("MD5_SUM");
+	console.log("\"12345\" md5 is " + md5Code);
+
+}
+
+
+
+
+
+
 
 
 

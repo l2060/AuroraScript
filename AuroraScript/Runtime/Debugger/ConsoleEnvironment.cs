@@ -52,10 +52,10 @@ namespace AuroraScript.Runtime.Debugger
         /// <returns>空对象</returns>
         public static ScriptObject TIME(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (args.Length == 1)
+            if (args.Length == 1 && args[0] is StringValue stringValue)
             {
                 // 记录当前时间作为计时开始点
-                _times[args[0].ToString()] = _stopwatch.ElapsedMilliseconds;
+                _times[stringValue.Value] = _stopwatch.ElapsedMilliseconds;
             }
             return ScriptObject.Null;
         }
@@ -70,16 +70,16 @@ namespace AuroraScript.Runtime.Debugger
         /// <returns>空对象</returns>
         public static ScriptObject TIMEEND(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
-            if (args.Length == 1 && _times.TryGetValue(args[0].ToString(), out var value))
+            if (args.Length == 1 && args[0] is StringValue stringValue && _times.TryGetValue(stringValue.Value, out var value))
             {
                 // 计算时间间隔
                 var time = _stopwatch.ElapsedMilliseconds - value;
                 // 移除计时标记
-                _times.Remove(args[0].ToString());
+                _times.Remove(stringValue.Value);
                 // 输出计时结果
 
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{args[0]} Used {time}ms");
+                Console.WriteLine($"{stringValue.Value} Used {time}ms");
                 Console.ResetColor();
 
             }

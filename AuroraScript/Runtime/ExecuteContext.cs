@@ -3,6 +3,7 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AuroraScript.Runtime
 {
@@ -12,6 +13,9 @@ namespace AuroraScript.Runtime
     /// </summary>
     public class ExecuteContext
     {
+        private Stopwatch _stopwatch = Stopwatch.StartNew();
+
+
         /// <summary>
         /// 操作数栈，用于存储执行过程中的临时值
         /// </summary>
@@ -47,11 +51,17 @@ namespace AuroraScript.Runtime
         /// </summary>
         public readonly ScriptGlobal Global;
 
-
         /// <summary>
         /// 执行选项，如最大调用栈深度等
         /// </summary>
         public readonly ExecuteOptions ExecuteOptions;
+
+
+        private Int64 _accumulatedTick = 0;
+        private Int64 _startTick;
+
+
+
 
         /// <summary>
         /// 创建新的执行上下文
@@ -61,6 +71,8 @@ namespace AuroraScript.Runtime
         /// <param name="executeOptions">执行选项，如最大调用栈深度等</param>
         internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
         {
+            _accumulatedTick = 0;
+            // 执行选项
             ExecuteOptions = executeOptions;
             // 初始化虚拟机引用
             _virtualMachine = virtualMachine;
@@ -134,8 +146,33 @@ namespace AuroraScript.Runtime
             _error = exception;
             // 设置执行状态
             _status = status;
+            if (status == ExecuteStatus.Running)
+            {
+                // 开始时间戳
+                _startTick = _stopwatch.ElapsedMilliseconds;
+            }
+            else
+            {
+                var tick = _stopwatch.ElapsedMilliseconds - _startTick;
+                _accumulatedTick += tick;
+            }
         }
 
+        /// <summary>
+        /// 获取当前调用用时 (Milliseconds)
+        /// </summary>
+        public Int64 UsedTick
+        {
+            get
+            {
+                var total = _accumulatedTick;
+                if (_status == ExecuteStatus.Running)
+                {
+                    total += _stopwatch.ElapsedMilliseconds - _startTick;
+                }
+                return total;
+            }
+        }
 
         /// <summary>
         /// 执行状态

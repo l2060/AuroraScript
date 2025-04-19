@@ -16,7 +16,7 @@ public class Program
     public static async Task Main()
     {
 
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./temp/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
 
         await engine.BuildAsync("./unit.as");
 
@@ -24,21 +24,23 @@ public class Program
 
         var domain = engine.CreateDomain(g);
 
+
+
+        // clouse test
+        var clouse = domain.Execute("UNIT_LIB", "testClouse").Done();
+        var clouseResult = domain.Execute(clouse.Result as ClosureFunction);
+        Console.WriteLine($"testClouse result:{clouseResult.Result}");
+        clouseResult = domain.Execute(clouse.Result as ClosureFunction);
+        Console.WriteLine($"testClouse result:{clouseResult.Result}");
+
+
+        // clr function test
+        var testClrFunc = domain.Execute("UNIT_LIB", "testClrFunc").Done();
+
+
+        // script function test
+        var testMD5 = domain.Execute("UNIT_LIB", "testMD5").Done();
         var result = domain.Execute("UNIT_LIB", "test").Done();
-
-
-
-        var a = domain.Execute(result.Result as ClosureFunction);
-
-        a = domain.Execute(result.Result as ClosureFunction);
-
-
-
-
-
-
-
-
 
 
 
@@ -47,19 +49,9 @@ public class Program
             domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
         }
 
-
-
-
-        //for (int i = 0; i < 10000; i++)
-        //{
         var md5 = domain.Execute("MD5_LIB", "MD5", new StringValue("12345")).Done();
-        //}
 
-
-
-
-
-        domain.Execute("UNIT_LIB", "forTest").Done();
+        var rs =  domain.Execute("UNIT_LIB", "forTest", new NumberValue(1000)).Done();
 
         var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
         timerResult.Done();
@@ -69,9 +61,6 @@ public class Program
             domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
             domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
         }
-
-
-
         Console.ReadKey();
     }
 
