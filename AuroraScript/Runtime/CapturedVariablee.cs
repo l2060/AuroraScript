@@ -9,7 +9,7 @@ namespace AuroraScript.Runtime
         private readonly CallFrame Frame;
         private readonly Int32 VarIndex;
 
-        public CapturedVariablee(CallFrame frame, Int32 varIndex)
+        public CapturedVariablee(CallFrame frame, Int32 varIndex) : base(null, false)
         {
             Frame = frame;
             VarIndex = varIndex;

@@ -65,12 +65,6 @@ namespace AuroraScript.Core
         [FieldOffset(6)] public Byte ByteValue7;
         [FieldOffset(7)] public Byte ByteValue8;
 
-
-
-
-
-
-
     }
 
 }

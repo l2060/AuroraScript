@@ -1,8 +1,14 @@
-﻿@module("UNIT_MODULE");
+﻿@module("UNIT_LIB");
 @version();
 
 
-if({a:1}){
-	console.log("eq4: " + (1123));
+
+function test(){
+	var a = 0;
+	return ()=>{
+		a = a+1;
+		return a;
+	}
+
 }
 

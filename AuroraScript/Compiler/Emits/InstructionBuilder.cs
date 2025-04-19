@@ -169,6 +169,15 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+
+        public void StoreCapturedVariable(int index)
+        {
+            Emit(OpCode.STORE_CAPTURE, index);
+        }
+
+
+
+
         public void PushConstantString(int index)
         {
             Emit(OpCode.PUSH_STRING, index);

@@ -323,7 +323,7 @@ namespace AuroraScript.Scanning
                             reader.Advance(2);
                             // remove first space
                             if (reader.Current(codeSpan) == ' ') reader.Advance();
-                    
+
                             continue;
                         }
                         else

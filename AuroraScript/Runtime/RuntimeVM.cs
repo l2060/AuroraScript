@@ -137,7 +137,7 @@ namespace AuroraScript.Runtime
                  {
                      pushStack(ScriptObject.Null);
                  }
-                
+
              };
 
 
@@ -247,6 +247,13 @@ namespace AuroraScript.Runtime
                         localIndex = _codeBuffer.ReadInt32(frame);
                         var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
                         pushStack(capturedVar.Read());
+                        break;
+
+                    case OpCode.STORE_CAPTURE:
+                        value = popStack();
+                        localIndex = _codeBuffer.ReadInt32(frame);
+                        capturedVar = frame.Locals[localIndex] as CapturedVariablee;
+                        capturedVar.Write(value);
                         break;
 
                     case OpCode.NEW_MODULE:
@@ -370,40 +377,7 @@ namespace AuroraScript.Runtime
                             obj.SetPropertyValue(temp.ToString(), value);
                         }
                         break;
-                    case OpCode.ADD:
-                        right = popStack();
-                        left = popStack();
-                        if (left is NumberValue number1 && right is NumberValue number2)
-                        {
-                            pushStack(number1 + number2);
-                        }
-                        else
-                        {
-                            var result = left + right;
-                            pushStack(result);
-                        }
-                        break;
-                    case OpCode.SUBTRACT:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l - r);
-                        break;
-                    case OpCode.MULTIPLY:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l * r);
-                        break;
-                    case OpCode.DIVIDE:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l / r);
-                        break;
-                    case OpCode.MOD:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l % r);
-                        break;
-                    case OpCode.NEGATE:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => -v);
-                        break;
-                    case OpCode.INCREMENT:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => v + 1);
-                        break;
-                    case OpCode.DECREMENT:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => v - 1);
-                        break;
+              
                     case OpCode.LOGIC_NOT:
                         value = popStack();
                         pushStack(BooleanValue.Of(!value.IsTrue()));
@@ -445,6 +419,49 @@ namespace AuroraScript.Runtime
                     case OpCode.GREATER_EQUAL:
                         NumberBinaryOperation(BooleanValue.False, (l, r) => l >= r);
                         break;
+
+
+
+
+
+                    case OpCode.ADD:
+                        right = popStack();
+                        left = popStack();
+                        if (left is NumberValue number1 && right is NumberValue number2)
+                        {
+                            pushStack(number1 + number2);
+                        }
+                        else
+                        {
+                            var result = left + right;
+                            pushStack(result);
+                        }
+                        break;
+                    case OpCode.SUBTRACT:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l - r);
+                        break;
+                    case OpCode.MULTIPLY:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l * r);
+                        break;
+                    case OpCode.DIVIDE:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l / r);
+                        break;
+                    case OpCode.MOD:
+                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l % r);
+                        break;
+                    case OpCode.NEGATE:
+                        NumberUnaryOperation(NumberValue.NaN, (v) => -v);
+                        break;
+                    case OpCode.INCREMENT:
+                        NumberUnaryOperation(NumberValue.NaN, (v) => v + 1);
+                        break;
+                    case OpCode.DECREMENT:
+                        NumberUnaryOperation(NumberValue.NaN, (v) => v - 1);
+                        break;
+
+
+
+
 
                     case OpCode.BIT_SHIFT_L:
                         NumberBinaryOperation(NumberValue.NaN, (l, r) => l << r);
@@ -504,12 +521,15 @@ namespace AuroraScript.Runtime
                         {
                             pushStack(left);
                         }
-                        //NumberBinaryOperation(NumberValue.NaN, (l, r) => l ^ r);
                         break;
 
                     case OpCode.BIT_NOT:
                         NumberUnaryOperation(NumberValue.Negative1, (v) => ~v);
                         break;
+
+
+
+
 
                     case OpCode.JUMP:
                         var offset = _codeBuffer.ReadInt32(frame);

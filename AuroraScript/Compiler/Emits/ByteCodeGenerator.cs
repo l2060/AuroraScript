@@ -897,7 +897,7 @@ namespace AuroraScript.Compiler.Emits
             {
                 if (declareObject.Type == DeclareType.Captured)
                 {
-                    _instructionBuilder.StoreLocal(declareObject.Index);
+                    _instructionBuilder.StoreCapturedVariable(declareObject.Index);
                     return;
                 }
                 else if (declareObject.Type == DeclareType.Variable)

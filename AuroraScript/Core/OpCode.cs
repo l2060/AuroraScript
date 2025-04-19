@@ -30,6 +30,7 @@
         CREATE_CLOSURE, // 创建闭包
         CAPTURE_VAR,   // 捕获变量（将变量值存储到闭包环境中）
         LOAD_CAPTURE,  // 加载捕获的变量（从闭包环境中加载变量值）
+        STORE_CAPTURE,  // 加载捕获的变量（从闭包环境中加载变量值）
 
 
         // Objects, Arrays, and Maps
@@ -52,6 +53,23 @@
         GET_ELEMENT,  // Get an element from an array or map
         SET_ELEMENT,  // Set an element in an array or map
 
+
+
+
+
+        // Logical Operations
+
+        LOGIC_NOT,    // !
+        LOGIC_AND,    // &&
+        LOGIC_OR,     // ||
+        EQUAL,          // Compare the top two values for equality
+        NOT_EQUAL,      // Compare the top two values for inequality
+        LESS_THAN,      // Compare if the second value is less than the top value
+        LESS_EQUAL,     // Compare if the second value is less than or equal to the top value
+        GREATER_THAN,   // Compare if the second value is greater than the top value
+        GREATER_EQUAL,  // Compare if the second value is greater than or equal to the top value
+
+
         // Arithmetic Operations
         ADD,          // Add the top two values
         SUBTRACT,     // Subtract the top value from the second value
@@ -61,18 +79,6 @@
         NEGATE,       // - Negate the top value
         INCREMENT,    // ++
         DECREMENT,    // --
-        LOGIC_NOT,    // !
-        LOGIC_AND,    // &&
-        LOGIC_OR,     // ||
-
-
-        // Logical Operations
-        EQUAL,          // Compare the top two values for equality
-        NOT_EQUAL,      // Compare the top two values for inequality
-        LESS_THAN,      // Compare if the second value is less than the top value
-        LESS_EQUAL,     // Compare if the second value is less than or equal to the top value
-        GREATER_THAN,   // Compare if the second value is greater than the top value
-        GREATER_EQUAL,  // Compare if the second value is greater than or equal to the top value
         BIT_SHIFT_L,   // <<
         BIT_SHIFT_R,   // >>
         BIT_USHIFT_R,   // >>>
@@ -80,6 +86,10 @@
         BIT_OR,    // |
         BIT_XOR,   // ^
         BIT_NOT,   // ~
+
+
+
+
 
         //
         JUMP,               // Unconditional jump (takes jump offset)
