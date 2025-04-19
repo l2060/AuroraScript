@@ -6,6 +6,8 @@
 设计它时借鉴了javascript的一些机制和语法，注意它不是强类型的脚本。
 
 
+![avatar](/Documents/snipaste.png)
+
 
 
 ---
