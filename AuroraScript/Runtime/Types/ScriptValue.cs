@@ -1,26 +1,31 @@
 ﻿using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime
 {
     public abstract class ScriptValue : ScriptObject
     {
-        protected ScriptValue()
+
+        internal ScriptValue(ScriptObject prototype) : base(prototype, false)
         {
             IsFrozen = true;
         }
 
 
-
-        public override void SetPropertyValue(string key, ScriptObject value)
+        public override void SetPropertyValue(String key, ScriptObject value)
         {
 
         }
 
-        public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true)
+        public override Boolean DeletePropertyValue(String key)
+        {
+            return false;
+        }
+
+        public override void Define(String key, ScriptObject value, bool writeable = true, bool readable = true)
         {
 
         }
-
 
 
 

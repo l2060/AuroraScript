@@ -311,6 +311,7 @@ namespace AuroraScript.Scanning
                     if (reader.Current(codeSpan) == '\r') reader.Advance();
                     if (reader.Current(codeSpan) == '\n')
                     {
+                        sb.AppendLine();
                         reader.Advance();
                         while (reader.Current(codeSpan) == ' ' || reader.Current(codeSpan) == '\t')
                         {
@@ -322,7 +323,7 @@ namespace AuroraScript.Scanning
                             reader.Advance(2);
                             // remove first space
                             if (reader.Current(codeSpan) == ' ') reader.Advance();
-                            sb.AppendLine();
+                    
                             continue;
                         }
                         else

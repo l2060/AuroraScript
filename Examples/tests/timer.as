@@ -1,4 +1,4 @@
-﻿@module("TIMER");
+﻿@module("TIMER_LIB");
 
 declare function debug(msg);
 
@@ -30,6 +30,7 @@ export function createTimer(callback, interval = 521) {
     };
 
     log(
+        |> 
         |> 1. 这是一个特殊的字符串模板
         |> 2. 支持多行文本
         |> 3. 它会让代码看起来更舒服
@@ -38,7 +39,7 @@ export function createTimer(callback, interval = 521) {
     yield;
 
     function log(text) {
-        console.log("Timer:" + timer.timeId + " [" + text.trim() + "]");
+        console.log("Timer:" + timer.timeId + " [" + text.toUpperCase() + "]");
     }
 
     function cancel() {

@@ -1,87 +1,57 @@
-﻿@module("UNIT_MODULE");
-@version();
+﻿@module("UNIT_LIB");
 
-import comLib from "common";
-//Document.Version++;
-//a[c]++;
+import time from 'timer';
+import md5 from 'md5';
 
-
-//vs++;
-
-//vs = vs+ 1;
-
-
-export const user = {
-	username: 'admin',
-	password: '123',
-	online: false
-};
-
-export var onlineCount = 0;
-var s1 = onlineCount++;
-var s2 = --onlineCount;
+export function test(){
+	console.time("time.createTimer");
+	var _time = time.createTimer("unit.timer",128);
+	console.timeEnd("time.createTimer");
+	_time.start = start_timer;
+	return _time;
+}       
 
 
-
-
-function login(info){
-	if(info.user == user.username &&  info.password == user.password){
-		user.online = true;
-		onlineCount++;
-		return true;
-	}
-}
-
-function add(){
-	onlineCount++;
+function start_timer(){
+	console.log("timer start.");
 }
 
 
-function createUser(u,p){
-
-	function add(){
-		onlineCount++;
-	}
-
-	function sub(){
-		onlineCount++;
-	}
-
-	return {
-		username: u,
-		password: p,
-		add,sub,
-		login,
-		getCount:()=>{
-			return onlineCount;
-		}
-	};
+export function forTest(count = 1000){
+	var timeName = "for:" + count;
+	console.time(timeName);
+    for (var o = 0;  o < count;o++){
+		// .....
+    }
+	console.timeEnd(timeName);
 }
 
 
-function createCancel(){
-	var count = 0;
-	return ()=>{
-		count++;
-		onlineCount--;
-	}
-}
+console.time("MD5_SUM");
+var md5Code = md5.MD5("12345");
+console.timeEnd("MD5_SUM");
+console.log("\"12345\" md5 is " + md5Code);
 
 
-// 大当时法国地方官法国@！@#~ 🎉😊😂🤣❤️😍❤️😍😘✔️😁🤷‍♀️✖️✖️😁😊😋🥖🍳🍳🍳🧇
 
-var test = createUser('root','100');
 
-global.users.push(test);
+console.log("eq1: " + (1123 == 1123));
+console.log("eq2: " + (1123 == "1123"));
+console.log("eq3: " + ("1123" == 1123));
+console.log("eq5: " + (true == 1));
+console.log("eq5: " + (1 == true));
+console.log("eq6: " + (0 == false));
 
-comLib.debug(test.getCount());
 
-login({ username: 'admin', password: '123' });
 
-comLib.debug(test.getCount());
+var object = { a:{ a:1, b :{ a:2, callback: "callback", interval: "interval" }, c: 3 }, b: "b" , c: "c"};
 
-var c = ++vs;
+console.log(object);
 
-var cancel = createCancel();
+var prop = "callback";
 
-cancel();
+delete object.a.b[prop];
+
+delete object.a.b.interval;
+
+console.log(object);

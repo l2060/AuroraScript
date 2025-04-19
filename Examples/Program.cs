@@ -13,7 +13,7 @@ public class Program
 
     public static async Task Main()
     {
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./var_tests/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
 
         await engine.BuildAsync("./unit.as");
 
@@ -21,16 +21,28 @@ public class Program
 
         var domain = engine.CreateDomain(g);
 
-        var result = domain.Execute("UNIT", "test").Done();
+        var result = domain.Execute("UNIT_LIB", "test").Done();
 
         if (result.Status == ExecuteStatus.Complete)
         {
             domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
         }
 
-        domain.Execute("UNIT", "forTest").Done();
 
-        var timerResult = domain.Execute("TIMER", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
+
+
+        //for (int i = 0; i < 10000; i++)
+        //{
+            var md5 = domain.Execute("MD5_LIB", "MD5", new StringValue("12345")).Done();
+        //}
+
+
+
+
+
+        domain.Execute("UNIT_LIB", "forTest").Done();
+
+        var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
         timerResult.Done();
 
         if (timerResult.Status == ExecuteStatus.Complete)

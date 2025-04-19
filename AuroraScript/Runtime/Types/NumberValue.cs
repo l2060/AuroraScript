@@ -9,10 +9,9 @@ namespace AuroraScript.Runtime.Base
     {
         private readonly Double _value;
 
-        public NumberValue(Double dValue = 0) : base()
+        public NumberValue(Double dValue = 0) : base(Prototypes.NumberValuePrototype)
         {
             _value = dValue;
-            _prototype = Prototypes.NumberValuePrototype;
         }
 
 
@@ -35,11 +34,6 @@ namespace AuroraScript.Runtime.Base
             return _value.ToString();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NumberValue Of(Double value)
-        {
-            return new NumberValue(value);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Boolean IsTrue()
@@ -53,7 +47,6 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-
         public static BooleanValue operator <(NumberValue a, NumberValue b)
         {
             return BooleanValue.Of(a._value < b._value);
@@ -62,8 +55,6 @@ namespace AuroraScript.Runtime.Base
         {
             return BooleanValue.Of(a._value <= b._value);
         }
-
-
 
         public static BooleanValue operator >(NumberValue a, NumberValue b)
         {
@@ -157,7 +148,39 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+        public override int GetHashCode()
+        {
+            return (Int32)_value;
+        }
 
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NumberValue num)
+            {
+                return num._value == _value;
+            }
+            else if (obj is BooleanValue bol)
+            {
+                return _value == bol.IntValue;
+            }
+            else if (obj is StringValue str && Double.TryParse(str.Value, out var dVal))
+            {
+                return _value == dVal;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// TODO 数值计算脚本性能较差
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static NumberValue Of(Double value)
+        {
+            return new NumberValue(value);
+        }
 
 
     }

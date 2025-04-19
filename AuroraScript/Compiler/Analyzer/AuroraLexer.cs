@@ -6,6 +6,7 @@ using AuroraScript.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -117,6 +118,23 @@ namespace AuroraScript.Analyzer
             }
             return null;
         }
+
+
+        public Boolean TestNextIn(Symbols[] endSymbols)
+        {
+            var nextToken = this.LookAtHead();
+            if (endSymbols.Contains(nextToken.Symbol))
+            {
+                this.Next();
+                return true;
+            }
+            return false;
+        }
+
+        
+
+
+
 
         public Boolean TestAtHead<T>() where T : Token
         {

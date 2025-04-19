@@ -33,7 +33,7 @@ namespace AuroraScript.Runtime
         }
 
 
-        public new static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {

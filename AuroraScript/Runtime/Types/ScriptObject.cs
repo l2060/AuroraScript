@@ -11,33 +11,31 @@ namespace AuroraScript.Runtime.Base
     public partial class ScriptObject
     {
 
-        private Dictionary<String, ObjectProperty> _properties = new Dictionary<String, ObjectProperty>();
+        private Dictionary<String, ObjectProperty> _properties;
 
         internal ScriptObject _prototype;
 
         internal Boolean IsFrozen { get; set; } = false;
 
-        internal ScriptObject(ScriptObject prototype)
+        internal ScriptObject(ScriptObject prototype, Boolean initProperties = true)
         {
             _prototype = prototype;
+            if (initProperties)
+            {
+                _properties = new Dictionary<string, ObjectProperty>();
+            }
         }
+
+        //internal ScriptObject(ScriptObject prototype)
+        //{
+        //    _prototype = prototype;
+        //    _properties = new Dictionary<string, ObjectProperty>();
+        //}
 
         public ScriptObject()
         {
             _prototype = Prototypes.ObjectPrototype;
-        }
-
-
-        public ScriptObject this[String key]
-        {
-            get
-            {
-                return GetPropertyValue(key);
-            }
-            set
-            {
-                SetPropertyValue(key, value);
-            }
+            _properties = new Dictionary<string, ObjectProperty>();
         }
 
 
@@ -67,11 +65,14 @@ namespace AuroraScript.Runtime.Base
         private ScriptObject _resolveProperty(String key, ScriptObject thisObject = null)
         {
             ScriptObject own = thisObject != null ? thisObject : this;
-            _properties.TryGetValue(key, out var value);
-            if (value != null)
+            if (_properties != null)
             {
-                if (!value.Readable) throw new RuntimeException("Property disables write");
-                return value.Value;
+                _properties.TryGetValue(key, out var value);
+                if (value != null)
+                {
+                    if (!value.Readable) throw new RuntimeException("Property disables write");
+                    return value.Value;
+                }
             }
             if (_prototype != null)
             {
@@ -88,6 +89,7 @@ namespace AuroraScript.Runtime.Base
         /// <exception cref="RuntimeException"></exception>
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
+            if (_properties == null) return;
             if (IsFrozen)
             {
                 throw new RuntimeException("You cannot modify this object");
@@ -107,7 +109,7 @@ namespace AuroraScript.Runtime.Base
 
         public virtual Boolean DeletePropertyValue(String key)
         {
-            if (_properties.TryGetValue(key, out var value))
+            if (_properties != null && _properties.TryGetValue(key, out var value))
             {
                 if (!value.Writeeable) throw new RuntimeException("Property disables write");
                 _properties.Remove(key);
@@ -135,6 +137,7 @@ namespace AuroraScript.Runtime.Base
         /// <exception cref="RuntimeException"></exception>
         public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true)
         {
+            if (_properties == null) return;
             if (IsFrozen)
             {
                 throw new RuntimeException("You cannot modify this object");
@@ -160,9 +163,6 @@ namespace AuroraScript.Runtime.Base
         {
             return "[object]";
         }
-
-
-
 
         public virtual string ToDisplayString()
         {

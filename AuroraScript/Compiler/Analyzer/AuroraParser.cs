@@ -109,7 +109,7 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_DELETE) return this.ParseDeleteStatement(currentScope);
 
 
-            
+
 
             var exp = this.ParseExpression(currentScope);
             exp.IsStateSegment = true;
@@ -187,7 +187,7 @@ namespace AuroraScript.Analyzer
             return declaration;
         }
 
-        
+
 
         /// <summary>
         /// parse return expression
@@ -432,6 +432,7 @@ namespace AuroraScript.Analyzer
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
 
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
+
             // Determine whether the body is single-line or multi-line
             // parse if body
             Statement body = this.ParseStatement(currentScope);
@@ -648,7 +649,7 @@ namespace AuroraScript.Analyzer
                         {
                             rollBackLexer();
                             var construct = ParseObjectConstructor(currentScope);
-
+                            this.lexer.TestNextIn(endSymbols);
                             return construct;
 
                         }

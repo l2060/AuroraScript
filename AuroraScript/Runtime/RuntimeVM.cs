@@ -115,6 +115,10 @@ namespace AuroraScript.Runtime
 
 
 
+
+
+
+
             // 数值二元操作的lambda函数，用于简化代码
             // 对栈顶的两个数值执行二元操作，如果不是数值则返回默认值
             var NumberBinaryOperation = (ScriptObject defaultValue, Func<NumberValue, NumberValue, ScriptObject> operation) =>
@@ -122,7 +126,6 @@ namespace AuroraScript.Runtime
                  // 弹出栈顶的两个值作为操作数
                  var right = popStack();
                  var left = popStack();
-
                  if (left is NumberValue leftNumber && right is NumberValue rightNumber)
                  {
                      // 如果两个操作数都是数值类型，执行操作并将结果压入栈
@@ -130,18 +133,11 @@ namespace AuroraScript.Runtime
                      if (result == null) throw new Exception();
                      pushStack(result);
                  }
-                 else if (left == ScriptObject.Null)
-                 {
-                     // TODO 这里判断不严谨，为了处理 位操作符增加的
-                     if (right == null) throw new Exception();
-                     pushStack(right);
-                 }
                  else
-                 {   
-                     // TODO 这里判断不严谨，为了处理 位操作符增加的
-                     if (left == null) throw new Exception();
-                     pushStack(left);
+                 {
+                     pushStack(ScriptObject.Null);
                  }
+                
              };
 
 
@@ -426,15 +422,13 @@ namespace AuroraScript.Runtime
                     case OpCode.EQUAL:
                         right = popStack();
                         left = popStack();
-                        // TODO 判断不严谨
-                        pushStack(BooleanValue.Of(left == right));
+                        pushStack(BooleanValue.Of(left.Equals(right)));
                         break;
 
                     case OpCode.NOT_EQUAL:
                         right = popStack();
                         left = popStack();
-                        // TODO 判断不严谨
-                        pushStack(BooleanValue.Of(left != right));
+                        pushStack(BooleanValue.Of(!left.Equals(right)));
                         break;
 
                     case OpCode.LESS_THAN:
@@ -465,21 +459,57 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.BIT_AND:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l & r);
+
+                        right = popStack();
+                        left = popStack();
+                        if (left is NumberValue leftOrNumber && right is NumberValue rightOrNumber)
+                        {
+                            pushStack(leftOrNumber & rightOrNumber);
+                        }
+                        else if (left == ScriptObject.Null || right == ScriptObject.Null)
+                        {
+                            pushStack(NumberValue.Zero);
+                        }
                         break;
 
                     case OpCode.BIT_OR:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l | r);
+                        right = popStack();
+                        left = popStack();
+                        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+                        {
+                            pushStack(leftNumber | rightNumber);
+                        }
+                        else if (left == ScriptObject.Null)
+                        {
+                            pushStack(right);
+                        }
+                        else
+                        {
+                            pushStack(left);
+                        }
                         break;
 
                     case OpCode.BIT_XOR:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l ^ r);
+                        right = popStack();
+                        left = popStack();
+                        if (left is NumberValue leftXorNumber && right is NumberValue rightXorNumber)
+                        {
+                            pushStack(leftXorNumber ^ rightXorNumber);
+                        }
+                        else if (left == ScriptObject.Null)
+                        {
+                            pushStack(right);
+                        }
+                        else
+                        {
+                            pushStack(left);
+                        }
+                        //NumberBinaryOperation(NumberValue.NaN, (l, r) => l ^ r);
                         break;
 
                     case OpCode.BIT_NOT:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => ~v);
+                        NumberUnaryOperation(NumberValue.Negative1, (v) => ~v);
                         break;
-
 
                     case OpCode.JUMP:
                         var offset = _codeBuffer.ReadInt32(frame);

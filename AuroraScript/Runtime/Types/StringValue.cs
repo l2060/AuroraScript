@@ -7,13 +7,11 @@ namespace AuroraScript.Runtime.Base
     public partial class StringValue : ScriptValue
     {
 
-
         private readonly String _value;
 
-        public StringValue(String str) : base()
+        public StringValue(String str) : base(Prototypes.StringValuePrototype)
         {
             _value = str;
-            _prototype = Prototypes.StringValuePrototype;
         }
 
 
@@ -63,5 +61,20 @@ namespace AuroraScript.Runtime.Base
         {
             return _value != null && _value.Length > 0;
         }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj is StringValue str)
+            {
+                return str._value == _value;
+            }
+            else if (obj is NumberValue num && Double.TryParse(_value, out var dVal))
+            {
+                return num.DoubleValue == dVal;
+            }
+            return false;
+        }
+
     }
 }

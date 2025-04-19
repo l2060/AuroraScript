@@ -1,4 +1,5 @@
-﻿/**
+﻿@module("MD5_LIB");
+/**
 *
 *  MD5 (Message-Digest Algorithm)
 *  http://www.webtoolkit.info/
@@ -6,11 +7,15 @@
 **/
 
 function RotateLeft(lValue, iShiftBits) {
-    return (lValue << iShiftBits) | (lValue >>/*>*/ (32 - iShiftBits));
+    return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
 }
 
 function AddUnsigned(lX, lY) {
-    var lX4, lY4, lX8, lY8, lResult;
+    var lX4;
+    var lY4;
+    var lX8;
+    var lY8;
+    var lResult;
     lX8 = (lX & 0x80000000);
     lY8 = (lY & 0x80000000);
     lX4 = (lX & 0x40000000);
@@ -81,55 +86,56 @@ function ConvertToWordArray(str) {
 function WordToHex(lValue) {
     var WordToHexValue = "";
     var WordToHexValue_temp = "";
-    var lByte, lCount;
+    var lByte;
+    var lCount;
     for (lCount = 0; lCount <= 3; lCount++) {
         lByte = (lValue >> (lCount * 8)) & 255;
         WordToHexValue_temp = "0" + lByte.toString(16);
-        WordToHexValue = WordToHexValue + WordToHexValue_temp.substr(WordToHexValue_temp.length - 2, 2);
+        WordToHexValue = WordToHexValue + WordToHexValue_temp.substring(WordToHexValue_temp.length - 2, 2);
     }
     return WordToHexValue;
 };
 
 function Utf8Encode(string) {
     string = string.replace(`/\r\n/g`, "\n");
-    var utftext = "";
+    var utfText = "";
 
     for (var n = 0; n < string.length; n++) {
         var c = string.charCodeAt(n);
 
         if (c < 128) {
-            utftext += String.fromCharCode(c);
+            utfText += String.fromCharCode(c);
         }
         else if ((c > 127) && (c < 2048)) {
-            utftext += String.fromCharCode((c >> 6) | 192);
-            utftext += String.fromCharCode((c & 63) | 128);
+            utfText += String.fromCharCode((c >> 6) | 192);
+            utfText += String.fromCharCode((c & 63) | 128);
         }
         else {
-            utftext += String.fromCharCode((c >> 12) | 224);
-            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-            utftext += String.fromCharCode((c & 63) | 128);
+            utfText += String.fromCharCode((c >> 12) | 224);
+            utfText += String.fromCharCode(((c >> 6) & 63) | 128);
+            utfText += String.fromCharCode((c & 63) | 128);
         }
     }
 
-    return utftext;
+    return utfText;
 };
 
-function MD5(string) {
-    var x = [];
-    var k, AA, BB, CC, DD, a, b, c, d;
+export function MD5(string) {
+    var a = 0x67452301;
+    var b = 0xEFCDAB89;
+    var c = 0x98BADCFE;
+    var d = 0x10325476;
     var S11 = 7; var S12 = 12; var S13 = 17; var S14 = 22;
     var S21 = 5; var S22 = 9; var S23 = 14; var S24 = 20;
     var S31 = 4; var S32 = 11; var S33 = 16; var S34 = 23;
     var S41 = 6; var S42 = 10; var S43 = 15; var S44 = 21;
-
     string = Utf8Encode(string);
-
-    x = ConvertToWordArray(string);
-
-    a = 0x67452301; b = 0xEFCDAB89; c = 0x98BADCFE; d = 0x10325476;
-
-    for (k = 0; k < x.length; k += 16) {
-        AA = a; BB = b; CC = c; DD = d;
+    var x = ConvertToWordArray(string);
+    for (var k = 0; k < x.length; k += 16) {
+        var AA = a;
+        var BB = b;
+        var CC = c;
+        var DD = d;
         a = FF(a, b, c, d, x[k + 0], S11, 0xD76AA478);
         d = FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756);
         c = FF(c, d, a, b, x[k + 2], S13, 0x242070DB);
@@ -199,8 +205,6 @@ function MD5(string) {
         c = AddUnsigned(c, CC);
         d = AddUnsigned(d, DD);
     }
-
     var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
-
     return temp.toLowerCase();
 }
