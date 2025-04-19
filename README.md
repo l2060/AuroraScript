@@ -20,10 +20,13 @@
  - [x] where for
  - [x] export 导出模块方法和变量
  - [x] Import
+ - [x] MD5函数与Javascript输出一致
  - [ ] 导出属性的访问权限  export  const
  - [ ] 迭代器 Iterator 
  - [ ] for of
  - [ ] 固定大小的本地变量表测量
+ - [ ] CallFrame 复用
+ - [ ] 计算型脚本 NumberValue.Of 优化
  
 
 
