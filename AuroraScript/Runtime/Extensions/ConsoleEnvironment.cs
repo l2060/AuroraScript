@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace AuroraScript.Runtime.Debugger
+namespace AuroraScript.Runtime.Extensions
 {
     internal class ConsoleEnvironment : ScriptObject
     {
@@ -16,7 +16,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <summary>
         /// 存储计时标记的字典，键为计时标记名称，值为开始时间
         /// </summary>
-        private static Dictionary<String, Int64> _times = new();
+        private static Dictionary<string, long> _times = new();
 
         public ConsoleEnvironment()
         {
@@ -37,8 +37,8 @@ namespace AuroraScript.Runtime.Debugger
         /// <returns>空对象</returns>
         public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
-            Console.WriteLine(String.Join(", ", args));
-            return ScriptObject.Null;
+            Console.WriteLine(string.Join(", ", args));
+            return Null;
         }
 
 
@@ -57,7 +57,7 @@ namespace AuroraScript.Runtime.Debugger
                 // 记录当前时间作为计时开始点
                 _times[stringValue.Value] = _stopwatch.ElapsedMilliseconds;
             }
-            return ScriptObject.Null;
+            return Null;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace AuroraScript.Runtime.Debugger
                 Console.ResetColor();
 
             }
-            return ScriptObject.Null;
+            return Null;
         }
 
 
