@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -34,6 +35,7 @@ namespace AuroraScript.Runtime.Base
             _properties = new Dictionary<string, ObjectProperty>();
         }
 
+        [DebuggerHidden] // JUMP BREAK CALLER
         public void Frozen()
         {
             _isFrozen = true;
@@ -70,7 +72,7 @@ namespace AuroraScript.Runtime.Base
                 _properties.TryGetValue(key, out var value);
                 if (value != null)
                 {
-                    if (!value.Readable) throw new RuntimeException("Property disables write");
+                    if (!value.Readable) throw new AuroraVMException("Property disables write");
                     return value.Value;
                 }
             }
@@ -86,13 +88,13 @@ namespace AuroraScript.Runtime.Base
         /// </summary>
         /// <param name="key">属性名</param>
         /// <param name="value">属性值</param>
-        /// <exception cref="RuntimeException"></exception>
+        /// <exception cref="AuroraRuntimeException"></exception>
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
             if (_properties == null) return;
             if (_isFrozen)
             {
-                throw new RuntimeException("You cannot modify this object");
+                throw new AuroraVMException("You cannot modify this object");
             }
             _properties.TryGetValue(key, out var existValue);
             if (existValue == null)
@@ -104,7 +106,7 @@ namespace AuroraScript.Runtime.Base
                 existValue.Enumerable = true;
                 _properties[key] = existValue;
             }
-            if (!existValue.Writable) throw new RuntimeException("Property disables write");
+            if (!existValue.Writable) throw new AuroraVMException("Property disables write");
             existValue.Value = value;
         }
 
@@ -113,7 +115,7 @@ namespace AuroraScript.Runtime.Base
         {
             if (_properties != null && _properties.TryGetValue(key, out var value))
             {
-                if (!value.Writable) throw new RuntimeException("Property disables write");
+                if (!value.Writable) throw new AuroraVMException("Property disables write");
                 _properties.Remove(key);
                 return true;
             }
@@ -137,13 +139,13 @@ namespace AuroraScript.Runtime.Base
         /// <param name="writeable">属性定义后是否可修改</param>
         /// <param name="readable">属性是否可读</param>
         /// <param name="enumerable">属性是否可枚举</param>
-        /// <exception cref="RuntimeException"></exception>
+        /// <exception cref="AuroraRuntimeException"></exception>
         public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
             if (_properties == null) return;
             if (_isFrozen)
             {
-                throw new RuntimeException("You cannot modify this object");
+                throw new AuroraVMException("You cannot modify this object");
             }
             _properties.TryGetValue(key, out var existValue);
             if (existValue == null)
@@ -157,7 +159,7 @@ namespace AuroraScript.Runtime.Base
             }
             else
             {
-                if (!existValue.Writable) throw new RuntimeException("Property disables write");
+                if (!existValue.Writable) throw new AuroraVMException("Property disables write");
             }
             existValue.Value = value;
         }

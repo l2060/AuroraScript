@@ -60,8 +60,7 @@
 
  也可以通过ExecuteOptions选项禁用yield指令，或通过AutoInterruption字段定义自动中断机制。
 
-
-
+ 在异常上下文上调用Continue可能会导致不可预料的结果，在计算类的脚本执行过程中出现异常应拒绝Continue继续执行，异常继续的机制适用于在面向方法的脚本中。
 
  
 
@@ -79,164 +78,120 @@
 
  ---
 
-## Test Code
+##  创建环境 & 编译脚本
+``` csharp  
+
+// 创建一个脚本环境
+var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+// 编译脚本，编译器会扫描工作目录下所有脚本文件，并根据Import语句自动编译依赖的脚本
+await engine.BuildAsync("./unit.as");
+
+```
+
+
+## 定义全局变量
+``` csharp  
+
+// 1. 普通方法，直接设置属性值， 可读性、可写性、可枚举性都为true
+engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"))
+
+// 2. 高级方法，支持设置属性的可读性、可写性、可枚举性
+engine.Global.Define("PI", g.GetPropertyValue("PI"));
+
+// 3. 定义CLR方法
+engine.Global.Define("debug", new ClrFunction(LOG), writeable: false, enumerable: false);
+
+// CLR方法
+public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+{
+    Console.WriteLine(String.Join(", ", args));
+    return ScriptObject.Null;
+}
+
+// 获取全局变量
+var pi = engine.Global.GetPropertyValue("PI");
+
+// Domain 的全局变量
+domain.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"))
+domain.Global.Define("PI", g.GetPropertyValue("PI"));
+var pi = domain.Global.GetPropertyValue("PI");
+```
+
+
+
+
+##  创建Domain
+``` csharp  
+
+// 1. 如果你的模块脚本顶级语句使用了全局变量，那么你需要提前创建好Global环境。
+var g = engine.NewEnvironment();
+g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
+var domain = engine.CreateDomain(g);
+
+// 2. 如果你的模块脚本顶级语句没有使用模块以外的变量，可以直接创建一个Domain
+var domain = engine.CreateDomain();
+domain.Global.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
+
+```
+
+
+
+##  执行脚本方法
+``` csharp  
+
+var forCount = 10000000;
+// 执行UNIT_LIB中的  forTest 方法 并传入参数 10000000
+var testFor = domain.Execute("UNIT_LIB", "forTest", new NumberValue(forCount));
+Console.WriteLine($"for:{forCount} UsedTime {testFor.UsedTime}ms");
+
+```
+
+
+
+##  继续中断的上下文
+``` csharp  
+
+// 1. 手动控制中断继续
+var testContinue = domain.Execute("UNIT_LIB", "testContinue");
+if (testContinue.Status  == ExecuteStatus.Interrupted)
+{
+    testContinue.Continue();
+}
+
+// 2. 自动完成，如遇到中断自动继续直到完成，如果遇到异常则返回
+var testContinue = domain.Execute("UNIT_LIB", "testContinue").Done();
+
+// 3. 自动完成，不管异常还是中断都可以继续执行直到完成
+var testContinue = domain.Execute("UNIT_LIB", "testContinue").Done(AbnormalStrategy.Continue);
+
+```
+
+## 特殊的文本模板
 
 ``` csharp
 
+// 1. 双引号
+log("Hello");
 
-public class Program
-{
-
-    public static async Task Main()
-    {
-
-
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./var_tests/" });
-
-        await engine.BuildAsync("./unit.as");
-
-        var domain = engine.CreateDomain();
+// 2. 单引号
+log('Wrold');
 
 
-        var result = domain.Execute("UNIT", "test");
-
-        if (result.Status == ExecuteStatus.Complete)
-        {
-            domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
-        }
-
-        domain.Execute("UNIT", "forTest").Done();
-
-        var timerResult = domain.Execute("TIMER", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
-
-        // continue
-        timerResult.Done();
-
-        if (timerResult.Status == ExecuteStatus.Complete)
-        {
-            domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
-            domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
-        }
-
-        Console.ReadKey();
-    }
-
-}
-
-```
+// 3. 多行文本
+log(`1. 这是一个特殊的字符串模板
+2. 支持多行文本
+3. 它会让代码看起来更舒服
+4. <Buy/@Buy> <Close/@Close>`);
 
 
+// 4. 多行文本
+log(
+    |> 1. 这是一个特殊的字符串模板
+    |> 2. 支持多行文本
+    |> 3. 它会让代码看起来更舒服
+    |> 4. <Buy/@Buy> <Close/@Close> 
+);
 
-
-
-## UNIT MODULE *unit.as*
-
-``` javascript
-
-@module("UNIT");
-
-import time from 'timer';
-
-
-export function test(){
-	console.time("time.createTimer");
-	var _time = time.createTimer("unit.timer",128);
-	console.timeEnd("time.createTimer");
-	_time.start = start_timer;
-
-	return _time;
-}
-
-
-function start_timer(){
-	debug("timer start.");
-}
-
-export function forTest(count = 1000){
-	var timeName = "for:" + count;
-	console.time(timeName);
-	for (var o = 0;  o < count;o++){
-	    // ...
-	}
-	console.timeEnd(timeName);
-}
-
-
-
-var array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-var swap = array[0];
-array[0] = array[5];
-array[5] = swap;
-var ss = {};
-ss["abc"] = test;
-debug(ss["abc"]);
-
-```
-
-
-## TIMER MODULE *timer.as*
-
-``` javascript
-
-@module("TIMER");
-
-declare function debug(msg);
-
-declare function CREATE_TIMER(timer);
-declare function START_TIMER(timer);
-declare function STOP_TIMER(timer);
-declare function DELETE_TIMER(timer);
-
-
-var timeCount = 0;
-export var resetCount = 0;
-export var timers = [0,1,2,3,4,5];
-
-
-
-
-export function createTimer(callback, interval = 521) {
-
-    var timer = {
-        timeId: timeCount++,
-        callback,
-        interval,
-        cancel,
-        count: 50,
-        reset: () => {
-            timer.count = 0;
-            log("reset");
-        }
-    };
-
-    log(
-        |> 1. 这是一个特殊的字符串模板
-        |> 2. 支持多行文本
-        |> 3. 它会让代码看起来更舒服
-        |> 4. <Buy/@Buy> <Close/@Close> 
-    );
-
-    yield;
-
-    function log(text) {
-        console.log("Timer:" + timer.timeId + " [" + text.trim() + "]");
-    }
-
-    function cancel() {
-        log("canceled");
-        timer.cancel = null;
-        timeCount--;
-        timer.timeId = null;
-        timer.callback = null;
-        timer.interval = null;
-        timer.reset = null;
-        timer.count = null;
-        timer.abc = "abc";
-        return true;
-    }
-    timers.push(timer);
-    return timer;
-}
 
 
 ```

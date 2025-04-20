@@ -29,7 +29,7 @@ namespace AuroraScript.Ast.Expressions
             }
             else
             {
-                throw new ParseException("无效的Token", token, "");
+                throw new AuroraParseException("无效的Token", token, "");
             }
         }
 

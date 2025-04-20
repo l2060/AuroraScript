@@ -2,14 +2,14 @@
 
 namespace AuroraScript.Compiler.Exceptions
 {
-    public class LexerException : Exception
+    public class AuroraLexerException : Exception
     {
         public string FileName { get; private set; }
         public int LineNumber { get; private set; }
         public int ColumnNumber { get; private set; }
         public Token Token { get; private set; }
 
-        internal LexerException(string fileName, int lineNumber, int columnNumber, string message) : base(message)
+        internal AuroraLexerException(string fileName, int lineNumber, int columnNumber, string message) : base(message)
         {
             ColumnNumber = columnNumber;
             FileName = fileName;
@@ -17,7 +17,7 @@ namespace AuroraScript.Compiler.Exceptions
             Token = Token;
         }
 
-        internal LexerException(string fileName, Token token, string message) : base(message)
+        internal AuroraLexerException(string fileName, Token token, string message) : base(message)
         {
             ColumnNumber = token.ColumnNumber;
             FileName = fileName;

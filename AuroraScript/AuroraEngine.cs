@@ -19,7 +19,7 @@ namespace AuroraScript
         /// <summary>
         /// 全局对象，存储全局变量和函数
         /// </summary>
-        private readonly ScriptGlobal Global = new ScriptGlobal();
+        public readonly ScriptGlobal Global = new ScriptGlobal();
 
         /// <summary>
         /// 字符串常量池，存储脚本中使用的所有字符串常量

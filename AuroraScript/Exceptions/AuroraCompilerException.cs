@@ -2,11 +2,11 @@
 
 namespace AuroraScript.Compiler.Exceptions
 {
-    public class CompilerException : Exception
+    public class AuroraCompilerException : Exception
     {
         public string FileName { get; private set; }
 
-        internal CompilerException(string fileName, string message) : base(message)
+        internal AuroraCompilerException(string fileName, string message) : base(message)
         {
             this.FileName = fileName;
         }

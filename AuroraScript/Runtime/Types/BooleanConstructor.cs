@@ -13,7 +13,7 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.BooleanConstructorPrototype;
         }
 
-        public static ScriptObject PARSE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {
@@ -24,7 +24,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject CONSTRUCTOR(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length > 0)
             {

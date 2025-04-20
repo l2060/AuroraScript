@@ -4,6 +4,8 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace AuroraScript.Runtime
 {
@@ -44,7 +46,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 执行错误，存储脚本执行过程中发生的异常
         /// </summary>
-        private Exception _error;
+        private AuroraRuntimeException _error;
 
         /// <summary>
         /// 全局对象，存储脚本的全局变量和函数
@@ -104,6 +106,20 @@ namespace AuroraScript.Runtime
             // 如果当前状态是中断或错误，则继续执行
             if (_status == ExecuteStatus.Interrupted || _status == ExecuteStatus.Error)
             {
+                if (_status == ExecuteStatus.Error)
+                {
+                    // 跳过当前执行指令，并将Null操作入栈
+                    var currentCallStack = this._callStack.Peek();
+                    currentCallStack.Pointer = currentCallStack.LastInstructionPointer;
+                    // 重新读取指令 ， 将返回值（Null）入栈
+                    PatchVM patchVM = _virtualMachine.PatchVM();
+                    patchVM.Patch(this);
+
+
+                    Console.WriteLine();
+
+                }
+
                 // 调用虚拟机继续执行
                 _virtualMachine.Execute(this);
             }
@@ -115,9 +131,10 @@ namespace AuroraScript.Runtime
         /// 执行到完成状态，直到脚本全部执行完毕或出现错误
         /// </summary>
         /// <returns>当前执行上下文，支持链式调用</returns>
+        [DebuggerHidden] // JUMP BREAK CALLER
         public ExecuteContext Done(AbnormalStrategy strategy = AbnormalStrategy.Interruption)
         {
-            if (_status == ExecuteStatus.Running) throw new RuntimeException("Current context is running and cannot be repeated before it is completed");
+            if (_status == ExecuteStatus.Running) throw new AuroraException("Current context is running and cannot be repeated before it is completed");
             if (_status == ExecuteStatus.Complete) return this;
             // 循环继续执行，直到状态变为完成
             while (_status != ExecuteStatus.Complete)
@@ -130,7 +147,6 @@ namespace AuroraScript.Runtime
         }
 
 
-
         /// <summary>
         /// 设置执行状态、结果和异常信息
         /// </summary>
@@ -141,8 +157,6 @@ namespace AuroraScript.Runtime
         {
             // 设置执行结果
             _result = result;
-            // 设置异常信息
-            _error = exception;
             // 设置执行状态
             _status = status;
             if (status == ExecuteStatus.Running)
@@ -155,7 +169,47 @@ namespace AuroraScript.Runtime
                 var tick = _stopwatch.ElapsedMilliseconds - _startTick;
                 _accumulatedTick += tick;
             }
+
+            // 设置异常信息
+            if (exception != null)
+            {
+                var stackTrace = CaptureStackTrace();
+                _error = new AuroraRuntimeException(exception, stackTrace);
+            }
         }
+
+
+
+        /// <summary>
+        /// 捕获调用堆栈信息
+        /// </summary>
+        /// <returns></returns>
+        private String CaptureStackTrace()
+        {
+            var current = _callStack.Peek();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($" at {current.Module.Name}.method() filepath.as @line: 233, @pointer:  {current.LastInstructionPointer}");
+            Boolean isFirst = true;
+            foreach (var frame in _callStack)
+            {
+                if (isFirst)
+                {
+                    isFirst = false;
+                    continue;
+                }
+                sb.AppendLine($" at {frame.Module.Name}.method() filepath.as @line: 233, @pointer:  {frame.Pointer - 2}");
+            }
+            sb.AppendLine($" at Native Call @pointer:  {_callStack.Last().EntryPointer}");
+            return sb.ToString();
+        }
+
+        /**
+在 AuroraScript.Runtime.Types.NullValue.GetPropertyValue(String key) 在 D:\SourceCode\AuroraScript\AuroraScript\Runtime\Types\NullValue.cs 中: 第 27 行
+在 AuroraScript.Runtime.RuntimeVM.ExecuteFrame(ExecuteContext exeContext) 在 D:\SourceCode\AuroraScript\AuroraScript\Runtime\RuntimeVM.cs 中: 第 341 行
+在 AuroraScript.Runtime.RuntimeVM.Execute(ExecuteContext exeContext) 在 D:\SourceCode\AuroraScript\AuroraScript\Runtime\RuntimeVM.cs 中: 第 55 行
+         * 
+         * */
+
 
         /// <summary>
         /// 获取当前调用用时 (Milliseconds)
@@ -186,7 +240,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 获取执行代码过程产生的异常
         /// </summary>
-        public Exception Error => _error;
+        public AuroraRuntimeException Error => _error;
 
 
         /// <summary>

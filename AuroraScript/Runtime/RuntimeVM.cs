@@ -27,6 +27,10 @@ namespace AuroraScript.Runtime
         private readonly ByteCodeBuffer _codeBuffer;
 
 
+        public PatchVM PatchVM()
+        {
+            return new PatchVM(_codeBuffer);
+        }
 
 
         /// <summary>
@@ -71,7 +75,6 @@ namespace AuroraScript.Runtime
         {
             // 设置执行状态为运行中
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
-
 
             // 获取调用栈和操作数栈的引用，提高访问效率
             var _callStack = exeContext._callStack;
@@ -131,7 +134,7 @@ namespace AuroraScript.Runtime
                  {
                      // 如果两个操作数都是数值类型，执行操作并将结果压入栈
                      var result = operation(leftNumber, rightNumber);
-                     if (result == null) throw new Exception();
+                     if (result == null) throw new AuroraVMException("");
                      pushStack(result);
                  }
                  else
@@ -293,7 +296,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new RuntimeException($"Object {obj} does not support iterators.");
+                            throw new AuroraVMException($"Object {obj} does not support iterators.");
                         }
                         break;
 
@@ -305,7 +308,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new RuntimeException($"Object {obj} not iterator.");
+                            throw new AuroraVMException($"Object {obj} not iterator.");
                         }
                         break;
 
@@ -317,7 +320,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new RuntimeException($"Object {obj} not iterator.");
+                            throw new AuroraVMException($"Object {obj} not iterator.");
                         }
                         break;
 
@@ -329,7 +332,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new RuntimeException($"Object {obj} not iterator.");
+                            throw new AuroraVMException($"Object {obj} not iterator.");
                         }
                         break;
                     case OpCode.GET_PROPERTY:
@@ -343,7 +346,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new InvalidOperationException($"Cannot get property '{propName}' from {obj}");
+                            throw new AuroraVMException($"Cannot get property '{propName}' from {obj}");
                         }
                         break;
 
@@ -359,7 +362,7 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            throw new InvalidOperationException($"Cannot set property '{propName}' on {obj}");
+                            throw new AuroraVMException($"Cannot set property '{propName}' on {obj}");
                         }
                         break;
 
@@ -616,7 +619,7 @@ namespace AuroraScript.Runtime
                         {
                             if (_callStack.Count > exeContext.ExecuteOptions.MaxCallStackDepth)
                             {
-                                throw new RuntimeException("The number of method call stacks exceeds the limit of " + exeContext.ExecuteOptions.MaxCallStackDepth);
+                                throw new AuroraVMException("The number of method call stacks exceeds the limit of " + exeContext.ExecuteOptions.MaxCallStackDepth);
                             }
                             // 如果是脚本中定义的闭包函数
                             // 创建新的调用帧，包含环境、全局对象、模块和入口点

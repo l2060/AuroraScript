@@ -138,7 +138,7 @@ namespace AuroraScript.Core
 
             if (dobjeect != null)
             {
-                throw new CompilerException("", "域内变量名重复");
+                throw new AuroraCompilerException("", "域内变量名重复");
             }
             if (Resolve(name, out var _))
             {
@@ -176,7 +176,7 @@ namespace AuroraScript.Core
             var dobjeect = findByName(name);
             if (dobjeect != null)
             {
-                throw new CompilerException("", "域内变量名重复");
+                throw new AuroraCompilerException("", "域内变量名重复");
             }
             if (Resolve(name, out var _))
             {
@@ -222,7 +222,7 @@ namespace AuroraScript.Core
             var val = findByName(name);
             if (val != null)
             {
-                throw new CompilerException("", "域内变量名重复");
+                throw new AuroraCompilerException("", "域内变量名重复");
             }
             int slot = 0;
             var alias = name;

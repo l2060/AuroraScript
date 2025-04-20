@@ -13,6 +13,17 @@ namespace AuroraScript.Runtime
     public class CallFrame
     {
         /// <summary>
+        /// 函数入口点的指令指针，指向函数的起始位置
+        /// </summary>
+        public readonly Int32 EntryPointer;
+
+        /// <summary>
+        /// 函数入口点的指令指针，指向函数的起始位置
+        /// </summary>
+        public Int32 LastInstructionPointer;
+
+
+        /// <summary>
         /// 指令指针，指向当前执行的指令
         /// </summary>
         public Int32 Pointer;
@@ -58,7 +69,7 @@ namespace AuroraScript.Runtime
             // 设置闭包环境
             Environment = environment;
             // 设置初始指令指针
-            Pointer = entryPointer;
+            EntryPointer = Pointer = entryPointer;
             // 设置当前模块
             Module = thisModule;
             // 设置函数参数

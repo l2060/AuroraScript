@@ -35,7 +35,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <param name="thisObject">调用对象（this）</param>
         /// <param name="args">参数数组</param>
         /// <returns>空对象</returns>
-        public static ScriptObject LOG(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             Console.WriteLine(String.Join(", ", args));
             return ScriptObject.Null;
@@ -50,7 +50,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <param name="thisObject">调用对象（this）</param>
         /// <param name="args">参数数组，第一个参数为计时标记名称</param>
         /// <returns>空对象</returns>
-        public static ScriptObject TIME(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TIME(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length == 1 && args[0] is StringValue stringValue)
             {
@@ -68,7 +68,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <param name="thisObject">调用对象（this）</param>
         /// <param name="args">参数数组，第一个参数为计时标记名称</param>
         /// <returns>空对象</returns>
-        public static ScriptObject TIMEEND(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TIMEEND(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (args.Length == 1 && args[0] is StringValue stringValue && _times.TryGetValue(stringValue.Value, out var value))
             {

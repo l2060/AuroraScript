@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Compiler.Exceptions
 {
-    public class ParseException : Exception
+    public class AuroraParseException : Exception
     {
         public string FileName { get; private set; }
         public int LineNumber { get; private set; }
@@ -10,7 +10,7 @@ namespace AuroraScript.Compiler.Exceptions
         public Token Token { get; private set; }
 
 
-        internal ParseException(string fileName, Token token, string message) : base(message)
+        internal AuroraParseException(string fileName, Token token, string message) : base(message)
         {
             ColumnNumber = token.ColumnNumber;
             this.FileName = fileName;

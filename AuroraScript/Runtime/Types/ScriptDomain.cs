@@ -1,5 +1,8 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using System;
+using System.Diagnostics;
+using System.Reflection;
 
 
 namespace AuroraScript.Runtime.Types
@@ -54,41 +57,37 @@ namespace AuroraScript.Runtime.Types
         /// <returns>执行上下文，包含执行结果和状态</returns>
         public ExecuteContext Execute(string moduleName, string methodName, ExecuteOptions options, params ScriptObject[] arguments)
         {
-            // 创建新的执行上下文
-            ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
-
             // 获取模块对象，模块名称前面加@前缀
             var module = Global.GetPropertyValue("@" + moduleName);
             if (module == null)
             {
                 // 如果模块不存在，设置错误状态并返回
-                exeContext.SetStatus(ExecuteStatus.Error, ScriptObject.Null, new RuntimeException("not found module " + moduleName));
-                return exeContext;
+                throw new AuroraException($"The module named {moduleName} was not found");
             }
 
             // 从模块中获取方法
             var method = module.GetPropertyValue(methodName);
-            if (method == null)
+            if (method == ScriptObject.Null)
             {
                 // 如果方法不存在，设置错误状态并返回
-                exeContext.SetStatus(ExecuteStatus.Error, ScriptObject.Null, new RuntimeException("not found method " + methodName));
-                return exeContext;
+                throw new AuroraException($"The method {methodName} of the module {moduleName} does not exist");
             }
 
             // 检查方法是否是闭包函数
             if (method is not ClosureFunction closure)
             {
                 // 如果不是闭包函数，设置错误状态并返回
-                exeContext.SetStatus(ExecuteStatus.Error, ScriptObject.Null, new RuntimeException(methodName + " is not method"));
-                return exeContext;
+                throw new AuroraException($"{methodName} is not a valid internal method");
             }
-
+            // 创建新的执行上下文
+            ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
             // 创建调用帧并压入调用栈
             exeContext._callStack.Push(new CallFrame(closure.Environment, Global, closure.Module, closure.EntryPointer, arguments));
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
         }
+
 
 
         /// <summary>
@@ -114,6 +113,10 @@ namespace AuroraScript.Runtime.Types
         /// <returns>执行上下文，包含执行结果和状态</returns>
         public ExecuteContext Execute(ClosureFunction closure, ExecuteOptions options, params ScriptObject[] arguments)
         {
+            if (closure == null)
+            {
+                throw new AuroraException("The parameter ‘closure’ cannot be null");
+            }
             // 创建新的执行上下文
             ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
             // 创建调用帧并压入调用栈

@@ -84,7 +84,7 @@ namespace AuroraScript.Analyzer
             var token = this.Next();
             if (token.Symbol != symbol)
             {
-                throw new LexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword {token.Value} appears in the wrong place, it should be {symbol.Name}.");
+                throw new AuroraLexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword {token.Value} appears in the wrong place, it should be {symbol.Name}.");
             }
             return token;
         }
@@ -242,7 +242,7 @@ namespace AuroraScript.Analyzer
         /// Parse next token
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="LexerException"></exception>
+        /// <exception cref="AuroraLexerException"></exception>
         private Token ParseNext()
         {
             if (this.bufferLength <= 0) return Token.EOF;
@@ -268,7 +268,7 @@ namespace AuroraScript.Analyzer
                     return token;
                 }
             }
-            throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, "Invalid keywords 。");
+            throw new AuroraLexerException(this.FileName, this.LineNumber, this.ColumnNumber, "Invalid keywords 。");
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace AuroraScript.Analyzer
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        /// <exception cref="LexerException"></exception>
+        /// <exception cref="AuroraLexerException"></exception>
         private Token CreateToken(in RuleTestResult result)
         {
             Token token = null;
@@ -304,7 +304,7 @@ namespace AuroraScript.Analyzer
                 }
             }
 
-            if (token == null) throw new LexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");
+            if (token == null) throw new AuroraLexerException(this.FileName, this.LineNumber, this.ColumnNumber, $"Invalid Identifier {result.Value}");
             token.LineNumber = this.LineNumber;
             token.ColumnNumber = this.ColumnNumber;
             token.Value = result.Value;

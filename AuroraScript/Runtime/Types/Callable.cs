@@ -15,12 +15,12 @@ namespace AuroraScript.Runtime.Types
 
         public readonly ClrMethodDelegate Method;
         public abstract BoundFunction Bind(ScriptObject target);
-        public abstract ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args);
+        public abstract ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args);
 
 
 
 
-        public static ScriptObject BIND(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject BIND(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var callable = thisObject as Callable;
             return new BoundFunction(callable, (args.Length > 0) ? args[0] : ScriptObject.Null);

@@ -761,7 +761,7 @@ namespace AuroraScript.Compiler.Emits
             if (Operator.LogicalNot == op) return OpCode.LOGIC_NOT;
             if (Operator.BitwiseNot == op) return OpCode.BIT_NOT;
             if (Operator.Negate == op) return OpCode.NEGATE;
-            throw new CompilerException("", $"Invalid operator: {op}");
+            throw new AuroraCompilerException("", $"Invalid operator: {op}");
         }
 
         private void HandlePropertyAssignment(GetPropertyExpression propExpr)

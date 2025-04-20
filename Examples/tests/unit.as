@@ -33,7 +33,11 @@ function testIterator(){
 	for(var a in "Hello Wrold!")  console.log(a);
 }
 
-
+function testContinue(){
+	console.log("Start testContinue");
+    var ax = xxxx.c(1);
+	console.log("End testContinue");
+}
 
 
 

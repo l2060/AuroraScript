@@ -75,14 +75,14 @@ namespace AuroraScript.Analyzer
         /// <param name="currentScope"></param>
         /// <param name="endSymbols"></param>
         /// <returns></returns>
-        /// <exception cref="ParseException"></exception>
+        /// <exception cref="AuroraParseException"></exception>
         private Statement ParseStatement(Scope currentScope)
         {
             var token = this.lexer.LookAtHead();
             // 改进错误处理
             if (token == null)
             {
-                throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "Unexpected end of input while parsing statement");
+                throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "Unexpected end of input while parsing statement");
             }
             if (token.Symbol == Symbols.PT_SEMICOLON)
             {
@@ -339,7 +339,7 @@ namespace AuroraScript.Analyzer
                 }
                 // Determine whether the body is single-line or multi-line
                 body = this.ParseStatement(scope);
-                if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
+                if (body == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
                 return new ForInStatement(var, itor, body);
             }
             // parse for initializer
@@ -352,7 +352,7 @@ namespace AuroraScript.Analyzer
             var incrementor = this.ParseExpression(scope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line
             body = this.ParseStatement(scope);
-            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
+            if (body == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
 
             // parse for body
             return new ForStatement(condition, initializer, incrementor, body);
@@ -372,7 +372,7 @@ namespace AuroraScript.Analyzer
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line
             var body = this.ParseStatement(currentScope);
-            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "while body statement should not be empty");
+            if (body == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "while body statement should not be empty");
             // parse while body
             return new WhileStatement(condition, body);
         }
@@ -439,7 +439,7 @@ namespace AuroraScript.Analyzer
         {
 
             Console.WriteLine($"{token} {message}");
-            return new ParseException(this.lexer.FullPath, token, String.Format(message, token));
+            return new AuroraParseException(this.lexer.FullPath, token, String.Format(message, token));
         }
 
         /// <summary>
@@ -458,7 +458,7 @@ namespace AuroraScript.Analyzer
             // Determine whether the body is single-line or multi-line
             // parse if body
             Statement body = this.ParseStatement(currentScope);
-            if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "if body statement should not be empty");
+            if (body == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "if body statement should not be empty");
 
             Statement elseStatement = null;
             var nextToken = this.lexer.LookAtHead();
@@ -506,7 +506,7 @@ namespace AuroraScript.Analyzer
             else
             {
                 var expression = this.ParseStatement(currentScope);
-                if (expression == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
+                if (expression == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "else body statement should not be empty");
                 expression.IsStateSegment = true;
                 block.AddNode(expression);
             }
@@ -929,7 +929,7 @@ namespace AuroraScript.Analyzer
                 if (varName == null) varName = this.lexer.TestNextOfKind<NullToken>();
                 if (varName == null)
                 {
-                    throw new ParseException(this.lexer.FullPath, this.lexer.Next(), "无效的Map构建语法");
+                    throw new AuroraParseException(this.lexer.FullPath, this.lexer.Next(), "无效的Map构建语法");
                 }
 
                 if (this.lexer.TestNext(Symbols.PT_COLON))
@@ -1072,13 +1072,13 @@ namespace AuroraScript.Analyzer
         /// starting with “export”
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="LexerException"></exception>
+        /// <exception cref="AuroraLexerException"></exception>
         private Statement ParseExportStatement(Scope currentScope)
         {
             var exportToken = this.lexer.NextOfKind(Symbols.KW_EXPORT);
             if (currentScope.Type != ScopeType.MODULE)
             {
-                throw new ParseException(this.lexer.FullPath, exportToken, String.Format("Invalid “export” keyword in row {0}, column {1}, scope not supported.", exportToken.LineNumber, exportToken.ColumnNumber));
+                throw new AuroraParseException(this.lexer.FullPath, exportToken, String.Format("Invalid “export” keyword in row {0}, column {1}, scope not supported.", exportToken.LineNumber, exportToken.ColumnNumber));
             }
 
 
@@ -1128,7 +1128,7 @@ namespace AuroraScript.Analyzer
             var fullPath = ResolveImportPath(fileToken.Value);
             if (!File.Exists(fullPath))
             {
-                throw new CompilerException(fullPath, $"Import file not found: {fileToken.Value}");
+                throw new AuroraCompilerException(fullPath, $"Import file not found: {fileToken.Value}");
             }
             return new ImportDeclaration() { Name = module, File = fileToken, FullPath = fullPath };
         }

@@ -20,10 +20,10 @@ namespace AuroraScript.Runtime
         }
 
 
-        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            return Method.Invoke(domain, target, args);
+            return Method.Invoke(context, target, args);
         }
 
 

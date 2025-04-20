@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -16,25 +17,25 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             return valueString;
         }
 
         public override ScriptObject GetPropertyValue(string key)
         {
-            throw new RuntimeException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
+            throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }
 
         public override void SetPropertyValue(string key, ScriptObject value)
         {
-            throw new RuntimeException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
+            throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }
 
 
         public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
-            throw new RuntimeException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
+            throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }
 
         public override string ToString()

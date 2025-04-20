@@ -3,7 +3,7 @@
 namespace AuroraScript.Runtime.Types
 {
 
-    public delegate ScriptObject ClrMethodDelegate(ScriptDomain domain, ScriptObject module, ScriptObject[] args);
+    public delegate ScriptObject ClrMethodDelegate(ExecuteContext context, ScriptObject module, ScriptObject[] args);
 
 
     public class ClrFunction : Callable
@@ -14,9 +14,9 @@ namespace AuroraScript.Runtime.Types
         {
         }
 
-        public override ScriptObject Invoke(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
-            return Method.Invoke(domain, thisObject, args);
+            return Method.Invoke(context, thisObject, args);
         }
         public override BoundFunction Bind(ScriptObject target)
         {

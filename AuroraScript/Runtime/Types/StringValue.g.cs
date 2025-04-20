@@ -14,19 +14,19 @@ namespace AuroraScript.Runtime.Base
     {
         public readonly static StringValue Empty = new StringValue("");
 
-        public static ScriptObject TOLOWERCASE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TOLOWERCASE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             return StringValue.Of(strValue.Value.ToLower());
         }
 
-        public static ScriptObject TOUPPERCASE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TOUPPERCASE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             return StringValue.Of(strValue.Value.ToUpper());
         }
 
-        public new static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             return thisObject;
         }
@@ -38,21 +38,21 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject CONTANINS(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONTANINS(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
             return BooleanValue.Of(strValue.Value.Contains(str.Value));
         }
 
-        public static ScriptObject INDEXOF(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject INDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
             return NumberValue.Of(strValue.Value.IndexOf(str.Value));
         }
 
-        public static ScriptObject LASTINDEXOF(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -62,7 +62,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject STARTSWITH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject STARTSWITH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -70,7 +70,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject ENDSWITH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject ENDSWITH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var str = args[0] as StringValue;
@@ -78,7 +78,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject SUBSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SUBSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             var start = 0;
@@ -100,7 +100,7 @@ namespace AuroraScript.Runtime.Base
             return thisObject;
         }
 
-        public static ScriptObject SPLIT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SPLIT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             if (args.Length > 0 && args[0] is StringValue stringValue)
@@ -111,13 +111,13 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject MATCH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             // TODO
             return thisObject;
         }
 
-        public static ScriptObject REPLACE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject REPLACE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             if (args.Length == 2)
@@ -128,7 +128,7 @@ namespace AuroraScript.Runtime.Base
             }
             return thisObject;
         }
-        public static ScriptObject PADLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PADLEFT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             if (args.Length == 2)
@@ -139,7 +139,7 @@ namespace AuroraScript.Runtime.Base
             }
             return thisObject;
         }
-        public static ScriptObject PADRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PADRIGHT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             if (args.Length == 2)
@@ -151,7 +151,7 @@ namespace AuroraScript.Runtime.Base
             return thisObject;
         }
 
-        public static ScriptObject TRIM(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIM(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
@@ -160,7 +160,7 @@ namespace AuroraScript.Runtime.Base
             return ScriptObject.Null;
         }
 
-        public static ScriptObject TRIMLEFT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIMLEFT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
@@ -169,7 +169,7 @@ namespace AuroraScript.Runtime.Base
             return ScriptObject.Null;
         }
 
-        public static ScriptObject TRIMRIGHT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TRIMRIGHT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is StringValue str)
             {
@@ -180,7 +180,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject CHARCODEAT(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CHARCODEAT(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as StringValue;
             if (args.Length > 0)

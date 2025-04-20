@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using System;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
@@ -17,11 +18,13 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public OpCode ReadOpCode(CallFrame frame)
+        public Core.OpCode ReadOpCode(CallFrame frame)
         {
             if (frame.Pointer >= _byteCode.Length)
                 throw new InvalidOperationException("指令指针超出范围");
-            return (OpCode)_byteCode[frame.Pointer++];
+            frame.LastInstructionPointer = frame.Pointer;
+            var opCode = (Core.OpCode)_byteCode[frame.Pointer++];
+            return opCode;
         }
 
 

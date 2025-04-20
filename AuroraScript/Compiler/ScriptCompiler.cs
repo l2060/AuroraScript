@@ -66,7 +66,7 @@ namespace AuroraScript.Compiler
         {
             if (!File.Exists(fileFullPath))
             {
-                throw new CompilerException(fileFullPath, "Import file path not found ");
+                throw new AuroraCompilerException(fileFullPath, "Import file path not found ");
             }
             var module = scriptModules.GetOrAdd(fileFullPath, (key) =>
             {

@@ -17,7 +17,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject TOSTRING(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             return new StringValue(thisObject.ToString());
         }

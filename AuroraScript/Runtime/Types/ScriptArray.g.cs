@@ -16,7 +16,7 @@ namespace AuroraScript.Runtime.Base
             return new NumberValue(strValue._items.Count);
         }
 
-        public static ScriptObject PUSH(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -29,17 +29,17 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject POP(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             if(thisObject is ScriptArray array)
             {
                 return array.Pop();
             }
-            throw new RuntimeException(null, "array is empty!");
+            throw new AuroraVMException("array is empty!");
         }
 
 
-        public static ScriptObject SLICE(ScriptDomain domain, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
         {
             var strValue = thisObject as ScriptArray;
             var start = 0;
