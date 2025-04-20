@@ -5,17 +5,19 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+
 namespace AuroraScript.Runtime.Base
 {
 
-    public partial class ScriptObject
+    public partial class ScriptObject : IEnumerator
     {
-
+        //[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private Dictionary<String, ObjectProperty> _properties;
 
         internal ScriptObject _prototype;
 
-        internal Boolean IsFrozen { get; set; } = false;
+        //[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private Boolean _isFrozen = false;
 
         internal ScriptObject(ScriptObject prototype, Boolean initProperties = true)
         {
@@ -26,18 +28,16 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
-        //internal ScriptObject(ScriptObject prototype)
-        //{
-        //    _prototype = prototype;
-        //    _properties = new Dictionary<string, ObjectProperty>();
-        //}
-
         public ScriptObject()
         {
             _prototype = Prototypes.ObjectPrototype;
             _properties = new Dictionary<string, ObjectProperty>();
         }
 
+        public void Frozen()
+        {
+            _isFrozen = true;
+        }
 
         /// <summary>
         /// 获取对象属性
@@ -90,7 +90,7 @@ namespace AuroraScript.Runtime.Base
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
             if (_properties == null) return;
-            if (IsFrozen)
+            if (_isFrozen)
             {
                 throw new RuntimeException("You cannot modify this object");
             }
@@ -98,11 +98,13 @@ namespace AuroraScript.Runtime.Base
             if (existValue == null)
             {
                 existValue = new ObjectProperty();
+                existValue.Key = StringValue.Of(key);
                 existValue.Readable = true;
-                existValue.Writeeable = true;
+                existValue.Writable = true;
+                existValue.Enumerable = true;
                 _properties[key] = existValue;
             }
-            if (!existValue.Writeeable) throw new RuntimeException("Property disables write");
+            if (!existValue.Writable) throw new RuntimeException("Property disables write");
             existValue.Value = value;
         }
 
@@ -111,7 +113,7 @@ namespace AuroraScript.Runtime.Base
         {
             if (_properties != null && _properties.TryGetValue(key, out var value))
             {
-                if (!value.Writeeable) throw new RuntimeException("Property disables write");
+                if (!value.Writable) throw new RuntimeException("Property disables write");
                 _properties.Remove(key);
                 return true;
             }
@@ -134,11 +136,12 @@ namespace AuroraScript.Runtime.Base
         /// <param name="value">属性值</param>
         /// <param name="writeable">属性定义后是否可修改</param>
         /// <param name="readable">属性是否可读</param>
+        /// <param name="enumerable">属性是否可枚举</param>
         /// <exception cref="RuntimeException"></exception>
-        public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true)
+        public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
             if (_properties == null) return;
-            if (IsFrozen)
+            if (_isFrozen)
             {
                 throw new RuntimeException("You cannot modify this object");
             }
@@ -146,13 +149,15 @@ namespace AuroraScript.Runtime.Base
             if (existValue == null)
             {
                 existValue = new ObjectProperty();
+                existValue.Key = StringValue.Of(key);
                 existValue.Readable = readable;
-                existValue.Writeeable = writeable;
+                existValue.Writable = writeable;
+                existValue.Enumerable = enumerable;
                 _properties[key] = existValue;
             }
             else
             {
-                if (!existValue.Writeeable) throw new RuntimeException("Property disables write");
+                if (!existValue.Writable) throw new RuntimeException("Property disables write");
             }
             existValue.Value = value;
         }
@@ -161,7 +166,8 @@ namespace AuroraScript.Runtime.Base
 
         public override string ToString()
         {
-            return "[object]";
+            if (_properties == null || _properties.Count == 0) return "[object]";
+            return ToDisplayString();
         }
 
         public virtual string ToDisplayString()
@@ -190,6 +196,28 @@ namespace AuroraScript.Runtime.Base
         public virtual Boolean IsTrue()
         {
             return true;
+        }
+
+
+        ItemIterator IEnumerator.GetIterator()
+        {
+            List<ScriptObject> result = new List<ScriptObject>();
+            var _object = this;
+            while (_object != null)
+            {
+                if (_object._properties != null)
+                {
+                    foreach (var item in _object._properties)
+                    {
+                        if (item.Value.Enumerable)
+                        {
+                            result.Add(item.Value.Key);
+                        }
+                    }
+                }
+                _object = _object._prototype;
+            }
+            return new ItemIterator(result);
         }
 
     }

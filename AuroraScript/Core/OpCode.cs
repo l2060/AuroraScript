@@ -41,6 +41,12 @@
         NEW_ARRAY,    // Create a new array (takes initial capacity)
 
 
+        GET_ITERATOR,    // 获取迭代器
+        ITERATOR_VALUE,   // 获取迭代器当前值
+        ITERATOR_HAS_VALUE,     // 迭代器当前是否有值
+        ITERATOR_NEXT,    // 迭代器移动到下一个
+
+
         GET_PROPERTY, // Get a property from an object (takes property name index in constant pool)
         SET_PROPERTY, // Set a property on an object (takes property name index in constant pool)
         DELETE_PROPERTY, // Set a property on an object (takes property name index in constant pool)

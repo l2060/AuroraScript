@@ -1,12 +1,9 @@
 ﻿using AuroraScript;
-using AuroraScript.Core;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-
 
 public class Program
 {
@@ -24,6 +21,9 @@ public class Program
 
         var domain = engine.CreateDomain(g);
 
+
+        // for in iterator test
+        domain.Execute("UNIT_LIB", "testIterator").Done();
 
 
         // clouse test
@@ -51,7 +51,10 @@ public class Program
 
         var md5 = domain.Execute("MD5_LIB", "MD5", new StringValue("12345")).Done();
 
-        var rs =  domain.Execute("UNIT_LIB", "forTest", new NumberValue(1000)).Done();
+        var forCount = 100;
+        var testFor = domain.Execute("UNIT_LIB", "forTest", new NumberValue(forCount)).Done();
+
+        Console.WriteLine($"for:{forCount} Use {testFor.UsedTime}ms");
 
         var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
         timerResult.Done();

@@ -320,6 +320,28 @@ namespace AuroraScript.Analyzer
             var scope = currentScope.CreateScope(ScopeType.FOR);
             this.lexer.NextOfKind(Symbols.KW_FOR);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+
+            Statement body = null;
+            var cur = this.lexer.LookAtHead();
+            var offset = cur.Symbol == Symbols.KW_VAR ? -2 : -1;
+            var next = this.lexer.Previous(offset);
+            if (next.Symbol == Symbols.OP_IN)
+            {
+                // Parse For in
+                Boolean isVar = false;
+                VariableDeclaration var = null;
+                if (this.lexer.TestNext(Symbols.KW_VAR)) isVar = true;
+                var itor = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS) as InExpression;
+                if (isVar)
+                {
+                    var varName = itor.Left as NameExpression;
+                    var = new VariableDeclaration(MemberAccess.Internal, false, varName.Identifier);
+                }
+                // Determine whether the body is single-line or multi-line
+                body = this.ParseStatement(scope);
+                if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
+                return new ForInStatement(var, itor, body);
+            }
             // parse for initializer
             AstNode initializer = this.ParseStatement(scope);
             // remove expression layout
@@ -329,7 +351,7 @@ namespace AuroraScript.Analyzer
             // parse for incrementor
             var incrementor = this.ParseExpression(scope, Symbols.PT_RIGHTPARENTHESIS);
             // Determine whether the body is single-line or multi-line
-            var body = this.ParseStatement(scope);
+            body = this.ParseStatement(scope);
             if (body == null) throw new ParseException(this.lexer.FullPath, this.lexer.Previous(), "for body statement should not be empty");
 
             // parse for body
@@ -859,7 +881,7 @@ namespace AuroraScript.Analyzer
             if (_operator == Operator.NotEqual) return new BinaryExpression(_operator);
             if (_operator == Operator.SignedRightShift) return new BinaryExpression(_operator);
             if (_operator == Operator.UnSignedRightShift) return new BinaryExpression(_operator);
-
+            if (_operator == Operator.In) return new InExpression(_operator);
 
 
             if (_operator == Operator.Subtract) return new BinaryExpression(_operator);

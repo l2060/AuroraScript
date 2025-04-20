@@ -130,6 +130,16 @@ namespace AuroraScript.Compiler
         /// </summary>
         public static readonly Operator TypeOf = new Operator(Symbols.OP_TYPEOF, 10, OperatorPlacement.Prefix, false);
 
+        /// <summary>
+        /// operator exp in exp
+        /// </summary>
+        public static readonly Operator In = new Operator(Symbols.OP_IN, 10, OperatorPlacement.Binary, false);
+
+
+
+
+
+
         // Arithmetic operators.
         /// <summary>
         /// operator exp * exp

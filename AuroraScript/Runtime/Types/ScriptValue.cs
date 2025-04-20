@@ -8,7 +8,7 @@ namespace AuroraScript.Runtime
 
         internal ScriptValue(ScriptObject prototype) : base(prototype, false)
         {
-            IsFrozen = true;
+            Frozen();
         }
 
 
@@ -22,7 +22,7 @@ namespace AuroraScript.Runtime
             return false;
         }
 
-        public override void Define(String key, ScriptObject value, bool writeable = true, bool readable = true)
+        public override void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
 
         }

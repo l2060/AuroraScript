@@ -267,7 +267,7 @@ namespace AuroraScript.Runtime
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
                         value = popStack();
-                        domainGlobal.Define(propName.Value, value, writeable: false);
+                        domainGlobal.Define(propName.Value, value, writeable: false, enumerable: true);
                         break;
 
                     case OpCode.NEW_MAP:
@@ -285,7 +285,53 @@ namespace AuroraScript.Runtime
                         pushStack(array);
                         break;
 
+                    case OpCode.GET_ITERATOR:
+                        obj = popStack();
+                        if (obj is IEnumerator iterable)
+                        {
+                            pushStack(iterable.GetIterator());
+                        }
+                        else
+                        {
+                            throw new RuntimeException($"Object {obj} does not support iterators.");
+                        }
+                        break;
 
+                    case OpCode.ITERATOR_VALUE:
+                        obj = popStack();
+                        if (obj is ItemIterator iterator)
+                        {
+                            pushStack(iterator.Value());
+                        }
+                        else
+                        {
+                            throw new RuntimeException($"Object {obj} not iterator.");
+                        }
+                        break;
+
+                    case OpCode.ITERATOR_HAS_VALUE:
+                        obj = popStack();
+                        if (obj is ItemIterator iterator2)
+                        {
+                            pushStack(BooleanValue.Of(iterator2.HasValue()));
+                        }
+                        else
+                        {
+                            throw new RuntimeException($"Object {obj} not iterator.");
+                        }
+                        break;
+
+                    case OpCode.ITERATOR_NEXT:
+                        obj = popStack();
+                        if (obj is ItemIterator iterator3)
+                        {
+                            iterator3.Next();
+                        }
+                        else
+                        {
+                            throw new RuntimeException($"Object {obj} not iterator.");
+                        }
+                        break;
                     case OpCode.GET_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
@@ -378,7 +424,7 @@ namespace AuroraScript.Runtime
                             obj.SetPropertyValue(temp.ToString(), value);
                         }
                         break;
-              
+
                     case OpCode.LOGIC_NOT:
                         value = popStack();
                         pushStack(BooleanValue.Of(!value.IsTrue()));

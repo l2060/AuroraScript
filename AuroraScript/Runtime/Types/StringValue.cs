@@ -1,10 +1,11 @@
 ﻿using AuroraScript.Runtime.Types;
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base
 {
-    public partial class StringValue : ScriptValue
+    public partial class StringValue : ScriptValue, IEnumerator
     {
 
         private readonly String _value;
@@ -76,5 +77,10 @@ namespace AuroraScript.Runtime.Base
             return false;
         }
 
+        ItemIterator IEnumerator.GetIterator()
+        {
+            var items = _value.Select(e => StringValue.Of(e.ToString())).ToArray();
+            return new ItemIterator(items);
+        }
     }
 }

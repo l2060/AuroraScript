@@ -11,8 +11,8 @@ namespace AuroraScript.Runtime.Types
 
         private NullValue()
         {
-            IsFrozen = true;
             _prototype = Prototypes.NullValuePrototype;
+            Frozen();
         }
 
 
@@ -32,7 +32,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true)
+        public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
             throw new RuntimeException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }

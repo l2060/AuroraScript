@@ -814,6 +814,81 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
+        public override void VisitInExpression(InExpression node)
+        {
+            // todo
+        }
+
+
+
+        public override void VisitForInStatement(ForInStatement node)
+        {
+            _instructionBuilder.Comment($"# for in");
+            node.Initializer?.Accept(this);
+            _breakJumps.Push(new List<JumpInstruction>());
+            _continueJumps.Push(new List<JumpInstruction>());
+            _instructionBuilder.Comment($"# condition {node.Iterator}");
+
+            var varName = (NameExpression)node.Iterator.Left;
+            var IteratorName = "*Iterator_" + varName.Identifier.UniqueValue;
+
+            //var namedVarIndex =  _scope.Declare(DeclareType.Variable, varName.Identifier.Value);
+            var iteratorVarIndex = _scope.Declare(DeclareType.Variable, IteratorName);
+            // INIT var iterator = exp.Iterator;
+            // INIT var name = iterator.value();
+            // Condition = iterator.hasValue();
+            // Incrementor = iterator.next();
+
+            // 获取 迭代器 到 变量 IteratorName
+            node.Iterator.Right.Accept(this);
+            _instructionBuilder.GetIterator();
+            _instructionBuilder.StoreLocal(iteratorVarIndex);
+
+            var begin = _instructionBuilder.Position();
+
+            // 
+            _instructionBuilder.LoadLocal(iteratorVarIndex);
+            _instructionBuilder.IteratorHasValue();
+
+            // Jump out of loop if condition is false
+            var exitJump = _instructionBuilder.JumpFalse();
+
+            _instructionBuilder.Comment($"# IteratorValue");
+            // 获取迭代器第一个值到 name变量 
+            _instructionBuilder.LoadLocal(iteratorVarIndex);
+            _instructionBuilder.IteratorValue();
+            MoveValueTo(varName.Identifier.Value);
+
+
+            _instructionBuilder.Comment($"# body");
+            // Compile the loop body
+            node.Body.Accept(this);
+            foreach (var continueJump in _continueJumps.Peek())
+            {
+                _instructionBuilder.FixJumpToHere(continueJump);
+            }
+            var end = _instructionBuilder.Position();
+
+            //
+            _instructionBuilder.LoadLocal(iteratorVarIndex);
+            _instructionBuilder.IteratorNext();
+            //
+            _instructionBuilder.JumpTo(begin);
+            _instructionBuilder.FixJumpToHere(exitJump);
+            foreach (var breakJump in _breakJumps.Peek())
+            {
+                _instructionBuilder.FixJumpToHere(breakJump);
+            }
+
+
+
+
+
+        }
+
+
+
+
 
         public override void VisitForStatement(ForStatement node)
         {

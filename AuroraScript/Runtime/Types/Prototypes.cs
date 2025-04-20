@@ -29,93 +29,93 @@ namespace AuroraScript.Runtime.Types
         {
 
             // ScriptObject
-            ObjectPrototype.Define("toString", new ClrFunction(ScriptObject.TOSTRING), writeable: false);
-            ObjectPrototype.Define("constructor", ScriptObjectConstructor.INSTANCE, writeable: false);
-            ObjectPrototype.Define("length", new ClrGetter(ScriptObject.LENGTH), writeable: false);
-            ObjectPrototype.IsFrozen = true;
+            ObjectPrototype.Define("toString", new ClrFunction(ScriptObject.TOSTRING), writeable: false, enumerable: false);
+            ObjectPrototype.Define("constructor", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
+            ObjectPrototype.Define("length", new ClrGetter(ScriptObject.LENGTH), writeable: false, enumerable: false);
+            ObjectPrototype.Frozen(); ;
 
 
             // BooleanConstructor
-            BooleanConstructorPrototype.Define("true", BooleanValue.True, writeable: false);
-            BooleanConstructorPrototype.Define("false", BooleanValue.False, writeable: false);
-            BooleanConstructorPrototype.Define("valueOf", new ClrFunction(BooleanConstructor.PARSE), writeable: false);
-            BooleanConstructorPrototype.IsFrozen = true;
+            BooleanConstructorPrototype.Define("true", BooleanValue.True, writeable: false, enumerable: false);
+            BooleanConstructorPrototype.Define("false", BooleanValue.False, writeable: false, enumerable: false);
+            BooleanConstructorPrototype.Define("valueOf", new ClrFunction(BooleanConstructor.PARSE), writeable: false, enumerable: false);
+            BooleanConstructorPrototype.Frozen(); ;
 
 
             // BooleanValue
-            BooleanValuePrototype.Define("constructor", BooleanConstructor.INSTANCE, writeable: false);
-            BooleanValuePrototype.Define("toString", new ClrFunction(BooleanValue.TOSTRING), writeable: false);
-            BooleanValuePrototype.IsFrozen = true;
+            BooleanValuePrototype.Define("constructor", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
+            BooleanValuePrototype.Define("toString", new ClrFunction(BooleanValue.TOSTRING), writeable: false, enumerable: false);
+            BooleanValuePrototype.Frozen(); ;
 
 
             // Callable
-            CallablePrototype.Define("bind", new ClrFunction(Callable.BIND), writeable: false);
-            CallablePrototype.IsFrozen = true;
+            CallablePrototype.Define("bind", new ClrFunction(Callable.BIND), writeable: false, enumerable: false);
+            CallablePrototype.Frozen(); ;
 
 
             // NullValue
-            NullValuePrototype.Define("toString", new ClrFunction(NullValue.TOSTRING), writeable: false);
-            NullValuePrototype.IsFrozen = true;
+            NullValuePrototype.Define("toString", new ClrFunction(NullValue.TOSTRING), writeable: false, enumerable: false);
+            NullValuePrototype.Frozen(); ;
 
 
             // NumberConstructor
-            NumberConstructorPrototype.Define("maxValue", NumberConstructor.MAX_VALUE, writeable: false);
-            NumberConstructorPrototype.Define("minValue", NumberConstructor.MIN_VALUE, writeable: false);
-            NumberConstructorPrototype.Define("NaN", NumberConstructor.NaN, writeable: false);
-            NumberConstructorPrototype.Define("POSITIVE_INFINITY", NumberConstructor.POSITIVE_INFINITY, writeable: false);
-            NumberConstructorPrototype.Define("NEGATIVE_INFINITY", NumberConstructor.NEGATIVE_INFINITY, writeable: false);
-            NumberConstructorPrototype.Define("parse", new ClrFunction(NumberConstructor.PARSE), writeable: false);
-            NumberConstructorPrototype.IsFrozen = true;
+            NumberConstructorPrototype.Define("maxValue", NumberConstructor.MAX_VALUE, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("minValue", NumberConstructor.MIN_VALUE, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("NaN", NumberConstructor.NaN, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("POSITIVE_INFINITY", NumberConstructor.POSITIVE_INFINITY, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("NEGATIVE_INFINITY", NumberConstructor.NEGATIVE_INFINITY, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("parse", new ClrFunction(NumberConstructor.PARSE), writeable: false, enumerable: false);
+            NumberConstructorPrototype.Frozen(); ;
 
 
             // NumberValue
-            NumberValuePrototype.Define("constructor", NumberConstructor.INSTANCE, writeable: false);
-            NumberValuePrototype.Define("toString", new ClrFunction(NumberValue.TOSTRING), writeable: false);
-            NumberValuePrototype.IsFrozen = true;
+            NumberValuePrototype.Define("constructor", NumberConstructor.INSTANCE, writeable: false, enumerable: false);
+            NumberValuePrototype.Define("toString", new ClrFunction(NumberValue.TOSTRING), writeable: false, enumerable: false);
+            NumberValuePrototype.Frozen(); ;
 
             // ScriptArray
-            ScriptArrayPrototype.Define("length", new ClrGetter(ScriptArray.LENGTH), writeable: false);
-            ScriptArrayPrototype.Define("push", new ClrFunction(ScriptArray.PUSH), writeable: false);
-            ScriptArrayPrototype.Define("pop", new ClrFunction(ScriptArray.POP), writeable: false);
-            ScriptArrayPrototype.Define("constructor", ArrayConstructor.INSTANCE, writeable: false);
-            ScriptArrayPrototype.Define("slice", new ClrFunction(ScriptArray.SLICE), writeable: false);
-            ScriptArrayPrototype.IsFrozen = true;
+            ScriptArrayPrototype.Define("length", new ClrGetter(ScriptArray.LENGTH), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("push", new ClrFunction(ScriptArray.PUSH), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("pop", new ClrFunction(ScriptArray.POP), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("constructor", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("slice", new ClrFunction(ScriptArray.SLICE), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Frozen(); ;
 
 
             // ArrayConstructor
-            ArrayConstructorPrototype.IsFrozen = true;
+            ArrayConstructorPrototype.Frozen(); ;
 
 
             // StringValue
-            StringValuePrototype.Define("constructor", StringConstructor.INSTANCE, writeable: false);
-            StringValuePrototype.Define("length", new ClrGetter(StringValue.LENGTH), writeable: false);
-            StringValuePrototype.Define("contains", new ClrFunction(StringValue.CONTANINS), writeable: false);
-            StringValuePrototype.Define("indexOf", new ClrFunction(StringValue.INDEXOF), writeable: false);
-            StringValuePrototype.Define("lastIndexOf", new ClrFunction(StringValue.LASTINDEXOF), writeable: false);
-            StringValuePrototype.Define("startsWith", new ClrFunction(StringValue.STARTSWITH), writeable: false);
-            StringValuePrototype.Define("endsWith", new ClrFunction(StringValue.ENDSWITH), writeable: false);
-            StringValuePrototype.Define("substring", new ClrFunction(StringValue.SUBSTRING), writeable: false);
-            StringValuePrototype.Define("split", new ClrFunction(StringValue.SPLIT), writeable: false);
-            StringValuePrototype.Define("match", new ClrFunction(StringValue.MATCH), writeable: false);
-            StringValuePrototype.Define("replace", new ClrFunction(StringValue.REPLACE), writeable: false);
-            StringValuePrototype.Define("padLeft", new ClrFunction(StringValue.PADLEFT), writeable: false);
-            StringValuePrototype.Define("padRight", new ClrFunction(StringValue.PADRIGHT), writeable: false);
-            StringValuePrototype.Define("trim", new ClrFunction(StringValue.TRIM), writeable: false);
-            StringValuePrototype.Define("trimLeft", new ClrFunction(StringValue.TRIMLEFT), writeable: false);
-            StringValuePrototype.Define("trimRight", new ClrFunction(StringValue.TRIMRIGHT), writeable: false);
-            StringValuePrototype.Define("slice", new ClrFunction(StringValue.SUBSTRING), writeable: false);
-            StringValuePrototype.Define("toString", new ClrFunction(StringValue.TOSTRING), writeable: false);
-            StringValuePrototype.Define("charCodeAt", new ClrFunction(StringValue.CHARCODEAT), writeable: false);
-            StringValuePrototype.Define("toLowerCase", new ClrFunction(StringValue.TOLOWERCASE), writeable: false);
-            StringValuePrototype.Define("toUpperCase", new ClrFunction(StringValue.TOUPPERCASE), writeable: false);
-            StringValuePrototype.IsFrozen = true;
+            StringValuePrototype.Define("constructor", StringConstructor.INSTANCE, writeable: false, enumerable: false);
+            StringValuePrototype.Define("length", new ClrGetter(StringValue.LENGTH), writeable: false, enumerable: false);
+            StringValuePrototype.Define("contains", new ClrFunction(StringValue.CONTANINS), writeable: false, enumerable: false);
+            StringValuePrototype.Define("indexOf", new ClrFunction(StringValue.INDEXOF), writeable: false, enumerable: false);
+            StringValuePrototype.Define("lastIndexOf", new ClrFunction(StringValue.LASTINDEXOF), writeable: false, enumerable: false);
+            StringValuePrototype.Define("startsWith", new ClrFunction(StringValue.STARTSWITH), writeable: false, enumerable: false);
+            StringValuePrototype.Define("endsWith", new ClrFunction(StringValue.ENDSWITH), writeable: false, enumerable: false);
+            StringValuePrototype.Define("substring", new ClrFunction(StringValue.SUBSTRING), writeable: false, enumerable: false);
+            StringValuePrototype.Define("split", new ClrFunction(StringValue.SPLIT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("match", new ClrFunction(StringValue.MATCH), writeable: false, enumerable: false);
+            StringValuePrototype.Define("replace", new ClrFunction(StringValue.REPLACE), writeable: false, enumerable: false);
+            StringValuePrototype.Define("padLeft", new ClrFunction(StringValue.PADLEFT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("padRight", new ClrFunction(StringValue.PADRIGHT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("trim", new ClrFunction(StringValue.TRIM), writeable: false, enumerable: false);
+            StringValuePrototype.Define("trimLeft", new ClrFunction(StringValue.TRIMLEFT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("trimRight", new ClrFunction(StringValue.TRIMRIGHT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("slice", new ClrFunction(StringValue.SUBSTRING), writeable: false, enumerable: false);
+            StringValuePrototype.Define("toString", new ClrFunction(StringValue.TOSTRING), writeable: false, enumerable: false);
+            StringValuePrototype.Define("charCodeAt", new ClrFunction(StringValue.CHARCODEAT), writeable: false, enumerable: false);
+            StringValuePrototype.Define("toLowerCase", new ClrFunction(StringValue.TOLOWERCASE), writeable: false, enumerable: false);
+            StringValuePrototype.Define("toUpperCase", new ClrFunction(StringValue.TOUPPERCASE), writeable: false, enumerable: false);
+            StringValuePrototype.Frozen(); ;
 
 
             // StringConstructor
-            StringConstructorPrototype.Define("fromCharCode", new ClrFunction(StringConstructor.FROMCHARCODE), writeable: false);
-            StringConstructorPrototype.Define("valueOf", new ClrFunction(StringConstructor.CONSTRUCTOR), writeable: false);
-            //Prototype.Define("fromCodePoint", new ClrFunction(PARSE),  writeable: false);
-            StringConstructorPrototype.IsFrozen = true;
+            StringConstructorPrototype.Define("fromCharCode", new ClrFunction(StringConstructor.FROMCHARCODE), writeable: false, enumerable: false);
+            StringConstructorPrototype.Define("valueOf", new ClrFunction(StringConstructor.CONSTRUCTOR), writeable: false, enumerable: false);
+            //Prototype.Define("fromCodePoint", new ClrFunction(PARSE),  writeable: false, enumerable: false);
+            StringConstructorPrototype.Frozen(); ;
         }
 
 

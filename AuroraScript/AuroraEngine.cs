@@ -44,11 +44,11 @@ namespace AuroraScript
             Prototypes.Proload();
             _options = options;
             // 在全局对象中注册构造函数和全局变量
-            Global.Define("console", new ConsoleEnvironment(), writeable: false);
-            Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false);
-            Global.Define("String", StringConstructor.INSTANCE, writeable: false);
-            Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false);
-            Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false);
+            Global.Define("console", new ConsoleEnvironment(), writeable: false, enumerable: false);
+            Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
+            Global.Define("String", StringConstructor.INSTANCE, writeable: false, enumerable: false);
+            Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
+            Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
 
         }
 

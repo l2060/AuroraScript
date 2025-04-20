@@ -89,6 +89,19 @@ namespace AuroraScript.Compiler
         }
 
 
+
+        public virtual void VisitForInStatement(ForInStatement node)
+        {
+
+        }
+
+        public virtual void VisitInExpression(InExpression node)
+        {
+
+        }
+
+
+
         public virtual void VisitReturnStatement(ReturnStatement node)
         {
             node.Expression?.Accept(this);

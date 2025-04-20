@@ -3,7 +3,6 @@ using AuroraScript.Compiler;
 using AuroraScript.Compiler.Ast;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace AuroraScript.Ast
 {
@@ -35,18 +34,6 @@ namespace AuroraScript.Ast
         public String ModuleName { get; set; }
         public String ModulePath { get; set; }
         public String FullPath { get; set; }
-
-        public String ToJson()
-        {
-            var options = new JsonSerializerOptions
-            {
-                //ReferenceHandler = ReferenceHandler.Preserve,  // 处理循环引用
-                WriteIndented = true,  // 格式化输出,
-                IncludeFields = true,
-            };
-
-            return JsonSerializer.Serialize(this, options);
-        }
 
         public override void Accept(IAstVisitor visitor)
         {

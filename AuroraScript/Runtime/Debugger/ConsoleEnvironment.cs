@@ -21,9 +21,9 @@ namespace AuroraScript.Runtime.Debugger
         public ConsoleEnvironment()
         {
             // 在控制台对象中注册日志、计时和计时结束函数
-            Define("log", new ClrFunction(LOG), false);
-            Define("time", new ClrFunction(TIME), false);
-            Define("timeEnd", new ClrFunction(TIMEEND), false);
+            Define("log", new ClrFunction(LOG), writeable: false, enumerable: false);
+            Define("time", new ClrFunction(TIME), writeable: false, enumerable: false);
+            Define("timeEnd", new ClrFunction(TIMEEND), writeable: false, enumerable: false);
         }
 
 

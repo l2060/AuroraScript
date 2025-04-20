@@ -181,6 +181,8 @@ namespace AuroraScript.Analyzer
             return this.tokens[this.Position];
         }
 
+
+
         /// <summary>
         /// get next token without removing it.
         /// </summary>

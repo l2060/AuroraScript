@@ -120,9 +120,8 @@ namespace AuroraScript.Runtime
             if (_status == ExecuteStatus.Running) throw new RuntimeException("Current context is running and cannot be repeated before it is completed");
             if (_status == ExecuteStatus.Complete) return this;
             // 循环继续执行，直到状态变为完成
-            while (true)
+            while (_status != ExecuteStatus.Complete)
             {
-                if (_status == ExecuteStatus.Complete) break;
                 if (_status == ExecuteStatus.Error && strategy == AbnormalStrategy.Interruption) break;
                 // 调用Continue方法继续执行
                 Continue();
@@ -161,7 +160,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 获取当前调用用时 (Milliseconds)
         /// </summary>
-        public Int64 UsedTick
+        public Int64 UsedTime
         {
             get
             {

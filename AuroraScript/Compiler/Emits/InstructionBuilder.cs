@@ -176,6 +176,47 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        /// <summary>
+        /// 获取对象迭代器
+        /// </summary>
+        public void GetIterator()
+        {
+            Emit(OpCode.GET_ITERATOR);
+        }
+
+        /// <summary>
+        /// 获取迭代器当前值
+        /// </summary>
+        public void IteratorValue()
+        {
+            Emit(OpCode.ITERATOR_VALUE);
+        }
+
+        /// <summary>
+        /// 获取迭代器是否有值
+        /// </summary>
+        public void IteratorHasValue()
+        {
+            Emit(OpCode.ITERATOR_HAS_VALUE);
+        }
+
+        /// <summary>
+        /// 迭代器迭代下一个
+        /// </summary>
+        public void IteratorNext()
+        {
+            Emit(OpCode.ITERATOR_NEXT);
+        }
+
+
+
+
+
+
+
+
+
+
 
 
         public void PushConstantString(int index)

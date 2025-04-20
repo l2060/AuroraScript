@@ -211,6 +211,8 @@ namespace AuroraScript.Compiler
         /// </summary>
         public static readonly Symbols OP_UNSIGNEDRIGHTSHIFT = new Symbols(">>>", SymbolTypes.Operator);
 
+        public static readonly Symbols OP_IN = new Symbols("in", SymbolTypes.Operator);
+
         /// <summary>
         /// token &
         /// </summary>

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace AuroraScript.Runtime.Base
 {
-    public partial class ScriptArray : ScriptObject
+    public partial class ScriptArray : ScriptObject, IEnumerator
     {
         private readonly List<ScriptObject> _items;
 
@@ -82,7 +82,7 @@ namespace AuroraScript.Runtime.Base
 
         }
 
-        public override void Define(String key, ScriptObject value, bool readable = true, bool writeable = true)
+        public override void Define(String key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
 
         }
@@ -95,6 +95,11 @@ namespace AuroraScript.Runtime.Base
         public override string ToDisplayString()
         {
             return "[" + String.Join(", ", _items.Select(e => e.ToDisplayString())) + "]";
+        }
+
+        ItemIterator IEnumerator.GetIterator()
+        {
+            return new ItemIterator(_items);
         }
 
         public Int32 Length

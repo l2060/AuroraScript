@@ -17,16 +17,39 @@ function start_timer(){
 }
 
 
+function testIterator(){
+	var node = {
+		A: 1,
+		B: 2,
+		C : 3,
+		D : 4,
+		E: "Hello",
+		F: () => { console.log("reset"); }
+	};
+	for(var key in node) {
+		console.log(key + " = " + node[key]);
+	}
+
+	for(var a in "Hello Wrold!")  console.log(a);
+}
+
+
+
+
+
+
+
+
+
+
+
 export function forTest(count = 1000){
-	var timeName = "for:" + count;
-	console.time(timeName);
     for (var o = 0;  o < count;o++){
 		// .....
     }
-	console.timeEnd(timeName);
 }
 
-function testClouse(){
+export function testClouse(){
 	var a = 0;
 	return ()=>{
 		a = a+1;
@@ -47,13 +70,7 @@ export function testMD5(){
 	md5Code = md5.MD5("12345");
 	console.timeEnd("MD5_SUM");
 	console.log("\"12345\" md5 is " + md5Code);
-
 }
-
-
-
-
-
 
 
 
