@@ -11,8 +11,6 @@ namespace AuroraScript.Exceptions
         public readonly String ModuleName;
 
         public readonly Int32 LineNumber;
-
-        public readonly Int32 ColumnNumber;
         public new String StackTrace{ get;set;}
 
         public AuroraRuntimeException(Exception ex, String stackTrace) : base(ex.Message, ex)
