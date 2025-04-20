@@ -22,7 +22,7 @@ public class Program
         g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
 
         engine.Global.Define("PI", g.GetPropertyValue("PI"));
-        engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"))
+        engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
         var pi = engine.Global.GetPropertyValue("PI");
 
         var domain = engine.CreateDomain(g);
