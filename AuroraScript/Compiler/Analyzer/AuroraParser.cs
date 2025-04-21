@@ -97,7 +97,6 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
-            if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, Symbols.KW_INTERNAL);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
@@ -135,7 +134,6 @@ namespace AuroraScript.Analyzer
                 this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
                 // parse arguments
                 var arguments = this.ParseFunctionArguments(currentScope);
-
                 this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
                 var declaration = new FunctionDeclaration(access, funcName, arguments, null, FunctionFlags.Declare);
                 return declaration;
@@ -145,60 +143,15 @@ namespace AuroraScript.Analyzer
 
 
         /// <summary>
-        /// parse enum declare list
-        /// </summary>
-        /// <returns></returns>
-        private List<EnumElement> ParseEnumBody()
-        {
-            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
-            var result = new List<EnumElement>();
-            var elementValue = 0;
-            while (true)
-            {
-                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE)) break;
-                var elementName = this.lexer.NextOfKind<IdentifierToken>();
-                if (this.lexer.TestNext(Symbols.OP_ASSIGNMENT))
-                {
-                    var token = this.lexer.NextOfKind<ValueToken>();
-                    if (token.Type != Tokens.ValueType.Number) throw this.InitParseException("Enumeration types only apply to integers", token);
-                    elementValue = Int32.Parse(token.Value);
-                }
-                result.Add(new EnumElement() { Name = elementName, Value = elementValue });
-                elementValue++;
-                this.lexer.TestNext(Symbols.PT_COMMA);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// parse enum type
-        /// </summary>
-        /// <param name="currentScope"></param>
-        /// <param name="access"></param>
-        /// <returns></returns>
-        private Statement ParseEnumDeclaration(Scope currentScope, Symbols access = null)
-        {
-            this.lexer.NextOfKind(Symbols.KW_ENUM);
-            var enumName = this.lexer.NextOfKind<IdentifierToken>();
-            var elements = this.ParseEnumBody();
-            this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var declaration = new EnumDeclaration() { Elements = elements, Identifier = enumName, Access = access };
-
-            return declaration;
-        }
-
-
-
-        /// <summary>
         /// parse return expression
         /// </summary>
         /// <param name="currentScope"></param>
         /// <returns></returns>
         private Statement ParseDeleteStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_DELETE);
+            var token = this.lexer.NextOfKind(Symbols.KW_DELETE);
             var exp = this.ParseExpression(currentScope);
-            return new DeleteStatement(exp);
+            return new DeleteStatement(exp) { LineNumber = token.LineNumber };
         }
 
 
@@ -211,9 +164,9 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseReturnStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_RETURN);
+            var token = this.lexer.NextOfKind(Symbols.KW_RETURN);
             var exp = this.ParseExpression(currentScope);
-            return new ReturnStatement(exp);
+            return new ReturnStatement(exp) { LineNumber = token.LineNumber };
         }
 
         /// <summary>
@@ -223,9 +176,9 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseContinueStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_CONTINUE);
+            var token = this.lexer.NextOfKind(Symbols.KW_CONTINUE);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            return new ContinueStatement();
+            return new ContinueStatement() { LineNumber = token.LineNumber };
         }
 
 
@@ -236,9 +189,9 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseYieldStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_YIELD);
+            var token = this.lexer.NextOfKind(Symbols.KW_YIELD);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            return new YieldStatement();
+            return new YieldStatement() { LineNumber = token.LineNumber };
         }
 
 
@@ -252,9 +205,9 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseBreakStatement(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_BREAK);
+            var token = this.lexer.NextOfKind(Symbols.KW_BREAK);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var statement = new BreakStatement();
+            var statement = new BreakStatement() { LineNumber = token.LineNumber };
             return statement;
         }
 
@@ -268,7 +221,7 @@ namespace AuroraScript.Analyzer
             var token = this.lexer.TestNextOfKind<StringToken>();
             this.lexer.NextOfKind(Symbols.PT_RIGHTPARENTHESIS);
             this.lexer.NextOfKind(Symbols.PT_SEMICOLON);
-            var statement = new ModuleMetaStatement(metaName, token);
+            var statement = new ModuleMetaStatement(metaName, token) { LineNumber = token.LineNumber };
             return statement;
         }
 
@@ -366,7 +319,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseWhileBlock(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_WHILE);
+            var token = this.lexer.NextOfKind(Symbols.KW_WHILE);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse while condition
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
@@ -374,7 +327,7 @@ namespace AuroraScript.Analyzer
             var body = this.ParseStatement(currentScope);
             if (body == null) throw new AuroraParseException(this.lexer.FullPath, this.lexer.Previous(), "while body statement should not be empty");
             // parse while body
-            return new WhileStatement(condition, body);
+            return new WhileStatement(condition, body) { LineNumber = token.LineNumber };
         }
 
         /// <summary>
@@ -430,7 +383,7 @@ namespace AuroraScript.Analyzer
                 }
             }
             // define variables
-            var var = new VariableDeclaration(access, isConst, varNames[0]);
+            var var = new VariableDeclaration(access, isConst, varNames[0]) { LineNumber = varName.LineNumber };
             if (initializer != null) var.AddNode(initializer);
             return var;
         }
@@ -450,7 +403,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseIfBlock(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.KW_IF);
+            var token = this.lexer.NextOfKind(Symbols.KW_IF);
             this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
 
             var condition = this.ParseExpression(currentScope, Symbols.PT_RIGHTPARENTHESIS);
@@ -468,7 +421,7 @@ namespace AuroraScript.Analyzer
                 elseStatement = this.ParseElseBlock(currentScope);
             }
 
-            var ifStatement = new IfStatement(condition, body, elseStatement);
+            var ifStatement = new IfStatement(condition, body, elseStatement) { LineNumber = token.LineNumber };
 
             return ifStatement;
         }
@@ -593,9 +546,10 @@ namespace AuroraScript.Analyzer
                     else
                     {
                         tempExp = this.createExpression(currentScope, _operator, previousToken, lastExpression);
+     
                         if (tempExp != null)
                         {
-                            tempExp.Position = pos;
+                            tempExp.LineNumber = token.LineNumber;
                         }
                     }
                 }
@@ -776,6 +730,7 @@ namespace AuroraScript.Analyzer
                     setter.AddNode(getter.Object);
                     setter.AddNode(getter.Property);
                     setter.AddNode(assignment.Right);
+                    setter.LineNumber = exp.LineNumber;
                     return setter;
                 }
                 else if (assignment.Left is GetElementExpression eleGetter)
@@ -784,6 +739,7 @@ namespace AuroraScript.Analyzer
                     setter.AddNode(eleGetter.Index);
                     setter.AddNode(eleGetter.Object);
                     setter.AddNode(assignment.Right);
+                    setter.LineNumber = exp.LineNumber;
                     return setter;
                 }
             }
@@ -798,6 +754,7 @@ namespace AuroraScript.Analyzer
                     binary.AddNode(getter);
                     binary.AddNode(compound.Right);
                     setter.AddNode(binary);
+                    setter.LineNumber = exp.LineNumber;
                     return setter;
                 }
                 else if (compound.Left is GetElementExpression eleGetter)
@@ -809,6 +766,7 @@ namespace AuroraScript.Analyzer
                     binary.AddNode(eleGetter);
                     binary.AddNode(compound.Right);
                     setter.AddNode(binary);
+                    setter.LineNumber = exp.LineNumber;
                     return setter;
                 }
             }
@@ -904,9 +862,10 @@ namespace AuroraScript.Analyzer
 
         private Expression ParseObjectConstructor(Scope currentScope)
         {
-            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+            var token = this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
 
             var constructExpression = new MapExpression(Operator.ObjectLiteral);
+            constructExpression.LineNumber = token.LineNumber;
             while (true)
             {
                 if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE))
@@ -1010,6 +969,7 @@ namespace AuroraScript.Analyzer
             var func = ParseFunction(name, currentScope, MemberAccess.Internal, FunctionFlags.Lambda);
             var lambda = new LambdaExpression();
             lambda.Function = func;
+            lambda.LineNumber = position.LineNumber;
             return lambda;
         }
 
@@ -1024,7 +984,7 @@ namespace AuroraScript.Analyzer
         private FunctionDeclaration ParseFunction(IdentifierToken functionName, Scope currentScope, MemberAccess access = MemberAccess.Internal, FunctionFlags flags = FunctionFlags.General)
         {
             // next token (
-            this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
+            var token = this.lexer.NextOfKind(Symbols.PT_LEFTPARENTHESIS);
             // parse arguments
             var arguments = this.ParseFunctionArguments(currentScope);
 
@@ -1046,6 +1006,7 @@ namespace AuroraScript.Analyzer
             }
             ((BlockStatement)body).IsFunction = true;
             var declaration = new FunctionDeclaration(access, functionName, arguments, body, flags);
+            declaration.LineNumber = token.LineNumber;
             return declaration;
         }
 
@@ -1097,11 +1058,6 @@ namespace AuroraScript.Analyzer
             {
                 // const
                 return ParseVariableDeclaration(currentScope, MemberAccess.Export);
-            }
-            else if (token is KeywordToken && token.Symbol == Symbols.KW_ENUM)
-            {
-                // enum
-                return ParseEnumDeclaration(currentScope, Symbols.KW_EXPORT);
             }
             else if (token is KeywordToken && token.Symbol == Symbols.KW_DECLARE)
             {

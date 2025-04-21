@@ -31,7 +31,7 @@ namespace AuroraScript.Compiler.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitInExpression(this);
+            visitor.AcceptInExpression(this);
         }
 
 

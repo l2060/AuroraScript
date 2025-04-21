@@ -37,7 +37,7 @@ namespace AuroraScript.Ast
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitModule(this);
+            visitor.AcceptModule(this);
         }
     }
 }

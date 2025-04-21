@@ -16,7 +16,7 @@ namespace AuroraScript.Compiler.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitDeleteStatement(this);
+            visitor.AcceptDeleteStatement(this);
         }
 
         public override string ToString()

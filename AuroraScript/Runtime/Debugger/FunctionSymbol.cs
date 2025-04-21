@@ -12,12 +12,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <summary>
         /// 函数名称
         /// </summary>
-        public readonly String Name;
-
-        /// <summary>
-        /// 函数入口点（字节码地址）
-        /// </summary>
-        public readonly Int32 EntryPoint;
+        public String Name { get; set; }
 
         /// <summary>
         /// 返回函数符号的字符串表示
@@ -25,7 +20,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <returns>格式化的函数信息字符串</returns>
         public override string ToString()
         {
-            return $"{Name} (入口点: {EntryPoint}, 结束点: {EndPoint})";
+            return $"Function {Name} (Start: {StartPoint}, End: {EndPoint})";
         }
     }
 }

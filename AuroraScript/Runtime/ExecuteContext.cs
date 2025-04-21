@@ -1,10 +1,12 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace AuroraScript.Runtime
@@ -114,10 +116,6 @@ namespace AuroraScript.Runtime
                     // 重新读取指令 ， 将返回值（Null）入栈
                     PatchVM patchVM = _virtualMachine.PatchVM();
                     patchVM.Patch(this);
-
-
-                    Console.WriteLine();
-
                 }
 
                 // 调用虚拟机继续执行
@@ -188,7 +186,17 @@ namespace AuroraScript.Runtime
         {
             var current = _callStack.Peek();
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($" at {current.Module.Name}.method() filepath.as @line: 233, @pointer:  {current.LastInstructionPointer}");
+
+            var moduleSymbols = _virtualMachine.ResolveModule(current.LastInstructionPointer);
+
+            String funcName = "";
+            var symbol = moduleSymbols.Resolve(current.LastInstructionPointer);
+            var funcSymbol = symbol.ResolveParent<FunctionSymbol>();
+            if (funcSymbol != null)
+            {
+                funcName = funcSymbol.Name;
+            }
+            sb.AppendLine($" at {moduleSymbols.FilePath} {funcName} line:{symbol.LineNumber} [{current.LastInstructionPointer}]");
             Boolean isFirst = true;
             foreach (var frame in _callStack)
             {
@@ -197,9 +205,20 @@ namespace AuroraScript.Runtime
                     isFirst = false;
                     continue;
                 }
-                sb.AppendLine($" at {frame.Module.Name}.method() filepath.as @line: 233, @pointer:  {frame.Pointer - 2}");
+                var pointer = frame.Pointer - 2;
+                moduleSymbols = _virtualMachine.ResolveModule(pointer);
+                symbol = moduleSymbols.Resolve(pointer);
+                funcSymbol = symbol.ResolveParent<FunctionSymbol>();
+                sb.AppendLine($" at {moduleSymbols.FilePath} {funcSymbol.Name} line:{symbol.LineNumber} [{pointer}]");
             }
-            sb.AppendLine($" at Native Call @pointer:  {_callStack.Last().EntryPointer}");
+
+            var nativeCallPointer = _callStack.Last().EntryPointer;
+
+
+            moduleSymbols = _virtualMachine.ResolveModule(nativeCallPointer);
+            symbol = moduleSymbols.Resolve(nativeCallPointer);
+            funcSymbol = symbol.ResolveParent<FunctionSymbol>();
+            sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name} line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
             return sb.ToString();
         }
 

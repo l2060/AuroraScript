@@ -39,7 +39,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitCallExpression(this);
+            visitor.AcceptCallExpression(this);
         }
 
 

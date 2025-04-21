@@ -26,7 +26,7 @@ namespace AuroraScript.Exceptions
 
         public override string ToString()
         {
-            return Message + Environment.NewLine + StackTrace + Environment.NewLine + base.StackTrace;
+            return Message + Environment.NewLine + StackTrace;
         }
     }
 }

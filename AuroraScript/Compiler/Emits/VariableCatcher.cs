@@ -84,7 +84,7 @@ namespace AuroraScript.Compiler.Emits
             return CapturedVariables;
         }
 
-        public override void VisitVarDeclaration(VariableDeclaration node)
+        protected override void VisitVarDeclaration(VariableDeclaration node)
         {
             // 记录变量声明
             _declaredVariables.Add(node.Name.Value);
@@ -93,7 +93,7 @@ namespace AuroraScript.Compiler.Emits
             base.VisitVarDeclaration(node);
         }
 
-        public override void VisitParameterDeclaration(ParameterDeclaration node)
+        protected override void VisitParameterDeclaration(ParameterDeclaration node)
         {
             // 记录参数声明
             _declaredVariables.Add(node.Name.Value);
@@ -102,7 +102,7 @@ namespace AuroraScript.Compiler.Emits
             base.VisitParameterDeclaration(node);
         }
 
-        public override void VisitFunction(FunctionDeclaration node)
+        protected override void VisitFunction(FunctionDeclaration node)
         {
             // 记录函数声明
             if (node.Name != null)
@@ -117,7 +117,7 @@ namespace AuroraScript.Compiler.Emits
             // 不调用 base.VisitFunction(node)
         }
 
-        public override void VisitLambdaExpression(LambdaExpression node)
+        protected override void VisitLambdaExpression(LambdaExpression node)
         {
             // 记录嵌套函数，稍后单独分析
             _nestedFunctions.Add(node.Function);
@@ -126,7 +126,7 @@ namespace AuroraScript.Compiler.Emits
             // 不调用 base.VisitLambdaExpression(node)
         }
 
-        public override void VisitName(NameExpression node)
+        protected override void VisitName(NameExpression node)
         {
             // 记录变量引用
             string varName = node.Identifier.Value;
@@ -138,7 +138,7 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public override void VisitBlock(BlockStatement node)
+        protected override void VisitBlock(BlockStatement node)
         {
             // 创建块级作用域的变量跟踪
             HashSet<String> previousDeclaredVars = new HashSet<String>(_declaredVariables);
@@ -164,7 +164,7 @@ namespace AuroraScript.Compiler.Emits
             }
         }
 
-        public override void VisitForStatement(ForStatement node)
+        protected override void VisitForStatement(ForStatement node)
         {
             // 创建循环作用域的变量跟踪
             HashSet<String> previousDeclaredVars = new HashSet<String>(_declaredVariables);
@@ -176,25 +176,25 @@ namespace AuroraScript.Compiler.Emits
             _declaredVariables = previousDeclaredVars;
         }
 
-        public override void VisitWhileStatement(WhileStatement node)
+        protected override void VisitWhileStatement(WhileStatement node)
         {
             // 处理 while 循环
             base.VisitWhileStatement(node);
         }
 
-        public override void VisitIfStatement(IfStatement node)
+        protected override void VisitIfStatement(IfStatement node)
         {
             // 处理 if 语句
             base.VisitIfStatement(node);
         }
 
-        public override void VisitCallExpression(FunctionCallExpression node)
+        protected override void VisitCallExpression(FunctionCallExpression node)
         {
             // 处理函数调用
             base.VisitCallExpression(node);
         }
 
-        public override void VisitAssignmentExpression(AssignmentExpression node)
+        protected override void VisitAssignmentExpression(AssignmentExpression node)
         {
             // 处理赋值表达式
             // 先处理右侧，因为它可能引用变量

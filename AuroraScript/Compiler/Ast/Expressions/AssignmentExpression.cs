@@ -30,7 +30,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitAssignmentExpression(this);
+            visitor.AcceptAssignmentExpression(this);
         }
 
 

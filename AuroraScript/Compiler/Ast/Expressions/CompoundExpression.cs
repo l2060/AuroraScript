@@ -26,7 +26,7 @@ namespace AuroraScript.Compiler.Ast.Expressions
         }
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitCompoundExpression(this);
+            visitor.AcceptCompoundExpression(this);
         }
     }
 }

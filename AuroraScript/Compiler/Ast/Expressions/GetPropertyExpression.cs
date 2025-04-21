@@ -34,7 +34,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitGetPropertyExpression(this);
+            visitor.AcceptGetPropertyExpression(this);
         }
 
         public override string ToString()

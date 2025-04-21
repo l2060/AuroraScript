@@ -6,6 +6,13 @@
 *
 **/
 
+function testError(){
+	console.log("Start testError");
+    var ax = xxxx.c(1);
+	console.log("End testError");
+}
+
+
 function RotateLeft(lValue, iShiftBits) {
     return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
 }

@@ -30,7 +30,7 @@ namespace AuroraScript.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitBlock(this);
+            visitor.AcceptBlock(this);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace AuroraScript.Compiler.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitForInStatement(this);
+            visitor.AcceptForInStatement(this);
         }
     }
 }

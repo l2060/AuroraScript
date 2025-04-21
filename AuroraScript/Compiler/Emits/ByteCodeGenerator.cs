@@ -5,8 +5,10 @@ using AuroraScript.Compiler.Ast.Expressions;
 using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Core;
+using AuroraScript.Runtime.Debugger;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 
@@ -15,6 +17,7 @@ namespace AuroraScript.Compiler.Emits
 {
     public class ByteCodeGenerator : IAstVisitor
     {
+        private Stack<DebugSymbol> _debugSymbolStacck = new Stack<DebugSymbol>();
 
         private Stack<List<JumpInstruction>> _breakJumps = new Stack<List<JumpInstruction>>();
         private Stack<List<JumpInstruction>> _continueJumps = new Stack<List<JumpInstruction>>();
@@ -22,28 +25,83 @@ namespace AuroraScript.Compiler.Emits
         public readonly StringList _stringSet;
         private CodeScope _scope;
         private readonly CodeScope _global;
+        private DebugSymbol _symbol;
 
-        public ByteCodeGenerator(InstructionBuilder instructionBuilder, StringList stringSet)
+        public ByteCodeGenerator(InstructionBuilder instructionBuilder, StringList stringSet, DebugSymbolInfo debugSymbols)
         {
+            _symbol = debugSymbols;
             _stringSet = stringSet;
             _global = _scope = new CodeScope(null, DomainType.Global, _stringSet);
             _instructionBuilder = instructionBuilder;
 
         }
 
+        DebugSymbol _segmentSymbol = new DebugSymbolInfo();
+
+        protected override void BeforeVisitNode(AstNode node)
+        {
+            if (node is ModuleDeclaration || node is FunctionDeclaration || node.LineNumber < 0) return;
+
+            if (_segmentSymbol == null || node.LineNumber != _segmentSymbol.LineNumber)
+            {
+                var point = _instructionBuilder.Position().Offset;
+                if (_segmentSymbol != null)
+                {
+                    _segmentSymbol.EndPoint = point - 1;
+                    _segmentSymbol.LineNumber = node.LineNumber - 1;
+                }
+                _segmentSymbol = new StatementSymbol() { LineNumber = node.LineNumber, StartPoint = point };
+                _symbol.Add(_segmentSymbol);
+            }
+        }
+
+
+
 
         private void BeginScope(DomainType domain)
         {
+            DebugSymbol newSymbol = null;
+            if (domain == DomainType.Module)
+            {
+                newSymbol = new ModuleSymbol();
+            }
+            else if (domain == DomainType.Function)
+            {
+                newSymbol = new FunctionSymbol();
+            }
+            // debug symbol
+            if (newSymbol != null)
+            {
+                _symbol.Add(newSymbol);
+                _debugSymbolStacck.Push(_symbol);
+                _symbol = newSymbol;
+                _symbol.StartPoint = _instructionBuilder.Position().Offset;
+            }
+            // scope
             _scope = _scope.Enter(_stringSet, domain);
         }
 
         private void EndScope()
         {
+            if (_scope.Domain == DomainType.Function || _scope.Domain == DomainType.Module)
+            {
+                _symbol.EndPoint = _instructionBuilder.Position().Offset - 1;
+                if(_segmentSymbol != null)
+                {
+                    _segmentSymbol.EndPoint = _symbol.EndPoint;
+                    _segmentSymbol = null;
+                }
+
+                _symbol = _debugSymbolStacck.Pop();
+            }
+
             _scope = _scope.Leave();
         }
 
         public void Visit(ModuleSyntaxRef[] syntaxRefs)
         {
+            var rootSymbol = _symbol;
+            rootSymbol.StartPoint = _instructionBuilder.Position().Offset;
             _instructionBuilder.Emit(OpCode.NOP);
             _instructionBuilder.Comment("Create Domain:");
             // create module init closure
@@ -77,6 +135,11 @@ namespace AuroraScript.Compiler.Emits
                 }
                 item.SyntaxTree.Accept(this);
             }
+            rootSymbol.EndPoint = _instructionBuilder.Position().Offset - 1;
+            this.DumpCode();
+
+            Console.WriteLine(_symbol);
+
         }
 
 
@@ -89,10 +152,12 @@ namespace AuroraScript.Compiler.Emits
         /// 访问module内的变量 全部以getproperty 和 setproperty
         /// </summary>
         /// <param name="node"></param>
-        public override void VisitModule(ModuleDeclaration node)
+        protected override void VisitModule(ModuleDeclaration node)
         {
             _instructionBuilder.DefineModule(node);
             BeginScope(DomainType.Module);
+            ((ModuleSymbol)_symbol).Name = node.ModuleName;
+            ((ModuleSymbol)_symbol).FilePath = node.FullPath;
             _instructionBuilder.Comment($"module: {node.ModuleName} {node.ModulePath}");
             _instructionBuilder.Comment("# Module Import");
             foreach (var module in node.Imports)
@@ -147,7 +212,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitImportDeclaration(ImportDeclaration node)
+        protected override void VisitImportDeclaration(ImportDeclaration node)
         {
             // 加载模块至属性
             _instructionBuilder.GetGlobalProperty("@" + node.ModuleName);
@@ -156,7 +221,7 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.SetThisProperty(solt);
         }
 
-        public override void VisitBlock(BlockStatement node)
+        protected override void VisitBlock(BlockStatement node)
         {
             if (!node.IsFunction) BeginScope(DomainType.Code);
 
@@ -195,7 +260,7 @@ namespace AuroraScript.Compiler.Emits
             if (!node.IsFunction) EndScope();
         }
 
-        public override void VisitFunction(FunctionDeclaration node)
+        protected override void VisitFunction(FunctionDeclaration node)
         {
             if (node.Flags == FunctionFlags.Declare) return;
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
@@ -208,6 +273,9 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables)}");
 
             BeginScope(DomainType.Function);
+
+            ((FunctionSymbol)_symbol).Name = node.Name.Value;
+            ((FunctionSymbol)_symbol).LineNumber = node.LineNumber;
             var begin = _instructionBuilder.Position();
 
             // 定义参数变量
@@ -242,7 +310,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitLambdaExpression(LambdaExpression node)
+        protected override void VisitLambdaExpression(LambdaExpression node)
         {
             // 创建闭包
             _instructionBuilder.PushThis();
@@ -290,7 +358,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitArrayExpression(ArrayLiteralExpression node)
+        protected override void VisitArrayExpression(ArrayLiteralExpression node)
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
@@ -303,7 +371,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitAssignmentExpression(AssignmentExpression node)
+        protected override void VisitAssignmentExpression(AssignmentExpression node)
         {
             _instructionBuilder.Comment($"# {node.ToString()}");
             // Compile the value expression
@@ -318,26 +386,26 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitBreakExpression(BreakStatement node)
+        protected override void VisitBreakExpression(BreakStatement node)
         {
             _instructionBuilder.Comment($"# break;");
             _breakJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
-        public override void VisitContinueExpression(ContinueStatement node)
+        protected override void VisitContinueExpression(ContinueStatement node)
         {
             _instructionBuilder.Comment($"# continue;");
             _continueJumps.Peek().Add(_instructionBuilder.Jump());
         }
 
-        public override void VisitYieldExpression(YieldStatement node)
+        protected override void VisitYieldExpression(YieldStatement node)
         {
             _instructionBuilder.Comment($"# Yield;");
             _instructionBuilder.Yield();
         }
 
 
-        public override void VisitCallExpression(FunctionCallExpression node)
+        protected override void VisitCallExpression(FunctionCallExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node}");
 
@@ -356,14 +424,14 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitDeconstructionExpression(DeconstructionExpression node)
+        protected override void VisitDeconstructionExpression(DeconstructionExpression node)
         {
 
         }
 
 
 
-        public override void VisitParameterDeclaration(ParameterDeclaration node)
+        protected override void VisitParameterDeclaration(ParameterDeclaration node)
         {
             var slot = _scope.Declare(DeclareType.Variable, node);
             if (node.Initializer != null)
@@ -381,7 +449,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitDeleteStatement(DeleteStatement node)
+        protected override void VisitDeleteStatement(DeleteStatement node)
         {
             if (node.Expression is GetElementExpression getElementExpression)
             {
@@ -416,14 +484,14 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitGetElementExpression(GetElementExpression node)
+        protected override void VisitGetElementExpression(GetElementExpression node)
         {
             node.Object.Accept(this);
             node.Index.Accept(this);
             _instructionBuilder.GetElement();
         }
 
-        public override void VisitGetPropertyExpression(GetPropertyExpression node)
+        protected override void VisitGetPropertyExpression(GetPropertyExpression node)
         {
             node.Object.Accept(this);
             var propery = (NameExpression)node.Property;
@@ -432,7 +500,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitSetElementExpression(SetElementExpression node)
+        protected override void VisitSetElementExpression(SetElementExpression node)
         {
             _instructionBuilder.Comment($"# {node}");
             // Compile the value expression
@@ -444,7 +512,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitSetPropertyExpression(SetPropertyExpression node)
+        protected override void VisitSetPropertyExpression(SetPropertyExpression node)
         {
             _instructionBuilder.Comment($"# {node}");
 
@@ -458,7 +526,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public override void VisitGroupingExpression(GroupExpression node)
+        protected override void VisitGroupingExpression(GroupExpression node)
         {
             foreach (var item in node.ChildNodes)
             {
@@ -467,7 +535,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public override void VisitIfStatement(IfStatement node)
+        protected override void VisitIfStatement(IfStatement node)
         {
             // Compile condition
             node.Condition.Accept(this);
@@ -494,7 +562,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitLiteralExpression(LiteralExpression node)
+        protected override void VisitLiteralExpression(LiteralExpression node)
         {
             var token = node.Token;
             if (token.Type == Tokens.ValueType.Null)
@@ -516,7 +584,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitName(NameExpression node)
+        protected override void VisitName(NameExpression node)
         {
             if (node.Identifier.Value == "this")
             {
@@ -552,7 +620,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitMapExpression(MapExpression node)
+        protected override void VisitMapExpression(MapExpression node)
         {
             // Create a new map with the specified initial capacity
             //EmitInstruction(OpCode.NEW_MAP, node.Entries.Count);
@@ -574,7 +642,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitReturnStatement(ReturnStatement node)
+        protected override void VisitReturnStatement(ReturnStatement node)
         {
             _instructionBuilder.Comment($"# {node}");
             if (node.Expression != null)
@@ -591,7 +659,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitBinaryExpression(BinaryExpression node)
+        protected override void VisitBinaryExpression(BinaryExpression node)
         {
 
             node.Left.Accept(this);
@@ -689,7 +757,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitUnaryExpression(UnaryExpression node)
+        protected override void VisitUnaryExpression(UnaryExpression node)
         {
             if (node.IsStateSegment) _instructionBuilder.Comment($"# {node.ToString()}");
 
@@ -781,7 +849,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitVarDeclaration(VariableDeclaration node)
+        protected override void VisitVarDeclaration(VariableDeclaration node)
         {
             Int32 slot = 0;
             if (_scope.Domain == DomainType.Module)
@@ -814,14 +882,14 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public override void VisitInExpression(InExpression node)
+        protected override void VisitInExpression(InExpression node)
         {
             // todo
         }
 
 
 
-        public override void VisitForInStatement(ForInStatement node)
+        protected override void VisitForInStatement(ForInStatement node)
         {
             _instructionBuilder.Comment($"# for in");
             node.Initializer?.Accept(this);
@@ -890,7 +958,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-        public override void VisitForStatement(ForStatement node)
+        protected override void VisitForStatement(ForStatement node)
         {
             _instructionBuilder.Comment($"# for");
             node.Initializer?.Accept(this);
@@ -920,7 +988,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public override void VisitWhileStatement(WhileStatement node)
+        protected override void VisitWhileStatement(WhileStatement node)
         {
             var begin = _instructionBuilder.Position();
             // Set up break and continue targets
@@ -948,7 +1016,7 @@ namespace AuroraScript.Compiler.Emits
 
         }
 
-        public override void VisitCompoundExpression(CompoundExpression node)
+        protected override void VisitCompoundExpression(CompoundExpression node)
         {
             node.Left.Accept(this);
             node.Right.Accept(this);

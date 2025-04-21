@@ -11,7 +11,7 @@ namespace AuroraScript.Compiler.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitYieldExpression(this);
+            visitor.AcceptYieldExpression(this);
         }
     }
 }

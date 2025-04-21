@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Immutable;
@@ -26,6 +27,11 @@ namespace AuroraScript.Runtime
         /// </summary>
         private readonly ByteCodeBuffer _codeBuffer;
 
+        /// <summary>
+        /// 调试符号信息，包含脚本的调试信息，如行号、函数名等
+        /// </summary>
+        private readonly DebugSymbolInfo _debugSymbols;
+
 
         public PatchVM PatchVM()
         {
@@ -33,17 +39,34 @@ namespace AuroraScript.Runtime
         }
 
 
+        internal DebugSymbol ResolveSymbol(Int32 pointer)
+        {
+           return _debugSymbols.Resolve(pointer);
+        }
+
+        internal ModuleSymbol ResolveModule(Int32 pointer)
+        {
+            return _debugSymbols.ResolveModule(pointer);
+        }
+
+
+
+
+
         /// <summary>
         /// 使用指定的字节码和字符串常量池初始化虚拟机
         /// </summary>
         /// <param name="bytecode">要执行的字节码，由编译器生成的二进制指令序列</param>
         /// <param name="stringConstants">字符串常量池，包含脚本中所有的字符串字面量</param>
-        public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants)
+
+        public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols)
         {
             // 创建字节码缓冲区，用于读取和解析字节码指令
             _codeBuffer = new ByteCodeBuffer(bytecode);
             // 将字符串常量转换为StringValue对象并存储在不可变数组中
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
+            // 调试符号信息
+            _debugSymbols = debugSymbols;
         }
 
 

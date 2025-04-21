@@ -3,6 +3,7 @@ using AuroraScript.Compiler.Emits;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
+using AuroraScript.Runtime.Extensions;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Threading.Tasks;
@@ -94,10 +95,12 @@ namespace AuroraScript
         /// <returns>异步任务</returns>
         public async Task BuildAsync(String filename)
         {
+            
+            var debugSymbols = new DebugSymbolInfo();
             // 初始化指令构建器
             var instructionBuilder = new InstructionBuilder(_stringSet);
             // 初始化字节码生成器
-            var codeGenerator = new ByteCodeGenerator(instructionBuilder, _stringSet);
+            var codeGenerator = new ByteCodeGenerator(instructionBuilder, _stringSet, debugSymbols);
             // 初始化脚本编译器，设置基础目录和字节码生成器
             var compiler = new ScriptCompiler(_options.BaseDirectory, codeGenerator);
             // 编译脚本文件
@@ -107,7 +110,7 @@ namespace AuroraScript
             // 生成字节码
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
-            runtimeVM = new RuntimeVM(bytes, stringConstants);
+            runtimeVM = new RuntimeVM(bytes, stringConstants, debugSymbols);
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;

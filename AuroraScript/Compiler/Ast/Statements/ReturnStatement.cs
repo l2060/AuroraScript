@@ -16,7 +16,7 @@ namespace AuroraScript.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitReturnStatement(this);
+            visitor.AcceptReturnStatement(this);
         }
 
         public override string ToString()

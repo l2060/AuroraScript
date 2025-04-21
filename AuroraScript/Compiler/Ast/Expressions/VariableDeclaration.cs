@@ -44,7 +44,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitVarDeclaration(this);
+            visitor.AcceptVarDeclaration(this);
         }
 
         public override string ToString()

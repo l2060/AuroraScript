@@ -31,7 +31,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitBinaryExpression(this);
+            visitor.AcceptBinaryExpression(this);
         }
 
 

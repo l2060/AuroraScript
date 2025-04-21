@@ -34,7 +34,7 @@ namespace AuroraScript.Ast.Statements
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitForStatement(this);
+            visitor.AcceptForStatement(this);
         }
     }
 }

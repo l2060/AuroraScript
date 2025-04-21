@@ -40,13 +40,16 @@ public class Program
             Console.WriteLine($"testClouse result:{clouseResult.Result}");
 
 
-            var testContinue = domain.Execute("UNIT_LIB", "testContinue").Done(AbnormalStrategy.Continue);
-            if (testContinue.Status  == ExecuteStatus.Interrupted)
+            var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
+
+            if (testInterruption.Status  == ExecuteStatus.Error)
             {
-                testContinue.Continue();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(testInterruption.Error.ToString());
+                Console.ResetColor();
+
+                testInterruption.Continue().Done(AbnormalStrategy.Continue);
             }
-
-
 
             // clr function test
             var testClrFunc = domain.Execute("UNIT_LIB", "testClrFunc").Done();

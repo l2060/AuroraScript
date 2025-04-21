@@ -15,7 +15,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitDeconstructionExpression(this);
+            visitor.AcceptDeconstructionExpression(this);
         }
     }
 }

@@ -12,12 +12,24 @@ namespace AuroraScript.Runtime.Debugger
         /// <summary>
         /// 模块名称
         /// </summary>
-        public readonly String Name;
+        public String Name { get; set; }
 
         /// <summary>
         /// 模块文件路径
         /// </summary>
-        public readonly String FilePath;
+        public String FilePath { get; set; }
+
+
+        public FunctionSymbol ResolveFunction(Int32 address)
+        {
+            foreach (var item in Childrens)
+            {
+                if (address >= item.StartPoint && address <= item.EndPoint) return item as FunctionSymbol;
+            }
+            return null;
+        }
+
+
 
 
         /// <summary>
@@ -26,7 +38,7 @@ namespace AuroraScript.Runtime.Debugger
         /// <returns>格式化的模块信息字符串</returns>
         public override string ToString()
         {
-            return $"模块: {Name} ({FilePath})";
+            return $"Module: {Name}@{FilePath} (Start: {StartPoint}, End: {EndPoint})";
         }
     }
 }

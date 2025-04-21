@@ -7,9 +7,12 @@ namespace AuroraScript.Ast
 {
     public abstract class AstNode
     {
-        protected List<AstNode> childrens = new List<AstNode>();
 
-        public Int32 Position;
+
+        internal Int32 LineNumber = -1;
+
+
+        protected List<AstNode> childrens = new List<AstNode>();
 
         public Boolean IsStateSegment { get; internal set; }
 

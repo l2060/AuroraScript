@@ -8,7 +8,7 @@ namespace AuroraScript.Ast.Expressions
         public FunctionDeclaration Function;
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitLambdaExpression(this);
+            visitor.AcceptLambdaExpression(this);
         }
     }
 }

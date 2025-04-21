@@ -22,7 +22,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitUnaryExpression(this);
+            visitor.AcceptUnaryExpression(this);
         }
 
         internal UnaryExpression(Operator @operator, UnaryType type) : base(@operator)

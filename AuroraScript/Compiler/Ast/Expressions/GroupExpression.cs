@@ -11,7 +11,7 @@ namespace AuroraScript.Ast.Expressions
 
         public override void Accept(IAstVisitor visitor)
         {
-            visitor.VisitGroupingExpression(this);
+            visitor.AcceptGroupingExpression(this);
         }
 
         public override string ToString()

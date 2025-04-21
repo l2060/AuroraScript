@@ -1,11 +1,10 @@
 ﻿# Aurora Script
 这是一个轻量级的弱类型脚本执行引擎，他没有引用任何第三方组件，它通过将脚本编译为字节码然后通过虚拟机来解释运行
 
-它目前还是个玩具，速度可能会很慢，但是它可以正常的跑起来还可以输出一些东西。
+它目前还是个玩具，速度可能会很慢，但是它可以正常的跑起来还可以输出一些东西，还支持异常的调用堆栈获取 。
 
 设计它时借鉴了javascript的一些机制和语法但它不是javascript，它不会遵守ECMA规范。
 
-下图中的`MD5_SUM Used 126ms`包含了.net代码预热的执行时间，实际测试`1ms`左右。
 
 ![avatar](/Documents/snipaste.png)
 
@@ -24,14 +23,13 @@
  - [x] export 导出模块方法和变量
  - [x] Import
  - [x] MD5函数与Javascript输出一致
- - [ ] 导出属性的访问权限  export  const
  - [x] 迭代器 Iterator 
  - [x] for in
+ - [x] 调试符号表、闭包方法名、行号、列号、调用者行号
+ - [ ] 导出属性的访问权限  export  const
  - [ ] 固定大小的本地变量表测量
  - [ ] CallFrame 复用
  - [ ] 脚本对象NumberValue、StringValue的优化
- - [ ] 调试符号表、闭包方法名、行号、列号、调用者行号
- 
 
 
  
