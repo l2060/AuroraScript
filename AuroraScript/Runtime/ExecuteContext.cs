@@ -196,7 +196,7 @@ namespace AuroraScript.Runtime
             {
                 funcName = funcSymbol.Name;
             }
-            sb.AppendLine($" at {moduleSymbols.FilePath} {funcName} line:{symbol.LineNumber} [{current.LastInstructionPointer}]");
+            sb.AppendLine($" at {moduleSymbols.FilePath} {funcName}() line:{symbol.LineNumber} [{current.LastInstructionPointer}]");
             Boolean isFirst = true;
             foreach (var frame in _callStack)
             {
@@ -209,7 +209,7 @@ namespace AuroraScript.Runtime
                 moduleSymbols = _virtualMachine.ResolveModule(pointer);
                 symbol = moduleSymbols.Resolve(pointer);
                 funcSymbol = symbol.ResolveParent<FunctionSymbol>();
-                sb.AppendLine($" at {moduleSymbols.FilePath} {funcSymbol.Name} line:{symbol.LineNumber} [{pointer}]");
+                sb.AppendLine($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{symbol.LineNumber} [{pointer}]");
             }
 
             var nativeCallPointer = _callStack.Last().EntryPointer;
@@ -218,7 +218,7 @@ namespace AuroraScript.Runtime
             moduleSymbols = _virtualMachine.ResolveModule(nativeCallPointer);
             symbol = moduleSymbols.Resolve(nativeCallPointer);
             funcSymbol = symbol.ResolveParent<FunctionSymbol>();
-            sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name} line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
+            sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
             return sb.ToString();
         }
 
