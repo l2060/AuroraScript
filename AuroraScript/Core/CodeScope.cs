@@ -35,13 +35,14 @@ namespace AuroraScript.Core
 
     public class DeclareObject
     {
-        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index)
+        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index, MemberAccess access)
         {
             Name = name;
             Alias = alias;
             Type = type;
             Index = index;
             Scope = scope;
+            Access = access;
         }
 
         public readonly String Name;
@@ -49,6 +50,7 @@ namespace AuroraScript.Core
         public readonly CodeScope Scope;
         public readonly DeclareType Type;
         public readonly int Index;
+        public readonly MemberAccess Access;
     }
 
 
@@ -162,7 +164,7 @@ namespace AuroraScript.Core
 
 
             //var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot);
+            var declare = new DeclareObject(this, name, alias, type, slot, func.Access);
             _variables.Add(declare);
             return slot;
         }
@@ -184,7 +186,7 @@ namespace AuroraScript.Core
                 alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
             }
             var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot);
+            var declare = new DeclareObject(this, name, alias, type, slot, MemberAccess.Internal);
             _variables.Add(declare);
             return slot;
         }
@@ -209,7 +211,8 @@ namespace AuroraScript.Core
             {
                 slot = _variableBaseCount++;
             }
-            var declare = new DeclareObject(this, name, alias, type, slot);
+            
+            var declare = new DeclareObject(this, name, alias, type, slot, variable.Access);
             _variables.Add(declare);
             return slot;
         }
@@ -239,7 +242,7 @@ namespace AuroraScript.Core
             {
                 slot = _variableBaseCount++;
             }
-            var declare = new DeclareObject(this, name, name, type, slot);
+            var declare = new DeclareObject(this, name, name, type, slot, MemberAccess.Internal);
             _variables.Add(declare);
             return slot;
         }

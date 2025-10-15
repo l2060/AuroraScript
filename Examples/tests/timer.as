@@ -10,7 +10,7 @@ declare function DELETE_TIMER(timer);
 
 var timeCount = 0;
 export var resetCount = 0;
-export var timers = [0,1,2,3,4,5];
+export var timers = [0, 1, 2, 3, 4, 5];
 
 
 

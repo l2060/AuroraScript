@@ -21,9 +21,6 @@ namespace AuroraScript.Runtime.Base
 
         public Int64 Int64Value => (Int64)_value;
 
-
-
-
         public override string ToString()
         {
             return _value.ToString();

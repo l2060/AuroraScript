@@ -3,41 +3,41 @@
 import time from 'timer';
 import md5 from 'md5';
 
-export function test(){
+export function test() {
 	console.time("time.createTimer");
-	var _time = time.createTimer("unit.timer",128);
+	var _time = time.createTimer("unit.timer", 128);
 	console.timeEnd("time.createTimer");
 	_time.start = start_timer;
 	return _time;
-}       
+}
 
 
-function start_timer(){
+function start_timer() {
 	console.log("timer start.");
 }
 
 
-function testIterator(){
+function testIterator() {
 	var node = {
 		A: 1,
 		B: 2,
-		C : 3,
-		D : 4,
+		C: 3,
+		D: 4,
 		E: "Hello",
 		F: () => { console.log("reset"); }
 	};
-	for(var key in node) {
+	for (var key in node) {
 		console.log(key + " = " + node[key]);
 	}
 
-	for(var a in "Hello Wrold!")  console.log(a);
+	for (var a in "Hello Wrold!") console.log(a);
 }
 
 
 
 
 
-function testInterruption(){
+function testInterruption() {
 	console.log("Start testInterruption");
 	md5.testError();
 	console.log("End testInterruption");
@@ -51,29 +51,29 @@ function testInterruption(){
 
 
 
-export function forTest(count = 1000){
-    for (var o = 0;  o < count;o++){
+export function forTest(count = 1000) {
+	for (var o = 0; o < count; o++) {
 		// .....
-    }
+	}
 }
 
-export function testClouse(){
+export function testClouse() {
 	var a = 0;
-	return ()=>{
-		a = a+1;
+	return () => {
+		a = a + 1;
 		return a;
 	}
 }
 
 
-export function testClrFunc(){
-	for(var i =0;i<100;i++){
-		 md5.MD5("12345");
+export function testClrFunc() {
+	for (var i = 0; i < 100; i++) {
+		md5.MD5("12345");
 	}
 }
 
 
-export function testMD5(){
+export function testMD5() {
 	console.time("MD5_SUM");
 	md5Code = md5.MD5("12345");
 	console.timeEnd("MD5_SUM");
@@ -93,7 +93,7 @@ console.log("eq6: " + (0 == false));
 
 
 
-var object = { a:{ a:1, b :{ a:2, callback: "callback", interval: "interval" }, c: 3 }, b: "b" , c: "c"};
+var object = { a: { a: 1, b: { a: 2, callback: "callback", interval: "interval" }, c: 3 }, b: "b", c: "c" };
 
 console.log(object);
 
@@ -104,3 +104,4 @@ delete object.a.b[prop];
 delete object.a.b.interval;
 
 console.log(object);
+testMD5();
