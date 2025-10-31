@@ -3,10 +3,12 @@ using AuroraScript.Runtime.Base;
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 
 
 namespace AuroraScript.Runtime.Types
 {
+    public delegate ExecuteContext ScriptMethodDelegate(ExecuteOptions options = null, params ScriptObject[] arguments);
     /// <summary>
     /// 脚本域类，表示一个独立的脚本执行环境
     /// 每个脚本域都有自己的全局对象，但共享同一个虚拟机实例
@@ -87,6 +89,49 @@ namespace AuroraScript.Runtime.Types
             _virtualMachine.Execute(exeContext);
             return exeContext;
         }
+
+
+
+
+
+        public ScriptMethodDelegate CreateDelegateFromMethod(string moduleName, string methodName)
+        {
+            // 获取模块对象，模块名称前面加@前缀
+            var module = Global.GetPropertyValue("@" + moduleName);
+            if (module == null)
+            {
+                // 如果模块不存在，设置错误状态并返回
+                throw new AuroraException($"The module named {moduleName} was not found");
+            }
+
+            // 从模块中获取方法
+            var method = module.GetPropertyValue(methodName);
+            if (method == ScriptObject.Null)
+            {
+                // 如果方法不存在，设置错误状态并返回
+                throw new AuroraException($"The method {methodName} of the module {moduleName} does not exist");
+            }
+
+            // 检查方法是否是闭包函数
+            if (method is not ClosureFunction closure)
+            {
+                // 如果不是闭包函数，设置错误状态并返回
+                throw new AuroraException($"{methodName} is not a valid internal method");
+            }
+            ScriptMethodDelegate methodDelegate = (options, arguments) =>
+            {
+                if (options == null) options = ExecuteOptions.Default;
+                // 创建新的执行上下文
+                ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
+                // 创建调用帧并压入调用栈
+                exeContext._callStack.Push(new CallFrame(closure.Environment, Global, closure.Module, closure.EntryPointer, arguments));
+                // 执行函数
+                _virtualMachine.Execute(exeContext);
+                return exeContext;
+            };
+            return methodDelegate;
+        }
+
 
 
 

@@ -64,7 +64,9 @@ public class Program
             // script function test
             var testMD5 = domain.Execute("UNIT_LIB", "testMD5").Done();
             var result = domain.Execute("UNIT_LIB", "test").Done();
+            var callmethod = domain.CreateDelegateFromMethod("UNIT_LIB", "testMD5");
 
+            callmethod();
 
 
             if (result.Status == ExecuteStatus.Complete)
