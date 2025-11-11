@@ -13,7 +13,7 @@ namespace AuroraScript.Runtime.Base
         public new static ScriptObject LENGTH(ScriptObject thisObject)
         {
             var strValue = thisObject as ScriptArray;
-            return new NumberValue(strValue._items.Count);
+            return NumberValue.Of(strValue.Length);
         }
 
         public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)

@@ -24,8 +24,15 @@ namespace AuroraScript.Runtime
         public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            var converted = ConvertArgs(args);
-            return Method.Invoke(context, target, converted);
+            var converted = ConvertArgs(args, out var rented);
+            try
+            {
+                return Method.Invoke(context, target, converted);
+            }
+            finally
+            {
+                //ReturnArgs(rented);
+            }
         }
 
 

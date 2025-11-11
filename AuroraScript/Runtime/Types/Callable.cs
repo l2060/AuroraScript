@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
+using System.Buffers;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -18,8 +19,22 @@ namespace AuroraScript.Runtime.Types
         public abstract BoundFunction Bind(ScriptObject target);
         public abstract ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args);
 
-        protected static ScriptObject[] ConvertArgs(ScriptDatum[] args)
+        protected static ScriptObject[] ConvertArgs(ScriptDatum[] args, out ScriptObject[] rented)
         {
+            rented = null;
+            //if (args == null || args.Length == 0)
+            //{
+            //    return Array.Empty<ScriptObject>();
+            //}
+            //var array = ArrayPool<ScriptObject>.Shared.Rent(args.Length);
+            //for (int i = 0; i < args.Length; i++)
+            //{
+            //    array[i] = args[i].ToObject();
+            //}
+            //rented = array;
+            //return array;
+
+
             if (args == null || args.Length == 0)
             {
                 return Array.Empty<ScriptObject>();
@@ -30,6 +45,18 @@ namespace AuroraScript.Runtime.Types
                 converted[i] = args[i].ToObject();
             }
             return converted;
+
+
+
+
+        }
+
+        protected static void ReturnArgs(ScriptObject[] rented)
+        {
+            if (rented != null)
+            {
+                ArrayPool<ScriptObject>.Shared.Return(rented, clearArray: true);
+            }
         }
 
         public static ScriptObject BIND(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)

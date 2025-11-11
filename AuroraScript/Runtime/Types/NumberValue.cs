@@ -9,6 +9,8 @@ namespace AuroraScript.Runtime.Base
     {
         private readonly Double _value;
 
+
+
         public NumberValue(Double dValue = 0) : base(Prototypes.NumberValuePrototype)
         {
             _value = dValue;
@@ -176,6 +178,14 @@ namespace AuroraScript.Runtime.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NumberValue Of(Double value)
         {
+            if (Double.IsNaN(value))
+            {
+                return NaN;
+            }
+            if (value == 0d)
+            {
+                return Zero;
+            }
             return new NumberValue(value);
         }
 

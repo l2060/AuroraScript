@@ -203,13 +203,13 @@ namespace AuroraScript.Runtime.Base
 
         ItemIterator IEnumerator.GetIterator()
         {
-            List<ScriptObject> result = new List<ScriptObject>();
-            var _object = this;
-            while (_object != null)
+            var result = new List<ScriptObject>();
+            var current = this;
+            while (current != null)
             {
-                if (_object._properties != null)
+                if (current._properties != null)
                 {
-                    foreach (var item in _object._properties)
+                    foreach (var item in current._properties)
                     {
                         if (item.Value.Enumerable)
                         {
@@ -217,9 +217,9 @@ namespace AuroraScript.Runtime.Base
                         }
                     }
                 }
-                _object = _object._prototype;
+                current = current._prototype;
             }
-            return new ItemIterator(result);
+            return ItemIterator.FromObjects(result);
         }
 
     }

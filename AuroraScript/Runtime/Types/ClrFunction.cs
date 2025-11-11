@@ -17,8 +17,15 @@ namespace AuroraScript.Runtime.Types
 
         public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var converted = ConvertArgs(args);
-            return Method.Invoke(context, thisObject, converted);
+            var converted = ConvertArgs(args, out var rented);
+            try
+            {
+                return Method.Invoke(context, thisObject, converted);
+            }
+            finally
+            {
+                //ReturnArgs(rented);
+            }
         }
         public override BoundFunction Bind(ScriptObject target)
         {
