@@ -22,33 +22,25 @@ namespace AuroraScript.Runtime.Types
         protected static ScriptObject[] ConvertArgs(ScriptDatum[] args, out ScriptObject[] rented)
         {
             rented = null;
-            //if (args == null || args.Length == 0)
-            //{
-            //    return Array.Empty<ScriptObject>();
-            //}
-            //var array = ArrayPool<ScriptObject>.Shared.Rent(args.Length);
-            //for (int i = 0; i < args.Length; i++)
-            //{
-            //    array[i] = args[i].ToObject();
-            //}
-            //rented = array;
-            //return array;
-
-
             if (args == null || args.Length == 0)
             {
                 return Array.Empty<ScriptObject>();
             }
-            var converted = new ScriptObject[args.Length];
+            var array = ArrayPool<ScriptObject>.Shared.Rent(args.Length);
             for (int i = 0; i < args.Length; i++)
             {
-                converted[i] = args[i].ToObject();
+                array[i] = args[i].ToObject();
             }
-            return converted;
+            if (array.Length == args.Length)
+            {
+                rented = array;
+                return array;
+            }
 
-
-
-
+            var exact = new ScriptObject[args.Length];
+            Array.Copy(array, exact, args.Length);
+            ArrayPool<ScriptObject>.Shared.Return(array, clearArray: true);
+            return exact;
         }
 
         protected static void ReturnArgs(ScriptObject[] rented)
