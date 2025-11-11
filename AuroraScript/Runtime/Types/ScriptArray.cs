@@ -37,9 +37,9 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public ScriptObject GetElement(NumberValue index)
+        public ScriptObject GetElement(Int32 index)
         {
-            return this._items[index.Int32Value];
+            return this._items[index];
         }
 
         public void SetElement(NumberValue index, ScriptObject value)

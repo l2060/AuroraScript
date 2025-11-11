@@ -5,13 +5,12 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class Program
 {
-
-
-    
 
 
 
@@ -19,7 +18,6 @@ public class Program
 
     public static async Task Main()
     {
-
         var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
 
         await engine.BuildAsync("./unit.as");
@@ -34,6 +32,9 @@ public class Program
         var domain = engine.CreateDomain(g);
         try
         {
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+
+
             // for in iterator test
             domain.Execute("UNIT_LIB", "testIterator").Done();
 
@@ -46,23 +47,25 @@ public class Program
             Console.WriteLine($"testClouse result:{clouseResult.Result}");
 
 
-            var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
+            //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
 
-            if (testInterruption.Status  == ExecuteStatus.Error)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(testInterruption.Error.ToString());
-                Console.ResetColor();
+            //if (testInterruption.Status  == ExecuteStatus.Error)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Red;
+            //    Console.WriteLine(testInterruption.Error.ToString());
+            //    Console.ResetColor();
 
-                testInterruption.Continue().Done(AbnormalStrategy.Continue);
-            }
+            //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
+            //}
 
             // clr function test
-            var testClrFunc = domain.Execute("UNIT_LIB", "testClrFunc").Done();
+
 
 
             // script function test
-            var testMD5 = domain.Execute("UNIT_LIB", "testMD5").Done();
+
+            BenchmarkScript(domain, "UNIT_LIB", "test");
+
             var result = domain.Execute("UNIT_LIB", "test").Done();
             var callmethod = domain.CreateDelegateFromMethod("UNIT_LIB", "testMD5");
 
@@ -74,12 +77,11 @@ public class Program
                 domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
             }
 
-            var md5 = domain.Execute("MD5_LIB", "MD5", new StringValue("12345")).Done();
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
 
             var forCount = 10000000;
-            var testFor = domain.Execute("UNIT_LIB", "forTest", new NumberValue(forCount)).Done();
-
-            Console.WriteLine($"for:{forCount} Use {testFor.UsedTime}ms");
+            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(forCount));
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
 
             var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
             timerResult.Done();
@@ -89,6 +91,13 @@ public class Program
                 domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
                 domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
             }
+
+
+            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));
+
         }
         catch (AuroraRuntimeException ex)
         {
@@ -108,4 +117,21 @@ public class Program
         Console.ReadKey();
     }
 
+    private static void BenchmarkScript(ScriptDomain domain, string module, string method, params ScriptObject[] args)
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
+        var stopwatch = Stopwatch.StartNew();
+
+        var context = domain.Execute(module, method, args).Done();
+
+        stopwatch.Stop();
+        var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
+        var allocatedBytes = afterAlloc - beforeAlloc;
+
+        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {stopwatch.ElapsedMilliseconds} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
+    }
 }

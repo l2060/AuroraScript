@@ -72,6 +72,42 @@ export function testClrFunc() {
 	}
 }
 
+export function benchmarkNumbers(iterations = 1000000) {
+	var acc = 0;
+	for (var i = 0; i < iterations; i++) {
+		acc = (acc + i) % 97;
+	}
+	return acc;
+}
+
+export function benchmarkArrays(iterations = 200000) {
+	var arr = [];
+	for (var i = 0; i < iterations; i++) {
+		arr.push(i);
+	}
+	var sum = 0;
+	for (var i = 0; i < arr.length; i++) {
+		sum += arr[i];
+	}
+	return sum;
+}
+
+export function benchmarkClosure(iterations = 500000) {
+	function makeCounter() {
+		var count = 0;
+		return () => {
+			count = count + 1;
+			return count;
+		};
+	}
+	var counter = makeCounter();
+	var last = 0;
+	for (var i = 0; i < iterations; i++) {
+		last = counter();
+	}
+	return last;
+}
+
 
 export function testMD5() {
 	console.time("MD5_SUM");

@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 
 namespace AuroraScript.Runtime
@@ -20,10 +21,11 @@ namespace AuroraScript.Runtime
         }
 
 
-        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            return Method.Invoke(context, target, args);
+            var converted = ConvertArgs(args);
+            return Method.Invoke(context, target, converted);
         }
 
 

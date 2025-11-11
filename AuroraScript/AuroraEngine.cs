@@ -4,6 +4,7 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Extensions;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Threading.Tasks;
@@ -28,6 +29,11 @@ namespace AuroraScript
         public readonly StringList _stringSet = new StringList();
 
         /// <summary>
+        /// CLR 类型注册表，由宿主负责向脚本环境暴露可访问的别名。
+        /// </summary>
+        public ClrTypeRegistry ClrRegistry { get; } = new ClrTypeRegistry();
+
+        /// <summary>
         /// 运行时虚拟机，执行编译后的字节码
         /// </summary>
         private RuntimeVM runtimeVM;
@@ -50,7 +56,6 @@ namespace AuroraScript
             Global.Define("String", StringConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
-
         }
 
 
@@ -63,6 +68,11 @@ namespace AuroraScript
         public ScriptObject GetGlobal(string name)
         {
             return Global.GetPropertyValue(name);
+        }
+
+        public ClrTypeDescriptor RegisterClrType(string alias, Type type, ClrTypeOptions options = null, bool overwrite = false)
+        {
+            return ClrRegistry.RegisterType(alias, type, options, overwrite);
         }
 
         /// <summary>
@@ -110,7 +120,7 @@ namespace AuroraScript
             // 生成字节码
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
-            runtimeVM = new RuntimeVM(bytes, stringConstants, debugSymbols);
+            runtimeVM = new RuntimeVM(bytes, stringConstants, debugSymbols, ClrRegistry);
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;

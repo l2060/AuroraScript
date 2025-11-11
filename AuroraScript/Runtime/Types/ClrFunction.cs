@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -14,9 +15,10 @@ namespace AuroraScript.Runtime.Types
         {
         }
 
-        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            return Method.Invoke(context, thisObject, args);
+            var converted = ConvertArgs(args);
+            return Method.Invoke(context, thisObject, converted);
         }
         public override BoundFunction Bind(ScriptObject target)
         {

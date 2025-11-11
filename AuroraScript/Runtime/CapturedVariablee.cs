@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -16,10 +17,10 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptObject Read() => Frame.Locals[VarIndex];
+        public ScriptObject Read() => Frame.Locals[VarIndex].ToObject();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(ScriptObject value) => Frame.Locals[VarIndex] = value;
+        public void Write(ScriptObject value) => Frame.Locals[VarIndex] = ScriptDatum.FromObject(value);
 
         public override string ToString()
         {

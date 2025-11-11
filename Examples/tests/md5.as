@@ -48,6 +48,8 @@ function H(x, y, z) { return (x ^ y ^ z); }
 function I(x, y, z) { return (y ^ (x | (~z))); }
 
 function FF(a, b, c, d, x, s, ac) {
+   // console.log(F(b, c, d));
+
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
     return AddUnsigned(RotateLeft(a, s), b);
 };
@@ -138,6 +140,7 @@ export function MD5(string) {
     var S41 = 6; var S42 = 10; var S43 = 15; var S44 = 21;
     string = Utf8Encode(string);
     var x = ConvertToWordArray(string);
+
     for (var k = 0; k < x.length; k += 16) {
         var AA = a;
         var BB = b;

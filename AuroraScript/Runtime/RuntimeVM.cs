@@ -2,6 +2,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Immutable;
@@ -32,6 +33,8 @@ namespace AuroraScript.Runtime
         /// </summary>
         private readonly DebugSymbolInfo _debugSymbols;
 
+        private readonly ClrTypeRegistry _clrRegistry;
+
 
         public PatchVM PatchVM()
         {
@@ -41,7 +44,7 @@ namespace AuroraScript.Runtime
 
         internal DebugSymbol ResolveSymbol(Int32 pointer)
         {
-           return _debugSymbols.Resolve(pointer);
+            return _debugSymbols.Resolve(pointer);
         }
 
         internal ModuleSymbol ResolveModule(Int32 pointer)
@@ -59,7 +62,7 @@ namespace AuroraScript.Runtime
         /// <param name="bytecode">要执行的字节码，由编译器生成的二进制指令序列</param>
         /// <param name="stringConstants">字符串常量池，包含脚本中所有的字符串字面量</param>
 
-        public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols)
+        public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols, ClrTypeRegistry clrRegistry)
         {
             // 创建字节码缓冲区，用于读取和解析字节码指令
             _codeBuffer = new ByteCodeBuffer(bytecode);
@@ -67,6 +70,7 @@ namespace AuroraScript.Runtime
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
             // 调试符号信息
             _debugSymbols = debugSymbols;
+            _clrRegistry = clrRegistry;
         }
 
 
@@ -107,7 +111,9 @@ namespace AuroraScript.Runtime
             Int32 propNameIndex = 0;
             Int32 localIndex = 0;
             StringValue propName = null;
-            ScriptObject temp = null;
+            ScriptDatum datumValue;
+            ScriptDatum datumLeft;
+            ScriptDatum datumRight;
             ScriptObject value = null;
             ScriptObject obj = null;
             ScriptObject left = null;
@@ -119,24 +125,25 @@ namespace AuroraScript.Runtime
             // 获取当前域的全局对象
             ScriptGlobal domainGlobal = frame.Global;
 
-            var popStack = _operandStack.Pop;
-            var pushStack = _operandStack.Push;
+            ScriptDatum PopDatum() => _operandStack.PopDatum();
+            void PushDatum(ScriptDatum datum) => _operandStack.PushDatum(datum);
+            ScriptObject PopObject() => _operandStack.Pop();
+            void PushObject(ScriptObject obj) => _operandStack.Push(obj);
+            ScriptDatum PeekDatum() => _operandStack.PeekDatum();
 
 
             // 数值一元操作的lambda函数，用于简化代码
             // 对栈顶的数值执行一元操作，如果不是数值则返回默认值
-            var NumberUnaryOperation = (ScriptObject defaultValue, Func<NumberValue, ScriptObject> operation) =>
+            var NumberUnaryOperation = (double defaultValue, Func<double, double> operation) =>
             {
-                var value = popStack();
-                if (value is NumberValue number)
+                var datum = PopDatum();
+                if (datum.Kind == ValueKind.Number)
                 {
-                    // 如果是数值类型，执行操作并将结果压入栈
-                    pushStack(operation(number));
+                    PushDatum(ScriptDatum.FromNumber(operation(datum.Number)));
                 }
                 else
                 {
-                    // 如果不是数值类型，将默认值压入栈
-                    pushStack(defaultValue);
+                    PushDatum(ScriptDatum.FromNumber(defaultValue));
                 }
             };
 
@@ -146,26 +153,33 @@ namespace AuroraScript.Runtime
 
 
 
-            // 数值二元操作的lambda函数，用于简化代码
-            // 对栈顶的两个数值执行二元操作，如果不是数值则返回默认值
-            var NumberBinaryOperation = (ScriptObject defaultValue, Func<NumberValue, NumberValue, ScriptObject> operation) =>
-             {
-                 // 弹出栈顶的两个值作为操作数
-                 var right = popStack();
-                 var left = popStack();
-                 if (left is NumberValue leftNumber && right is NumberValue rightNumber)
-                 {
-                     // 如果两个操作数都是数值类型，执行操作并将结果压入栈
-                     var result = operation(leftNumber, rightNumber);
-                     if (result == null) throw new AuroraVMException("");
-                     pushStack(result);
-                 }
-                 else
-                 {
-                     pushStack(ScriptObject.Null);
-                 }
+            var NumberBinaryOperation = (double defaultValue, Func<double, double, double> operation) =>
+            {
+                var right = PopDatum();
+                var left = PopDatum();
+                if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+                {
+                    PushDatum(ScriptDatum.FromNumber(operation(left.Number, right.Number)));
+                }
+                else
+                {
+                    PushDatum(ScriptDatum.FromNumber(defaultValue));
+                }
+            };
 
-             };
+            var NumberBinaryPredicate = (Func<double, double, bool> predicate) =>
+            {
+                var right = PopDatum();
+                var left = PopDatum();
+                if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+                {
+                    PushDatum(ScriptDatum.FromBoolean(predicate(left.Number, right.Number)));
+                }
+                else
+                {
+                    PushDatum(ScriptDatum.FromBoolean(false));
+                }
+            };
 
 
 
@@ -185,137 +199,149 @@ namespace AuroraScript.Runtime
 
                     case OpCode.POP:
                         // 弹出栈顶元素
-                        popStack();
+                        PopDatum();
                         break;
 
                     case OpCode.DUP:
                         // 复制栈顶元素
-                        var topValue = _operandStack.Peek();
-                        pushStack(topValue);
+                        var topDatum = PeekDatum();
+                        PushDatum(topDatum);
                         break;
 
                     case OpCode.SWAP:
                         // 交换栈顶两个元素
-                        var a = popStack();
-                        var b = popStack();
-                        pushStack(a);
-                        pushStack(b);
+                        var first = PopDatum();
+                        var second = PopDatum();
+                        PushDatum(first);
+                        PushDatum(second);
                         break;
 
                     case OpCode.LOAD_ARG:
                         //
                         var argIndex = _codeBuffer.ReadByte(frame);
-                        var arg = frame.GetArgument(argIndex);
-                        pushStack(arg);
+                        var argDatum = frame.GetArgumentDatum(argIndex);
+                        PushDatum(argDatum);
                         break;
 
                     case OpCode.TRY_LOAD_ARG:
                         propNameIndex = _codeBuffer.ReadByte(frame);
-                        if (frame.TryGetArgument(propNameIndex, out arg))
+                        if (frame.TryGetArgumentDatum(propNameIndex, out var tryArgDatum))
                         {
-                            popStack();
-                            pushStack(arg);
+                            PopDatum();
+                            PushDatum(tryArgDatum);
                         }
                         break;
 
                     case OpCode.PUSH_I8:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadSByte(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadSByte(frame)));
                         break;
 
                     case OpCode.PUSH_I16:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadInt16(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt16(frame)));
                         break;
 
                     case OpCode.PUSH_I32:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadInt32(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt32(frame)));
                         break;
 
                     case OpCode.PUSH_I64:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadInt64(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt64(frame)));
                         break;
                     case OpCode.PUSH_F32:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadFloat(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadFloat(frame)));
                         break;
 
                     case OpCode.PUSH_F64:
-                        pushStack(NumberValue.Of(_codeBuffer.ReadDouble(frame)));
+                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadDouble(frame)));
                         break;
 
                     case OpCode.PUSH_STRING:
                         var stringIndex = _codeBuffer.ReadInt32(frame);
-                        pushStack(_stringConstants[stringIndex]);
+                        PushDatum(ScriptDatum.FromString(_stringConstants[stringIndex]));
                         break;
 
 
                     case OpCode.LOAD_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        pushStack(frame.Locals[localIndex]);
+                        PushDatum(frame.Locals[localIndex]);
                         break;
 
                     case OpCode.STORE_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        frame.Locals[localIndex] = popStack();
+                        frame.Locals[localIndex] = PopDatum();
                         break;
 
                     case OpCode.LOAD_CAPTURE:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        var capturedVar = frame.Locals[localIndex] as CapturedVariablee;
-                        pushStack(capturedVar.Read());
+                        datumValue = frame.Locals[localIndex];
+                        if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar)
+                        {
+                            throw new AuroraVMException("Invalid captured variable");
+                        }
+                        PushObject(capturedVar.Read());
                         break;
 
                     case OpCode.STORE_CAPTURE:
-                        value = popStack();
+                        value = PopObject();
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        capturedVar = frame.Locals[localIndex] as CapturedVariablee;
-                        capturedVar.Write(value);
+                        datumValue = frame.Locals[localIndex];
+                        if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar2)
+                        {
+                            throw new AuroraVMException("Invalid captured variable");
+                        }
+                        capturedVar2.Write(value);
                         break;
 
                     case OpCode.CREATE_CLOSURE:
-                        var thisModule = popStack() as ScriptModule;
+                        var thisModule = PopObject() as ScriptModule;
                         var closureIndex = _codeBuffer.ReadInt32(frame);
                         var closure = new ClosureFunction(frame, thisModule, frame.Pointer + closureIndex);
-                        pushStack(closure);
+                        PushObject(closure);
                         break;
 
                     case OpCode.CAPTURE_VAR:
                         var varIndex = _codeBuffer.ReadInt32(frame);
                         var cv = new CapturedVariablee(frame.Environment, varIndex);
-                        pushStack(cv);
+                        PushObject(cv);
                         break;
 
                     case OpCode.NEW_MODULE:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        pushStack(new ScriptModule(propName.Value));
+                        PushObject(new ScriptModule(propName.Value));
                         break;
 
                     case OpCode.DEFINE_MODULE:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = popStack();
+                        value = PopObject();
                         domainGlobal.Define(propName.Value, value, writeable: false, enumerable: true);
                         break;
 
                     case OpCode.NEW_MAP:
-                        pushStack(new ScriptObject());
+                        PushObject(new ScriptObject());
                         break;
 
                     case OpCode.NEW_ARRAY:
                         var count = _codeBuffer.ReadInt32(frame);
-                        var buffer = new ScriptObject[count];
+                        var datumBuffer = new ScriptDatum[count];
                         for (int i = count - 1; i >= 0; i--)
                         {
-                            buffer[i] = popStack();
+                            datumBuffer[i] = PopDatum();
                         }
-                        var array = new ScriptArray(buffer);
-                        pushStack(array);
+                        var newArray = new ScriptArray(count);
+                        for (int i = 0; i < count; i++)
+                        {
+                            newArray.SetElement(NumberValue.Of(i), datumBuffer[i].ToObject());
+                        }
+                        PushObject(newArray);
                         break;
 
                     case OpCode.GET_ITERATOR:
-                        obj = popStack();
+                        obj = PopObject();
                         if (obj is IEnumerator iterable)
                         {
-                            pushStack(iterable.GetIterator());
+                            PushObject(iterable.GetIterator());
                         }
                         else
                         {
@@ -324,10 +350,10 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.ITERATOR_VALUE:
-                        obj = popStack();
+                        obj = PopObject();
                         if (obj is ItemIterator iterator)
                         {
-                            pushStack(iterator.Value());
+                            PushObject(iterator.Value());
                         }
                         else
                         {
@@ -336,10 +362,10 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.ITERATOR_HAS_VALUE:
-                        obj = popStack();
+                        obj = PopObject();
                         if (obj is ItemIterator iterator2)
                         {
-                            pushStack(BooleanValue.Of(iterator2.HasValue()));
+                            PushDatum(ScriptDatum.FromBoolean(iterator2.HasValue()));
                         }
                         else
                         {
@@ -348,7 +374,7 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.ITERATOR_NEXT:
-                        obj = popStack();
+                        obj = PopObject();
                         if (obj is ItemIterator iterator3)
                         {
                             iterator3.Next();
@@ -361,11 +387,11 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        obj = popStack();
+                        obj = PopObject();
 
                         if (obj is ScriptObject scriptObj)
                         {
-                            pushStack(scriptObj.GetPropertyValue(propName.Value));
+                            PushObject(scriptObj.GetPropertyValue(propName.Value));
                         }
                         else
                         {
@@ -376,8 +402,8 @@ namespace AuroraScript.Runtime
                     case OpCode.SET_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = popStack();
-                        obj = popStack();
+                        value = PopObject();
+                        obj = PopObject();
 
                         if (obj is ScriptObject targetScriptObj)
                         {
@@ -390,107 +416,116 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.DELETE_PROPERTY:
-                        value = popStack();
-                        obj = popStack();
+                        value = PopObject();
+                        obj = PopObject();
                         obj.DeletePropertyValue(value.ToString());
                         break;
                     case OpCode.GET_THIS_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
                         value = frame.Module.GetPropertyValue(propName.Value);
-                        pushStack(value);
+                        PushObject(value);
                         break;
 
                     case OpCode.SET_THIS_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = popStack();
+                        value = PopObject();
                         frame.Module.SetPropertyValue(propName.Value, value);
                         break;
 
                     case OpCode.GET_GLOBAL_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = domainGlobal.GetPropertyValue(propName.Value);
-                        pushStack(value);
+                        if (_clrRegistry != null && _clrRegistry.TryGetDescriptor(propName.Value, out var descriptor))
+                        {
+                            value = descriptor.GetOrCreateTypeObject();
+                        }
+                        else
+                        {
+                            value = domainGlobal.GetPropertyValue(propName.Value);
+                        }
+                        PushObject(value);
                         break;
 
                     case OpCode.SET_GLOBAL_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        value = popStack();
+                        value = PopObject();
                         domainGlobal.SetPropertyValue(propName.Value, value);
                         break;
 
                     case OpCode.GET_ELEMENT:
-                        // TODO
-                        temp = popStack();
-                        obj = popStack();
-                        if (obj is ScriptArray scriptArray && temp is NumberValue numberValue)
+                        datumValue = PopDatum();
+                        var datumObjValue = PopDatum();
+                        if (datumObjValue.Kind == ValueKind.Object && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
                         {
-                            pushStack(scriptArray.GetElement(numberValue));
+                            PushObject(scriptArray.GetElement((Int32)datumValue.Number));
+                        }
+                        else if (datumObjValue.Kind == ValueKind.Object)
+                        {
+                            PushObject(datumObjValue.Object.GetPropertyValue(datumValue.ToObject().ToString()));
                         }
                         else
                         {
-                            pushStack(obj.GetPropertyValue(temp.ToString()));
+                            PushDatum(ScriptDatum.FromNull());
                         }
                         break;
 
                     case OpCode.SET_ELEMENT:
-                        // TODO
-                        obj = popStack();
-                        temp = popStack();
-                        value = popStack();
-                        if (obj is ScriptArray scriptArray2)
+                        var datumTargetObj = PopDatum();
+                        datumValue = PopDatum();
+                        var datumAssignedValue = PopDatum();
+                        if (datumTargetObj.Kind == ValueKind.Object && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
                         {
-                            if (temp is NumberValue numberValue2) scriptArray2.SetElement(numberValue2, value);
+                            scriptArray2.SetElement(NumberValue.Of(datumValue.Number), datumAssignedValue.ToObject());
                         }
-                        else
+                        else if (datumTargetObj.Kind == ValueKind.Object)
                         {
-                            obj.SetPropertyValue(temp.ToString(), value);
+                            datumTargetObj.Object.SetPropertyValue(datumValue.ToObject().ToString(), datumAssignedValue.ToObject());
                         }
                         break;
 
                     case OpCode.LOGIC_NOT:
-                        value = popStack();
-                        pushStack(BooleanValue.Of(!value.IsTrue()));
+                        datumValue = PopDatum();
+                        PushDatum(ScriptDatum.FromBoolean(!datumValue.IsTrue()));
                         break;
                     case OpCode.LOGIC_AND:
-                        right = popStack();
-                        left = popStack();
-                        pushStack(BooleanValue.Of(left.IsTrue() && right.IsTrue()));
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        PushDatum(ScriptDatum.FromBoolean(datumLeft.IsTrue() && datumRight.IsTrue()));
                         break;
                     case OpCode.LOGIC_OR:
-                        right = popStack();
-                        left = popStack();
-                        pushStack(BooleanValue.Of(left.IsTrue() || right.IsTrue()));
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        PushDatum(ScriptDatum.FromBoolean(datumLeft.IsTrue() || datumRight.IsTrue()));
                         break;
 
                     case OpCode.EQUAL:
-                        right = popStack();
-                        left = popStack();
-                        pushStack(BooleanValue.Of(left.Equals(right)));
+                        right = PopObject();
+                        left = PopObject();
+                        PushDatum(ScriptDatum.FromBoolean(left.Equals(right)));
                         break;
 
                     case OpCode.NOT_EQUAL:
-                        right = popStack();
-                        left = popStack();
-                        pushStack(BooleanValue.Of(!left.Equals(right)));
+                        right = PopObject();
+                        left = PopObject();
+                        PushDatum(ScriptDatum.FromBoolean(!left.Equals(right)));
                         break;
 
                     case OpCode.LESS_THAN:
-                        NumberBinaryOperation(BooleanValue.False, (l, r) => l < r);
+                        NumberBinaryPredicate((l, r) => l < r);
                         break;
 
                     case OpCode.LESS_EQUAL:
-                        NumberBinaryOperation(BooleanValue.False, (l, r) => l <= r);
+                        NumberBinaryPredicate((l, r) => l <= r);
                         break;
 
                     case OpCode.GREATER_THAN:
-                        NumberBinaryOperation(BooleanValue.False, (l, r) => l > r);
+                        NumberBinaryPredicate((l, r) => l > r);
                         break;
                     case OpCode.GREATER_EQUAL:
-                        NumberBinaryOperation(BooleanValue.False, (l, r) => l >= r);
+                        NumberBinaryPredicate((l, r) => l >= r);
                         break;
 
 
@@ -498,38 +533,38 @@ namespace AuroraScript.Runtime
 
 
                     case OpCode.ADD:
-                        right = popStack();
-                        left = popStack();
-                        if (left is NumberValue number1 && right is NumberValue number2)
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
                         {
-                            pushStack(number1 + number2);
+                            PushDatum(ScriptDatum.FromNumber(datumLeft.Number + datumRight.Number));
                         }
                         else
                         {
-                            var result = left + right;
-                            pushStack(result);
+                            var result = datumLeft.ToObject() + datumRight.ToObject();
+                            PushObject(result);
                         }
                         break;
                     case OpCode.SUBTRACT:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l - r);
+                        NumberBinaryOperation(double.NaN, (l, r) => l - r);
                         break;
                     case OpCode.MULTIPLY:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l * r);
+                        NumberBinaryOperation(double.NaN, (l, r) => l * r);
                         break;
                     case OpCode.DIVIDE:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l / r);
+                        NumberBinaryOperation(double.NaN, (l, r) => l / r);
                         break;
                     case OpCode.MOD:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l % r);
+                        NumberBinaryOperation(double.NaN, (l, r) => l % r);
                         break;
                     case OpCode.NEGATE:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => -v);
+                        NumberUnaryOperation(double.NaN, (v) => -v);
                         break;
                     case OpCode.INCREMENT:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => v + 1);
+                        NumberUnaryOperation(double.NaN, (v) => v + 1);
                         break;
                     case OpCode.DECREMENT:
-                        NumberUnaryOperation(NumberValue.NaN, (v) => v - 1);
+                        NumberUnaryOperation(double.NaN, (v) => v - 1);
                         break;
 
 
@@ -537,67 +572,100 @@ namespace AuroraScript.Runtime
 
 
                     case OpCode.BIT_SHIFT_L:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l << r);
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
+                        {
+                            PushDatum(ScriptDatum.FromNumber((double)((int)datumLeft.Number << (int)datumRight.Number)));
+                        }
+                        else
+                        {
+                            PushDatum(ScriptDatum.FromNumber(double.NaN));
+                        }
                         break;
 
                     case OpCode.BIT_SHIFT_R:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l >> r);
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
+                        {
+                            PushDatum(ScriptDatum.FromNumber((double)((int)datumLeft.Number >> (int)datumRight.Number)));
+                        }
+                        else
+                        {
+                            PushDatum(ScriptDatum.FromNumber(double.NaN));
+                        }
                         break;
 
                     case OpCode.BIT_USHIFT_R:
-                        NumberBinaryOperation(NumberValue.NaN, (l, r) => l >>> r);
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
+                        {
+                            PushDatum(ScriptDatum.FromNumber((double)((int)datumLeft.Number >>> (int)datumRight.Number)));
+                        }
+                        else
+                        {
+                            PushDatum(ScriptDatum.FromNumber(double.NaN));
+                        }
                         break;
 
                     case OpCode.BIT_AND:
-
-                        right = popStack();
-                        left = popStack();
-                        if (left is NumberValue leftOrNumber && right is NumberValue rightOrNumber)
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
                         {
-                            pushStack(leftOrNumber & rightOrNumber);
+                            var v = unchecked((Int32)(Int64)datumLeft.Number) & unchecked((Int32)(Int64)datumRight.Number);
+                            PushDatum(ScriptDatum.FromNumber((double)v));
                         }
-                        else if (left == ScriptObject.Null || right == ScriptObject.Null)
+                        else if (datumLeft.Kind == ValueKind.Null || datumRight.Kind == ValueKind.Null)
                         {
-                            pushStack(NumberValue.Zero);
+                            PushDatum(ScriptDatum.FromNumber(0));
+                        }
+                        else
+                        {
+                            PushDatum(ScriptDatum.FromNumber(double.NaN));
                         }
                         break;
 
                     case OpCode.BIT_OR:
-                        right = popStack();
-                        left = popStack();
-                        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
                         {
-                            pushStack(leftNumber | rightNumber);
+                            var v = unchecked((Int32)(Int64)datumLeft.Number) | unchecked((Int32)(Int64)datumRight.Number);
+                            PushDatum(ScriptDatum.FromNumber((double)v));
                         }
-                        else if (left == ScriptObject.Null)
+                        else if (datumLeft.Kind == ValueKind.Null)
                         {
-                            pushStack(right);
+                            PushDatum(datumRight);
                         }
                         else
                         {
-                            pushStack(left);
+                            PushDatum(datumLeft);
                         }
                         break;
 
                     case OpCode.BIT_XOR:
-                        right = popStack();
-                        left = popStack();
-                        if (left is NumberValue leftXorNumber && right is NumberValue rightXorNumber)
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
                         {
-                            pushStack(leftXorNumber ^ rightXorNumber);
+                            var v = unchecked((Int32)(Int64)datumLeft.Number) ^ unchecked((Int32)(Int64)datumRight.Number);
+                            PushDatum(ScriptDatum.FromNumber((double)v));
                         }
-                        else if (left == ScriptObject.Null)
+                        else if (datumLeft.Kind == ValueKind.Null)
                         {
-                            pushStack(right);
+                            PushDatum(datumRight);
                         }
                         else
                         {
-                            pushStack(left);
+                            PushDatum(datumLeft);
                         }
                         break;
 
                     case OpCode.BIT_NOT:
-                        NumberUnaryOperation(NumberValue.Negative1, (v) => ~v);
+                        NumberUnaryOperation(-1, v => ~(long)v);
                         break;
 
 
@@ -611,16 +679,16 @@ namespace AuroraScript.Runtime
 
                     case OpCode.JUMP_IF_FALSE:
                         offset = _codeBuffer.ReadInt32(frame);
-                        value = popStack();
-                        if (!value.IsTrue())
+                        datumValue = PopDatum();
+                        if (!datumValue.IsTrue())
                         {
                             frame.Pointer += offset;
                         }
                         break;
                     case OpCode.JUMP_IF_TRUE:
                         offset = _codeBuffer.ReadInt32(frame);
-                        value = popStack();
-                        if (value.IsTrue())
+                        datumValue = PopDatum();
+                        if (datumValue.IsTrue())
                         {
                             frame.Pointer += offset;
                         }
@@ -628,15 +696,15 @@ namespace AuroraScript.Runtime
                     case OpCode.CALL:
                         // 函数调用指令
                         // 从栈顶弹出可调用对象
-                        var callable = popStack();
+                        var callable = PopObject();
                         // 读取参数数量
                         var argCount = _codeBuffer.ReadByte(frame);
                         // 创建参数数组
-                        var args = new ScriptObject[argCount];
+                        var argDatums = new ScriptDatum[argCount];
                         // 从栈中弹出参数，注意参数顺序是从右到左
                         for (int i = argCount - 1; i >= 0; i--)
                         {
-                            args[i] = popStack();
+                            argDatums[i] = PopDatum();
                         }
                         if (callable is ClosureFunction closureFunc)
                         {
@@ -646,18 +714,21 @@ namespace AuroraScript.Runtime
                             }
                             // 如果是脚本中定义的闭包函数
                             // 创建新的调用帧，包含环境、全局对象、模块和入口点
-                            var callFrame = new CallFrame(closureFunc.Environment, domainGlobal, closureFunc.Module, closureFunc.EntryPointer, args);
+                            var callFrame = new CallFrame(closureFunc.Environment, domainGlobal, closureFunc.Module, closureFunc.EntryPointer, argDatums);
                             // 将新帧压入调用栈
                             _callStack.Push(callFrame);
                             // 更新当前帧引用
                             frame = callFrame;
                         }
-                        else if (callable is BoundFunction clrFunction)
+                        else if (callable is Callable callableFunc)
                         {
-                            // 如果是绑定的CLR函数（本地函数）
-                            // 直接调用函数并将结果压入栈
-                            var callResult = clrFunction.Invoke(null, null, args);
-                            pushStack(callResult);
+                            var callResult = callableFunc.Invoke(exeContext, null, argDatums);
+                            PushObject(callResult);
+                        }
+                        else if (callable is IClrInvokable clrInvokable)
+                        {
+                            var callResult = clrInvokable.Invoke(exeContext, callable as ScriptObject, argDatums);
+                            PushObject(callResult);
                         }
                         else
                         {
@@ -669,7 +740,8 @@ namespace AuroraScript.Runtime
                     case OpCode.RETURN:
                         // 函数返回指令
                         // 获取返回值（如果有）
-                        value = _operandStack.Count > 0 ? popStack() : ScriptObject.Null;
+                        datumValue = _operandStack.Count > 0 ? PopDatum() : ScriptDatum.FromNull();
+                        value = datumValue.ToObject();
                         // 弹出当前调用帧
                         _callStack.Pop();
 
@@ -683,7 +755,7 @@ namespace AuroraScript.Runtime
 
                         // 如果调用栈不为空，说明是从子函数返回到调用者
                         // 将返回值压入操作数栈，供调用者使用
-                        pushStack(value);
+                        PushDatum(datumValue);
                         // 切换到调用者的帧继续执行
                         frame = _callStack.Peek();
                         break;
@@ -697,49 +769,49 @@ namespace AuroraScript.Runtime
                         }
                         break;
                     case OpCode.PUSH_0:
-                        pushStack(NumberValue.Zero);
+                        PushDatum(ScriptDatum.FromNumber(0));
                         break;
                     case OpCode.PUSH_1:
-                        pushStack(NumberValue.Num1);
+                        PushDatum(ScriptDatum.FromNumber(1));
                         break;
                     case OpCode.PUSH_2:
-                        pushStack(NumberValue.Num2);
+                        PushDatum(ScriptDatum.FromNumber(2));
                         break;
                     case OpCode.PUSH_3:
-                        pushStack(NumberValue.Num3);
+                        PushDatum(ScriptDatum.FromNumber(3));
                         break;
                     case OpCode.PUSH_4:
-                        pushStack(NumberValue.Num4);
+                        PushDatum(ScriptDatum.FromNumber(4));
                         break;
                     case OpCode.PUSH_5:
-                        pushStack(NumberValue.Num5);
+                        PushDatum(ScriptDatum.FromNumber(5));
                         break;
                     case OpCode.PUSH_6:
-                        pushStack(NumberValue.Num6);
+                        PushDatum(ScriptDatum.FromNumber(6));
                         break;
                     case OpCode.PUSH_7:
-                        pushStack(NumberValue.Num7);
+                        PushDatum(ScriptDatum.FromNumber(7));
                         break;
                     case OpCode.PUSH_8:
-                        pushStack(NumberValue.Num8);
+                        PushDatum(ScriptDatum.FromNumber(8));
                         break;
                     case OpCode.PUSH_9:
-                        pushStack(NumberValue.Num9);
+                        PushDatum(ScriptDatum.FromNumber(9));
                         break;
                     case OpCode.PUSH_NULL:
-                        pushStack(ScriptObject.Null);
+                        PushDatum(ScriptDatum.FromNull());
                         break;
                     case OpCode.PUSH_FALSE:
-                        pushStack(BooleanValue.False);
+                        PushDatum(ScriptDatum.FromBoolean(false));
                         break;
                     case OpCode.PUSH_TRUE:
-                        pushStack(BooleanValue.True);
+                        PushDatum(ScriptDatum.FromBoolean(true));
                         break;
                     case OpCode.PUSH_THIS:
-                        pushStack(frame.Module);
+                        PushObject(frame.Module);
                         break;
                     case OpCode.PUSH_GLOBAL:
-                        pushStack(domainGlobal);
+                        PushObject(domainGlobal);
                         break;
                 }
             }

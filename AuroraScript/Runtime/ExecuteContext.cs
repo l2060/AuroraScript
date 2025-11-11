@@ -1,4 +1,5 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Types;
@@ -23,7 +24,7 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 操作数栈，用于存储执行过程中的临时值
         /// </summary>
-        internal readonly Stack<ScriptObject> _operandStack;
+        internal readonly ScriptDatumStack _operandStack;
 
         /// <summary>
         /// 调用栈，用于管理函数调用
@@ -81,7 +82,7 @@ namespace AuroraScript.Runtime
             // 初始化虚拟机引用
             _virtualMachine = virtualMachine;
             // 初始化操作数栈，用于存储执行过程中的临时值
-            _operandStack = new Stack<ScriptObject>();
+            _operandStack = new ScriptDatumStack();
             // 初始化调用栈，用于管理函数调用
             _callStack = new Stack<CallFrame>();
             // 设置全局对象

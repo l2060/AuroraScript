@@ -106,6 +106,14 @@ public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, 
     return ScriptObject.Null;
 }
 
+// 注册 CLR 类型别名，供脚本侧使用
+engine.RegisterClrType("Math", typeof(System.Math));
+engine.RegisterClrType("StringBuilder", typeof(System.Text.StringBuilder));
+
+// 脚本侧可直接调用：
+// let sb = StringBuilder("seed");
+// console.log(Math.Abs(-42));
+
 // 获取全局变量
 var pi = engine.Global.GetPropertyValue("PI");
 

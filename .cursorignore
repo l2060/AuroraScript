@@ -1,0 +1,11 @@
+Documents
+bin
+obj
+.vscode
+.idea
+.git
+.svn
+.hg
+.bzr
+
+.vs

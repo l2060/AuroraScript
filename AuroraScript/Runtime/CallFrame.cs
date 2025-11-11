@@ -1,7 +1,9 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
 {
@@ -31,12 +33,12 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 局部变量数组
         /// </summary>
-        public readonly ScriptObject[] Locals;
+        public readonly ScriptDatum[] Locals;
 
         /// <summary>
         /// 调用参数
         /// </summary>
-        public readonly ScriptObject[] Arguments;
+        public readonly ScriptDatum[] Arguments;
 
         /// <summary>
         /// 当前模块对象
@@ -63,19 +65,33 @@ namespace AuroraScript.Runtime
         /// <param name="entryPointer">函数入口点的指令指针</param>
         /// <param name="arguments">函数调用的参数数组</param>
         public CallFrame(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, params ScriptObject[] arguments)
+            : this(environment, global, thisModule, entryPointer, ConvertArguments(arguments))
         {
-            // 设置全局对象
+        }
+
+        internal CallFrame(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, ScriptDatum[] argumentDatums)
+        {
             Global = global;
-            // 设置闭包环境
             Environment = environment;
-            // 设置初始指令指针
             EntryPointer = Pointer = entryPointer;
-            // 设置当前模块
             Module = thisModule;
-            // 设置函数参数
-            Arguments = arguments;
-            // 从共享池中获取局部变量数组，提高内存利用率
-            Locals = ArrayPool<ScriptObject>.Shared.Rent(64);
+            Arguments = argumentDatums ?? Array.Empty<ScriptDatum>();
+            Locals = ArrayPool<ScriptDatum>.Shared.Rent(64);
+            Array.Clear(Locals, 0, Locals.Length);
+        }
+
+        private static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
+        {
+            if (arguments == null || arguments.Length == 0)
+            {
+                return Array.Empty<ScriptDatum>();
+            }
+            var result = new ScriptDatum[arguments.Length];
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                result[i] = ScriptDatum.FromObject(arguments[i]);
+            }
+            return result;
         }
 
 
@@ -92,7 +108,7 @@ namespace AuroraScript.Runtime
             // 检查索引是否超出范围
             if (index >= Arguments.Length) return false;
             // 获取参数值
-            arg = Arguments[index];
+            arg = Arguments[index].ToObject();
             return true;
         }
 
@@ -106,6 +122,25 @@ namespace AuroraScript.Runtime
             // 检查索引是否超出范围，如果超出则返回Null
             if (index >= Arguments.Length) return ScriptObject.Null;
             // 返回参数值
+            return Arguments[index].ToObject();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetArgumentDatum(Int32 index, out ScriptDatum datum)
+        {
+            if (index >= Arguments.Length)
+            {
+                datum = ScriptDatum.FromNull();
+                return false;
+            }
+            datum = Arguments[index];
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptDatum GetArgumentDatum(Int32 index)
+        {
+            if (index >= Arguments.Length) return ScriptDatum.FromNull();
             return Arguments[index];
         }
 
@@ -118,7 +153,7 @@ namespace AuroraScript.Runtime
         ~CallFrame()
         {
             // 将局部变量数组归还到共享池
-            ArrayPool<ScriptObject>.Shared.Return(Locals);
+            ArrayPool<ScriptDatum>.Shared.Return(Locals, clearArray: true);
         }
 
     }
