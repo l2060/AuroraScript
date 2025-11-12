@@ -10,6 +10,8 @@ namespace AuroraScript.Runtime.Base
 
         private readonly String _value;
 
+        private static readonly StringValue[] _charCache = new StringValue[256];
+
         public StringValue(String str) : base(Prototypes.StringValuePrototype)
         {
             _value = str;
@@ -40,6 +42,21 @@ namespace AuroraScript.Runtime.Base
         public static StringValue Of(String value)
         {
             return new StringValue(value);
+        }
+
+        internal static StringValue FromChar(Char ch)
+        {
+            if (ch < _charCache.Length)
+            {
+                var cached = _charCache[ch];
+                if (cached == null)
+                {
+                    cached = new StringValue(ch.ToString());
+                    _charCache[ch] = cached;
+                }
+                return cached;
+            }
+            return new StringValue(ch.ToString());
         }
 
         public static StringValue operator +(ScriptObject a, StringValue b)

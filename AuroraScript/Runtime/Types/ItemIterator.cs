@@ -76,7 +76,7 @@ namespace AuroraScript.Runtime.Types
             {
                 IteratorKind.ScriptArray => _array?.GetDatum(_index).ToObject(),
                 IteratorKind.ObjectList => _objectItems[_index],
-                IteratorKind.String => StringValue.Of(_stringValue[_index].ToString()),
+                IteratorKind.String => StringValue.FromChar(_stringValue[_index]),
                 _ => _datumItems[_index].ToObject(),
             };
         }

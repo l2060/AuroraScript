@@ -34,8 +34,6 @@ public class Program
             var closure = domain.Execute("UNIT_LIB", "testClosure").Done();
             Console.WriteLine(closure);
 
-            // for in iterator test
-
             // clouse test
             var clouse = domain.Execute("UNIT_LIB", "testClouse").Done();
             var clouseResult = domain.Execute(clouse.Result as ClosureFunction);
@@ -69,6 +67,7 @@ public class Program
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "UNIT_LIB", "test");
@@ -77,7 +76,6 @@ public class Program
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));
-
         }
         catch (AuroraRuntimeException ex)
         {

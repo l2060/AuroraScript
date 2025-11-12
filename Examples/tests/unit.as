@@ -133,6 +133,11 @@ export function testMD5() {
 	console.log("\"12345\" md5 is " + md5Code);
 }
 
+export function testMD5_1000() {
+	for(var i=0;i<1000;i++){
+		md5.MD5("12345");
+	}
+}
 
 
 

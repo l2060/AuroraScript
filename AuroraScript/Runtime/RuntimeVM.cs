@@ -6,6 +6,7 @@ using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 
 namespace AuroraScript.Runtime
@@ -116,8 +117,6 @@ namespace AuroraScript.Runtime
             ScriptDatum datumRight;
             ScriptObject value = null;
             ScriptObject obj = null;
-            ScriptObject left = null;
-            ScriptObject right = null;
 
             // 获取当前调用帧
             var frame = _callStack.Peek();
@@ -166,6 +165,52 @@ namespace AuroraScript.Runtime
                     PushDatum(ScriptDatum.FromNumber(defaultValue));
                 }
             };
+
+            Boolean DatumEquals(ScriptDatum leftDatum, ScriptDatum rightDatum)
+            {
+                if (leftDatum.Kind == rightDatum.Kind)
+                {
+                    switch (leftDatum.Kind)
+                    {
+                        case ValueKind.Null:
+                            return true;
+                        case ValueKind.Boolean:
+                            return leftDatum.Boolean == rightDatum.Boolean;
+                        case ValueKind.Number:
+                            return leftDatum.Number == rightDatum.Number;
+                        case ValueKind.String:
+                            return String.Equals(leftDatum.String?.Value, rightDatum.String?.Value, StringComparison.Ordinal);
+                        case ValueKind.Object:
+                            return Equals(leftDatum.Object, rightDatum.Object);
+                    }
+                }
+
+                if (leftDatum.Kind == ValueKind.Null || rightDatum.Kind == ValueKind.Null)
+                {
+                    return leftDatum.Kind == ValueKind.Null && rightDatum.Kind == ValueKind.Null;
+                }
+
+                var leftObj = leftDatum.ToObject();
+                var rightObj = rightDatum.ToObject();
+                return leftObj?.Equals(rightObj) ?? rightObj == null;
+            }
+
+            String ExtractPropertyKey(ScriptDatum keyDatum)
+            {
+                switch (keyDatum.Kind)
+                {
+                    case ValueKind.String:
+                        return keyDatum.String?.Value ?? String.Empty;
+                    case ValueKind.Number:
+                        return keyDatum.Number.ToString(CultureInfo.InvariantCulture);
+                    case ValueKind.Boolean:
+                        return keyDatum.Boolean ? "true" : "false";
+                    case ValueKind.Null:
+                        return ScriptObject.Null.ToString();
+                    default:
+                        return keyDatum.ToObject()?.ToString() ?? String.Empty;
+                }
+            }
 
             var NumberBinaryPredicate = (Func<double, double, bool> predicate) =>
             {
@@ -471,7 +516,8 @@ namespace AuroraScript.Runtime
                         }
                         else if (datumObjValue.Kind == ValueKind.Object)
                         {
-                            PushObject(datumObjValue.Object.GetPropertyValue(datumValue.ToObject().ToString()));
+                            var key = ExtractPropertyKey(datumValue);
+                            PushObject(datumObjValue.Object.GetPropertyValue(key));
                         }
                         else
                         {
@@ -489,7 +535,8 @@ namespace AuroraScript.Runtime
                         }
                         else if (datumTargetObj.Kind == ValueKind.Object)
                         {
-                            datumTargetObj.Object.SetPropertyValue(datumValue.ToObject().ToString(), datumAssignedValue.ToObject());
+                            var key = ExtractPropertyKey(datumValue);
+                            datumTargetObj.Object.SetPropertyValue(key, datumAssignedValue.ToObject());
                         }
                         break;
 
@@ -509,15 +556,15 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.EQUAL:
-                        right = PopObject();
-                        left = PopObject();
-                        PushDatum(ScriptDatum.FromBoolean(left.Equals(right)));
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        PushDatum(ScriptDatum.FromBoolean(DatumEquals(datumLeft, datumRight)));
                         break;
 
                     case OpCode.NOT_EQUAL:
-                        right = PopObject();
-                        left = PopObject();
-                        PushDatum(ScriptDatum.FromBoolean(!left.Equals(right)));
+                        datumRight = PopDatum();
+                        datumLeft = PopDatum();
+                        PushDatum(ScriptDatum.FromBoolean(!DatumEquals(datumLeft, datumRight)));
                         break;
 
                     case OpCode.LESS_THAN:
@@ -573,8 +620,9 @@ namespace AuroraScript.Runtime
                     case OpCode.DECREMENT:
                         NumberUnaryOperation(double.NaN, (v) => v - 1);
                         break;
-
-
+                    case OpCode.BIT_NOT:
+                        NumberUnaryOperation(-1, v => ~(long)v);
+                        break;
 
 
 
@@ -671,15 +719,12 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
-                    case OpCode.BIT_NOT:
-                        NumberUnaryOperation(-1, v => ~(long)v);
-                        break;
+
 
 
                     case OpCode.ALLOC_LOCALS:
-                        var num = _codeBuffer.ReadInt32(frame);
-                        // 修改调用栈 本地变量的 栈大小
-                        // 暂时省略，因为本地变量栈支持自动扩容
+                        var localsRequested = _codeBuffer.ReadInt32(frame);
+                        frame.EnsureLocalStorage(localsRequested);
                         break;
 
                     case OpCode.JUMP:
@@ -753,7 +798,8 @@ namespace AuroraScript.Runtime
                         datumValue = _operandStack.Count > 0 ? PopDatum() : ScriptDatum.FromNull();
                         value = datumValue.ToObject();
                         // 弹出当前调用帧
-                        _callStack.Pop();
+                        var finishedFrame = _callStack.Pop();
+                        //finishedFrame.Dispose();
 
                         // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
                         if (_callStack.Count == 0)

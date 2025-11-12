@@ -136,10 +136,8 @@ namespace AuroraScript.Compiler.Emits
                 item.SyntaxTree.Accept(this);
             }
             rootSymbol.EndPoint = _instructionBuilder.Position().Offset - 1;
-            this.DumpCode();
-
-            Console.WriteLine(_symbol);
-
+            //this.DumpCode();
+            //Console.WriteLine(_symbol);
         }
 
 
@@ -271,12 +269,11 @@ namespace AuroraScript.Compiler.Emits
             _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables)}");
 
             BeginScope(DomainType.Function);
+            var functionScope = _scope;
 
             ((FunctionSymbol)_symbol).Name = node.Name.Value;
             ((FunctionSymbol)_symbol).LineNumber = node.LineNumber;
-            //var begin = _instructionBuilder.Position();
             var allocLocals = _instructionBuilder.AllocLocals();
-            allocLocals.StackSize = capturedVariables.Count + node.Parameters.Count;
             // 定义参数变量
             foreach (var statement in node.Parameters)
             {
@@ -310,6 +307,8 @@ namespace AuroraScript.Compiler.Emits
             // 添加默认返回值
             _instructionBuilder.ReturnNull();
 
+            var localsRequired = Math.Max(functionScope.MaxVariableCount, 0);
+            _instructionBuilder.FixAllocLocals(allocLocals, localsRequired);
             EndScope();
             _instructionBuilder.Comment($"# end_func {node.Name?.Value}");
         }

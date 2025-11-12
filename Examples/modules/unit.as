@@ -1,4 +1,4 @@
-﻿@module("CLOSURE_LIB");
+﻿@module("UNIT_LIB");
 
 
 export function testClosure() {
@@ -13,4 +13,10 @@ export function testClosure() {
 	}
 	var counter = makeCounter();
 	counter();
+	counter();	
+	counter();
 }
+
+
+
+

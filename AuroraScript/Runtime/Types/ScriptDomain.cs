@@ -122,7 +122,7 @@ namespace AuroraScript.Runtime.Types
             {
                 if (options == null) options = ExecuteOptions.Default;
                 // 创建新的执行上下文
-                ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
+                ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine, options ?? ExecuteOptions.Default);
                 // 创建调用帧并压入调用栈
                 exeContext._callStack.Push(new CallFrame(closure.Environment, Global, closure.Module, closure.EntryPointer, arguments));
                 // 执行函数
@@ -163,7 +163,7 @@ namespace AuroraScript.Runtime.Types
                 throw new AuroraException("The parameter ‘closure’ cannot be null");
             }
             // 创建新的执行上下文
-            ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine);
+            ExecuteContext exeContext = new ExecuteContext(Global, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
             exeContext._callStack.Push(new CallFrame(closure.Environment, Global, closure.Module, closure.EntryPointer, arguments));
             // 执行函数

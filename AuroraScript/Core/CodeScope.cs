@@ -73,6 +73,7 @@ namespace AuroraScript.Core
 
 
         private int _variableBaseCount = 0;
+        private int _maxVariableCount = 0;
 
 
         public readonly List<DeclareObject> _variables = new List<DeclareObject>();
@@ -96,6 +97,7 @@ namespace AuroraScript.Core
             }
 
             Domain = domain;
+            _maxVariableCount = _variableBaseCount;
         }
 
 
@@ -159,6 +161,7 @@ namespace AuroraScript.Core
             else
             {
                 slot = _variableBaseCount++;
+                TrackMax();
             }
 
 
@@ -210,6 +213,7 @@ namespace AuroraScript.Core
             else
             {
                 slot = _variableBaseCount++;
+                TrackMax();
             }
             
             var declare = new DeclareObject(this, name, alias, type, slot, variable.Access);
@@ -241,11 +245,33 @@ namespace AuroraScript.Core
             else
             {
                 slot = _variableBaseCount++;
+                TrackMax();
+                slot = _variableBaseCount++;
+                TrackMax();
             }
             var declare = new DeclareObject(this, name, name, type, slot, MemberAccess.Internal);
             _variables.Add(declare);
             return slot;
         }
+        private void TrackMax()
+        {
+            if (_variableBaseCount > _maxVariableCount)
+            {
+                _maxVariableCount = _variableBaseCount;
+                _parent?.PropagateMax(_maxVariableCount);
+            }
+        }
+
+        private void PropagateMax(int count)
+        {
+            if (count > _maxVariableCount)
+            {
+                _maxVariableCount = count;
+                _parent?.PropagateMax(count);
+            }
+        }
+
+        public int MaxVariableCount => _maxVariableCount;
 
 
         // public Boolean Resolve(string name, out DeclareObject value)
