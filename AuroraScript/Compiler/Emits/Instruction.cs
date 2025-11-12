@@ -246,7 +246,7 @@ namespace AuroraScript.Compiler.Emits
 
         public Int32 Address;
 
-        internal ClosureInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset)
+        internal ClosureInstruction(int offset) : base(OpCode.CREATE_CLOSURE, offset)
         {
 
         }
@@ -262,6 +262,31 @@ namespace AuroraScript.Compiler.Emits
             writer.Write(Address);
         }
     }
+
+
+    public class AllocLocalsInstruction : Instruction
+    {
+        public override Int32 Length => 5;
+
+        public Int32 StackSize;
+
+        internal AllocLocalsInstruction(int offset) : base(OpCode.ALLOC_LOCALS, offset)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return $"{OpCode} [{StackSize}]";
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(StackSize);
+        }
+    }
+
 
 
 

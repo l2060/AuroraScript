@@ -58,7 +58,7 @@ public class Program
             {
                 domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
             }
-            var forCount = 10000000;
+
             var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
             timerResult.Done();
             if (timerResult.Status == ExecuteStatus.Complete)
@@ -66,15 +66,14 @@ public class Program
                 domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
                 domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
             }
-
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "UNIT_LIB", "test");
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(forCount));
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(10_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));

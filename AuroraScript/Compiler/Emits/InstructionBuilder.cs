@@ -134,9 +134,26 @@ namespace AuroraScript.Compiler.Emits
         /// <returns></returns>
         public ClosureInstruction NewClosure()
         {
-            var instruction = new ClosureInstruction(OpCode.CREATE_CLOSURE, _position);
+            var instruction = new ClosureInstruction(_position);
             AppendInstruction(instruction);
             return instruction;
+        }
+
+        /// <summary>
+        /// 申请本地变量栈
+        /// </summary>
+        /// <returns></returns>
+        public AllocLocalsInstruction AllocLocals()
+        {
+            var instruction = new AllocLocalsInstruction(_position);
+            AppendInstruction(instruction);
+            return instruction;
+        }
+
+
+        public void FixAllocLocals(AllocLocalsInstruction allocLocals,int num)
+        {
+            allocLocals.StackSize = num;
         }
 
 

@@ -7,61 +7,78 @@ namespace AuroraScript.Runtime.Types
 {
     internal class ItemIterator : ScriptObject
     {
-        private readonly ScriptDatum[] _items;
-        private Int32 _index;
+        private enum IteratorKind
+        {
+            DatumArray,
+            ScriptArray,
+            ObjectList,
+            String
+        }
+
+        private readonly IteratorKind _kind;
+        private readonly ScriptDatum[] _datumItems;
+        private readonly ScriptArray _array;
+        private readonly IList<ScriptObject> _objectItems;
+        private readonly string _stringValue;
         private readonly Int32 _length;
+        private Int32 _index;
 
         public ItemIterator(ScriptArray array)
         {
-            _length = array.Length;
-            _items = new ScriptDatum[_length];
-            for (int i = 0; i < _length; i++)
-            {
-                _items[i] = array.GetDatum(i);
-            }
+            _kind = IteratorKind.ScriptArray;
+            _array = array;
+            _length = array?.Length ?? 0;
             _index = 0;
         }
 
         public ItemIterator(ScriptDatum[] items)
         {
-            _items = items ?? Array.Empty<ScriptDatum>();
-            _length = _items.Length;
+            _kind = IteratorKind.DatumArray;
+            _datumItems = items ?? Array.Empty<ScriptDatum>();
+            _length = _datumItems.Length;
+            _index = 0;
+        }
+
+        private ItemIterator(IList<ScriptObject> objects)
+        {
+            _kind = IteratorKind.ObjectList;
+            _objectItems = objects ?? Array.Empty<ScriptObject>();
+            _length = _objectItems.Count;
+            _index = 0;
+        }
+
+        private ItemIterator(string value)
+        {
+            _kind = IteratorKind.String;
+            _stringValue = value ?? string.Empty;
+            _length = _stringValue.Length;
             _index = 0;
         }
 
         public static ItemIterator FromObjects(IList<ScriptObject> objects)
         {
-            if (objects == null || objects.Count == 0)
-            {
-                return new ItemIterator(Array.Empty<ScriptDatum>());
-            }
-
-            var buffer = new ScriptDatum[objects.Count];
-            for (int i = 0; i < objects.Count; i++)
-            {
-                buffer[i] = ScriptDatum.FromObject(objects[i]);
-            }
-            return new ItemIterator(buffer);
+            return new ItemIterator(objects ?? Array.Empty<ScriptObject>());
         }
 
         public static ItemIterator FromObjects(ScriptObject[] objects)
         {
-            if (objects == null || objects.Length == 0)
-            {
-                return new ItemIterator(Array.Empty<ScriptDatum>());
-            }
+            return new ItemIterator(objects ?? Array.Empty<ScriptObject>());
+        }
 
-            var buffer = new ScriptDatum[objects.Length];
-            for (int i = 0; i < objects.Length; i++)
-            {
-                buffer[i] = ScriptDatum.FromObject(objects[i]);
-            }
-            return new ItemIterator(buffer);
+        public static ItemIterator FromString(string value)
+        {
+            return new ItemIterator(value);
         }
 
         public ScriptObject Value()
         {
-            return _items[_index].ToObject();
+            return _kind switch
+            {
+                IteratorKind.ScriptArray => _array?.GetDatum(_index).ToObject(),
+                IteratorKind.ObjectList => _objectItems[_index],
+                IteratorKind.String => StringValue.Of(_stringValue[_index].ToString()),
+                _ => _datumItems[_index].ToObject(),
+            };
         }
 
         public Boolean HasValue()

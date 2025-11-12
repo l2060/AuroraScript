@@ -85,10 +85,10 @@ namespace AuroraScript.Runtime.Base
 
         public void SetElement(NumberValue index, ScriptObject value)
         {
-            SetElement(index.Int32Value, ScriptDatum.FromObject(value));
+            SetDatum(index.Int32Value, ScriptDatum.FromObject(value));
         }
 
-        private void SetElement(Int32 index, ScriptDatum datum)
+        internal void SetDatum(Int32 index, ScriptDatum datum)
         {
             if (index < 0) return;
             EnsureCapacity(index + 1);
@@ -107,12 +107,12 @@ namespace AuroraScript.Runtime.Base
 
         public void Push(ScriptObject item)
         {
-            SetElement(_count, ScriptDatum.FromObject(item));
+            PushDatum(ScriptDatum.FromObject(item));
         }
 
         public void PushDatum(ScriptDatum datum)
         {
-            SetElement(_count, datum);
+            SetDatum(_count, datum);
         }
 
         public ScriptArray Slice(Int32 start, Int32 end)

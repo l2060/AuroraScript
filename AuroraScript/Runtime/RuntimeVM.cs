@@ -263,17 +263,17 @@ namespace AuroraScript.Runtime
 
                     case OpCode.LOAD_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        PushDatum(frame.Locals[localIndex]);
+                        PushDatum(frame.GetLocalDatum(localIndex));
                         break;
 
                     case OpCode.STORE_LOCAL:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        frame.Locals[localIndex] = PopDatum();
+                        frame.SetLocalDatum(localIndex, PopDatum());
                         break;
 
                     case OpCode.LOAD_CAPTURE:
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        datumValue = frame.Locals[localIndex];
+                        datumValue = frame.GetLocalDatum(localIndex);
                         if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar)
                         {
                             throw new AuroraVMException("Invalid captured variable");
@@ -284,7 +284,7 @@ namespace AuroraScript.Runtime
                     case OpCode.STORE_CAPTURE:
                         value = PopObject();
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        datumValue = frame.Locals[localIndex];
+                        datumValue = frame.GetLocalDatum(localIndex);
                         if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar2)
                         {
                             throw new AuroraVMException("Invalid captured variable");
@@ -302,8 +302,8 @@ namespace AuroraScript.Runtime
                     case OpCode.CAPTURE_VAR:
                         var varIndex = _codeBuffer.ReadInt32(frame);
 
-                        var varn = frame.Environment.Locals[varIndex];
-                        if (varn.Object is CapturedVariablee captured)
+                        ScriptDatum capturedDatum = frame.Environment?.GetLocalDatum(varIndex) ?? ScriptDatum.FromNull();
+                        if (capturedDatum.Kind == ValueKind.Object && capturedDatum.Object is CapturedVariablee captured)
                         {
                             PushObject(captured);
                             break;
@@ -339,7 +339,7 @@ namespace AuroraScript.Runtime
                         var newArray = new ScriptArray(count);
                         for (int i = 0; i < count; i++)
                         {
-                            newArray.SetElement(NumberValue.Of(i), datumBuffer[i].ToObject());
+                            newArray.SetDatum(i, datumBuffer[i]);
                         }
                         PushObject(newArray);
                         break;
@@ -467,7 +467,7 @@ namespace AuroraScript.Runtime
                         var datumObjValue = PopDatum();
                         if (datumObjValue.Kind == ValueKind.Object && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
                         {
-                            PushObject(scriptArray.GetElement((Int32)datumValue.Number));
+                            PushDatum(scriptArray.GetDatum((Int32)datumValue.Number));
                         }
                         else if (datumObjValue.Kind == ValueKind.Object)
                         {
@@ -485,7 +485,7 @@ namespace AuroraScript.Runtime
                         var datumAssignedValue = PopDatum();
                         if (datumTargetObj.Kind == ValueKind.Object && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
                         {
-                            scriptArray2.SetElement(NumberValue.Of(datumValue.Number), datumAssignedValue.ToObject());
+                            scriptArray2.SetDatum((Int32)datumValue.Number, datumAssignedValue);
                         }
                         else if (datumTargetObj.Kind == ValueKind.Object)
                         {
@@ -676,8 +676,11 @@ namespace AuroraScript.Runtime
                         break;
 
 
-
-
+                    case OpCode.ALLOC_LOCALS:
+                        var num = _codeBuffer.ReadInt32(frame);
+                        // 修改调用栈 本地变量的 栈大小
+                        // 暂时省略，因为本地变量栈支持自动扩容
+                        break;
 
                     case OpCode.JUMP:
                         var offset = _codeBuffer.ReadInt32(frame);

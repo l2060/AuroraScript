@@ -30,10 +30,11 @@ namespace AuroraScript.Runtime
         /// </summary>
         public Int32 Pointer;
 
+        private const Int32 DefaultLocalCapacity = 64;
         /// <summary>
         /// 局部变量数组
         /// </summary>
-        public readonly ScriptDatum[] Locals;
+        private ScriptDatum[] _locals;
 
         /// <summary>
         /// 调用参数
@@ -76,8 +77,10 @@ namespace AuroraScript.Runtime
             EntryPointer = Pointer = entryPointer;
             Module = thisModule;
             Arguments = argumentDatums ?? Array.Empty<ScriptDatum>();
-            Locals = ArrayPool<ScriptDatum>.Shared.Rent(64);
-            Array.Clear(Locals, 0, Locals.Length);
+            var requiredCapacity = Math.Max(16, argumentDatums?.Length ?? 0);
+            var initialCapacity = CalculateInitialCapacity(requiredCapacity);
+            _locals = ArrayPool<ScriptDatum>.Shared.Rent(initialCapacity);
+            Array.Clear(_locals, 0, _locals.Length);
         }
 
         private static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
@@ -147,8 +150,76 @@ namespace AuroraScript.Runtime
         public void Dispose()
         {
             // 将局部变量数组归还到共享池
-            ArrayPool<ScriptDatum>.Shared.Return(Locals, clearArray: true);
+            if (_locals != null)
+            {
+                ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);
+                _locals = null;
+            }
         }
+
+        private static Int32 CalculateInitialCapacity(Int32 required)
+        {
+            var capacity = DefaultLocalCapacity;
+            if (required > capacity)
+            {
+                while (capacity < required)
+                {
+                    capacity <<= 1;
+                }
+            }
+            return capacity;
+        }
+
+        private void EnsureLocalCapacity(Int32 minLength)
+        {
+            if (_locals != null && _locals.Length >= minLength)
+            {
+                return;
+            }
+
+            var current = _locals ?? Array.Empty<ScriptDatum>();
+            var newCapacity = current.Length == 0 ? DefaultLocalCapacity : current.Length;
+            while (newCapacity < minLength)
+            {
+                newCapacity <<= 1;
+            }
+
+            var newBuffer = ArrayPool<ScriptDatum>.Shared.Rent(newCapacity);
+            if (current.Length > 0)
+            {
+                Array.Copy(current, newBuffer, current.Length);
+            }
+            Array.Clear(newBuffer, current.Length, newCapacity - current.Length);
+
+            if (_locals != null)
+            {
+                ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);
+            }
+            _locals = newBuffer;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ScriptDatum GetLocalDatum(Int32 index)
+        {
+            if (_locals == null || index >= _locals.Length || index < 0)
+            {
+                return ScriptDatum.FromNull();
+            }
+            return _locals[index];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SetLocalDatum(Int32 index, ScriptDatum datum)
+        {
+            if (index < 0)
+            {
+                return;
+            }
+            EnsureLocalCapacity(index + 1);
+            _locals[index] = datum;
+        }
+
+        internal ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
 
     }
 

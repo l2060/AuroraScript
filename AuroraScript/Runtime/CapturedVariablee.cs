@@ -17,10 +17,10 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptObject Read() => Frame.Locals[VarIndex].ToObject();
+        public ScriptObject Read() => Frame.GetLocalDatum(VarIndex).ToObject();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(ScriptObject value) => Frame.Locals[VarIndex] = ScriptDatum.FromObject(value);
+        public void Write(ScriptObject value) => Frame.SetLocalDatum(VarIndex, ScriptDatum.FromObject(value));
 
         public override string ToString()
         {

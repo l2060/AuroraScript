@@ -37,7 +37,10 @@ namespace AuroraScript.Runtime
             {
                 throw new InvalidOperationException("Stack is empty.");
             }
-            return _buffer[--_size];
+            var index = --_size;
+            var value = _buffer[index];
+            _buffer[index] = default;
+            return value;
         }
 
         public ScriptObject Pop()

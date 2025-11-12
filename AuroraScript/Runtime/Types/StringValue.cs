@@ -79,17 +79,7 @@ namespace AuroraScript.Runtime.Base
 
         ItemIterator IEnumerator.GetIterator()
         {
-            if (String.IsNullOrEmpty(_value))
-            {
-                return ItemIterator.FromObjects(Array.Empty<ScriptObject>());
-            }
-
-            var buffer = new ScriptObject[_value.Length];
-            for (int i = 0; i < _value.Length; i++)
-            {
-                buffer[i] = StringValue.Of(_value[i].ToString());
-            }
-            return ItemIterator.FromObjects(buffer);
+            return ItemIterator.FromString(_value);
         }
     }
 }

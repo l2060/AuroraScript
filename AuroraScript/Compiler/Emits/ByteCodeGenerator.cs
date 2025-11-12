@@ -181,7 +181,6 @@ namespace AuroraScript.Compiler.Emits
             var closureMap = new Dictionary<string, ClosureInstruction>();
             foreach (var function in functions)
             {
-
                 var slot = _scope.Declare(DeclareType.Property, function);
                 _instructionBuilder.PushThis();
                 closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
@@ -264,7 +263,6 @@ namespace AuroraScript.Compiler.Emits
         {
             if (node.Flags == FunctionFlags.Declare) return;
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
-
             // 使用 VariableCatcher 分析函数中的变量使用情况
             var variableCatcher = new VariableCatcher();
             // 分析函数中捕获的变量
@@ -276,8 +274,9 @@ namespace AuroraScript.Compiler.Emits
 
             ((FunctionSymbol)_symbol).Name = node.Name.Value;
             ((FunctionSymbol)_symbol).LineNumber = node.LineNumber;
-            var begin = _instructionBuilder.Position();
-
+            //var begin = _instructionBuilder.Position();
+            var allocLocals = _instructionBuilder.AllocLocals();
+            allocLocals.StackSize = capturedVariables.Count + node.Parameters.Count;
             // 定义参数变量
             foreach (var statement in node.Parameters)
             {
