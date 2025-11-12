@@ -1,5 +1,7 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
+using System;
 
 namespace AuroraScript.Runtime
 {
@@ -12,36 +14,80 @@ namespace AuroraScript.Runtime
         public readonly static NumberValue MIN_VALUE = new NumberValue(double.MinValue);
         public readonly static NumberConstructor INSTANCE = new NumberConstructor();
 
-
-
-
-
-
         public NumberConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.NumberConstructorPrototype;
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            if (args.Length > 0)
+            if (args == null || args.Length == 0)
             {
-                var dobuleValue = double.Parse(args[0].ToString());
-                return new NumberValue(dobuleValue);
+                return NumberValue.NaN;
             }
-            return null;
+
+            if (TryGetDouble(args[0], out var value))
+            {
+                return NumberValue.Of(value);
+            }
+
+            return NumberValue.NaN;
         }
 
-
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            if (args.Length > 0)
+            if (args == null || args.Length == 0)
             {
-                var dobuleValue = double.Parse(args[0].ToString());
-                return new NumberValue(dobuleValue);
+                return NumberValue.Zero;
             }
-            return new NumberValue(0);
+
+            if (TryGetDouble(args[0], out var value))
+            {
+                return NumberValue.Of(value);
+            }
+
+            return NumberValue.NaN;
         }
 
+        private static Boolean TryGetDouble(ScriptDatum datum, out Double value)
+        {
+            switch (datum.Kind)
+            {
+                case ValueKind.Number:
+                    value = datum.Number;
+                    return true;
+                case ValueKind.Boolean:
+                    value = datum.Boolean ? 1d : 0d;
+                    return true;
+                case ValueKind.String:
+                    return Double.TryParse(datum.String.Value, out value);
+                case ValueKind.Object:
+                    var obj = datum.Object;
+                    if (obj is NumberValue numberValue)
+                    {
+                        value = numberValue.DoubleValue;
+                        return true;
+                    }
+                    if (obj is StringValue str && Double.TryParse(str.Value, out value))
+                    {
+                        return true;
+                    }
+                    break;
+            }
+
+            var converted = datum.ToObject();
+            if (converted is NumberValue num)
+            {
+                value = num.DoubleValue;
+                return true;
+            }
+            if (converted != null && Double.TryParse(converted.ToString(), out value))
+            {
+                return true;
+            }
+
+            value = Double.NaN;
+            return false;
+        }
     }
 }

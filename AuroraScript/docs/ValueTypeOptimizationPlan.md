@@ -34,7 +34,7 @@
 - **目标**：减少 `ScriptObject[]` 临时数组、`NumberValue` 创建。
 - **策略**：
   - 针对入参数量少（0~2），使用静态缓存数组或 `stackalloc`。
-  - `Callable.ConvertArgs` 支持写入外部缓冲（例如 `ScriptDatum[]`），避免重复分配。
+  - `Callable` 原生接受 `ScriptDatum[]`，仅通过遗留适配器在需要时转换为 `ScriptObject[]`。
   - 对常用数值 `NumberValue` 采用飞量缓存（例如 `[-128,256)` 小整数）。
   - 闭包返回 `NumberValue` 时，优先返回缓存对象。
 - **影响范围**：`Callable`, `BoundFunction`, `ClosureFunction`, `NumberValue`.

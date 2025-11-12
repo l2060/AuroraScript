@@ -110,6 +110,11 @@ namespace AuroraScript.Runtime.Base
             SetElement(_count, ScriptDatum.FromObject(item));
         }
 
+        public void PushDatum(ScriptDatum datum)
+        {
+            SetElement(_count, datum);
+        }
+
         public ScriptArray Slice(Int32 start, Int32 end)
         {
             if (start < 0) start = 0;
@@ -136,13 +141,7 @@ namespace AuroraScript.Runtime.Base
 
         public ScriptObject Pop()
         {
-            if (_count > 0)
-            {
-                var datum = _items[--_count];
-                _items[_count] = ScriptDatum.FromNull();
-                return datum.ToObject();
-            }
-            return ScriptObject.Null;
+            return PopDatum().ToObject();
         }
 
         public override void SetPropertyValue(String key, ScriptObject value)
@@ -194,6 +193,17 @@ namespace AuroraScript.Runtime.Base
         {
             if (index < 0 || index >= _count) return ScriptDatum.FromNull();
             return _items[index];
+        }
+
+        internal ScriptDatum PopDatum()
+        {
+            if (_count > 0)
+            {
+                var datum = _items[--_count];
+                _items[_count] = ScriptDatum.FromNull();
+                return datum;
+            }
+            return ScriptDatum.FromNull();
         }
 
         private void EnsureCapacity(Int32 min)

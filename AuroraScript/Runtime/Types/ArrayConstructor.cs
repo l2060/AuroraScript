@@ -1,28 +1,34 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime.Types
 {
     public class ArrayConstructor : ClrFunction
     {
-
         public readonly static ArrayConstructor INSTANCE = new ArrayConstructor();
-
 
         public ArrayConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.ArrayConstructorPrototype;
         }
 
-
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            int capacity = 0;
-            if (args.Length == 1 && args[0] is NumberValue numberValue)
+            var capacity = 0;
+            if (args != null && args.Length == 1)
             {
-                capacity = numberValue.Int32Value;
+                var datum = args[0];
+                if (datum.Kind == ValueKind.Number)
+                {
+                    capacity = (int)datum.Number;
+                }
+                else if (datum.Kind == ValueKind.Object && datum.Object is NumberValue numberValue)
+                {
+                    capacity = numberValue.Int32Value;
+                }
             }
-            var array = new ScriptArray(capacity);
-            return array;
+
+            return new ScriptArray(capacity);
         }
     }
 }

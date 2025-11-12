@@ -1,4 +1,5 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
@@ -16,45 +17,73 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of(strValue.Length);
         }
 
-        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            if (thisObject is ScriptArray array)
+            if (thisObject is ScriptArray array && args != null)
             {
-                foreach (var item in args)
+                foreach (var datum in args)
                 {
-                    array.Push(item);
+                    array.PushDatum(datum);
                 }
             }
             return ScriptObject.Null;
         }
 
 
-        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             if(thisObject is ScriptArray array)
             {
-                return array.Pop();
+                return array.PopDatum().ToObject();
             }
             throw new AuroraVMException("array is empty!");
         }
 
 
-        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var strValue = thisObject as ScriptArray;
-            var start = 0;
-            var end = 0;
-            if (args.Length > 0 && args[0] is NumberValue posNum)
+            if (thisObject is not ScriptArray strValue)
             {
-                start = posNum.Int32Value;
-                if (args.Length > 1 && args[1] is NumberValue lenNum)
-                {
-                    end = lenNum.Int32Value;
-                    return strValue.Slice(start,end);
-                }
-                return strValue.Slice(start);
+                return thisObject;
             }
-            return thisObject;
+
+            if (args == null || args.Length == 0)
+            {
+                return thisObject;
+            }
+
+            var start = 0;
+            var arg0 = args[0];
+            if (arg0.Kind == ValueKind.Number)
+            {
+                start = (Int32)arg0.Number;
+            }
+            else
+            {
+                var startObj = arg0.ToObject();
+                if (startObj is NumberValue posNum)
+                {
+                    start = posNum.Int32Value;
+                }
+            }
+
+            if (args.Length > 1)
+            {
+                var arg1 = args[1];
+                if (arg1.Kind == ValueKind.Number)
+                {
+                    var end = (Int32)arg1.Number;
+                    return strValue.Slice(start, end);
+                }
+
+                var endObj = arg1.ToObject();
+                if (endObj is NumberValue lenNum)
+                {
+                    return strValue.Slice(start, lenNum.Int32Value);
+                }
+            }
+
+            return strValue.Slice(start);
         }
 
 

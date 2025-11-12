@@ -4,10 +4,9 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 public class Program
 {
@@ -32,12 +31,10 @@ public class Program
         var domain = engine.CreateDomain(g);
         try
         {
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
-
+            var closure = domain.Execute("UNIT_LIB", "testClosure").Done();
+            Console.WriteLine(closure);
 
             // for in iterator test
-            domain.Execute("UNIT_LIB", "testIterator").Done();
-
 
             // clouse test
             var clouse = domain.Execute("UNIT_LIB", "testClouse").Done();
@@ -45,54 +42,38 @@ public class Program
             Console.WriteLine($"testClouse result:{clouseResult.Result}");
             clouseResult = domain.Execute(clouse.Result as ClosureFunction);
             Console.WriteLine($"testClouse result:{clouseResult.Result}");
-
-
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
-
             //if (testInterruption.Status  == ExecuteStatus.Error)
             //{
             //    Console.ForegroundColor = ConsoleColor.Red;
             //    Console.WriteLine(testInterruption.Error.ToString());
             //    Console.ResetColor();
-
             //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
             //}
-
-            // clr function test
-
-
-
             // script function test
-
-            BenchmarkScript(domain, "UNIT_LIB", "test");
-
             var result = domain.Execute("UNIT_LIB", "test").Done();
             var callmethod = domain.CreateDelegateFromMethod("UNIT_LIB", "testMD5");
-
             callmethod();
-
-
             if (result.Status == ExecuteStatus.Complete)
             {
                 domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
             }
-
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-
             var forCount = 10000000;
-            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(forCount));
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-
             var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
             timerResult.Done();
-
             if (timerResult.Status == ExecuteStatus.Complete)
             {
                 domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
                 domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
             }
 
-
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+            BenchmarkScript(domain, "UNIT_LIB", "testIterator");
+            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
+            BenchmarkScript(domain, "UNIT_LIB", "test");
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(forCount));
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
@@ -122,16 +103,12 @@ public class Program
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
-
         var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
         var stopwatch = Stopwatch.StartNew();
-
         var context = domain.Execute(module, method, args).Done();
-
         stopwatch.Stop();
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
         var allocatedBytes = afterAlloc - beforeAlloc;
-
         Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {stopwatch.ElapsedMilliseconds} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
     }
 }

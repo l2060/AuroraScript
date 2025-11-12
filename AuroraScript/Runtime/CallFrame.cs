@@ -12,7 +12,7 @@ namespace AuroraScript.Runtime
     /// 每次函数调用都会创建一个新的调用帧，存储当前函数的执行上下文
     /// 包括指令指针、局部变量、参数、模块对象和环境等信息
     /// </summary>
-    public class CallFrame
+    public class CallFrame:IDisposable
     {
         /// <summary>
         /// 函数入口点的指令指针，指向函数的起始位置
@@ -144,13 +144,7 @@ namespace AuroraScript.Runtime
             return Arguments[index];
         }
 
-
-
-        /// <summary>
-        /// 析构函数，在对象被垃圾回收时调用
-        /// 将局部变量数组归还到共享池中，避免内存泄漏
-        /// </summary>
-        ~CallFrame()
+        public void Dispose()
         {
             // 将局部变量数组归还到共享池
             ArrayPool<ScriptDatum>.Shared.Return(Locals, clearArray: true);

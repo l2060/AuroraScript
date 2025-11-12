@@ -100,9 +100,12 @@ engine.Global.Define("PI", g.GetPropertyValue("PI"));
 engine.Global.Define("debug", new ClrFunction(LOG), writeable: false, enumerable: false);
 
 // CLR方法
-public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
 {
-    Console.WriteLine(String.Join(", ", args));
+    if (args != null && args.Length > 0)
+    {
+        Console.WriteLine(string.Join(", ", args.Select(a => a.ToObject()?.ToString() ?? "null")));
+    }
     return ScriptObject.Null;
 }
 

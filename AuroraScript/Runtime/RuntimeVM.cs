@@ -301,6 +301,13 @@ namespace AuroraScript.Runtime
 
                     case OpCode.CAPTURE_VAR:
                         var varIndex = _codeBuffer.ReadInt32(frame);
+
+                        var varn = frame.Environment.Locals[varIndex];
+                        if (varn.Object is CapturedVariablee captured)
+                        {
+                            PushObject(captured);
+                            break;
+                        }
                         var cv = new CapturedVariablee(frame.Environment, varIndex);
                         PushObject(cv);
                         break;
@@ -728,7 +735,7 @@ namespace AuroraScript.Runtime
                         else if (callable is IClrInvokable clrInvokable)
                         {
                             var callResult = clrInvokable.Invoke(exeContext, callable as ScriptObject, argDatums);
-                            PushObject(callResult);
+                            PushDatum(callResult);
                         }
                         else
                         {

@@ -296,6 +296,12 @@ namespace AuroraScript.Compiler.Emits
                         _instructionBuilder.CaptureVariable(declareObject.Index);
                         _instructionBuilder.StoreLocal(slot);
                     }
+                    else if (declareObject.Type == DeclareType.Captured)
+                    {
+                        var slot = _scope.Declare(DeclareType.Captured, varName);
+                        _instructionBuilder.CaptureVariable(declareObject.Index);
+                        _instructionBuilder.StoreLocal(slot);
+                    }
                 }
             }
 

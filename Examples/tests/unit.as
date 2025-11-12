@@ -109,6 +109,23 @@ export function benchmarkClosure(iterations = 500000) {
 }
 
 
+export function testClosure() {
+	var title = '123';
+	function makeCounter() {
+		title = 'abc';
+		var count = 0;
+		return () => {
+			count = count + 1;
+			console.log(title,count);
+		};
+	}
+	var counter = makeCounter();
+	counter();
+}
+
+
+
+
 export function testMD5() {
 	console.time("MD5_SUM");
 	md5Code = md5.MD5("12345");

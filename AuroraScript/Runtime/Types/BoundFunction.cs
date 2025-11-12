@@ -8,7 +8,8 @@ namespace AuroraScript.Runtime
     {
         public ScriptObject Target;
 
-        public BoundFunction(Callable callable, ScriptObject thisObject) : base(callable.Method)
+        public BoundFunction(Callable callable, ScriptObject thisObject)
+            : base(callable.DatumMethod, callable.MetadataSource)
         {
             this._prototype = callable._prototype;
             this.Target = thisObject;
@@ -24,15 +25,7 @@ namespace AuroraScript.Runtime
         public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            var converted = ConvertArgs(args, out var rented);
-            try
-            {
-                return Method.Invoke(context, target, converted);
-            }
-            finally
-            {
-                //ReturnArgs(rented);
-            }
+            return DatumMethod(context, target, args);
         }
 
 

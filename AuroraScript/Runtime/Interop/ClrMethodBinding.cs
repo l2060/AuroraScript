@@ -24,7 +24,7 @@ namespace AuroraScript.Runtime.Interop
             _isStatic = isStatic;
         }
 
-        public ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             args ??= Array.Empty<ScriptDatum>();
             var targetHolder = _instance ?? thisObject as ClrInstanceObject;
@@ -41,22 +41,22 @@ namespace AuroraScript.Runtime.Interop
             throw new InvalidOperationException($"No matching method overload found on '{_descriptor.Type.FullName}'.");
         }
 
-        private bool TryInvoke(MethodBase method, object target, ScriptDatum[] args, out ScriptObject result)
+        private bool TryInvoke(MethodBase method, object target, ScriptDatum[] args, out ScriptDatum result)
         {
             if (!TryBuildArguments(method, args, out var invokeArgs))
             {
-                result = null;
+                result = ScriptDatum.FromNull();
                 return false;
             }
 
             var invocationResult = method.Invoke(target, invokeArgs);
             if (method is MethodInfo methodInfo && methodInfo.ReturnType == typeof(void))
             {
-                result = ScriptObject.Null;
+                result = ScriptDatum.FromNull();
             }
             else
             {
-                result = ClrMarshaller.ToScript(invocationResult, _registry);
+                result = ClrMarshaller.ToDatum(invocationResult, _registry);
             }
             return true;
         }

@@ -41,9 +41,9 @@ namespace AuroraScript.Runtime.Interop
             throw new InvalidOperationException($"No matching constructor found for '{_descriptor.Type.FullName}'.");
         }
 
-        public ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            return Construct(args);
+            return ScriptDatum.FromObject(Construct(args));
         }
 
         public override ScriptObject GetPropertyValue(string key)

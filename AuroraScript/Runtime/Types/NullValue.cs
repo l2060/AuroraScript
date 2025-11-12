@@ -1,4 +1,5 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using System;
 
@@ -6,7 +7,7 @@ namespace AuroraScript.Runtime.Types
 {
     public class NullValue : ScriptObject
     {
-        private static StringValue valueString = new StringValue("null");
+        private static readonly StringValue valueString = new StringValue("null");
 
         public readonly static NullValue Instance = new NullValue();
 
@@ -16,8 +17,7 @@ namespace AuroraScript.Runtime.Types
             Frozen();
         }
 
-
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             return valueString;
         }
@@ -31,7 +31,6 @@ namespace AuroraScript.Runtime.Types
         {
             throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }
-
 
         public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
@@ -52,7 +51,5 @@ namespace AuroraScript.Runtime.Types
         {
             return false;
         }
-
     }
-
 }

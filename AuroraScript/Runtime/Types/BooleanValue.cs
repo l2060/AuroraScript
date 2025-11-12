@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -6,7 +7,6 @@ namespace AuroraScript.Runtime.Types
 {
     public class BooleanValue : ScriptValue
     {
-
         public readonly static BooleanValue True = new BooleanValue(true, 1, new StringValue("true"));
         public readonly static BooleanValue False = new BooleanValue(false, 0, new StringValue("false"));
         public readonly Int32 IntValue;
@@ -20,18 +20,15 @@ namespace AuroraScript.Runtime.Types
             StrValue = valueString;
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var boolean = thisObject as BooleanValue;
-            return boolean.StrValue;
+            return thisObject is BooleanValue boolean ? boolean.StrValue : StringValue.Of("false");
         }
-
 
         public override int GetHashCode()
         {
             return Value.GetHashCode();
         }
-
 
         public override string ToString()
         {
@@ -61,12 +58,13 @@ namespace AuroraScript.Runtime.Types
             {
                 return bol.Value == Value;
             }
-            else if (obj is NumberValue num)
+
+            if (obj is NumberValue num)
             {
                 return num.Int32Value == IntValue;
             }
+
             return false;
         }
-
     }
 }

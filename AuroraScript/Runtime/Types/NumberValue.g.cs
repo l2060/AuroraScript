@@ -1,4 +1,5 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
@@ -25,21 +26,37 @@ namespace AuroraScript.Runtime.Base
         public static readonly NumberValue Num9 = new NumberValue(9);
 
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptObject[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var thisNumber = thisObject as NumberValue;
-            if (args.Length == 1 && args[0] is NumberValue num)
+            if (thisObject is not NumberValue thisNumber)
             {
-                if (num.Int32Value == 16)
-                {
-                    var strValue = thisNumber.Int32Value.ToString("X");
-                    return StringValue.Of(strValue);
-                }
-                throw new AuroraVMException("未实现的");
+                return ScriptObject.Null;
             }
+
+            if (args != null && args.Length == 1)
+            {
+                var arg = args[0];
+                if (arg.Kind == ValueKind.Number)
+                {
+                    if ((Int32)arg.Number == 16)
+                    {
+                        return StringValue.Of(thisNumber.Int32Value.ToString("X"));
+                    }
+                    throw new AuroraVMException("未实现的");
+                }
+
+                var obj = arg.ToObject();
+                if (obj is NumberValue num && num.Int32Value == 16)
+                {
+                    return StringValue.Of(thisNumber.Int32Value.ToString("X"));
+                }
+                if (obj is NumberValue)
+                {
+                    throw new AuroraVMException("未实现的");
+                }
+            }
+
             return StringValue.Of(thisNumber._value.ToString());
         }
-
-
     }
 }

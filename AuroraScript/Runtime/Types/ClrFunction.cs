@@ -3,30 +3,37 @@ using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime.Types
 {
-
-    public delegate ScriptObject ClrMethodDelegate(ExecuteContext context, ScriptObject module, ScriptObject[] args);
-
-
     public class ClrFunction : Callable
     {
+        private static ClrDatumDelegate CreateLegacyAdapter(ClrMethodDelegate callback)
+        {
+            return (context, module, args) =>
+            {
+                var converted = ConvertArgsForLegacy(args, out var rented);
+                try
+                {
+                    return callback(context, module, converted);
+                }
+                finally
+                {
+                    ReturnLegacyArgs(rented);
+                }
+            };
+        }
 
+        public ClrFunction(ClrDatumDelegate callback) : base(callback)
+        {
+        }
 
-        public ClrFunction(ClrMethodDelegate callback) : base(callback)
+        public ClrFunction(ClrMethodDelegate callback) : base(CreateLegacyAdapter(callback), callback)
         {
         }
 
         public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var converted = ConvertArgs(args, out var rented);
-            try
-            {
-                return Method.Invoke(context, thisObject, converted);
-            }
-            finally
-            {
-                //ReturnArgs(rented);
-            }
+            return DatumMethod(context, thisObject, args);
         }
+
         public override BoundFunction Bind(ScriptObject target)
         {
             return new BoundFunction(this, target);
@@ -36,6 +43,5 @@ namespace AuroraScript.Runtime.Types
         {
             return "ClrFunction: " + Name;
         }
-
     }
 }

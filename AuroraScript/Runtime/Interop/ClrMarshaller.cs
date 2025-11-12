@@ -145,24 +145,40 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
-        public static ScriptObject ToScript(object value, ClrTypeRegistry registry)
+        public static ScriptDatum ToDatum(object value, ClrTypeRegistry registry)
         {
             if (value == null)
             {
-                return ScriptObject.Null;
+                return ScriptDatum.FromNull();
+            }
+
+            if (value is ScriptDatum datum)
+            {
+                return datum;
             }
 
             if (value is ScriptObject scriptObject)
             {
-                return scriptObject;
+                return ScriptDatum.FromObject(scriptObject);
+            }
+
+            if (value is bool boolean)
+            {
+                return ScriptDatum.FromBoolean(boolean);
+            }
+
+            if (value is StringValue stringValue)
+            {
+                return ScriptDatum.FromString(stringValue);
+            }
+
+            if (value is string str)
+            {
+                return ScriptDatum.FromString(StringValue.Of(str));
             }
 
             switch (Type.GetTypeCode(value.GetType()))
             {
-                case TypeCode.Boolean:
-                    return BooleanValue.Of((bool)value);
-                case TypeCode.String:
-                    return StringValue.Of((string)value);
                 case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
@@ -172,20 +188,27 @@ namespace AuroraScript.Runtime.Interop
                 case TypeCode.Decimal:
                 case TypeCode.Double:
                 case TypeCode.Single:
-                    return NumberValue.Of(Convert.ToDouble(value, CultureInfo.InvariantCulture));
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                    return ScriptDatum.FromNumber(Convert.ToDouble(value, CultureInfo.InvariantCulture));
             }
 
             if (value is Enum enumValue)
             {
-                return NumberValue.Of(Convert.ToDouble(enumValue, CultureInfo.InvariantCulture));
+                return ScriptDatum.FromNumber(Convert.ToDouble(enumValue, CultureInfo.InvariantCulture));
             }
 
             if (registry != null && registry.TryGetDescriptor(value.GetType(), out var descriptor))
             {
-                return new ClrInstanceObject(descriptor, value, registry);
+                return ScriptDatum.FromObject(new ClrInstanceObject(descriptor, value, registry));
             }
 
             throw new InvalidOperationException($"The return type '{value.GetType().FullName}' is not registered for CLR interop.");
+        }
+
+        public static ScriptObject ToScript(object value, ClrTypeRegistry registry)
+        {
+            return ToDatum(value, registry).ToObject();
         }
 
         private static bool IsNumericType(Type type)

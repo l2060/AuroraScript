@@ -41,6 +41,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="modules\closure.as">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="tests\md5.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
