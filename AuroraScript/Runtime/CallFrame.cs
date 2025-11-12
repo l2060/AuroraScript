@@ -12,8 +12,6 @@ namespace AuroraScript.Runtime
     /// </summary>
     public class CallFrame : IDisposable
     {
-        private const Int32 DefaultLocalCapacity = 64;
-
         public readonly Int32 EntryPointer;
         public Int32 LastInstructionPointer;
         public Int32 Pointer;
@@ -36,10 +34,6 @@ namespace AuroraScript.Runtime
             EntryPointer = Pointer = entryPointer;
             Module = thisModule;
             Arguments = argumentDatums ?? Array.Empty<ScriptDatum>();
-            var requiredCapacity = Math.Max(DefaultLocalCapacity, argumentDatums?.Length ?? 0);
-            var initialCapacity = CalculateInitialCapacity(requiredCapacity);
-            _locals = ArrayPool<ScriptDatum>.Shared.Rent(initialCapacity);
-            Array.Clear(_locals, 0, _locals.Length);
         }
 
         private static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
@@ -112,15 +106,6 @@ namespace AuroraScript.Runtime
             _locals[index] = datum;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnsureLocalStorage(Int32 minLength)
-        {
-            if (minLength <= 0)
-            {
-                return;
-            }
-            EnsureLocalCapacity(minLength);
-        }
 
         public void Dispose()
         {
@@ -131,37 +116,34 @@ namespace AuroraScript.Runtime
             }
         }
 
-        private static Int32 CalculateInitialCapacity(Int32 required)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnsureLocalStorage(Int32 length)
         {
-            var capacity = DefaultLocalCapacity;
-            while (capacity < required)
-            {
-                capacity <<= 1;
-            }
-            return capacity;
-        }
-
-        private void EnsureLocalCapacity(Int32 minLength)
-        {
-            if (_locals != null && _locals.Length >= minLength)
+            if (length <= 0)
             {
                 return;
             }
+            EnsureLocalCapacity(length);
+        }
 
+        private void EnsureLocalCapacity(Int32 length)
+        {
+            if (_locals != null && _locals.Length >= length)
+            {
+                return;
+            }
             var current = _locals ?? Array.Empty<ScriptDatum>();
-            var newCapacity = current.Length == 0 ? DefaultLocalCapacity : current.Length;
-            while (newCapacity < minLength)
+            var newCapacity = length;
+            while (newCapacity < current.Length)
             {
                 newCapacity <<= 1;
             }
-
             var newBuffer = ArrayPool<ScriptDatum>.Shared.Rent(newCapacity);
             if (current.Length > 0)
             {
                 Array.Copy(current, newBuffer, current.Length);
             }
             Array.Clear(newBuffer, current.Length, newCapacity - current.Length);
-
             if (_locals != null)
             {
                 ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);

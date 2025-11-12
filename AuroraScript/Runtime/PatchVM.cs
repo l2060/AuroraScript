@@ -249,7 +249,7 @@ namespace AuroraScript.Runtime
                     break;
 
                 case OpCode.RETURN:
-                    frame?.Dispose();
+                    // frame?.Dispose();
                     pushStack(ScriptObject.Null);
                     // 切换到调用者的帧继续执行
                     frame = _callStack.Peek();
