@@ -12,13 +12,27 @@ using System.Threading.Tasks;
 public class Program
 {
 
+    public class TestObject : ScriptObject
+    {
+        public String Name = "*";
+
+
+
+        public void Say(int n, String s)
+        {
+            Console.WriteLine("Say:" + Name);
+        }
+
+
+
+    }
 
 
 
 
     public static async Task Main()
     {
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./modules/" });
 
         await engine.BuildAsync("./unit.as");
 
@@ -27,6 +41,11 @@ public class Program
 
         engine.Global.Define("PI", g.GetPropertyValue("PI"));
         engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
+
+        var fo = new TestObject();
+        engine.Global.SetPropertyValue("fo", fo);
+
+
 
         var domain = engine.CreateDomain(g);
         try

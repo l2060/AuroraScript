@@ -745,7 +745,7 @@ namespace AuroraScript.Runtime
                         var typename = datumRight.Kind.ToString().ToLower();
                         if (datumRight.Kind == ValueKind.Object)
                         {
-                            if (datumRight.Object is ClosureFunction  || datumRight.Object is BoundFunction)
+                            if (datumRight.Object is ClosureFunction || datumRight.Object is Callable)
                             {
                                 typename = "function";
                             }
@@ -754,12 +754,7 @@ namespace AuroraScript.Runtime
                                 typename = "object";
                             }
                         }
-
-
-
-
-
-                            PushDatum(ScriptDatum.FromString(new StringValue(typename)));
+                        PushDatum(ScriptDatum.FromString(new StringValue(typename)));
                         break;
                     case OpCode.ALLOC_LOCALS:
                         var localsRequested = _codeBuffer.ReadInt32(frame);
