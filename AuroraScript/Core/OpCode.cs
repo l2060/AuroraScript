@@ -98,7 +98,7 @@
 
 
 
-
+        TYPEOF,
 
         //
         JUMP,               // Unconditional jump (takes jump offset)

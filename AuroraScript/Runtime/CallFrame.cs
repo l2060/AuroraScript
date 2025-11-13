@@ -3,37 +3,72 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
 {
-    /// <summary>
-    /// 表示函数调用的栈帧，包含执行状态和环境
-    /// </summary>
-    public class CallFrame : IDisposable
+    public sealed class CallFrame : IDisposable
     {
-        public readonly Int32 EntryPointer;
+        private const Int32 DefaultLocalCapacity = 8;
+
+        public Int32 EntryPointer { get; private set; }
         public Int32 LastInstructionPointer;
         public Int32 Pointer;
 
         private ScriptDatum[] _locals;
-        public readonly ScriptDatum[] Arguments;
-        public readonly ScriptModule Module;
-        public readonly ScriptGlobal Global;
-        public readonly CallFrame Environment;
+        private Int32 _localsUsed;
+        private Dictionary<Int32, Upvalue> _openUpvalues;
+        private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
 
-        public CallFrame(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, params ScriptObject[] arguments)
-            : this(environment, global, thisModule, entryPointer, ConvertArguments(arguments))
+        public ScriptDatum[] Arguments { get; private set; } = Array.Empty<ScriptDatum>();
+        public ScriptModule Module { get; private set; }
+        public ScriptGlobal Global { get; private set; }
+
+        internal CallFrame()
         {
         }
 
-        internal CallFrame(CallFrame environment, ScriptGlobal global, ScriptModule thisModule, Int32 entryPointer, ScriptDatum[] argumentDatums)
+        internal CallFrame(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
+            : this()
+        {
+            Initialize(global, module, entryPointer, ConvertArguments(arguments), captured);
+        }
+
+        internal CallFrame(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+            : this()
+        {
+            Initialize(global, module, entryPointer, argumentDatums, captured);
+        }
+
+        internal void Initialize(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
+        {
+            Initialize(global, module, entryPointer, ConvertArguments(arguments), captured);
+        }
+
+        internal void Initialize(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
         {
             Global = global;
-            Environment = environment;
-            EntryPointer = Pointer = entryPointer;
-            Module = thisModule;
+            Module = module;
+            EntryPointer = entryPointer;
+            Pointer = entryPointer;
+            LastInstructionPointer = entryPointer;
             Arguments = argumentDatums ?? Array.Empty<ScriptDatum>();
+            _capturedUpvalues = captured ?? Array.Empty<ClosureUpvalue>();
+
+            var requiredLocals = Math.Max(DefaultLocalCapacity, Arguments.Length);
+            var previouslyUsed = _localsUsed;
+            EnsureLocalCapacity(requiredLocals);
+            if (_locals != null)
+            {
+                var clearLength = Math.Min(_locals.Length, Math.Max(previouslyUsed, requiredLocals));
+                if (clearLength > 0)
+                {
+                    Array.Clear(_locals, 0, clearLength);
+                }
+            }
+            _localsUsed = 0;
+            _openUpvalues?.Clear();
         }
 
         private static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
@@ -42,6 +77,7 @@ namespace AuroraScript.Runtime
             {
                 return Array.Empty<ScriptDatum>();
             }
+
             var result = new ScriptDatum[arguments.Length];
             for (int i = 0; i < arguments.Length; i++)
             {
@@ -85,6 +121,41 @@ namespace AuroraScript.Runtime
 
         public ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
 
+        internal Upvalue GetCapturedUpvalue(Int32 slot)
+        {
+            if (_capturedUpvalues == null || _capturedUpvalues.Length == 0)
+            {
+                return null;
+            }
+            for (int i = 0; i < _capturedUpvalues.Length; i++)
+            {
+                if (_capturedUpvalues[i].Slot == slot)
+                {
+                    return _capturedUpvalues[i].Upvalue;
+                }
+            }
+            return null;
+        }
+
+        internal Upvalue GetOrCreateUpvalue(Int32 slot)
+        {
+            _openUpvalues ??= new Dictionary<Int32, Upvalue>();
+            if (_openUpvalues.TryGetValue(slot, out var existing))
+            {
+                return existing;
+            }
+
+            var datum = GetLocalDatum(slot);
+            if (datum.Kind == ValueKind.Object && datum.Object is Upvalue inherited)
+            {
+                return inherited;
+            }
+
+            var upvalue = new Upvalue(this, slot);
+            _openUpvalues[slot] = upvalue;
+            return upvalue;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum GetLocalDatum(Int32 index)
         {
@@ -104,16 +175,15 @@ namespace AuroraScript.Runtime
             }
             EnsureLocalCapacity(index + 1);
             _locals[index] = datum;
+            if (index + 1 > _localsUsed)
+            {
+                _localsUsed = index + 1;
+            }
         }
-
 
         public void Dispose()
         {
-            if (_locals != null)
-            {
-                ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);
-                _locals = null;
-            }
+            ResetFull();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,6 +194,20 @@ namespace AuroraScript.Runtime
                 return;
             }
             EnsureLocalCapacity(length);
+            if (length > _localsUsed)
+            {
+                _localsUsed = length;
+            }
+        }
+
+        internal void ResetForPool()
+        {
+            ResetCore(releaseLocals: false);
+        }
+
+        internal void ResetFull()
+        {
+            ResetCore(releaseLocals: true);
         }
 
         private void EnsureLocalCapacity(Int32 length)
@@ -132,23 +216,65 @@ namespace AuroraScript.Runtime
             {
                 return;
             }
+
             var current = _locals ?? Array.Empty<ScriptDatum>();
-            var newCapacity = length;
-            while (newCapacity < current.Length)
+            var newCapacity = current.Length == 0 ? DefaultLocalCapacity : current.Length;
+            while (newCapacity < length)
             {
                 newCapacity <<= 1;
             }
+
             var newBuffer = ArrayPool<ScriptDatum>.Shared.Rent(newCapacity);
             if (current.Length > 0)
             {
                 Array.Copy(current, newBuffer, current.Length);
             }
             Array.Clear(newBuffer, current.Length, newCapacity - current.Length);
+
             if (_locals != null)
             {
                 ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);
             }
             _locals = newBuffer;
+        }
+
+        private void CloseOpenUpvalues()
+        {
+            if (_openUpvalues == null || _openUpvalues.Count == 0)
+            {
+                return;
+            }
+            foreach (var upvalue in _openUpvalues.Values)
+            {
+                upvalue.Close();
+            }
+            _openUpvalues.Clear();
+        }
+
+        private void ResetCore(Boolean releaseLocals)
+        {
+            CloseOpenUpvalues();
+            if (_locals != null)
+            {
+                if (releaseLocals)
+                {
+                    ArrayPool<ScriptDatum>.Shared.Return(_locals, clearArray: true);
+                    _locals = null;
+                }
+                else if (_localsUsed > 0)
+                {
+                    Array.Clear(_locals, 0, Math.Min(_localsUsed, _locals.Length));
+                }
+            }
+            _localsUsed = 0;
+            _openUpvalues?.Clear();
+            Arguments = Array.Empty<ScriptDatum>();
+            _capturedUpvalues = Array.Empty<ClosureUpvalue>();
+            Module = null;
+            Global = null;
+            EntryPointer = 0;
+            Pointer = 0;
+            LastInstructionPointer = 0;
         }
     }
 }

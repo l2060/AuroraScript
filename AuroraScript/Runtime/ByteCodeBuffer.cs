@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Core;
 using System;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
@@ -15,7 +14,6 @@ namespace AuroraScript.Runtime
         {
             _byteCode = bytes;
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Core.OpCode ReadOpCode(CallFrame frame)

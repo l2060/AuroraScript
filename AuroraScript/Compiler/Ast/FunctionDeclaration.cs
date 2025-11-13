@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Ast.Statements;
 using AuroraScript.Compiler;
 using AuroraScript.Compiler.Ast;
+using AuroraScript.Compiler.Emits;
 using System.Collections.Generic;
 
 
@@ -73,6 +74,8 @@ namespace AuroraScript.Ast
         public Token Name { get; private set; }
 
         public FunctionFlags Flags { get; private set; }
+
+        internal ClosureCaptured[] CapturedVariables { get; set; } = System.Array.Empty<ClosureCaptured>();
 
         public override void Accept(IAstVisitor visitor)
         {

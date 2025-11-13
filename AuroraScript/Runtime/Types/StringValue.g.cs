@@ -143,6 +143,7 @@ namespace AuroraScript.Runtime.Base
             return new ScriptArray(segments);
         }
 
+
         public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             return thisObject;

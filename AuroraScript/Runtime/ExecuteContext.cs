@@ -15,36 +15,72 @@ namespace AuroraScript.Runtime
     /// <summary>
     /// 执行上下文类，用于管理脚本执行过程中的状态和环境
     /// </summary>
-    public class ExecuteContext
+    public sealed class ExecuteContext : IDisposable
     {
-        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private readonly Stopwatch _stopwatch;
 
         internal readonly ScriptDatumStack _operandStack;
         internal readonly Stack<CallFrame> _callStack;
-        private readonly RuntimeVM _virtualMachine;
+        private RuntimeVM _virtualMachine;
 
         private ExecuteStatus _status = ExecuteStatus.Idle;
-        private ScriptObject _result;
+        private ScriptObject _result = ScriptObject.Null;
         private AuroraRuntimeException _error;
 
-        public readonly ScriptGlobal Global;
-        public readonly ExecuteOptions ExecuteOptions;
+        public ScriptGlobal Global { get; private set; }
+        public ExecuteOptions ExecuteOptions { get; private set; } = ExecuteOptions.Default;
 
-        private Int64 _accumulatedTick = 0;
+        private Int64 _accumulatedTick;
         private Int64 _startTick;
 
-        internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        private Boolean _pooled;
+        private Boolean _released;
+
+        internal ExecuteContext()
         {
-            ExecuteOptions = executeOptions;
-            _virtualMachine = virtualMachine;
-            Global = global;
             _operandStack = new ScriptDatumStack();
             _callStack = new Stack<CallFrame>();
+            _stopwatch = new Stopwatch();
+            _released = true;
+        }
+
+        internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+            : this()
+        {
+            _pooled = false;
+            _released = true;
+            InitializeCore(global, virtualMachine, executeOptions);
         }
 
         internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine)
             : this(global, virtualMachine, ExecuteOptions.Default)
         {
+        }
+
+        internal void Lease(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        {
+            _pooled = true;
+            _released = false;
+            GC.ReRegisterForFinalize(this);
+            InitializeCore(global, virtualMachine, executeOptions);
+        }
+
+        private void InitializeCore(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        {
+            Global = global ?? throw new ArgumentNullException(nameof(global));
+            _virtualMachine = virtualMachine ?? throw new ArgumentNullException(nameof(virtualMachine));
+            ExecuteOptions = executeOptions ?? ExecuteOptions.Default;
+            _status = ExecuteStatus.Idle;
+            _result = ScriptObject.Null;
+            _error = null;
+            while (_callStack.Count > 0)
+            {
+                CallFramePool.Return(_callStack.Pop());
+            }
+            _operandStack.Clear();
+            _accumulatedTick = 0;
+            _startTick = 0;
+            _stopwatch.Restart();
         }
 
         public ExecuteContext Continue()
@@ -161,8 +197,53 @@ namespace AuroraScript.Runtime
 
         public void Reset()
         {
+            while (_callStack.Count > 0)
+            {
+                CallFramePool.Return(_callStack.Pop());
+            }
             _operandStack.Clear();
-            _callStack.Clear();
+            _status = ExecuteStatus.Idle;
+            _result = ScriptObject.Null;
+            _error = null;
+            _accumulatedTick = 0;
+            _startTick = 0;
+        }
+
+        internal void ResetForPool()
+        {
+            Reset();
+            _virtualMachine = null;
+            Global = null;
+            ExecuteOptions = ExecuteOptions.Default;
+            _stopwatch.Reset();
+            _pooled = true;
+            _released = true;
+        }
+
+        public void Dispose()
+        {
+            if (_pooled)
+            {
+                if (!_released)
+                {
+                    _released = true;
+                    ExecuteContextPool.Return(this);
+                }
+                GC.SuppressFinalize(this);
+            }
+            else
+            {
+                Reset();
+            }
+        }
+
+        ~ExecuteContext()
+        {
+            if (_pooled && !_released)
+            {
+                _released = true;
+                ExecuteContextPool.Return(this);
+            }
         }
     }
 }

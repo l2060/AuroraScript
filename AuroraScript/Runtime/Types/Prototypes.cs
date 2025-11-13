@@ -77,6 +77,8 @@ namespace AuroraScript.Runtime.Types
             ScriptArrayPrototype.Define("length", new ClrGetter(ScriptArray.LENGTH), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("push", new ClrFunction(ScriptArray.PUSH), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("pop", new ClrFunction(ScriptArray.POP), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("sort", new ClrFunction(ScriptArray.SORT), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("join", new ClrFunction(ScriptArray.JOIN), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("constructor", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("slice", new ClrFunction(ScriptArray.SLICE), writeable: false, enumerable: false);
             ScriptArrayPrototype.Frozen(); ;

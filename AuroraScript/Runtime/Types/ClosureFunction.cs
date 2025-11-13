@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -27,31 +28,44 @@ namespace AuroraScript.Runtime.Types
         /// </summary>
         public readonly ScriptModule Module;
 
-        /// <summary>
-        /// 闭包捕获的环境
-        /// 存储闭包创建时的调用帧，用于访问外部变量
-        /// 这是实现闭包特性的关键，允许函数访问其定义时的变量
-        /// </summary>
-        public readonly CallFrame Environment;
+        private readonly ClosureUpvalue[] _capturedUpvalues;
 
 
         /// <summary>
         /// 创建一个新的闭包函数
         /// </summary>
-        /// <param name="environment">闭包捕获的环境，用于访问外部变量</param>
         /// <param name="thisModule">闭包所属的模块对象</param>
         /// <param name="entryPointer">函数入口点的字节码地址</param>
+        /// <param name="capturedUpvalues">捕获的上值集合</param>
         /// <param name="funcName">函数名称，可选，匿名函数为null</param>
-        internal ClosureFunction(CallFrame environment, ScriptModule thisModule, int entryPointer, string funcName = null)
+        internal ClosureFunction(ScriptModule thisModule, int entryPointer, ClosureUpvalue[] capturedUpvalues, string funcName = null)
         {
             // 设置模块对象
             Module = thisModule;
             // 设置函数入口点
             EntryPointer = entryPointer;
-            // 设置捕获的环境
-            Environment = environment;
+            // 捕获的上值集合
+            _capturedUpvalues = capturedUpvalues ?? System.Array.Empty<ClosureUpvalue>();
             // 设置函数名称
             FuncName = funcName;
+        }
+
+        internal ClosureUpvalue[] CapturedUpvalues => _capturedUpvalues;
+
+        internal Upvalue FindUpvalue(Int32 slot)
+        {
+            if (_capturedUpvalues == null || _capturedUpvalues.Length == 0)
+            {
+                return null;
+            }
+            for (int i = 0; i < _capturedUpvalues.Length; i++)
+            {
+                if (_capturedUpvalues[i].Slot == slot)
+                {
+                    return _capturedUpvalues[i].Upvalue;
+                }
+            }
+            return null;
         }
 
         /// <summary>

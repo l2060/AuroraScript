@@ -546,7 +546,7 @@ namespace AuroraScript.Analyzer
                     else
                     {
                         tempExp = this.createExpression(currentScope, _operator, previousToken, lastExpression);
-     
+
                         if (tempExp != null)
                         {
                             tempExp.LineNumber = token.LineNumber;
@@ -909,6 +909,10 @@ namespace AuroraScript.Analyzer
                 }
                 // Encountered comma break ;
                 this.lexer.TestNext(Symbols.PT_COMMA);
+                if (this.lexer.TestNext(Symbols.PT_SEMICOLON))
+                {
+                    break;
+                }
             }
             return constructExpression;
         }

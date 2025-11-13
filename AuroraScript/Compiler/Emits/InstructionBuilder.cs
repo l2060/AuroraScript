@@ -132,11 +132,20 @@ namespace AuroraScript.Compiler.Emits
         /// </summary>
         /// <param name="localVars">捕获的当前域变量</param>
         /// <returns></returns>
-        public ClosureInstruction NewClosure()
+        public ClosureInstruction NewClosure(Int32 captureCount)
         {
-            var instruction = new ClosureInstruction(_position);
+            if (captureCount < 0 || captureCount > Byte.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(captureCount), "Capture count must fit in a byte.");
+            }
+            var instruction = new ClosureInstruction(_position, (Byte)captureCount);
             AppendInstruction(instruction);
             return instruction;
+        }
+
+        public ClosureInstruction NewClosure()
+        {
+            return NewClosure(0);
         }
 
         /// <summary>

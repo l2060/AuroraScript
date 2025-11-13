@@ -7,7 +7,8 @@ namespace AuroraScript.Core
         Number = 2,
         String = 3,
         Object = 4,
-        Clr = 5
+        Array = 5,
+        Clr = 6
     }
 }
 

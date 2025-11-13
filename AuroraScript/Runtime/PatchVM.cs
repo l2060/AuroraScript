@@ -90,6 +90,14 @@ namespace AuroraScript.Runtime
                     break;
 
                 case OpCode.CREATE_CLOSURE:
+                    _codeBuffer.ReadInt32(frame);
+                    var captured = _codeBuffer.ReadByte(frame);
+                    popStack();
+                    for (int i = 0; i < captured; i++)
+                    {
+                        popStack();
+                    }
+                    pushStack(ScriptObject.Null);
                     break;
 
                 case OpCode.CAPTURE_VAR:

@@ -11,6 +11,7 @@ namespace AuroraScript.Ast.Statements
             Condition = condition;
             Body = body;
             Else = else1;
+            condition.Parent = this;
         }
 
         public Expression Condition { get; set; }

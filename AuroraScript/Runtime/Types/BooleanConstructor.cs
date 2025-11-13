@@ -43,6 +43,7 @@ namespace AuroraScript.Runtime.Types
                 ValueKind.Null => false,
                 ValueKind.Object => datum.Object switch
                 {
+                    ScriptArray scriptArray => true,
                     BooleanValue boolValue => boolValue.Value,
                     NumberValue numberValue => numberValue.DoubleValue != 0,
                     StringValue strVal => Boolean.TryParse(strVal.Value, out var parsed) && parsed,

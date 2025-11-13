@@ -28,20 +28,9 @@ export function createTimer(callback, interval = 521) {
             log("reset");
         }
     };
-
-    log(
-        |> 
-        |> 1. 这是一个特殊的字符串模板
-        |> 2. 支持多行文本
-        |> 3. 它会让代码看起来更舒服
-        |> 4. <Buy/@Buy> <Close/@Close> 
-    );
-    yield;
-
     function log(text) {
         console.log("Timer:" + timer.timeId + " [" + text.toUpperCase() + "]");
     }
-
     function cancel() {
         log("canceled");
         timer.cancel = null;
@@ -54,6 +43,17 @@ export function createTimer(callback, interval = 521) {
         timer.abc = "abc";
         return true;
     }
+
+        log(
+        |> 
+        |> 1. 这是一个特殊的字符串模板
+        |> 2. 支持多行文本
+        |> 3. 它会让代码看起来更舒服
+        |> 4. <Buy/@Buy> <Close/@Close> 
+    );
+    yield;
+
+
     timers.push(timer);
     return Object(timer);
 }

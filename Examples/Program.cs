@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 
 
@@ -26,11 +27,12 @@ public class Program
 
         engine.Global.Define("PI", g.GetPropertyValue("PI"));
         engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
-        var pi = engine.Global.GetPropertyValue("PI");
 
         var domain = engine.CreateDomain(g);
         try
         {
+            RunAndReportUnitTests(domain);
+
             var closure = domain.Execute("UNIT_LIB", "testClosure").Done();
             Console.WriteLine(closure);
 
@@ -76,6 +78,8 @@ public class Program
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", new NumberValue(200_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", new NumberValue(100_000));
         }
         catch (AuroraRuntimeException ex)
         {
@@ -102,10 +106,141 @@ public class Program
         GC.Collect();
         var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
         var stopwatch = Stopwatch.StartNew();
-        var context = domain.Execute(module, method, args).Done();
+        using var context = domain.Execute(module, method, args);
+        context.Done();
         stopwatch.Stop();
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
         var allocatedBytes = afterAlloc - beforeAlloc;
         Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {stopwatch.ElapsedMilliseconds} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
+    }
+
+    private static void RunAndReportUnitTests(ScriptDomain domain)
+    {
+        using var context = domain.Execute("UNIT_LIB", "runAllUnitTests");
+        context.Done();
+
+        if (context.Status != ExecuteStatus.Complete)
+        {
+            Console.WriteLine($"Unit tests did not complete. Status: {context.Status}");
+            if (context.Status == ExecuteStatus.Error && context.Error != null)
+            {
+                Console.WriteLine(context.Error.ToString());
+            }
+            return;
+        }
+
+        if (context.Result is not ScriptObject summary)
+        {
+            Console.WriteLine("Unit tests returned an unexpected result payload.");
+            return;
+        }
+
+        var total = GetIntProperty(summary, "total");
+        var passed = GetIntProperty(summary, "passed");
+        var failed = GetIntProperty(summary, "failed");
+        var success = GetBooleanProperty(summary, "success");
+
+        Console.WriteLine($"Unit tests summary -> total: {total}, passed: {passed}, failed: {failed}");
+
+        if (!success)
+        {
+            if (summary.GetPropertyValue("failedCases") is ScriptArray failedCases)
+            {
+                for (int i = 0; i < failedCases.Length; i++)
+                {
+                    if (failedCases.GetElement(i) is ScriptObject failedCase)
+                    {
+                        var name = GetStringProperty(failedCase, "name");
+                        var checks = GetIntProperty(failedCase, "checks");
+                        Console.WriteLine($"  ✖ {name} (checks: {checks})");
+
+                        if (failedCase.GetPropertyValue("failures") is ScriptArray failures)
+                        {
+                            for (int j = 0; j < failures.Length; j++)
+                            {
+                                if (failures.GetElement(j) is ScriptObject failure)
+                                {
+                                    var message = GetStringProperty(failure, "message");
+                                    var actual = failure.GetPropertyValue("actual");
+                                    var expected = failure.GetPropertyValue("expected");
+                                    Console.WriteLine($"      - {message}");
+                                    Console.WriteLine($"        actual: {FormatScriptValue(actual)}");
+                                    Console.WriteLine($"        expected: {FormatScriptValue(expected)}");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            throw new InvalidOperationException("AuroraScript unit tests reported failures.");
+        }
+    }
+
+    private static int GetIntProperty(ScriptObject obj, string propertyName)
+    {
+        var value = obj?.GetPropertyValue(propertyName);
+        return value switch
+        {
+            NumberValue number => number.Int32Value,
+            BooleanValue boolean => boolean.Value ? 1 : 0,
+            StringValue str when int.TryParse(str.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) => parsed,
+            _ when value != null && int.TryParse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var fallback) => fallback,
+            _ => 0
+        };
+    }
+
+    private static bool GetBooleanProperty(ScriptObject obj, string propertyName)
+    {
+        var value = obj?.GetPropertyValue(propertyName);
+        return value switch
+        {
+            BooleanValue boolean => boolean.Value,
+            NumberValue number => Math.Abs(number.DoubleValue) > double.Epsilon,
+            StringValue str => !string.IsNullOrEmpty(str.Value) && !string.Equals(str.Value, "false", StringComparison.OrdinalIgnoreCase),
+            null => false,
+            _ => value.IsTrue()
+        };
+    }
+
+    private static string GetStringProperty(ScriptObject obj, string propertyName)
+    {
+        var value = obj?.GetPropertyValue(propertyName);
+        return value switch
+        {
+            StringValue str => str.Value,
+            NumberValue number => number.DoubleValue.ToString(CultureInfo.InvariantCulture),
+            BooleanValue boolean => boolean.Value.ToString(),
+            null => string.Empty,
+            _ => value.ToDisplayString()
+        };
+    }
+
+    private static string FormatScriptValue(ScriptObject value)
+    {
+        return value switch
+        {
+            null => "null",
+            ScriptObject obj when ReferenceEquals(obj, ScriptObject.Null) => "null",
+            NumberValue number => number.DoubleValue.ToString(CultureInfo.InvariantCulture),
+            BooleanValue boolean => boolean.Value.ToString(),
+            StringValue str => str.Value,
+            ScriptArray array => FormatArray(array),
+            _ => value.ToDisplayString()
+        };
+    }
+
+    private static string FormatArray(ScriptArray array)
+    {
+        if (array == null || array.Length == 0)
+        {
+            return "[]";
+        }
+        var parts = new string[array.Length];
+        for (int i = 0; i < array.Length; i++)
+        {
+            parts[i] = FormatScriptValue(array.GetElement(i));
+        }
+        return "[" + string.Join(", ", parts) + "]";
     }
 }

@@ -199,8 +199,14 @@ namespace AuroraScript.Core
         public int Declare(DeclareType type, VariableDeclaration variable)
         {
             var name = variable.Name.Value;
+            var existing = findByName(name);
+            if (existing != null)
+            {
+                return existing.Index;
+            }
+
             var alias = name;
-            int slot = 0;
+            int slot;
             if (type == DeclareType.Property)
             {
                 if (Resolve(name, out var _))
@@ -215,7 +221,7 @@ namespace AuroraScript.Core
                 slot = _variableBaseCount++;
                 TrackMax();
             }
-            
+
             var declare = new DeclareObject(this, name, alias, type, slot, variable.Access);
             _variables.Add(declare);
             return slot;

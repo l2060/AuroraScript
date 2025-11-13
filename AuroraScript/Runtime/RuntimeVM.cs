@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -319,42 +320,61 @@ namespace AuroraScript.Runtime
                     case OpCode.LOAD_CAPTURE:
                         localIndex = _codeBuffer.ReadInt32(frame);
                         datumValue = frame.GetLocalDatum(localIndex);
-                        if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar)
+                        if (datumValue.Kind != ValueKind.Object || datumValue.Object is not Upvalue upvalueToRead)
                         {
-                            throw new AuroraVMException("Invalid captured variable");
+                            throw new AuroraVMException("Invalid captured upvalue");
                         }
-                        PushObject(capturedVar.Read());
+                        PushDatum(upvalueToRead.Get());
                         break;
 
                     case OpCode.STORE_CAPTURE:
-                        value = PopObject();
+                        datumValue = PopDatum();
                         localIndex = _codeBuffer.ReadInt32(frame);
-                        datumValue = frame.GetLocalDatum(localIndex);
-                        if (datumValue.Kind != ValueKind.Object || datumValue.Object is not CapturedVariablee capturedVar2)
+                        var upvalueDatum = frame.GetLocalDatum(localIndex);
+                        if (upvalueDatum.Kind != ValueKind.Object || upvalueDatum.Object is not Upvalue upvalueToWrite)
                         {
-                            throw new AuroraVMException("Invalid captured variable");
+                            throw new AuroraVMException("Invalid captured upvalue");
                         }
-                        capturedVar2.Write(value);
+                        upvalueToWrite.Set(datumValue);
                         break;
 
                     case OpCode.CREATE_CLOSURE:
-                        var thisModule = PopObject() as ScriptModule;
-                        var closureIndex = _codeBuffer.ReadInt32(frame);
-                        var closure = new ClosureFunction(frame, thisModule, frame.Pointer + closureIndex);
+                        var closureOffset = _codeBuffer.ReadInt32(frame);
+                        var captureCount = _codeBuffer.ReadByte(frame);
+                        var entryPointer = frame.Pointer + closureOffset;
+
+                        var moduleObject = PopObject();
+                        var moduleForClosure = moduleObject as ScriptModule;
+
+                        ClosureUpvalue[] capturedUpvalues;
+                        if (captureCount == 0)
+                        {
+                            capturedUpvalues = Array.Empty<ClosureUpvalue>();
+                        }
+                        else
+                        {
+                            capturedUpvalues = new ClosureUpvalue[captureCount];
+                            for (int i = captureCount - 1; i >= 0; i--)
+                            {
+                                var upvalueObj = PopObject();
+                                if (upvalueObj is not Upvalue upvalue)
+                                {
+                                    throw new AuroraVMException("Invalid captured upvalue");
+                                }
+                                var aliasSlot = upvalue.ConsumeAliasSlot();
+                                capturedUpvalues[i] = new ClosureUpvalue(aliasSlot, upvalue);
+                            }
+                        }
+
+                        var closure = new ClosureFunction(moduleForClosure, entryPointer, capturedUpvalues);
                         PushObject(closure);
                         break;
 
                     case OpCode.CAPTURE_VAR:
-                        var varIndex = _codeBuffer.ReadInt32(frame);
-
-                        ScriptDatum capturedDatum = frame.Environment?.GetLocalDatum(varIndex) ?? ScriptDatum.FromNull();
-                        if (capturedDatum.Kind == ValueKind.Object && capturedDatum.Object is CapturedVariablee captured)
-                        {
-                            PushObject(captured);
-                            break;
-                        }
-                        var cv = new CapturedVariablee(frame.Environment, varIndex);
-                        PushObject(cv);
+                        var slotIndex = _codeBuffer.ReadInt32(frame);
+                        var capturedUpvalue = frame.GetCapturedUpvalue(slotIndex) ?? frame.GetOrCreateUpvalue(slotIndex);
+                        capturedUpvalue.MarkAliasSlot(slotIndex);
+                        PushObject(capturedUpvalue);
                         break;
 
                     case OpCode.NEW_MODULE:
@@ -510,7 +530,7 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_ELEMENT:
                         datumValue = PopDatum();
                         var datumObjValue = PopDatum();
-                        if (datumObjValue.Kind == ValueKind.Object && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
+                        if (datumObjValue.Kind == ValueKind.Array && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
                         {
                             PushDatum(scriptArray.GetDatum((Int32)datumValue.Number));
                         }
@@ -529,7 +549,7 @@ namespace AuroraScript.Runtime
                         var datumTargetObj = PopDatum();
                         datumValue = PopDatum();
                         var datumAssignedValue = PopDatum();
-                        if (datumTargetObj.Kind == ValueKind.Object && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
+                        if (datumTargetObj.Kind == ValueKind.Array && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
                         {
                             scriptArray2.SetDatum((Int32)datumValue.Number, datumAssignedValue);
                         }
@@ -719,9 +739,28 @@ namespace AuroraScript.Runtime
                         }
                         break;
 
+                    case OpCode.TYPEOF:
+                        datumRight = PopDatum();
+                        // cache typename
+                        var typename = datumRight.Kind.ToString().ToLower();
+                        if (datumRight.Kind == ValueKind.Object)
+                        {
+                            if (datumRight.Object is ClosureFunction  || datumRight.Object is BoundFunction)
+                            {
+                                typename = "function";
+                            }
+                            else
+                            {
+                                typename = "object";
+                            }
+                        }
 
 
 
+
+
+                            PushDatum(ScriptDatum.FromString(new StringValue(typename)));
+                        break;
                     case OpCode.ALLOC_LOCALS:
                         var localsRequested = _codeBuffer.ReadInt32(frame);
                         frame.EnsureLocalStorage(localsRequested);
@@ -769,7 +808,7 @@ namespace AuroraScript.Runtime
                             }
                             // 如果是脚本中定义的闭包函数
                             // 创建新的调用帧，包含环境、全局对象、模块和入口点
-                            var callFrame = new CallFrame(closureFunc.Environment, domainGlobal, closureFunc.Module, closureFunc.EntryPointer, argDatums);
+                            var callFrame = CallFramePool.Rent(frame.Global, closureFunc.Module, closureFunc.EntryPointer, argDatums, closureFunc.CapturedUpvalues);
                             // 将新帧压入调用栈
                             _callStack.Push(callFrame);
                             // 更新当前帧引用
@@ -799,7 +838,7 @@ namespace AuroraScript.Runtime
                         value = datumValue.ToObject();
                         // 弹出当前调用帧
                         var finishedFrame = _callStack.Pop();
-                        //finishedFrame.Dispose();
+                        CallFramePool.Return(finishedFrame);
 
                         // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
                         if (_callStack.Count == 0)
@@ -872,5 +911,6 @@ namespace AuroraScript.Runtime
                 }
             }
         }
+
     }
 }

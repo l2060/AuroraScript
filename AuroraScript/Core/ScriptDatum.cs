@@ -37,6 +37,12 @@ namespace AuroraScript.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromArray(ScriptArray value)
+        {
+            return new ScriptDatum { Kind = ValueKind.Array, Object = value };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromObject(ScriptObject value)
         {
             if (value == null || value == ScriptObject.Null)
@@ -55,6 +61,11 @@ namespace AuroraScript.Core
             {
                 return FromString(stringValue);
             }
+            if (value is ScriptArray scriptArray)
+            {
+                return FromArray(scriptArray);
+            }
+
             return new ScriptDatum { Kind = ValueKind.Object, Object = value };
         }
 
@@ -72,6 +83,8 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return String;
                 case ValueKind.Object:
+                    return Object ?? ScriptObject.Null;
+                case ValueKind.Array:
                     return Object ?? ScriptObject.Null;
                 default:
                     return ScriptObject.Null;
@@ -93,6 +106,9 @@ namespace AuroraScript.Core
                     return !string.IsNullOrEmpty(String?.Value);
                 case ValueKind.Object:
                     return Object?.IsTrue() ?? false;
+                case ValueKind.Array:
+                    return Object?.IsTrue() ?? false;
+
                 default:
                     return false;
             }

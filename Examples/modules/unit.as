@@ -1,22 +1,20 @@
 ﻿@module("UNIT_LIB");
 
 
-export function testClosure() {
-	var title = '123';
-	function makeCounter() {
-		title = 'abc';
-		var count = 0;
-		return () => {
-			count = count + 1;
-			console.log(title,count);
-		};
-	}
-	var counter = makeCounter();
-	counter();
-	counter();	
-	counter();
-}
+var a =  {v:11};
+var b = [1,2,3];
 
 
 
 
+console.log(typeof 123);
+
+console.log(typeof "avc");
+
+console.log(typeof true);
+
+console.log(typeof a);
+
+console.log(typeof b);
+
+console.log(typeof b.push);

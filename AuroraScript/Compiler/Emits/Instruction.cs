@@ -242,24 +242,26 @@ namespace AuroraScript.Compiler.Emits
 
     public class ClosureInstruction : Instruction
     {
-        public override Int32 Length => 5;
+        public override Int32 Length => 6;
 
         public Int32 Address;
+        public Byte CaptureCount;
 
-        internal ClosureInstruction(int offset) : base(OpCode.CREATE_CLOSURE, offset)
+        internal ClosureInstruction(int offset, Byte captureCount) : base(OpCode.CREATE_CLOSURE, offset)
         {
-
+            CaptureCount = captureCount;
         }
 
         public override string ToString()
         {
-            return $"{OpCode} [{Offset + Length + Address:0000}]";
+            return $"{OpCode} [{Offset + Length + Address:0000}] ({CaptureCount})";
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write((Byte)OpCode);
             writer.Write(Address);
+            writer.Write(CaptureCount);
         }
     }
 

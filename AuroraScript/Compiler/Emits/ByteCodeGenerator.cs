@@ -8,7 +8,6 @@ using AuroraScript.Core;
 using AuroraScript.Runtime.Debugger;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 
@@ -37,6 +36,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
         DebugSymbol _segmentSymbol = new DebugSymbolInfo();
+
 
         protected override void BeforeVisitNode(AstNode node)
         {
@@ -98,6 +98,45 @@ namespace AuroraScript.Compiler.Emits
             _scope = _scope.Leave();
         }
 
+        private ClosureCaptured[] EnsureCapturedVariables(FunctionDeclaration function)
+        {
+            if (function.CapturedVariables != null && function.CapturedVariables.Length > 0)
+            {
+                return function.CapturedVariables;
+            }
+
+            var catcher = new VariableCatcher();
+            var capturedNames = catcher.AnalyzeFunction(function, _scope);
+            if (capturedNames == null || capturedNames.Count == 0)
+            {
+                function.CapturedVariables = Array.Empty<ClosureCaptured>();
+                return function.CapturedVariables;
+            }
+
+            var list = new List<ClosureCaptured>();
+            foreach (var name in capturedNames)
+            {
+                if (_scope.Resolve(name, out var declareObject) && (declareObject.Type == DeclareType.Variable || declareObject.Type == DeclareType.Captured))
+                {
+                    list.Add(new ClosureCaptured(name, declareObject.Index));
+                }
+            }
+            function.CapturedVariables = list.ToArray();
+            return function.CapturedVariables;
+        }
+
+        private void PredeclareVariables(IEnumerable<AstNode> statements, DeclareType declareType)
+        {
+            foreach (var statement in statements)
+            {
+                if (statement is VariableDeclaration variable)
+                {
+                    _scope.Declare(declareType, variable);
+                }
+            }
+        }
+
+
         public void Visit(ModuleSyntaxRef[] syntaxRefs)
         {
             var rootSymbol = _symbol;
@@ -117,7 +156,7 @@ namespace AuroraScript.Compiler.Emits
             foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
             {
                 _instructionBuilder.GetGlobalProperty($"@{syntaxRef.SyntaxTree.ModuleName}");
-                var closureIns = _instructionBuilder.NewClosure();
+                var closureIns = _instructionBuilder.NewClosure(0);
                 _instructionBuilder.Call(0);
                 _instructionBuilder.Pop();
                 moduleClosures.Add(syntaxRef.SyntaxTree.ModuleName, closureIns);
@@ -169,6 +208,7 @@ namespace AuroraScript.Compiler.Emits
                 _instructionBuilder.SetThisProperty(module.Name.Value);
             }
 
+            PredeclareVariables(node.ChildNodes, DeclareType.Property);
             _instructionBuilder.Comment("# Code Block");
 
             // skip only declare
@@ -179,9 +219,14 @@ namespace AuroraScript.Compiler.Emits
             var closureMap = new Dictionary<string, ClosureInstruction>();
             foreach (var function in functions)
             {
+                var captured = EnsureCapturedVariables(function);
                 var slot = _scope.Declare(DeclareType.Property, function);
+                foreach (var capturedVar in captured)
+                {
+                    _instructionBuilder.CaptureVariable(capturedVar.Index);
+                }
                 _instructionBuilder.PushThis();
-                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
+                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure(captured.Length);
                 _instructionBuilder.SetThisProperty(function.Name.Value);
             }
 
@@ -223,6 +268,7 @@ namespace AuroraScript.Compiler.Emits
             if (!node.IsFunction) BeginScope(DomainType.Code);
 
             // skip only declare
+            PredeclareVariables(node.ChildNodes, DeclareType.Variable);
             var functions = node.Functions.Where(e => e.Flags != FunctionFlags.Declare).ToArray();
             // 1. 声明代码块内方法
             var closureMap = new Dictionary<string, ClosureInstruction>();
@@ -230,9 +276,14 @@ namespace AuroraScript.Compiler.Emits
             {
                 // skip only declare
                 if (function.Flags == FunctionFlags.Declare) continue;
+                var captured = EnsureCapturedVariables(function);
                 var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
+                foreach (var capturedVar in captured)
+                {
+                    _instructionBuilder.CaptureVariable(capturedVar.Index);
+                }
                 _instructionBuilder.PushThis();
-                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure();
+                closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure(captured.Length);
                 if (node is ModuleDeclaration)
                 {
                     _instructionBuilder.SetThisProperty(function.Name.Value);
@@ -261,12 +312,8 @@ namespace AuroraScript.Compiler.Emits
         {
             if (node.Flags == FunctionFlags.Declare) return;
             _instructionBuilder.Comment($"# begin_func {node.Name?.Value}", 4);
-            // 使用 VariableCatcher 分析函数中的变量使用情况
-            var variableCatcher = new VariableCatcher();
-            // 分析函数中捕获的变量
-            var capturedVariables = variableCatcher.AnalyzeFunction(node, _scope);
-            // 输出调试信息
-            _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables)}");
+            var capturedVariables = EnsureCapturedVariables(node);
+            _instructionBuilder.Comment($"# Captured variables: {string.Join(", ", capturedVariables.Select(v => v.Name))}");
 
             BeginScope(DomainType.Function);
             var functionScope = _scope;
@@ -281,24 +328,11 @@ namespace AuroraScript.Compiler.Emits
             }
 
             // 为捕获的变量创建局部变量
-            foreach (var varName in capturedVariables)
+            foreach (var captured in capturedVariables)
             {
-                if (_scope.Resolve(varName, out var declareObject))
-                {
-                    //将变量值压入栈
-                    if (declareObject.Type == DeclareType.Variable)
-                    {
-                        var slot = _scope.Declare(DeclareType.Captured, varName);
-                        _instructionBuilder.CaptureVariable(declareObject.Index);
-                        _instructionBuilder.StoreLocal(slot);
-                    }
-                    else if (declareObject.Type == DeclareType.Captured)
-                    {
-                        var slot = _scope.Declare(DeclareType.Captured, varName);
-                        _instructionBuilder.CaptureVariable(declareObject.Index);
-                        _instructionBuilder.StoreLocal(slot);
-                    }
-                }
+                var slot = _scope.Declare(DeclareType.Captured, captured.Name);
+                _instructionBuilder.CaptureVariable(captured.Index);
+                _instructionBuilder.StoreLocal(slot);
             }
 
             // 编译函数体
@@ -316,9 +350,14 @@ namespace AuroraScript.Compiler.Emits
 
         protected override void VisitLambdaExpression(LambdaExpression node)
         {
+            var captured = EnsureCapturedVariables(node.Function);
+            foreach (var capturedVar in captured)
+            {
+                _instructionBuilder.CaptureVariable(capturedVar.Index);
+            }
             // 创建闭包
             _instructionBuilder.PushThis();
-            var closure = _instructionBuilder.NewClosure();
+            var closure = _instructionBuilder.NewClosure(captured.Length);
             var toEndJump = _instructionBuilder.Jump();
             _instructionBuilder.FixClosure(closure);
             // 编译函数体
@@ -833,6 +872,7 @@ namespace AuroraScript.Compiler.Emits
             if (Operator.LogicalNot == op) return OpCode.LOGIC_NOT;
             if (Operator.BitwiseNot == op) return OpCode.BIT_NOT;
             if (Operator.Negate == op) return OpCode.NEGATE;
+            if (Operator.TypeOf == op) return OpCode.TYPEOF;
             throw new AuroraCompilerException("", $"Invalid operator: {op}");
         }
 
