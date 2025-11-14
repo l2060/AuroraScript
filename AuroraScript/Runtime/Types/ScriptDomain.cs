@@ -211,6 +211,11 @@ namespace AuroraScript.Runtime.Types
             Global.SetPropertyValue(name, value);
         }
 
+        public void SetGlobal(string name, object value)
+        {
+            Global.SetPropertyValue(name, value);
+        }
+
 
 
 

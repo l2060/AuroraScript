@@ -1,10 +1,14 @@
 ﻿@module("UNIT_LIB");
 
+console.log(fo.Name);
+
 fo.Name = "Hanks";
 
 fo.Say(123,"Hello");
 
 console.log(fo.Name);
+
+TestObject.Eat("[");
 
 
 var a =  {v:11};

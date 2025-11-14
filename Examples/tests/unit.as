@@ -491,9 +491,11 @@ export function testClouse() {
 }
 
 export function testClrFunc() {
-    for (var i = 0; i < 100; i++) {
-        md5.MD5("12345");
-    }
+    console.log(fo.Name);
+    fo.Name = "Hanks";
+    fo.Say(123,"Hello");
+    console.log(fo.Name);
+    TestObject.Eat("[");
     return true;
 }
 

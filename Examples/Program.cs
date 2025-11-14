@@ -2,6 +2,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Diagnostics;
@@ -12,19 +13,20 @@ using System.Threading.Tasks;
 public class Program
 {
 
-    public class TestObject : ScriptObject
+
+    public class TestObject
     {
-        public String Name = "*";
+        public string Name { get; set; } = "*";
 
-
-
-        public void Say(int n, String s)
+        public void Say(int n, string s)
         {
-            Console.WriteLine("Say:" + Name);
+            Console.WriteLine($"Say[{n}]: {s} ({Name})");
         }
 
-
-
+        public static void Eat(String strings)
+        {
+            Console.WriteLine($"Static Eat: ({strings})");
+        }
     }
 
 
@@ -32,7 +34,8 @@ public class Program
 
     public static async Task Main()
     {
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./modules/" });
+        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+        engine.RegisterClrType("TestObject", typeof(TestObject));
 
         await engine.BuildAsync("./unit.as");
 
@@ -44,8 +47,7 @@ public class Program
 
         var fo = new TestObject();
         engine.Global.SetPropertyValue("fo", fo);
-
-
+        //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
 
         var domain = engine.CreateDomain(g);
         try

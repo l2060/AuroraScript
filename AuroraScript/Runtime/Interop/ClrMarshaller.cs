@@ -140,6 +140,11 @@ namespace AuroraScript.Runtime.Interop
                     break;
                 case ValueKind.Object:
                     return TryConvertArgument(datum.Object, targetType, registry, out result);
+
+                case ValueKind.Array:
+                    return TryConvertArgument(datum.Object, targetType, registry, out result);
+
+
             }
             result = null;
             return false;

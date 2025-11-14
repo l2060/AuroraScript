@@ -56,6 +56,7 @@ namespace AuroraScript
             Global.Define("String", StringConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
+            Global.AttachRegistry(ClrRegistry);
         }
 
 
@@ -85,6 +86,11 @@ namespace AuroraScript
             Global.SetPropertyValue(name, value);
         }
 
+        public void SetGlobal(string name, object value)
+        {
+            Global.SetPropertyValue(name, value);
+        }
+
         /// <summary>
         /// 设置全局对象
         /// </summary>
@@ -95,6 +101,11 @@ namespace AuroraScript
         public void Define(string name, ScriptObject value, bool writeable = true, bool readable = true)
         {
             Global.Define(name, value, writeable, readable);
+        }
+
+        public void Define(string name, object value, bool writeable = true, bool readable = true, bool enumerable = true)
+        {
+            Global.Define(name, value, writeable, readable, enumerable);
         }
 
 
@@ -133,7 +144,9 @@ namespace AuroraScript
         /// <returns></returns>
         public ScriptGlobal NewEnvironment()
         {
-            return new ScriptGlobal() { _prototype = Global };
+            var environment = new ScriptGlobal() { _prototype = Global };
+            environment.AttachRegistry(ClrRegistry);
+            return environment;
         }
 
 
@@ -150,6 +163,10 @@ namespace AuroraScript
             if (domainGlobal == null)
             {
                 domainGlobal = new ScriptGlobal() { _prototype = Global };
+            }
+            if (domainGlobal != null)
+            {
+                domainGlobal.AttachRegistry(ClrRegistry);
             }
             // 创建执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(domainGlobal, runtimeVM, new ExecuteOptions(10, 0, false));
