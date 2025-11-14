@@ -11,7 +11,7 @@ namespace AuroraScript.Runtime
         private static readonly ConcurrentBag<ExecuteContext> _pool = new();
         private static int _count;
 
-        internal static ExecuteContext Rent(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions options)
+        internal static ExecuteContext Rent(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions options)
         {
             if (!_pool.TryTake(out var context))
             {
@@ -22,7 +22,7 @@ namespace AuroraScript.Runtime
                 Interlocked.Decrement(ref _count);
             }
 
-            context.Lease(global, virtualMachine, options ?? ExecuteOptions.Default);
+            context.Lease(domain, virtualMachine, options ?? ExecuteOptions.Default);
             return context;
         }
 

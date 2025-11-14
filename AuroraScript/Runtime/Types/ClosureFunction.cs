@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using System;
 
 namespace AuroraScript.Runtime.Types
@@ -10,6 +11,8 @@ namespace AuroraScript.Runtime.Types
     /// </summary>
     public class ClosureFunction : ScriptObject
     {
+        private readonly ScriptDomain Domain;
+
         /// <summary>
         /// 闭包指向的方法的字节码地址
         /// 这是函数代码在字节码中的起始位置，执行时会从这里开始读取指令
@@ -38,8 +41,9 @@ namespace AuroraScript.Runtime.Types
         /// <param name="entryPointer">函数入口点的字节码地址</param>
         /// <param name="capturedUpvalues">捕获的上值集合</param>
         /// <param name="funcName">函数名称，可选，匿名函数为null</param>
-        internal ClosureFunction(ScriptModule thisModule, int entryPointer, ClosureUpvalue[] capturedUpvalues, string funcName = null)
+        internal ClosureFunction(ScriptDomain domain, ScriptModule thisModule, int entryPointer, ClosureUpvalue[] capturedUpvalues, string funcName = null)
         {
+            Domain = domain;
             // 设置模块对象
             Module = thisModule;
             // 设置函数入口点
@@ -48,6 +52,11 @@ namespace AuroraScript.Runtime.Types
             _capturedUpvalues = capturedUpvalues ?? System.Array.Empty<ClosureUpvalue>();
             // 设置函数名称
             FuncName = funcName;
+        }
+
+        public ExecuteContext Invoke(ExecuteOptions options, params ScriptObject[] args)
+        {
+            return Domain.Execute(this, options, args);
         }
 
         internal ClosureUpvalue[] CapturedUpvalues => _capturedUpvalues;

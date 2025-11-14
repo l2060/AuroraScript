@@ -164,19 +164,22 @@ namespace AuroraScript
             {
                 domainGlobal = new ScriptGlobal() { _prototype = Global };
             }
-            if (domainGlobal != null)
-            {
-                domainGlobal.AttachRegistry(ClrRegistry);
-            }
+            domainGlobal.AttachRegistry(ClrRegistry);
+            var domain = new ScriptDomain(this, runtimeVM, domainGlobal);
             // 创建执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(domainGlobal, runtimeVM, new ExecuteOptions(10, 0, false));
+            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, new ExecuteOptions(10, 0, false));
             // 创建初始调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(domainGlobal, null, 0, Array.Empty<ScriptObject>(), Array.Empty<ClosureUpvalue>()));
+            exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptObject>(), Array.Empty<ClosureUpvalue>()));
             // 执行初始化代码
             runtimeVM.Execute(exeContext);
+            if (exeContext.Error != null)
+            {
+                exeContext.Dispose();
+                throw exeContext.Error;
+            }
             exeContext.Dispose();
             // 返回新创建的脚本域
-            return new ScriptDomain(this, runtimeVM, domainGlobal);
+            return domain;
         }
 
 

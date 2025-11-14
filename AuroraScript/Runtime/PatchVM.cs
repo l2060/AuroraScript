@@ -28,7 +28,7 @@ namespace AuroraScript.Runtime
         {
             var _callStack = exeContext._callStack;
             var frame = _callStack.Peek();
-            ScriptGlobal domainGlobal = frame.Global;
+            ScriptGlobal domainGlobal = frame.Domain.Global;
             var _operandStack = exeContext._operandStack;
 
 

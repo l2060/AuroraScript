@@ -23,32 +23,32 @@ namespace AuroraScript.Runtime
 
         public ScriptDatum[] Arguments { get; private set; } = Array.Empty<ScriptDatum>();
         public ScriptModule Module { get; private set; }
-        public ScriptGlobal Global { get; private set; }
+        public ScriptDomain Domain { get; private set; }
 
         internal CallFrame()
         {
         }
 
-        internal CallFrame(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
+        internal CallFrame(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
             : this()
         {
-            Initialize(global, module, entryPointer, ConvertArguments(arguments), captured);
+            Initialize(domain, module, entryPointer, ConvertArguments(arguments), captured);
         }
 
-        internal CallFrame(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+        internal CallFrame(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
             : this()
         {
-            Initialize(global, module, entryPointer, argumentDatums, captured);
+            Initialize(domain, module, entryPointer, argumentDatums, captured);
         }
 
-        internal void Initialize(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
+        internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
         {
-            Initialize(global, module, entryPointer, ConvertArguments(arguments), captured);
+            Initialize(domain, module, entryPointer, ConvertArguments(arguments), captured);
         }
 
-        internal void Initialize(ScriptGlobal global, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+        internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
         {
-            Global = global;
+            Domain = domain;
             Module = module;
             EntryPointer = entryPointer;
             Pointer = entryPointer;
@@ -271,7 +271,7 @@ namespace AuroraScript.Runtime
             Arguments = Array.Empty<ScriptDatum>();
             _capturedUpvalues = Array.Empty<ClosureUpvalue>();
             Module = null;
-            Global = null;
+            Domain = null;
             EntryPointer = 0;
             Pointer = 0;
             LastInstructionPointer = 0;

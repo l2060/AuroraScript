@@ -123,7 +123,7 @@ namespace AuroraScript.Runtime
             var frame = _callStack.Peek();
 
             // 获取当前域的全局对象
-            ScriptGlobal domainGlobal = frame.Global;
+            ScriptGlobal domainGlobal = frame.Domain.Global;
 
             ScriptDatum PopDatum() => _operandStack.PopDatum();
             void PushDatum(ScriptDatum datum) => _operandStack.PushDatum(datum);
@@ -366,7 +366,7 @@ namespace AuroraScript.Runtime
                             }
                         }
 
-                        var closure = new ClosureFunction(moduleForClosure, entryPointer, capturedUpvalues);
+                        var closure = new ClosureFunction(frame.Domain, moduleForClosure, entryPointer, capturedUpvalues);
                         PushObject(closure);
                         break;
 
@@ -790,7 +790,7 @@ namespace AuroraScript.Runtime
                             }
                             // 如果是脚本中定义的闭包函数
                             // 创建新的调用帧，包含环境、全局对象、模块和入口点
-                            var callFrame = CallFramePool.Rent(frame.Global, closureFunc.Module, closureFunc.EntryPointer, argDatums, closureFunc.CapturedUpvalues);
+                            var callFrame = CallFramePool.Rent(frame.Domain, closureFunc.Module, closureFunc.EntryPointer, argDatums, closureFunc.CapturedUpvalues);
                             // 将新帧压入调用栈
                             _callStack.Push(callFrame);
                             // 更新当前帧引用

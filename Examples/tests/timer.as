@@ -14,6 +14,20 @@ export var timers = [0, 1, 2, 3, 4, 5];
 
 
 
+function time_proc(timer,arrays,clrdata){
+    for(var item in timers){
+        timeCount++;
+    }
+    console.log(timer,arrays,clrdata);
+}
+
+function testCallback(){
+    CREATE_TIMER(time_proc);
+}
+
+
+
+
 
 export function createTimer(callback, interval = 521) {
 
@@ -44,7 +58,7 @@ export function createTimer(callback, interval = 521) {
         return true;
     }
 
-        log(
+    log(
         |> 
         |> 1. 这是一个特殊的字符串模板
         |> 2. 支持多行文本

@@ -9,6 +9,12 @@ function defineTest(name, run) {
     __testCases.push({ name: name, run: run });
 }
 
+
+
+
+
+
+
 function createTestContext(name) {
     return {
         name: name,
@@ -492,7 +498,7 @@ export function testClouse() {
 
 export function testClrFunc() {
     console.log(fo.Name);
-    fo.Name = "Hanks";
+    fo.Name = "MK";
     fo.Say(123,"Hello");
     console.log(fo.Name);
     var str = TestObject.Cat(["[","-","]"]);

@@ -1,4 +1,5 @@
 ﻿using AuroraScript;
+using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 public class Program
 {
-
+    private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
 
     public class TestObject
     {
@@ -29,13 +30,20 @@ public class Program
             return $"Static Eat: [{String.Join(",", strings)}]";
         }
     }
+    public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+    {
+        var obj = args[0].Object as ClosureFunction;
+        obj.Invoke(null, new NumberValue(123), new ScriptArray(), thisObject);
+        return ScriptObject.Null;
+    }
+
 
 
 
 
     public static async Task Main()
     {
-        var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+
         engine.RegisterClrType("TestObject", typeof(TestObject));
 
         await engine.BuildAsync("./unit.as");
@@ -45,7 +53,7 @@ public class Program
 
         engine.Global.Define("PI", g.GetPropertyValue("PI"));
         engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
-
+        engine.Global.Define("CREATE_TIMER", new ClrFunction(CREATE_TIMER));
         var fo = new TestObject();
         engine.Global.SetPropertyValue("fo", fo);
         //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
@@ -53,6 +61,12 @@ public class Program
         var domain = engine.CreateDomain(g);
         try
         {
+
+
+            BenchmarkScript(domain, "TIMER_LIB", "testCallback");
+            
+
+
             RunAndReportUnitTests(domain);
 
             var closure = domain.Execute("UNIT_LIB", "testClosure").Done();
@@ -97,9 +111,9 @@ public class Program
             BenchmarkScript(domain, "UNIT_LIB", "test");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(10_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(500_000));
+            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", new NumberValue(200_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", new NumberValue(100_000));
@@ -134,7 +148,8 @@ public class Program
         stopwatch.Stop();
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
         var allocatedBytes = afterAlloc - beforeAlloc;
-        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {stopwatch.ElapsedMilliseconds} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
+        var elapsedMicroseconds = stopwatch.ElapsedTicks * 1_000.0 / Stopwatch.Frequency;
+        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {elapsedMicroseconds:F4} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
     }
 
     private static void RunAndReportUnitTests(ScriptDomain domain)

@@ -27,7 +27,7 @@ namespace AuroraScript.Runtime
         private ScriptObject _result = ScriptObject.Null;
         private AuroraRuntimeException _error;
 
-        public ScriptGlobal Global { get; private set; }
+        public ScriptDomain Domain { get; private set; }
         public ExecuteOptions ExecuteOptions { get; private set; } = ExecuteOptions.Default;
 
         private Int64 _accumulatedTick;
@@ -44,30 +44,30 @@ namespace AuroraScript.Runtime
             _released = true;
         }
 
-        internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        internal ExecuteContext(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
             : this()
         {
             _pooled = false;
             _released = true;
-            InitializeCore(global, virtualMachine, executeOptions);
+            InitializeCore(domain, virtualMachine, executeOptions);
         }
 
-        internal ExecuteContext(ScriptGlobal global, RuntimeVM virtualMachine)
-            : this(global, virtualMachine, ExecuteOptions.Default)
+        internal ExecuteContext(ScriptDomain domain, RuntimeVM virtualMachine)
+            : this(domain, virtualMachine, ExecuteOptions.Default)
         {
         }
 
-        internal void Lease(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        internal void Lease(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
         {
             _pooled = true;
             _released = false;
             GC.ReRegisterForFinalize(this);
-            InitializeCore(global, virtualMachine, executeOptions);
+            InitializeCore(domain, virtualMachine, executeOptions);
         }
 
-        private void InitializeCore(ScriptGlobal global, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        private void InitializeCore(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
         {
-            Global = global ?? throw new ArgumentNullException(nameof(global));
+            Domain = domain ?? throw new ArgumentNullException(nameof(domain));
             _virtualMachine = virtualMachine ?? throw new ArgumentNullException(nameof(virtualMachine));
             ExecuteOptions = executeOptions ?? ExecuteOptions.Default;
             _status = ExecuteStatus.Idle;
@@ -165,16 +165,21 @@ namespace AuroraScript.Runtime
                 }
                 var pointer = frame.Pointer - 2;
                 moduleSymbols = _virtualMachine.ResolveModule(pointer);
-                symbol = moduleSymbols.Resolve(pointer);
-                funcSymbol = symbol.ResolveParent<FunctionSymbol>();
-                sb.AppendLine($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{symbol.LineNumber} [{pointer}]");
+                if (moduleSymbols != null)
+                {
+                    symbol = moduleSymbols.Resolve(pointer);
+                    funcSymbol = symbol.ResolveParent<FunctionSymbol>();
+                    sb.AppendLine($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{symbol.LineNumber} [{pointer}]");
+                }
             }
-
             var nativeCallPointer = _callStack.Last().EntryPointer;
             moduleSymbols = _virtualMachine.ResolveModule(nativeCallPointer);
-            symbol = moduleSymbols.Resolve(nativeCallPointer);
-            funcSymbol = symbol.ResolveParent<FunctionSymbol>();
-            sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
+            if (moduleSymbols != null)
+            {
+                symbol = moduleSymbols.Resolve(nativeCallPointer);
+                funcSymbol = symbol.ResolveParent<FunctionSymbol>();
+                sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
+            }
             return sb.ToString();
         }
 
@@ -213,7 +218,7 @@ namespace AuroraScript.Runtime
         {
             Reset();
             _virtualMachine = null;
-            Global = null;
+            Domain = null;
             ExecuteOptions = ExecuteOptions.Default;
             _stopwatch.Reset();
             _pooled = true;

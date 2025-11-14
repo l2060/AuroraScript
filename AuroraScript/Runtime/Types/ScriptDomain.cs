@@ -83,9 +83,9 @@ namespace AuroraScript.Runtime.Types
                 throw new AuroraException($"{methodName} is not a valid internal method");
             }
             // 创建新的执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(Global, _virtualMachine, options ?? ExecuteOptions.Default);
+            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(Global, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
@@ -123,9 +123,9 @@ namespace AuroraScript.Runtime.Types
             {
                 if (options == null) options = ExecuteOptions.Default;
                 // 创建新的执行上下文
-                ExecuteContext exeContext = ExecuteContextPool.Rent(Global, _virtualMachine, options ?? ExecuteOptions.Default);
+                ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
                 // 创建调用帧并压入调用栈
-                exeContext._callStack.Push(CallFramePool.Rent(Global, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+                exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
                 // 执行函数
                 _virtualMachine.Execute(exeContext);
                 return exeContext;
@@ -164,9 +164,9 @@ namespace AuroraScript.Runtime.Types
                 throw new AuroraException("The parameter ‘closure’ cannot be null");
             }
             // 创建新的执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(Global, _virtualMachine, options ?? ExecuteOptions.Default);
+            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(Global, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;

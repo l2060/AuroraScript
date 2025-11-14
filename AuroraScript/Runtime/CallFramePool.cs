@@ -12,7 +12,7 @@ namespace AuroraScript.Runtime
         private static readonly ConcurrentBag<CallFrame> _pool = new();
         private static int _count;
 
-        internal static CallFrame Rent(ScriptGlobal global, ScriptModule module, int entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+        internal static CallFrame Rent(ScriptDomain domain, ScriptModule module, int entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
         {
             if (!_pool.TryTake(out var frame))
             {
@@ -23,11 +23,11 @@ namespace AuroraScript.Runtime
                 Interlocked.Decrement(ref _count);
             }
 
-            frame.Initialize(global, module, entryPointer, argumentDatums, captured);
+            frame.Initialize(domain, module, entryPointer, argumentDatums, captured);
             return frame;
         }
 
-        internal static CallFrame Rent(ScriptGlobal global, ScriptModule module, int entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
+        internal static CallFrame Rent(ScriptDomain domain, ScriptModule module, int entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
         {
             if (!_pool.TryTake(out var frame))
             {
@@ -38,7 +38,7 @@ namespace AuroraScript.Runtime
                 Interlocked.Decrement(ref _count);
             }
 
-            frame.Initialize(global, module, entryPointer, arguments, captured);
+            frame.Initialize(domain, module, entryPointer, arguments, captured);
             return frame;
         }
 

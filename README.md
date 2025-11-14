@@ -26,10 +26,10 @@
  - [x] 迭代器 Iterator 
  - [x] for in
  - [x] 调试符号表、闭包方法名、行号、列号、调用者行号
- - [ ] 导出属性的访问权限  export  const
- - [ ] 固定大小的本地变量表测量
- - [ ] CallFrame 复用
- - [ ] 脚本对象NumberValue、StringValue的优化
+ - [x] 导出属性的访问权限  export  const
+ - [x] 固定大小的本地变量表测量
+ - [x] CallFrame 复用
+ - [x] 脚本对象NumberValue、StringValue的优化
 
 
  
