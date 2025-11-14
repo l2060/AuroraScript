@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Compiler;
 using AuroraScript.Compiler.Emits;
+using AuroraScript.Core;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
@@ -70,6 +71,29 @@ namespace AuroraScript
         {
             return Global.GetPropertyValue(name);
         }
+
+
+        public ClrTypeDescriptor RegisterClrType<T>(string alias, ClrTypeOptions options = null, bool overwrite = false)
+        {
+            return ClrRegistry.RegisterType(alias, typeof(T), options, overwrite);
+        }
+
+        public ClrTypeDescriptor RegisterClrType<T>(ClrTypeOptions options = null, bool overwrite = false)
+        {
+            var type = typeof(T);
+            return ClrRegistry.RegisterType(type.Name, type, options, overwrite);
+        }
+
+        public ClrTypeDescriptor RegisterClrType(Type type, ClrTypeOptions options = null, bool overwrite = false)
+        {
+            return ClrRegistry.RegisterType(type.Name, type, options, overwrite);
+        }
+
+        public ClrTypeDescriptor RegisterClrType(Type type, string alias, ClrTypeOptions options = null, bool overwrite = false)
+        {
+            return ClrRegistry.RegisterType(alias, type, options, overwrite);
+        }
+
 
         public ClrTypeDescriptor RegisterClrType(string alias, Type type, ClrTypeOptions options = null, bool overwrite = false)
         {
@@ -169,7 +193,7 @@ namespace AuroraScript
             // 创建执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, new ExecuteOptions(10, 0, false));
             // 创建初始调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptObject>(), Array.Empty<ClosureUpvalue>()));
+            exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptDatum>(), Array.Empty<ClosureUpvalue>()));
             // 执行初始化代码
             runtimeVM.Execute(exeContext);
             if (exeContext.Error != null)

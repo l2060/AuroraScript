@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
 using System;
 
 namespace AuroraScript.Runtime.Types
@@ -59,23 +60,23 @@ namespace AuroraScript.Runtime.Types
             return Domain.Execute(this, options, args);
         }
 
-        internal ClosureUpvalue[] CapturedUpvalues => _capturedUpvalues;
-
-        internal Upvalue FindUpvalue(Int32 slot)
+        public ExecuteContext InvokeFromClr(ExecuteOptions options, params object[] args)
         {
-            if (_capturedUpvalues == null || _capturedUpvalues.Length == 0)
+            ScriptObject[] scriptArgs = Array.Empty<ScriptObject>();
+            if (args != null && args.Length > 0)
             {
-                return null;
+                var registry = Domain?.Engine?.ClrRegistry;
+                scriptArgs = ClrValueConverter.ToScriptObjectArray(args, registry);
             }
-            for (int i = 0; i < _capturedUpvalues.Length; i++)
-            {
-                if (_capturedUpvalues[i].Slot == slot)
-                {
-                    return _capturedUpvalues[i].Upvalue;
-                }
-            }
-            return null;
+            return Invoke(options, scriptArgs);
         }
+
+        public ExecuteContext InvokeFromClr(params object[] args)
+        {
+            return InvokeFromClr(null, args);
+        }
+
+        internal ClosureUpvalue[] CapturedUpvalues => _capturedUpvalues;
 
         /// <summary>
         /// 返回闭包的字符串表示

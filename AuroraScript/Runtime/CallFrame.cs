@@ -29,23 +29,6 @@ namespace AuroraScript.Runtime
         {
         }
 
-        internal CallFrame(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
-            : this()
-        {
-            Initialize(domain, module, entryPointer, ConvertArguments(arguments), captured);
-        }
-
-        internal CallFrame(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
-            : this()
-        {
-            Initialize(domain, module, entryPointer, argumentDatums, captured);
-        }
-
-        internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptObject[] arguments, ClosureUpvalue[] captured)
-        {
-            Initialize(domain, module, entryPointer, ConvertArguments(arguments), captured);
-        }
-
         internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
         {
             Domain = domain;
@@ -69,35 +52,6 @@ namespace AuroraScript.Runtime
             }
             _localsUsed = 0;
             _openUpvalues?.Clear();
-        }
-
-        private static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
-        {
-            if (arguments == null || arguments.Length == 0)
-            {
-                return Array.Empty<ScriptDatum>();
-            }
-
-            var result = new ScriptDatum[arguments.Length];
-            for (int i = 0; i < arguments.Length; i++)
-            {
-                result[i] = ScriptDatum.FromObject(arguments[i]);
-            }
-            return result;
-        }
-
-        public Boolean TryGetArgument(Int32 index, out ScriptObject arg)
-        {
-            arg = ScriptObject.Null;
-            if (index >= Arguments.Length) return false;
-            arg = Arguments[index].ToObject();
-            return true;
-        }
-
-        public ScriptObject GetArgument(Int32 index)
-        {
-            if (index >= Arguments.Length) return ScriptObject.Null;
-            return Arguments[index].ToObject();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -230,6 +230,24 @@ namespace AuroraScript.Runtime.Interop
             return ToDatum(value, registry).ToObject();
         }
 
+
+        public static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
+        {
+
+            if (arguments == null || arguments.Length == 0)
+            {
+                return Array.Empty<ScriptDatum>();
+            }
+            var result = new ScriptDatum[arguments.Length];
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                result[i] = ScriptDatum.FromObject(arguments[i]);
+            }
+            return result;
+        }
+
+
+
         private static bool IsNumericType(Type type)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;

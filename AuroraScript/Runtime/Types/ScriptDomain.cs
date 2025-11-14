@@ -1,6 +1,8 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -85,7 +87,7 @@ namespace AuroraScript.Runtime.Types
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
@@ -125,7 +127,7 @@ namespace AuroraScript.Runtime.Types
                 // 创建新的执行上下文
                 ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
                 // 创建调用帧并压入调用栈
-                exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+                exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
                 // 执行函数
                 _virtualMachine.Execute(exeContext);
                 return exeContext;
@@ -166,11 +168,16 @@ namespace AuroraScript.Runtime.Types
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments ?? Array.Empty<ScriptObject>(), closure.CapturedUpvalues));
+            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
         }
+
+
+
+
+
 
 
         /// <summary>

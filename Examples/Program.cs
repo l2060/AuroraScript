@@ -32,8 +32,11 @@ public class Program
     }
     public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
     {
-        var obj = args[0].Object as ClosureFunction;
-        obj.Invoke(null, new NumberValue(123), new ScriptArray(), thisObject);
+        if (args == null || args.Length == 0 || args[0].Object is not ClosureFunction callback)
+        {
+            return ScriptObject.Null;
+        }
+        callback.InvokeFromClr(123, Array.Empty<object>(), thisObject);
         return ScriptObject.Null;
     }
 
@@ -43,8 +46,7 @@ public class Program
 
     public static async Task Main()
     {
-
-        engine.RegisterClrType("TestObject", typeof(TestObject));
+        engine.RegisterClrType<TestObject>();
 
         await engine.BuildAsync("./unit.as");
 
@@ -112,11 +114,11 @@ public class Program
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", new NumberValue(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", new NumberValue(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", new NumberValue(200_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", new NumberValue(100_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
         }
         catch (AuroraRuntimeException ex)
         {
@@ -149,7 +151,7 @@ public class Program
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
         var allocatedBytes = afterAlloc - beforeAlloc;
         var elapsedMicroseconds = stopwatch.ElapsedTicks * 1_000.0 / Stopwatch.Frequency;
-        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {elapsedMicroseconds:F4} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
+        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {context.UsedTime:F3} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
     }
 
     private static void RunAndReportUnitTests(ScriptDomain domain)

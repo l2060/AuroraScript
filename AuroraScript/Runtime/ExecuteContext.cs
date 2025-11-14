@@ -30,8 +30,8 @@ namespace AuroraScript.Runtime
         public ScriptDomain Domain { get; private set; }
         public ExecuteOptions ExecuteOptions { get; private set; } = ExecuteOptions.Default;
 
-        private Int64 _accumulatedTick;
-        private Int64 _startTick;
+        private long _accumulatedTicks;
+        private long _startTicks;
 
         private Boolean _pooled;
         private Boolean _released;
@@ -78,8 +78,8 @@ namespace AuroraScript.Runtime
                 CallFramePool.Return(_callStack.Pop());
             }
             _operandStack.Clear();
-            _accumulatedTick = 0;
-            _startTick = 0;
+            _accumulatedTicks = 0;
+            _startTicks = 0;
             _stopwatch.Restart();
         }
 
@@ -126,12 +126,15 @@ namespace AuroraScript.Runtime
             _status = status;
             if (status == ExecuteStatus.Running)
             {
-                _startTick = _stopwatch.ElapsedMilliseconds;
+                _startTicks = _stopwatch.ElapsedTicks;
             }
             else
             {
-                var tick = _stopwatch.ElapsedMilliseconds - _startTick;
-                _accumulatedTick += tick;
+                var tick = _stopwatch.ElapsedTicks - _startTicks;
+                if (tick > 0)
+                {
+                    _accumulatedTicks += tick;
+                }
             }
 
             if (exception != null)
@@ -183,16 +186,20 @@ namespace AuroraScript.Runtime
             return sb.ToString();
         }
 
-        public Int64 UsedTime
+        public double UsedTime
         {
             get
             {
-                var total = _accumulatedTick;
+                var totalTicks = _accumulatedTicks;
                 if (_status == ExecuteStatus.Running)
                 {
-                    total += _stopwatch.ElapsedMilliseconds - _startTick;
+                    totalTicks += _stopwatch.ElapsedTicks - _startTicks;
                 }
-                return total;
+                if (totalTicks <= 0)
+                {
+                    return 0d;
+                }
+                return totalTicks * 1000.0 / Stopwatch.Frequency;
             }
         }
 
@@ -210,8 +217,8 @@ namespace AuroraScript.Runtime
             _status = ExecuteStatus.Idle;
             _result = ScriptObject.Null;
             _error = null;
-            _accumulatedTick = 0;
-            _startTick = 0;
+            _accumulatedTicks = 0;
+            _startTicks = 0;
         }
 
         internal void ResetForPool()
