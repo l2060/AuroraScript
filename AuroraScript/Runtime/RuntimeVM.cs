@@ -741,20 +741,7 @@ namespace AuroraScript.Runtime
 
                     case OpCode.TYPEOF:
                         datumRight = PopDatum();
-                        // cache typename
-                        var typename = datumRight.Kind.ToString().ToLower();
-                        if (datumRight.Kind == ValueKind.Object)
-                        {
-                            if (datumRight.Object is ClosureFunction || datumRight.Object is Callable)
-                            {
-                                typename = "function";
-                            }
-                            else
-                            {
-                                typename = "object";
-                            }
-                        }
-                        PushDatum(ScriptDatum.FromString(new StringValue(typename)));
+                        PushDatum(datumRight.TypeOf());
                         break;
                     case OpCode.ALLOC_LOCALS:
                         var localsRequested = _codeBuffer.ReadInt32(frame);

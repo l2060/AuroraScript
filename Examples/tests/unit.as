@@ -495,7 +495,8 @@ export function testClrFunc() {
     fo.Name = "Hanks";
     fo.Say(123,"Hello");
     console.log(fo.Name);
-    TestObject.Eat("[");
+    var str = TestObject.Cat(["[","-","]"]);
+    console.log("Eat", str);
     return true;
 }
 

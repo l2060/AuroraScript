@@ -7,6 +7,7 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -23,9 +24,9 @@ public class Program
             Console.WriteLine($"Say[{n}]: {s} ({Name})");
         }
 
-        public static void Eat(String strings)
+        public static String Cat(String[] strings)
         {
-            Console.WriteLine($"Static Eat: ({strings})");
+            return $"Static Eat: [{String.Join(",", strings)}]";
         }
     }
 
@@ -94,6 +95,7 @@ public class Program
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "UNIT_LIB", "test");
+            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(10_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", new NumberValue(2_000_000));

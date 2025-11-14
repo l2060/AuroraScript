@@ -113,6 +113,33 @@ namespace AuroraScript.Core
                     return false;
             }
         }
+
+        public ScriptDatum TypeOf()
+        {
+            switch (Kind)
+            {
+                case ValueKind.Null:
+                    return Datums.Null;
+                case ValueKind.Boolean:
+                    return Datums.Boolean;
+                case ValueKind.Number:
+                    return Datums.Number;
+                case ValueKind.String:
+                    return Datums.String;
+                case ValueKind.Object:
+                    if (Object is ClosureFunction || Object is Callable)
+                    {
+                        return Datums.Function;
+                    }
+                    return Datums.Object;
+                case ValueKind.Array:
+                    return Datums.Array;
+                case ValueKind.Clr:
+                    return Datums.Clr;
+                default:
+                    return Datums.Object;
+            }
+        }
     }
 }
 

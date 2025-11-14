@@ -2,6 +2,8 @@ using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace AuroraScript.Runtime.Interop
@@ -64,6 +66,14 @@ namespace AuroraScript.Runtime.Interop
                 }
                 result = scriptValue.IsTrue();
                 return true;
+            }
+
+            if (scriptValue is ScriptArray scriptArray)
+            {
+                if (TryConvertScriptArray(scriptArray, targetType, registry, out result))
+                {
+                    return true;
+                }
             }
 
             if (targetType.IsAssignableFrom(typeof(ScriptObject)))
@@ -142,7 +152,11 @@ namespace AuroraScript.Runtime.Interop
                     return TryConvertArgument(datum.Object, targetType, registry, out result);
 
                 case ValueKind.Array:
-                    return TryConvertArgument(datum.Object, targetType, registry, out result);
+                    if (datum.Object is ScriptArray arrayValue && TryConvertScriptArray(arrayValue, targetType, registry, out result))
+                    {
+                        return true;
+                    }
+                    break;
 
 
             }
@@ -236,6 +250,188 @@ namespace AuroraScript.Runtime.Interop
                 default:
                     return false;
             }
+        }
+
+        private static bool TryConvertScriptArray(ScriptArray scriptArray, Type targetType, ClrTypeRegistry registry, out object result)
+        {
+            if (targetType == typeof(ScriptArray) || typeof(ScriptArray).IsAssignableFrom(targetType))
+            {
+                result = scriptArray;
+                return true;
+            }
+
+            if (targetType.IsArray)
+            {
+                var elementType = targetType.GetElementType() ?? typeof(object);
+                return TryConvertToClrArray(scriptArray, elementType, registry, out result);
+            }
+
+            if (TryGetGenericEnumerableElementType(targetType, out var element))
+            {
+                if (!TryConvertToTypedList(scriptArray, element, registry, out var listObject))
+                {
+                    result = null;
+                    return false;
+                }
+
+                if (targetType.IsInterface || targetType.IsAssignableFrom(listObject.GetType()))
+                {
+                    result = listObject;
+                    return true;
+                }
+
+                var enumerableType = typeof(IEnumerable<>).MakeGenericType(element);
+                var ctor = targetType.GetConstructor(new[] { enumerableType });
+                if (ctor != null)
+                {
+                    result = ctor.Invoke(new[] { listObject });
+                    return true;
+                }
+
+                if (!targetType.IsAbstract && typeof(IList).IsAssignableFrom(targetType))
+                {
+                    var concreteList = (IList)Activator.CreateInstance(targetType);
+                    foreach (var item in (IEnumerable)listObject)
+                    {
+                        concreteList.Add(item);
+                    }
+                    result = concreteList;
+                    return true;
+                }
+
+                result = null;
+                return false;
+            }
+
+            if (typeof(IList).IsAssignableFrom(targetType))
+            {
+                IList listInstance;
+                if (targetType.IsInterface || targetType.IsAbstract)
+                {
+                    listInstance = new ArrayList();
+                }
+                else
+                {
+                    listInstance = (IList)Activator.CreateInstance(targetType);
+                }
+
+                for (int i = 0; i < scriptArray.Length; i++)
+                {
+                    var datum = scriptArray.GetDatum(i);
+                    listInstance.Add(datum.ToObject());
+                }
+
+                result = listInstance;
+                return true;
+            }
+
+            if (typeof(IEnumerable).IsAssignableFrom(targetType) && (targetType.IsInterface || targetType == typeof(IEnumerable)))
+            {
+                var arrayList = new ArrayList();
+                for (int i = 0; i < scriptArray.Length; i++)
+                {
+                    arrayList.Add(scriptArray.GetDatum(i).ToObject());
+                }
+                result = arrayList;
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+
+        private static bool TryConvertToClrArray(ScriptArray scriptArray, Type elementType, ClrTypeRegistry registry, out object result)
+        {
+            var length = scriptArray.Length;
+            var arrayInstance = Array.CreateInstance(elementType, length);
+
+            for (int i = 0; i < length; i++)
+            {
+                var datum = scriptArray.GetDatum(i);
+                if (!TryConvertArgument(datum, elementType, registry, out var converted))
+                {
+                    if (!TryFallbackArrayConversion(datum, elementType, out converted))
+                    {
+                        result = null;
+                        return false;
+                    }
+                }
+                arrayInstance.SetValue(converted, i);
+            }
+
+            result = arrayInstance;
+            return true;
+        }
+
+        private static bool TryConvertToTypedList(ScriptArray scriptArray, Type elementType, ClrTypeRegistry registry, out object listObject)
+        {
+            var listType = typeof(List<>).MakeGenericType(elementType);
+            var list = (IList)Activator.CreateInstance(listType);
+
+            for (int i = 0; i < scriptArray.Length; i++)
+            {
+                var datum = scriptArray.GetDatum(i);
+                if (!TryConvertArgument(datum, elementType, registry, out var converted))
+                {
+                    if (!TryFallbackArrayConversion(datum, elementType, out converted))
+                    {
+                        listObject = null;
+                        return false;
+                    }
+                }
+                list.Add(converted);
+            }
+
+            listObject = list;
+            return true;
+        }
+
+        private static bool TryFallbackArrayConversion(ScriptDatum datum, Type elementType, out object converted)
+        {
+            if (elementType == typeof(object) || elementType == typeof(ScriptObject))
+            {
+                converted = datum.ToObject();
+                return true;
+            }
+
+            if (elementType == typeof(ScriptDatum))
+            {
+                converted = datum;
+                return true;
+            }
+
+            converted = null;
+            return false;
+        }
+
+        private static bool TryGetGenericEnumerableElementType(Type targetType, out Type elementType)
+        {
+            if (targetType.IsGenericType && IsSupportedGenericEnumerable(targetType.GetGenericTypeDefinition()))
+            {
+                elementType = targetType.GetGenericArguments()[0];
+                return true;
+            }
+
+            foreach (var interfaceType in targetType.GetInterfaces())
+            {
+                if (interfaceType.IsGenericType && IsSupportedGenericEnumerable(interfaceType.GetGenericTypeDefinition()))
+                {
+                    elementType = interfaceType.GetGenericArguments()[0];
+                    return true;
+                }
+            }
+
+            elementType = null;
+            return false;
+        }
+
+        private static bool IsSupportedGenericEnumerable(Type genericDefinition)
+        {
+            return genericDefinition == typeof(IEnumerable<>) ||
+                   genericDefinition == typeof(ICollection<>) ||
+                   genericDefinition == typeof(IList<>) ||
+                   genericDefinition == typeof(IReadOnlyCollection<>) ||
+                   genericDefinition == typeof(IReadOnlyList<>);
         }
     }
 }
