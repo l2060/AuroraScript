@@ -151,7 +151,28 @@ public class Program
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
         var allocatedBytes = afterAlloc - beforeAlloc;
         var elapsedMicroseconds = stopwatch.ElapsedTicks * 1_000.0 / Stopwatch.Frequency;
-        Console.WriteLine($"{module}.{method} -> status: {context.Status}, time: {context.UsedTime:F3} ms, allocated: {allocatedBytes / 1024.0:F2} KB");
+        WriteBenchmarkResult(module, method, context.Status, context.UsedTime, allocatedBytes / 1024.0);
+    }
+
+    private static void WriteBenchmarkResult(string module, string method, ExecuteStatus status, double elapsedMs, double allocatedKb)
+    {
+        var originalColor = Console.ForegroundColor;
+        Console.Write($"{module,-12} | {method,-24} | ");
+        Console.ForegroundColor = GetStatusColor(status);
+        Console.Write($"{status,-12}");
+        Console.ForegroundColor = originalColor;
+        Console.WriteLine($" | {elapsedMs,10:F3} ms | {allocatedKb,10:F2} KB");
+    }
+
+    private static ConsoleColor GetStatusColor(ExecuteStatus status)
+    {
+        return status switch
+        {
+            ExecuteStatus.Complete => ConsoleColor.Green,
+            ExecuteStatus.Interrupted => ConsoleColor.Yellow,
+            ExecuteStatus.Error => ConsoleColor.Red,
+            _ => ConsoleColor.Cyan
+        };
     }
 
     private static void RunAndReportUnitTests(ScriptDomain domain)
