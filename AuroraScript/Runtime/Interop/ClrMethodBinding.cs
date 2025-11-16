@@ -1,10 +1,10 @@
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace AuroraScript.Runtime.Interop
 {
@@ -128,6 +128,8 @@ namespace AuroraScript.Runtime.Interop
                     }
                     else
                     {
+                        //    invokeDelegate = ExpressionInvokerBuilder.TryBuild(method) ?? new ReflectionInvoker(method).Invoke;
+
                         var invoker = new ReflectionInvoker(method);
                         invokeDelegate = invoker.Invoke;
                     }
@@ -221,6 +223,139 @@ namespace AuroraScript.Runtime.Interop
 
                         result = ClrMarshaller.ToDatum(invocationResult, registry);
                         return true;
+                    }
+                }
+
+                private static class ExpressionInvokerBuilder
+                {
+                    private static readonly MethodInfo TryConvertDatumMethod = typeof(ClrMarshaller).GetMethod(
+                        nameof(ClrMarshaller.TryConvertArgument),
+                        BindingFlags.Public | BindingFlags.Static,
+                        binder: null,
+                        types: new[] { typeof(ScriptDatum), typeof(Type), typeof(ClrTypeRegistry), typeof(object).MakeByRefType() },
+                        modifiers: null);
+
+                    private static readonly MethodInfo ToDatumMethod = typeof(ClrMarshaller).GetMethod(
+                        nameof(ClrMarshaller.ToDatum),
+                        BindingFlags.Public | BindingFlags.Static,
+                        binder: null,
+                        types: new[] { typeof(object), typeof(ClrTypeRegistry) },
+                        modifiers: null);
+
+                    private static readonly MethodInfo FromNullMethod = typeof(ScriptDatum).GetMethod(
+                        nameof(ScriptDatum.FromNull),
+                        BindingFlags.Public | BindingFlags.Static);
+
+                    public static InvokeDelegate TryBuild(MethodInfo method)
+                    {
+                        if (!IsSupported(method))
+                        {
+                            return null;
+                        }
+
+                        if (TryConvertDatumMethod == null || ToDatumMethod == null || FromNullMethod == null)
+                        {
+                            return null;
+                        }
+
+                        try
+                        {
+                            return Compile(method);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }
+
+                    private static bool IsSupported(MethodInfo method)
+                    {
+                        if (method.ContainsGenericParameters)
+                        {
+                            return false;
+                        }
+
+                        var parameters = method.GetParameters();
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            var parameter = parameters[i];
+                            if (parameter.ParameterType.IsByRef || parameter.IsOut)
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
+                    private static InvokeDelegate Compile(MethodInfo method)
+                    {
+                        var parameters = method.GetParameters();
+                        var targetParameter = Expression.Parameter(typeof(object), "target");
+                        var argsParameter = Expression.Parameter(typeof(ScriptDatum[]), "args");
+                        var registryParameter = Expression.Parameter(typeof(ClrTypeRegistry), "registry");
+                        var resultParameter = Expression.Parameter(typeof(ScriptDatum).MakeByRefType(), "result");
+
+                        var variables = new List<ParameterExpression>();
+                        var bodyExpressions = new List<Expression>();
+                        var returnLabel = Expression.Label(typeof(bool), "returnLabel");
+
+                        Expression failureBlock = Expression.Block(
+                            Expression.Assign(resultParameter, Expression.Call(FromNullMethod)),
+                            Expression.Return(returnLabel, Expression.Constant(false))
+                        );
+
+                        Expression instanceExpression = null;
+                        if (!method.IsStatic)
+                        {
+                            var declaringType = method.DeclaringType ?? throw new InvalidOperationException($"Method '{method.Name}' does not have declaring type.");
+                            instanceExpression = Expression.Convert(targetParameter, declaringType);
+                        }
+
+                        var typedArguments = new Expression[parameters.Length];
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            var parameter = parameters[i];
+                            var parameterType = parameter.ParameterType;
+                            var convertedVar = Expression.Variable(typeof(object), $"arg{i}Obj");
+                            var typedVar = Expression.Variable(parameterType, $"arg{i}");
+                            variables.Add(convertedVar);
+                            variables.Add(typedVar);
+
+                            var conversionCall = Expression.Call(
+                                TryConvertDatumMethod,
+                                Expression.ArrayIndex(argsParameter, Expression.Constant(i)),
+                                Expression.Constant(parameterType, typeof(Type)),
+                                registryParameter,
+                                convertedVar);
+
+                            bodyExpressions.Add(Expression.IfThen(Expression.IsFalse(conversionCall), failureBlock));
+                            bodyExpressions.Add(Expression.Assign(typedVar, Expression.Convert(convertedVar, parameterType)));
+                            typedArguments[i] = typedVar;
+                        }
+
+                        var callExpression = Expression.Call(instanceExpression, method, typedArguments);
+
+                        if (method.ReturnType == typeof(void))
+                        {
+                            bodyExpressions.Add(callExpression);
+                            bodyExpressions.Add(Expression.Assign(resultParameter, Expression.Call(FromNullMethod)));
+                        }
+                        else
+                        {
+                            var convertedResult = Expression.Call(
+                                ToDatumMethod,
+                                Expression.Convert(callExpression, typeof(object)),
+                                registryParameter);
+                            bodyExpressions.Add(Expression.Assign(resultParameter, convertedResult));
+                        }
+
+                        bodyExpressions.Add(Expression.Return(returnLabel, Expression.Constant(true)));
+                        bodyExpressions.Add(Expression.Label(returnLabel, Expression.Constant(false)));
+
+                        var body = Expression.Block(variables, bodyExpressions);
+                        var lambda = Expression.Lambda<InvokeDelegate>(body, targetParameter, argsParameter, registryParameter, resultParameter);
+                        return lambda.Compile();
                     }
                 }
             }

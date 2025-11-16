@@ -1,4 +1,4 @@
-@module("UNIT_LIB");
+﻿@module("UNIT_LIB");
 
 import time from 'timer';
 import md5 from 'md5';
@@ -498,8 +498,11 @@ export function testClouse() {
 
 export function testClrFunc() {
     console.log(fo.Name);
-    fo.Name = "MK";
-    fo.Say(123,"Hello");
+    for (var o = 0; o < 10000; o++) {
+        fo.Name = "MK";
+        fo.Say(123,"Hello");
+        var str2 = TestObject.Cat(["[","-","]"]);
+    }
     console.log(fo.Name);
     var str = TestObject.Cat(["[","-","]"]);
     console.log("Eat", str);

@@ -22,7 +22,7 @@ public class Program
 
         public void Say(int n, string s)
         {
-            Console.WriteLine($"Say[{n}]: {s} ({Name})");
+            //Console.WriteLine($"Say[{n}]: {s} ({Name})");
         }
 
         public static String Cat(String[] strings)
