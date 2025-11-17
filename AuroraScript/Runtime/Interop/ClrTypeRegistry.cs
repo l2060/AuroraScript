@@ -1,4 +1,4 @@
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -88,7 +88,7 @@ namespace AuroraScript.Runtime.Interop
         {
             descriptor = null;
             if (string.IsNullOrWhiteSpace(alias)) return false;
-            alias = alias.Trim();
+            //alias = alias.Trim();
 
             _lock.EnterReadLock();
             try

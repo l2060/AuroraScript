@@ -129,7 +129,7 @@ namespace AuroraScript.Runtime
             void PushDatum(ScriptDatum datum) => _operandStack.PushDatum(datum);
             ScriptObject PopObject() => _operandStack.Pop();
             void PushObject(ScriptObject obj) => _operandStack.Push(obj);
-            ScriptDatum PeekDatum() => _operandStack.PeekDatum();
+
 
 
             // 数值一元操作的lambda函数，用于简化代码
