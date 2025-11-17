@@ -37,8 +37,7 @@
 
 
         // Objects, Arrays, and Maps
-        NEW_MODULE,    // Create a new array (takes initial capacity)
-        DEFINE_MODULE,    // Create a new array (takes initial capacity)
+        INIT_MODULE,
         NEW_MAP,      // Create a new map (takes initial capacity)
         NEW_ARRAY,    // Create a new array (takes initial capacity)
 
@@ -107,6 +106,7 @@
         //
         CALL,         // Call a function
         RETURN,       // Return from a function
+        RETURN_NULL,
         YIELD,       // Pause execution
 
 

@@ -9,7 +9,7 @@ function defineTest(name, run) {
     __testCases.push({ name: name, run: run });
 }
 
-
+var num055 = Number("055");
 
 
 

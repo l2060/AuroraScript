@@ -45,6 +45,17 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+        
+        public Instruction EmitStr(OpCode opCode, int strAddr)
+        {
+            var instruction = new InstructionStr(opCode, _position, strAddr);
+            instruction.String = _stringSet.List[strAddr];
+            return AppendInstruction(instruction);
+        }
+
+
+
+
         public Instruction Emit(OpCode opCode, int param)
         {
             var instruction = new Instruction5(opCode, _position, param);
@@ -253,7 +264,7 @@ namespace AuroraScript.Compiler.Emits
         public void PushConstantString(String str)
         {
             var strAddress = _stringSet.GetSlot(str);
-            Emit(OpCode.PUSH_STRING, strAddress);
+            EmitStr(OpCode.PUSH_STRING, strAddress);
         }
 
         public void PushConstantNumber(Double operand)
@@ -315,13 +326,13 @@ namespace AuroraScript.Compiler.Emits
         public void SetProperty(String propertyName)
         {
             var strAddress = _stringSet.GetSlot(propertyName);
-            Emit(OpCode.SET_PROPERTY, strAddress);
+            EmitStr(OpCode.SET_PROPERTY, strAddress);
         }
 
         public void GetProperty(String propertyName)
         {
             var strAddress = _stringSet.GetSlot(propertyName);
-            Emit(OpCode.GET_PROPERTY, strAddress);
+            EmitStr(OpCode.GET_PROPERTY, strAddress);
         }
 
         public void DeleteProperty()
@@ -331,35 +342,35 @@ namespace AuroraScript.Compiler.Emits
 
         public void GetThisProperty(Int32 nameSlot)
         {
-            Emit(OpCode.GET_THIS_PROPERTY, nameSlot);
+            EmitStr(OpCode.GET_THIS_PROPERTY, nameSlot);
         }
 
         public void GetThisProperty(String propertyName)
         {
             var strAddress = _stringSet.GetSlot(propertyName);
-            Emit(OpCode.GET_THIS_PROPERTY, strAddress);
+            EmitStr(OpCode.GET_THIS_PROPERTY, strAddress);
         }
 
         public void SetThisProperty(String propertyName)
         {
             var strAddress = _stringSet.GetSlot(propertyName);
-            Emit(OpCode.SET_THIS_PROPERTY, strAddress);
+            EmitStr(OpCode.SET_THIS_PROPERTY, strAddress);
         }
         public void SetThisProperty(Int32 nameSlot)
         {
-            Emit(OpCode.SET_THIS_PROPERTY, nameSlot);
+            EmitStr(OpCode.SET_THIS_PROPERTY, nameSlot);
         }
 
         public void GetGlobalProperty(String varName)
         {
             var strAddress = _stringSet.GetSlot(varName);
-            Emit(OpCode.GET_GLOBAL_PROPERTY, strAddress);
+            EmitStr(OpCode.GET_GLOBAL_PROPERTY, strAddress);
         }
 
         public void SetGlobalProperty(String varName)
         {
             var strAddress = _stringSet.GetSlot(varName);
-            Emit(OpCode.SET_GLOBAL_PROPERTY, strAddress);
+            EmitStr(OpCode.SET_GLOBAL_PROPERTY, strAddress);
         }
 
         public void GetElement()
@@ -410,16 +421,10 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.NEW_ARRAY, count);
         }
-        public void NewModule(String moduleName)
+        public void InitModule(String moduleName)
         {
             var strAddress = _stringSet.GetSlot(moduleName);
-            Emit(OpCode.NEW_MODULE, strAddress);
-        }
-
-        public void DefineModule(String moduleName)
-        {
-            var strAddress = _stringSet.GetSlot(moduleName);
-            Emit(OpCode.DEFINE_MODULE, strAddress);
+            EmitStr(OpCode.INIT_MODULE, strAddress);
         }
 
 
@@ -484,8 +489,7 @@ namespace AuroraScript.Compiler.Emits
 
         public void ReturnNull()
         {
-            Emit(OpCode.PUSH_NULL);
-            Emit(OpCode.RETURN);
+            Emit(OpCode.RETURN_NULL);
         }
 
 

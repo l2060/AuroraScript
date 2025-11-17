@@ -22,10 +22,6 @@ namespace AuroraScript.Runtime.Types
                 {
                     capacity = (int)datum.Number;
                 }
-                else if (datum.Kind == ValueKind.Object && datum.Object is NumberValue numberValue)
-                {
-                    capacity = numberValue.Int32Value;
-                }
             }
 
             return new ScriptArray(capacity);

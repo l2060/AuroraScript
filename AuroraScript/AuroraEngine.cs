@@ -57,6 +57,10 @@ namespace AuroraScript
             Global.Define("String", StringConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
+            Global.Define("Number", NumberConstructor.INSTANCE, writeable: false, enumerable: false);
+            
+
+
             Global.AttachRegistry(ClrRegistry);
         }
 

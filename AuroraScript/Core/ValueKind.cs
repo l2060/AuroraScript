@@ -8,7 +8,24 @@ namespace AuroraScript.Core
         String = 3,
         Object = 4,
         Array = 5,
-        Clr = 6
+
+        /// <summary>
+        /// 脚本原生方法
+        /// </summary>
+        Function = 6,
+
+        /// <summary>
+        /// Clr原生方法
+        /// </summary>
+        ClrFunction = 7,
+
+        /// <summary>
+        /// Wrap
+        /// </summary>
+        WrapFunction = 7
+
+
+
     }
 }
 

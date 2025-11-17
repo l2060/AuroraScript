@@ -103,10 +103,7 @@ namespace AuroraScript.Runtime
                 case OpCode.CAPTURE_VAR:
                     break;
 
-                case OpCode.NEW_MODULE:
-                    break;
-
-                case OpCode.DEFINE_MODULE:
+                case OpCode.INIT_MODULE:
                     break;
 
                 case OpCode.NEW_MAP:

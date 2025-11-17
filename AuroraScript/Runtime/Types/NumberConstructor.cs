@@ -62,30 +62,8 @@ namespace AuroraScript.Runtime
                 case ValueKind.String:
                     return Double.TryParse(datum.String.Value, out value);
                 case ValueKind.Object:
-                    var obj = datum.Object;
-                    if (obj is NumberValue numberValue)
-                    {
-                        value = numberValue.DoubleValue;
-                        return true;
-                    }
-                    if (obj is StringValue str && Double.TryParse(str.Value, out value))
-                    {
-                        return true;
-                    }
                     break;
             }
-
-            var converted = datum.ToObject();
-            if (converted is NumberValue num)
-            {
-                value = num.DoubleValue;
-                return true;
-            }
-            if (converted != null && Double.TryParse(converted.ToString(), out value))
-            {
-                return true;
-            }
-
             value = Double.NaN;
             return false;
         }

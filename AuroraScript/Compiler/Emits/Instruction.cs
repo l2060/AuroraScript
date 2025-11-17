@@ -158,6 +158,30 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
+
+    public class InstructionStr : Instruction
+    {
+        public int Value;
+        public String String;
+        public override int Length => 5;
+        public InstructionStr(OpCode opCode, int offset, int value) : base(opCode, offset)
+        {
+            this.Value = value;
+        }
+
+        public override string ToString()
+        {
+            return OpCode.ToString() + " str(" + String + ")";
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((Byte)OpCode);
+            writer.Write(Value);
+        }
+    }
+
+
     public class InstructionDouble : Instruction
     {
 

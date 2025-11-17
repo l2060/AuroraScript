@@ -148,8 +148,7 @@ namespace AuroraScript.Compiler.Emits
             var moduleClosures = new Dictionary<string, ClosureInstruction>();
             foreach (ModuleSyntaxRef syntaxRef in syntaxRefs)
             {
-                _instructionBuilder.NewModule(syntaxRef.SyntaxTree.ModuleName);
-                _instructionBuilder.DefineModule($"@{syntaxRef.SyntaxTree.ModuleName}");
+                _instructionBuilder.InitModule(syntaxRef.SyntaxTree.ModuleName);
             }
 
             // 创建模块闭包，并调用闭包初始化

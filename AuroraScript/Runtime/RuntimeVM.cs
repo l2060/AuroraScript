@@ -250,16 +250,14 @@ namespace AuroraScript.Runtime
 
                     case OpCode.DUP:
                         // 复制栈顶元素
-                        var topDatum = PeekDatum();
-                        PushDatum(topDatum);
+                        _operandStack.Duplicate();
+                        //var topDatum = PeekDatum();
+                        //PushDatum(topDatum);
                         break;
 
                     case OpCode.SWAP:
                         // 交换栈顶两个元素
-                        var first = PopDatum();
-                        var second = PopDatum();
-                        PushDatum(first);
-                        PushDatum(second);
+                        _operandStack.Swap();
                         break;
 
                     case OpCode.LOAD_ARG:
@@ -377,17 +375,11 @@ namespace AuroraScript.Runtime
                         PushObject(capturedUpvalue);
                         break;
 
-                    case OpCode.NEW_MODULE:
+                    case OpCode.INIT_MODULE:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        PushObject(new ScriptModule(propName.Value));
-                        break;
-
-                    case OpCode.DEFINE_MODULE:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = PopObject();
-                        domainGlobal.Define(propName.Value, value, writeable: false, enumerable: true);
+                        var module = new ScriptModule(propName.Value);
+                        domainGlobal.Define("@" + propName.Value, module, writeable: false, enumerable: true);
                         break;
 
                     case OpCode.NEW_MAP:
@@ -772,7 +764,7 @@ namespace AuroraScript.Runtime
                     case OpCode.CALL:
                         // 函数调用指令
                         // 从栈顶弹出可调用对象
-                        var callable = PopObject();
+                        var callable = PopDatum();
                         // 读取参数数量
                         var argCount = _codeBuffer.ReadByte(frame);
                         // 创建参数数组
@@ -782,7 +774,7 @@ namespace AuroraScript.Runtime
                         {
                             argDatums[i] = PopDatum();
                         }
-                        if (callable is ClosureFunction closureFunc)
+                        if (callable.Kind == ValueKind.Function && callable.Object is ClosureFunction closureFunc)
                         {
                             if (_callStack.Count > exeContext.ExecuteOptions.MaxCallStackDepth)
                             {
@@ -796,16 +788,32 @@ namespace AuroraScript.Runtime
                             // 更新当前帧引用
                             frame = callFrame;
                         }
-                        else if (callable is Callable callableFunc)
+                        else if (callable.Kind == ValueKind.ClrFunction && callable.Object is IClrInvokable clrInvokable)
+                        {
+                            var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
+                            PushDatum(callResult);
+                        }
+                        else if (callable.Object is Callable callableFunc)
                         {
                             var callResult = callableFunc.Invoke(exeContext, null, argDatums);
                             PushObject(callResult);
                         }
-                        else if (callable is IClrInvokable clrInvokable)
-                        {
-                            var callResult = clrInvokable.Invoke(exeContext, callable as ScriptObject, argDatums);
-                            PushDatum(callResult);
-                        }
+
+
+                        //if (callable is ClosureFunction closureFunc)
+                        //{
+
+                        //}
+                        //else if (callable is Callable callableFunc)
+                        //{
+                        //    var callResult = callableFunc.Invoke(exeContext, null, argDatums);
+                        //    PushObject(callResult);
+                        //}
+                        //else if (callable is IClrInvokable clrInvokable)
+                        //{
+                        //    var callResult = clrInvokable.Invoke(exeContext, callable, argDatums);
+                        //    PushDatum(callResult);
+                        //}
                         else
                         {
                             // 如果不是可调用对象，抛出异常
@@ -837,6 +845,23 @@ namespace AuroraScript.Runtime
                         frame = _callStack.Peek();
                         break;
 
+                    case OpCode.RETURN_NULL:
+
+                        // 弹出当前调用帧
+                        CallFramePool.Return(_callStack.Pop());
+                        // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
+                        if (_callStack.Count == 0)
+                        {
+                            // 设置执行状态为完成，并返回最终结果
+                            exeContext.SetStatus(ExecuteStatus.Complete, value, null);
+                            return;
+                        }
+                        // 如果调用栈不为空，说明是从子函数返回到调用者
+                        // 将返回值压入操作数栈，供调用者使用
+                        PushDatum(ScriptDatum.FromNull());
+                        // 切换到调用者的帧继续执行
+                        frame = _callStack.Peek();
+                        break;
                     case OpCode.YIELD:
                         // TODO
                         if (exeContext.ExecuteOptions.YieldEnabled)

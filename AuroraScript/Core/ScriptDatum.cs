@@ -1,4 +1,5 @@
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System.Runtime.CompilerServices;
 
@@ -42,6 +43,24 @@ namespace AuroraScript.Core
             return new ScriptDatum { Kind = ValueKind.Array, Object = value };
         }
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromClosure(ClosureFunction value)
+        {
+            return new ScriptDatum { Kind = ValueKind.Function, Object = value };
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromClrMethodBinding(ClrMethodBinding value)
+        {
+            return new ScriptDatum { Kind = ValueKind.ClrFunction, Object = value };
+        }
+
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromObject(ScriptObject value)
         {
@@ -65,7 +84,14 @@ namespace AuroraScript.Core
             {
                 return FromArray(scriptArray);
             }
-
+            if (value is ClosureFunction closureFunction)
+            {
+                return FromClosure(closureFunction);
+            }
+            if (value is ClrMethodBinding clrMethodBinding)
+            {
+                return FromClrMethodBinding(clrMethodBinding);
+            }
             return new ScriptDatum { Kind = ValueKind.Object, Object = value };
         }
 
@@ -85,6 +111,10 @@ namespace AuroraScript.Core
                 case ValueKind.Object:
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Array:
+                    return Object ?? ScriptObject.Null;
+                case ValueKind.Function:
+                    return Object ?? ScriptObject.Null;
+                case ValueKind.ClrFunction:
                     return Object ?? ScriptObject.Null;
                 default:
                     return ScriptObject.Null;
@@ -108,6 +138,10 @@ namespace AuroraScript.Core
                     return Object?.IsTrue() ?? false;
                 case ValueKind.Array:
                     return Object?.IsTrue() ?? false;
+
+ 
+
+
 
                 default:
                     return false;
@@ -134,8 +168,10 @@ namespace AuroraScript.Core
                     return Datums.Object;
                 case ValueKind.Array:
                     return Datums.Array;
-                case ValueKind.Clr:
-                    return Datums.Clr;
+                case ValueKind.Function:
+                    return Datums.Function;
+                case ValueKind.ClrFunction:
+                    return Datums.ClrFunction;
                 default:
                     return Datums.Object;
             }

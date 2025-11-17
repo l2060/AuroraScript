@@ -62,6 +62,22 @@ namespace AuroraScript.Runtime
             return PeekDatum().ToObject();
         }
 
+
+        public void Duplicate()
+        {
+            PushDatum(PeekDatum());
+        }
+
+        public void Swap()
+        {
+            var value1 = _buffer[_size];
+            var value2 = _buffer[_size - 1];
+            _buffer[_size - 1] = value2;
+            _buffer[_size] = value1;
+            //PushDatum(PeekDatum());
+        }
+
+
         public void Clear()
         {
             Array.Clear(_buffer, 0, _size);

@@ -41,14 +41,7 @@ namespace AuroraScript.Runtime.Types
                 ValueKind.Number => Math.Abs(datum.Number) > Double.Epsilon,
                 ValueKind.String => Boolean.TryParse(datum.String.Value, out var parsed) && parsed,
                 ValueKind.Null => false,
-                ValueKind.Object => datum.Object switch
-                {
-                    ScriptArray scriptArray => true,
-                    BooleanValue boolValue => boolValue.Value,
-                    NumberValue numberValue => numberValue.DoubleValue != 0,
-                    StringValue strVal => Boolean.TryParse(strVal.Value, out var parsed) && parsed,
-                    _ => datum.Object?.IsTrue() ?? false
-                },
+                ValueKind.Object => datum.Object != null,
                 _ => datum.ToObject()?.IsTrue() ?? false
             };
         }
