@@ -793,27 +793,11 @@ namespace AuroraScript.Runtime
                             var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
                             PushDatum(callResult);
                         }
-                        else if (callable.Object is Callable callableFunc)
+                        else if (callable.Kind == ValueKind.ClrBonding && callable.Object is Callable callableFunc)
                         {
                             var callResult = callableFunc.Invoke(exeContext, null, argDatums);
                             PushObject(callResult);
                         }
-
-
-                        //if (callable is ClosureFunction closureFunc)
-                        //{
-
-                        //}
-                        //else if (callable is Callable callableFunc)
-                        //{
-                        //    var callResult = callableFunc.Invoke(exeContext, null, argDatums);
-                        //    PushObject(callResult);
-                        //}
-                        //else if (callable is IClrInvokable clrInvokable)
-                        //{
-                        //    var callResult = clrInvokable.Invoke(exeContext, callable, argDatums);
-                        //    PushDatum(callResult);
-                        //}
                         else
                         {
                             // 如果不是可调用对象，抛出异常

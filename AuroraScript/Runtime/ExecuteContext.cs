@@ -44,18 +44,7 @@ namespace AuroraScript.Runtime
             _released = true;
         }
 
-        internal ExecuteContext(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
-            : this()
-        {
-            _pooled = false;
-            _released = true;
-            InitializeCore(domain, virtualMachine, executeOptions);
-        }
 
-        internal ExecuteContext(ScriptDomain domain, RuntimeVM virtualMachine)
-            : this(domain, virtualMachine, ExecuteOptions.Default)
-        {
-        }
 
         internal void Lease(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
         {

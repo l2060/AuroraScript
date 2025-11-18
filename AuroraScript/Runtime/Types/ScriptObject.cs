@@ -50,11 +50,11 @@ namespace AuroraScript.Runtime.Base
         public virtual ScriptObject GetPropertyValue(String key)
         {
             var property = _resolveProperty(key);
-            if (property is ClrGetter getter)
+            if (property is BondingGetter getter)
             {
                 return getter.Invoke(this);
             }
-            if (property is ClrFunction clrFunc)
+            if (property is BondingFunction clrFunc)
             {
                 property = clrFunc.Bind(this);
                 //if (!IsFrozen) SetPropertyValue(key, property);

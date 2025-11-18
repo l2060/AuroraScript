@@ -4,7 +4,7 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class BooleanConstructor : ClrFunction
+    public class BooleanConstructor : BondingFunction
     {
         public readonly static BooleanConstructor INSTANCE = new BooleanConstructor();
 

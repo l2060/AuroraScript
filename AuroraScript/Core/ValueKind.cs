@@ -20,9 +20,9 @@ namespace AuroraScript.Core
         ClrFunction = 7,
 
         /// <summary>
-        /// Wrap
+        /// 原型对象的Clr粘合函数
         /// </summary>
-        WrapFunction = 7
+        ClrBonding = 8
 
 
 

@@ -5,7 +5,8 @@ using System;
 
 namespace AuroraScript.Runtime
 {
-    public class NumberConstructor : ClrFunction
+
+    public class NumberConstructor : BondingFunction
     {
         public readonly static NumberValue POSITIVE_INFINITY = new NumberValue(double.PositiveInfinity);
         public readonly static NumberValue NEGATIVE_INFINITY = new NumberValue(double.NegativeInfinity);

@@ -3,7 +3,7 @@ using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime.Types
 {
-    internal class ScriptObjectConstructor : ClrFunction
+    internal class ScriptObjectConstructor : BondingFunction
     {
         public static ScriptObjectConstructor INSTANCE = new ScriptObjectConstructor();
 

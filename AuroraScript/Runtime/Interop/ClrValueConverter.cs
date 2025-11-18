@@ -139,15 +139,10 @@ namespace AuroraScript.Runtime.Interop
         {
             if (handler is ClrDatumDelegate datumDelegate)
             {
-                return new ClrFunction(datumDelegate);
+                return new BondingFunction(datumDelegate);
             }
 
-            if (handler is ClrMethodDelegate methodDelegate)
-            {
-                return new ClrFunction(methodDelegate);
-            }
-
-            return new ClrFunction((context, thisObject, args) =>
+            return new BondingFunction((context, thisObject, args) =>
             {
                 var prepared = PrepareDelegateArguments(handler, args, registry);
                 var result = handler.DynamicInvoke(prepared);

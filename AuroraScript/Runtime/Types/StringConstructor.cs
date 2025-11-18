@@ -4,9 +4,9 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class StringConstructor : ClrFunction
+    public class StringConstructor : BondingFunction
     {
-        public readonly static StringConstructor INSTANCE = new StringConstructor();
+        public readonly static Lazy<StringConstructor> INSTANCE = new Lazy<StringConstructor>();
 
         public StringConstructor() : base(CONSTRUCTOR)
         {

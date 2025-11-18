@@ -176,6 +176,25 @@ namespace AuroraScript.Runtime.Types
 
 
 
+        public ExecuteContext Execute2(ClosureFunction closure, ExecuteOptions options, params ScriptDatum[] arguments)
+        {
+            if (closure == null)
+            {
+                throw new AuroraException("The parameter ‘closure’ cannot be null");
+            }
+            // 创建新的执行上下文
+            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
+            // 创建调用帧并压入调用栈
+            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments, closure.CapturedUpvalues));
+            // 执行函数
+            _virtualMachine.Execute(exeContext);
+            return exeContext;
+        }
+
+        public ExecuteContext Execute2(ClosureFunction closure, params ScriptDatum[] arguments)
+        {
+            return Execute2(closure, ExecuteOptions.Default, arguments);
+        }
 
 
 

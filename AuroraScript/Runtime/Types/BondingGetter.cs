@@ -5,14 +5,16 @@ namespace AuroraScript.Runtime.Types
 
     public delegate ScriptObject ClrGetterDelegate(ScriptObject @object);
 
-
-    public class ClrGetter : ScriptObject
+    /// <summary>
+    /// 原型对象的clr粘合属性获取
+    /// </summary>
+    public class BondingGetter : ScriptObject
     {
 
         private readonly ClrGetterDelegate _callback;
         public readonly string Name;
 
-        public ClrGetter(ClrGetterDelegate callback)
+        public BondingGetter(ClrGetterDelegate callback)
         {
             var method = callback.Method;
             Name = method.DeclaringType.Name + "." + method.Name;

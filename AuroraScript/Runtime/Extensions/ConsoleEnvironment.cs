@@ -15,9 +15,9 @@ namespace AuroraScript.Runtime.Extensions
 
         public ConsoleEnvironment()
         {
-            Define("log", new ClrFunction(LOG), writeable: false, enumerable: false);
-            Define("time", new ClrFunction(TIME), writeable: false, enumerable: false);
-            Define("timeEnd", new ClrFunction(TIMEEND), writeable: false, enumerable: false);
+            Define("log", new BondingFunction(LOG), writeable: false, enumerable: false);
+            Define("time", new BondingFunction(TIME), writeable: false, enumerable: false);
+            Define("timeEnd", new BondingFunction(TIMEEND), writeable: false, enumerable: false);
         }
 
         public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)

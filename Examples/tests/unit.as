@@ -9,7 +9,7 @@ function defineTest(name, run) {
     __testCases.push({ name: name, run: run });
 }
 
-var num055 = Number("055");
+
 
 
 
@@ -453,6 +453,9 @@ export function test() {
     var _time = time.createTimer("unit.timer", 128);
     console.timeEnd("time.createTimer");
     _time.start = start_timer;
+    _time.start();
+    _time.reset();
+    _time.cancel();
     return _time;
 }
 
@@ -488,15 +491,17 @@ export function forTest(count = 1000) {
     }
 }
 
-export function testClouse() {
-    var a = 0;
-    return () => {
-        a = a + 1;
-        return a;
-    };
-}
+
+
+
+
+
+
 
 export function testClrFunc() {
+
+    var num055 = Number("055");
+
     console.log(fo.Name);
     for (var o = 0; o < 10000; o++) {
         fo.Name = "MK";
@@ -516,11 +521,18 @@ export function testClosure() {
         var count = 0;
         return () => {
             count = count + 1;
-            console.log(title, count);
+            title = title + count;
+            return {title/* 这个变量没抓到 */,count};
         };
     }
     var counter = makeCounter();
-    counter();
+
+    console.log(counter());
+    console.log(counter());
+    console.log(counter());
+
+
+
 }
 
 export function testMD5() {

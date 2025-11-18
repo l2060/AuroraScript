@@ -40,85 +40,15 @@ public class Program
         return ScriptObject.Null;
     }
 
-
-
-
-
     public static async Task Main()
     {
         engine.RegisterClrType<TestObject>();
 
         await engine.BuildAsync("./unit.as");
 
-        var g = engine.NewEnvironment();
-        g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
-
-        engine.Global.Define("PI", g.GetPropertyValue("PI"));
-        engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
-        engine.Global.Define("CREATE_TIMER", new ClrFunction(CREATE_TIMER));
-        var fo = new TestObject();
-        engine.Global.SetPropertyValue("fo", fo);
-        //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
-
-        var domain = engine.CreateDomain(g);
         try
         {
-
-
-            BenchmarkScript(domain, "TIMER_LIB", "testCallback");
-            
-
-
-            RunAndReportUnitTests(domain);
-
-            var closure = domain.Execute("UNIT_LIB", "testClosure").Done();
-            Console.WriteLine(closure);
-
-            // clouse test
-            var clouse = domain.Execute("UNIT_LIB", "testClouse").Done();
-            var clouseResult = domain.Execute(clouse.Result as ClosureFunction);
-            Console.WriteLine($"testClouse result:{clouseResult.Result}");
-            clouseResult = domain.Execute(clouse.Result as ClosureFunction);
-            Console.WriteLine($"testClouse result:{clouseResult.Result}");
-            //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
-            //if (testInterruption.Status  == ExecuteStatus.Error)
-            //{
-            //    Console.ForegroundColor = ConsoleColor.Red;
-            //    Console.WriteLine(testInterruption.Error.ToString());
-            //    Console.ResetColor();
-            //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
-            //}
-            // script function test
-            var result = domain.Execute("UNIT_LIB", "test").Done();
-            var callmethod = domain.CreateDelegateFromMethod("UNIT_LIB", "testMD5");
-            callmethod();
-            if (result.Status == ExecuteStatus.Complete)
-            {
-                domain.Execute(result.Result.GetPropertyValue("start") as ClosureFunction).Done();
-            }
-
-            var timerResult = domain.Execute("TIMER_LIB", "createTimer", new StringValue("Hello") /* , new NumberValue(500) */);
-            timerResult.Done();
-            if (timerResult.Status == ExecuteStatus.Complete)
-            {
-                domain.Execute(timerResult.Result.GetPropertyValue("reset") as ClosureFunction);
-                domain.Execute(timerResult.Result.GetPropertyValue("cancel") as ClosureFunction);
-            }
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
-            BenchmarkScript(domain, "UNIT_LIB", "testIterator");
-            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
-            BenchmarkScript(domain, "UNIT_LIB", "test");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
+            Test();
         }
         catch (AuroraRuntimeException ex)
         {
@@ -133,9 +63,58 @@ public class Program
             Console.BackgroundColor = ConsoleColor.Gray;
             Console.WriteLine(ex.Message);
             Console.ResetColor();
-        }
-
+        }        
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
         Console.ReadKey();
+    }
+
+
+
+    public static void Test()
+    {
+
+
+        var g = engine.NewEnvironment();
+        g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
+
+        engine.Global.Define("PI", g.GetPropertyValue("PI"));
+        engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
+        engine.Global.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
+        var fo = new TestObject();
+        engine.Global.SetPropertyValue("fo", fo);
+        //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
+
+        var domain = engine.CreateDomain(g);
+
+        RunAndReportUnitTests(domain);
+        //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
+        //if (testInterruption.Status  == ExecuteStatus.Error)
+        //{
+        //    Console.ForegroundColor = ConsoleColor.Red;
+        //    Console.WriteLine(testInterruption.Error.ToString());
+        //    Console.ResetColor();
+        //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
+        //}
+        // script function test
+        BenchmarkScript(domain, "TIMER_LIB", "testCallback");
+        BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+        BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+        BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+        BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
+        BenchmarkScript(domain, "UNIT_LIB", "testIterator");
+        BenchmarkScript(domain, "UNIT_LIB", "testClosure");
+        BenchmarkScript(domain, "UNIT_LIB", "test");
+        BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+        BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+        BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(1_000_000));
+        BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
+        BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
+        BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));
+        BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
+        BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
+
     }
 
     private static void BenchmarkScript(ScriptDomain domain, string module, string method, params ScriptObject[] args)

@@ -59,6 +59,11 @@ namespace AuroraScript.Core
             return new ScriptDatum { Kind = ValueKind.ClrFunction, Object = value };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromBonding(BondingFunction value)
+        {
+            return new ScriptDatum { Kind = ValueKind.ClrBonding, Object = value };
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,6 +97,10 @@ namespace AuroraScript.Core
             {
                 return FromClrMethodBinding(clrMethodBinding);
             }
+            if (value is BondingFunction bonding)
+            {
+                return FromBonding(bonding);
+            }
             return new ScriptDatum { Kind = ValueKind.Object, Object = value };
         }
 
@@ -116,6 +125,9 @@ namespace AuroraScript.Core
                     return Object ?? ScriptObject.Null;
                 case ValueKind.ClrFunction:
                     return Object ?? ScriptObject.Null;
+                case ValueKind.ClrBonding:
+                    return Object ?? ScriptObject.Null;
+
                 default:
                     return ScriptObject.Null;
             }
@@ -161,10 +173,6 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return Datums.String;
                 case ValueKind.Object:
-                    if (Object is ClosureFunction || Object is Callable)
-                    {
-                        return Datums.Function;
-                    }
                     return Datums.Object;
                 case ValueKind.Array:
                     return Datums.Array;
@@ -172,6 +180,8 @@ namespace AuroraScript.Core
                     return Datums.Function;
                 case ValueKind.ClrFunction:
                     return Datums.ClrFunction;
+                case ValueKind.ClrBonding:
+                    return Datums.ClrBonding;
                 default:
                     return Datums.Object;
             }
