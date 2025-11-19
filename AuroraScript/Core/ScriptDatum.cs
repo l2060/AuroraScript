@@ -150,11 +150,6 @@ namespace AuroraScript.Core
                     return Object?.IsTrue() ?? false;
                 case ValueKind.Array:
                     return Object?.IsTrue() ?? false;
-
- 
-
-
-
                 default:
                     return false;
             }
@@ -186,6 +181,38 @@ namespace AuroraScript.Core
                     return Datums.Object;
             }
         }
+
+
+        public override string ToString()
+        {
+            switch (Kind)
+            {
+                case ValueKind.Null:
+                    return "null";
+                case ValueKind.Boolean:
+                    return Boolean.ToString();
+                case ValueKind.Number:
+                    return Number.ToString();
+                case ValueKind.String:
+                    return String.Value;
+                case ValueKind.Object:
+                    return Object?.ToString();
+                case ValueKind.Array:
+                    return Object?.ToString();
+                case ValueKind.Function:
+                    return Object?.ToString();
+                case ValueKind.ClrFunction:
+                    return Object?.ToString();
+                case ValueKind.ClrBonding:
+                    return Object?.ToString();
+
+                default:
+                    return "";
+            }
+        }
+
+
+
     }
 }
 

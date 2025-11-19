@@ -36,9 +36,20 @@ public class Program
         {
             return ScriptObject.Null;
         }
-        callback.InvokeFromClr(123, Array.Empty<object>(), thisObject);
+        callback.InvokeFromClr(123, Array.Empty<object>(), thisObject).Done();
         return ScriptObject.Null;
     }
+
+    public static ScriptObject GIVE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+    {
+
+        Console.WriteLine(context.UserState);
+        Console.WriteLine($"GIVE {String.Join(" ", args)}");
+        return ScriptObject.Null;
+    }
+
+
+
 
     public static async Task Main()
     {
@@ -63,7 +74,7 @@ public class Program
             Console.BackgroundColor = ConsoleColor.Gray;
             Console.WriteLine(ex.Message);
             Console.ResetColor();
-        }        
+        }
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
@@ -79,6 +90,7 @@ public class Program
         var g = engine.NewEnvironment();
         g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
 
+        engine.Global.Define("GIVE", new BondingFunction(GIVE), false, true, false);
         engine.Global.Define("PI", g.GetPropertyValue("PI"));
         engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
         engine.Global.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
@@ -124,7 +136,14 @@ public class Program
         GC.Collect();
         var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
         var stopwatch = Stopwatch.StartNew();
-        using var context = domain.Execute(module, method, args);
+        using var context = domain.Execute(module, method, new ExecuteOptions(10, 0, false), args);
+        if (context.Status == ExecuteStatus.Error)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(context.Error.ToString());
+            Console.ResetColor();
+            context.Continue().Done(AbnormalStrategy.Continue);
+        }
         context.Done();
         stopwatch.Stop();
         var afterAlloc = GC.GetAllocatedBytesForCurrentThread();

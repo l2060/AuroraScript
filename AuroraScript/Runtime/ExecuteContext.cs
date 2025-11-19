@@ -26,6 +26,7 @@ namespace AuroraScript.Runtime
         private ExecuteStatus _status = ExecuteStatus.Idle;
         private ScriptObject _result = ScriptObject.Null;
         private AuroraRuntimeException _error;
+        private Object _userState;
 
         public ScriptDomain Domain { get; private set; }
         public ExecuteOptions ExecuteOptions { get; private set; } = ExecuteOptions.Default;
@@ -46,19 +47,20 @@ namespace AuroraScript.Runtime
 
 
 
-        internal void Lease(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        internal void Lease(ScriptDomain domain, RuntimeVM virtualMachine, Object userState, ExecuteOptions executeOptions)
         {
             _pooled = true;
             _released = false;
             GC.ReRegisterForFinalize(this);
-            InitializeCore(domain, virtualMachine, executeOptions);
+            InitializeCore(domain, virtualMachine, userState, executeOptions);
         }
 
-        private void InitializeCore(ScriptDomain domain, RuntimeVM virtualMachine, ExecuteOptions executeOptions)
+        private void InitializeCore(ScriptDomain domain, RuntimeVM virtualMachine, Object userState, ExecuteOptions executeOptions)
         {
             Domain = domain ?? throw new ArgumentNullException(nameof(domain));
             _virtualMachine = virtualMachine ?? throw new ArgumentNullException(nameof(virtualMachine));
             ExecuteOptions = executeOptions ?? ExecuteOptions.Default;
+            _userState = userState;
             _status = ExecuteStatus.Idle;
             _result = ScriptObject.Null;
             _error = null;
@@ -170,7 +172,18 @@ namespace AuroraScript.Runtime
             {
                 symbol = moduleSymbols.Resolve(nativeCallPointer);
                 funcSymbol = symbol.ResolveParent<FunctionSymbol>();
-                sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
+
+                if (funcSymbol != null)
+                {
+                    sb.Append($" at {moduleSymbols.FilePath} {funcSymbol.Name}() line:{funcSymbol.LineNumber} [{nativeCallPointer}]");
+                }
+                else
+                {
+                    sb.Append($" at clr");
+                }
+
+
+
             }
             return sb.ToString();
         }
@@ -195,6 +208,8 @@ namespace AuroraScript.Runtime
         public ExecuteStatus Status => _status;
         public ScriptObject Result => _result;
         public AuroraRuntimeException Error => _error;
+
+        public Object UserState => _userState;
 
         public void Reset()
         {

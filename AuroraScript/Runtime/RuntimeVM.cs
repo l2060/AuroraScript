@@ -801,7 +801,7 @@ namespace AuroraScript.Runtime
                         else
                         {
                             // 如果不是可调用对象，抛出异常
-                            throw new InvalidOperationException($"Cannot call {callable}");
+                            throw new InvalidOperationException($"Cannot call {callable.Kind}");
                         }
                         break;
 

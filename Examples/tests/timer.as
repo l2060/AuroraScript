@@ -19,13 +19,14 @@ function time_proc(timer,arrays,clrdata){
         timeCount++;
     }
     console.log(timer,arrays,clrdata);
+
 }
 
 function testCallback(){
     CREATE_TIMER(time_proc);
 }
 
-
+GIVE("esd",1);
 
 
 
