@@ -20,5 +20,19 @@ namespace AuroraScript.Runtime.Types
             }
             return new ScriptObject();
         }
+
+
+        public static ScriptObject KEYS(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (args != null && args.Length == 1)
+            {
+                if (args[0].Kind == ValueKind.Object)
+                {
+                    return args[0].Object.GetKeys();
+                }
+            }
+            return new ScriptArray();
+        }
+
     }
 }

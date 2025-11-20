@@ -475,7 +475,7 @@ export function testIterator() {
     for (var key in node) {
         console.log(key + " = " + node[key]);
     }
-
+    console.log(Object.keys(node));
     for (var a in "Hello World!") console.log(a);
 }
 

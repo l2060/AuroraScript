@@ -222,6 +222,28 @@ namespace AuroraScript.Runtime.Base
             return ItemIterator.FromObjects(result);
         }
 
+
+
+        public ScriptArray GetKeys()
+        {
+            var result = new List<ScriptObject>();
+            var current = this;
+            while (current != null)
+            {
+                if (current._properties != null)
+                {
+                    foreach (var item in current._properties)
+                    {
+                        if (item.Value.Enumerable)
+                        {
+                            result.Add(item.Value.Key);
+                        }
+                    }
+                }
+                current = current._prototype;
+            }
+            return new ScriptArray(result);
+        }
     }
 
 
