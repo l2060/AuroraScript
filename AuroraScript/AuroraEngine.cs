@@ -187,7 +187,7 @@ namespace AuroraScript
         /// </summary>
         /// <param name="globalEnv">指定域的Global环境</param>
         /// <returns>新创建的脚本域对象</returns>
-        public ScriptDomain CreateDomain(ScriptGlobal domainGlobal = null)
+        public ScriptDomain CreateDomain(ScriptGlobal domainGlobal = null, Object userState)
         {
             // 创建域全局对象，继承自引擎全局对象
             if (domainGlobal == null)
@@ -197,7 +197,7 @@ namespace AuroraScript
             }
             var domain = new ScriptDomain(this, runtimeVM, domainGlobal);
             // 创建执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default);
+            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default.WithUserState(userState));
             // 创建初始调用帧并压入调用栈
             exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptDatum>(), Array.Empty<ClosureUpvalue>()));
             // 执行初始化代码
