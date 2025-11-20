@@ -187,7 +187,7 @@ namespace AuroraScript
         /// </summary>
         /// <param name="globalEnv">指定域的Global环境</param>
         /// <returns>新创建的脚本域对象</returns>
-        public ScriptDomain CreateDomain(ScriptGlobal domainGlobal = null, Object userState)
+        public ScriptDomain CreateDomain(ScriptGlobal domainGlobal = null, Object userState = null)
         {
             // 创建域全局对象，继承自引擎全局对象
             if (domainGlobal == null)

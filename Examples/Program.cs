@@ -101,7 +101,7 @@ namespace Examples
             engine.Global.SetPropertyValue("fo", fo);
             //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
 
-            var domain = engine.CreateDomain(g);
+            var domain = engine.CreateDomain(g, userState);
 
             RunAndReportUnitTests(domain);
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
