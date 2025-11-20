@@ -5,7 +5,6 @@ using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -848,7 +847,7 @@ namespace AuroraScript.Runtime
                         break;
                     case OpCode.YIELD:
                         // TODO
-                        if (exeContext.ExecuteOptions.YieldEnabled)
+                        if (exeContext.ExecuteOptions.EnabledYield)
                         {
                             exeContext.SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
                             return;

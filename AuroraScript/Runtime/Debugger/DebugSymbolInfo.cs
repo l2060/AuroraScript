@@ -1,5 +1,4 @@
-﻿﻿using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace AuroraScript.Runtime.Debugger
 {
@@ -7,7 +6,7 @@ namespace AuroraScript.Runtime.Debugger
     /// 调试符号信息，用于存储和查询脚本的调试信息
     /// 包含模块、函数、变量和指令映射等信息
     /// </summary>
-    public class DebugSymbolInfo: DebugSymbol
+    public class DebugSymbolInfo : DebugSymbol
     {
         /// <summary>
         /// 根据指令地址获取模块符号信息

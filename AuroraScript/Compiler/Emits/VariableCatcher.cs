@@ -130,12 +130,7 @@ namespace AuroraScript.Compiler.Emits
         {
             // 记录变量引用
             string varName = node.Identifier.Value;
-
-            // 忽略 this 和 global 关键字
-            if (varName != "this" && varName != "global" && node.IsRoot)
-            {
-                Variables.Add(varName);
-            }
+            Variables.Add(varName);
         }
 
         protected override void VisitBlock(BlockStatement node)
@@ -161,6 +156,18 @@ namespace AuroraScript.Compiler.Emits
             if (node.IsFunction)
             {
                 _declaredVariables = previousDeclaredVars;
+            }
+        }
+
+
+        protected override void VisitMapExpression(MapExpression node)
+        {
+            foreach (var entry in node.ChildNodes)
+            {
+                if (entry is MapKeyValueExpression property)
+                {
+                    property.Value.Accept(this);
+                }
             }
         }
 

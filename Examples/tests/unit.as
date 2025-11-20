@@ -521,8 +521,7 @@ export function testClosure() {
         var count = 0;
         return () => {
             count = count + 1;
-            title = title + count;
-            return {title/* 这个变量没抓到 */,count};
+            return {title,count};
         };
     }
     var counter = makeCounter();

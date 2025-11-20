@@ -1,10 +1,4 @@
-using AuroraScript.Ast;
-using AuroraScript.Ast.Expressions;
-using AuroraScript.Compiler.Emits;
-using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Runtime.Base;
-using System;
-using System.Collections.Generic;
 
 namespace AuroraScript.Core
 {

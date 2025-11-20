@@ -1,5 +1,4 @@
 using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System.Collections.Concurrent;
 using System.Threading;

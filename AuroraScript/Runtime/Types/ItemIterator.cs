@@ -1,5 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using System;
 using System.Collections.Generic;
 

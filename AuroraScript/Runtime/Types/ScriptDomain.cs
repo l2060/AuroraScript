@@ -1,12 +1,7 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Exceptions;
-using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
-using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.Intrinsics.X86;
 
 
 namespace AuroraScript.Runtime.Types

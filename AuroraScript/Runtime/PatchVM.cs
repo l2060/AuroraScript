@@ -1,10 +1,6 @@
 ﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace AuroraScript.Runtime
 {

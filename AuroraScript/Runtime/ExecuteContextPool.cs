@@ -21,7 +21,7 @@ namespace AuroraScript.Runtime
             {
                 Interlocked.Decrement(ref _count);
             }
-            context.Lease(domain, virtualMachine, null, options ?? ExecuteOptions.Default);
+            context.Lease(domain, virtualMachine, options ?? ExecuteOptions.Default);
             return context;
         }
 

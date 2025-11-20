@@ -8,6 +8,17 @@ namespace AuroraScript.Runtime.Types
     {
         private ClrTypeRegistry _clrRegistry;
 
+
+        internal static ScriptGlobal With(ScriptObject prototype)
+        {
+            return new ScriptGlobal()
+            {
+                _prototype = prototype
+            };
+        }
+
+
+
         internal void AttachRegistry(ClrTypeRegistry registry)
         {
             _clrRegistry = registry;

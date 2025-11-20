@@ -1,6 +1,5 @@
 using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Types;
 
 namespace AuroraScript.Runtime.Interop
 {

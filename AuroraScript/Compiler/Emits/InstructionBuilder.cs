@@ -45,7 +45,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        
+
         public Instruction EmitStr(OpCode opCode, int strAddr)
         {
             var instruction = new InstructionStr(opCode, _position, strAddr);
@@ -171,7 +171,7 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-        public void FixAllocLocals(AllocLocalsInstruction allocLocals,int num)
+        public void FixAllocLocals(AllocLocalsInstruction allocLocals, int num)
         {
             allocLocals.StackSize = num;
         }

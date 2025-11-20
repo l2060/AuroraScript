@@ -86,7 +86,7 @@ namespace AuroraScript.Compiler.Emits
             if (_scope.Domain == DomainType.Function || _scope.Domain == DomainType.Module)
             {
                 _symbol.EndPoint = _instructionBuilder.Position().Offset - 1;
-                if(_segmentSymbol != null)
+                if (_segmentSymbol != null)
                 {
                     _segmentSymbol.EndPoint = _symbol.EndPoint;
                     _segmentSymbol = null;

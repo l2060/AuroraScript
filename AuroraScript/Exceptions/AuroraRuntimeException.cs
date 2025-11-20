@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace AuroraScript.Exceptions
 {
@@ -11,7 +10,7 @@ namespace AuroraScript.Exceptions
         public readonly String ModuleName;
 
         public readonly Int32 LineNumber;
-        public new String StackTrace{ get;set;}
+        public new String StackTrace { get; set; }
 
         public AuroraRuntimeException(Exception ex, String stackTrace) : base(ex.Message, ex)
         {

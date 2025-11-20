@@ -3,12 +3,10 @@ using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -136,7 +134,7 @@ public class Program
         GC.Collect();
         var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
         var stopwatch = Stopwatch.StartNew();
-        using var context = domain.Execute(module, method, new ExecuteOptions(10, 0, false), args);
+        using var context = domain.Execute(module, method, ExecuteOptions.Default, args);
         if (context.Status == ExecuteStatus.Error)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -194,14 +192,12 @@ public class Program
             return;
         }
 
-        var total = GetIntProperty(summary, "total");
-        var passed = GetIntProperty(summary, "passed");
-        var failed = GetIntProperty(summary, "failed");
-        var success = GetBooleanProperty(summary, "success");
-
+        var total = summary.GetPropertyValue("total");
+        var passed = summary.GetPropertyValue("passed"); 
+        var failed = summary.GetPropertyValue("failed"); 
         Console.WriteLine($"Unit tests summary -> total: {total}, passed: {passed}, failed: {failed}");
-
-        if (!success)
+        var success = summary.GetPropertyValue("success") as BooleanValue;
+        if (!success.Value)
         {
             if (summary.GetPropertyValue("failedCases") is ScriptArray failedCases)
             {
@@ -209,8 +205,9 @@ public class Program
                 {
                     if (failedCases.GetElement(i) is ScriptObject failedCase)
                     {
-                        var name = GetStringProperty(failedCase, "name");
-                        var checks = GetIntProperty(failedCase, "checks");
+                        var name = failedCase.GetPropertyValue("name");
+                        var checks = failedCase.GetPropertyValue("checks");
+                        ;
                         Console.WriteLine($"  ✖ {name} (checks: {checks})");
 
                         if (failedCase.GetPropertyValue("failures") is ScriptArray failures)
@@ -219,7 +216,7 @@ public class Program
                             {
                                 if (failures.GetElement(j) is ScriptObject failure)
                                 {
-                                    var message = GetStringProperty(failure, "message");
+                                    var message = failure.GetPropertyValue("message");
                                     var actual = failure.GetPropertyValue("actual");
                                     var expected = failure.GetPropertyValue("expected");
                                     Console.WriteLine($"      - {message}");
@@ -236,44 +233,8 @@ public class Program
         }
     }
 
-    private static int GetIntProperty(ScriptObject obj, string propertyName)
-    {
-        var value = obj?.GetPropertyValue(propertyName);
-        return value switch
-        {
-            NumberValue number => number.Int32Value,
-            BooleanValue boolean => boolean.Value ? 1 : 0,
-            StringValue str when int.TryParse(str.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) => parsed,
-            _ when value != null && int.TryParse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var fallback) => fallback,
-            _ => 0
-        };
-    }
 
-    private static bool GetBooleanProperty(ScriptObject obj, string propertyName)
-    {
-        var value = obj?.GetPropertyValue(propertyName);
-        return value switch
-        {
-            BooleanValue boolean => boolean.Value,
-            NumberValue number => Math.Abs(number.DoubleValue) > double.Epsilon,
-            StringValue str => !string.IsNullOrEmpty(str.Value) && !string.Equals(str.Value, "false", StringComparison.OrdinalIgnoreCase),
-            null => false,
-            _ => value.IsTrue()
-        };
-    }
 
-    private static string GetStringProperty(ScriptObject obj, string propertyName)
-    {
-        var value = obj?.GetPropertyValue(propertyName);
-        return value switch
-        {
-            StringValue str => str.Value,
-            NumberValue number => number.DoubleValue.ToString(CultureInfo.InvariantCulture),
-            BooleanValue boolean => boolean.Value.ToString(),
-            null => string.Empty,
-            _ => value.ToDisplayString()
-        };
-    }
 
     private static string FormatScriptValue(ScriptObject value)
     {

@@ -219,7 +219,7 @@ namespace AuroraScript.Compiler
             VisitBreakExpression(node);
             AfterVisitNode(node);
         }
-        
+
         public void AcceptContinueExpression(ContinueStatement node)
         {
             BeforeVisitNode(node);

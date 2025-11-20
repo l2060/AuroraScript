@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Runtime.Types;
 using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base

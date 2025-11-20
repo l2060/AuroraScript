@@ -22,7 +22,7 @@ namespace AuroraScript
         /// <summary>
         /// 全局对象，存储全局变量和函数
         /// </summary>
-        public readonly ScriptGlobal Global = new ScriptGlobal();
+        public readonly ScriptGlobal Global;
 
         /// <summary>
         /// 字符串常量池，存储脚本中使用的所有字符串常量
@@ -51,6 +51,9 @@ namespace AuroraScript
         {
             Prototypes.Proload();
             _options = options;
+
+            Global = new ScriptGlobal();
+            Global.AttachRegistry(ClrRegistry);
             // 在全局对象中注册构造函数和全局变量
             Global.Define("console", new ConsoleEnvironment(), writeable: false, enumerable: false);
             Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
@@ -58,11 +61,11 @@ namespace AuroraScript
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Number", NumberConstructor.INSTANCE, writeable: false, enumerable: false);
-            
-
-
-            Global.AttachRegistry(ClrRegistry);
         }
+
+
+
+
 
 
 
@@ -144,7 +147,6 @@ namespace AuroraScript
         /// <returns>异步任务</returns>
         public async Task BuildAsync(String filename)
         {
-            
             var debugSymbols = new DebugSymbolInfo();
             // 初始化指令构建器
             var instructionBuilder = new InstructionBuilder(_stringSet);
@@ -172,7 +174,7 @@ namespace AuroraScript
         /// <returns></returns>
         public ScriptGlobal NewEnvironment()
         {
-            var environment = new ScriptGlobal() { _prototype = Global };
+            var environment = ScriptGlobal.With(Global);
             environment.AttachRegistry(ClrRegistry);
             return environment;
         }
@@ -190,12 +192,12 @@ namespace AuroraScript
             // 创建域全局对象，继承自引擎全局对象
             if (domainGlobal == null)
             {
-                domainGlobal = new ScriptGlobal() { _prototype = Global };
+                domainGlobal = ScriptGlobal.With(Global);
+                domainGlobal.AttachRegistry(ClrRegistry);
             }
-            domainGlobal.AttachRegistry(ClrRegistry);
             var domain = new ScriptDomain(this, runtimeVM, domainGlobal);
             // 创建执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, new ExecuteOptions(10, 0, false));
+            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default);
             // 创建初始调用帧并压入调用栈
             exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptDatum>(), Array.Empty<ClosureUpvalue>()));
             // 执行初始化代码

@@ -44,7 +44,7 @@ namespace AuroraScript.Runtime.Debugger
 
         public DebugSymbol Resolve(Int32 address)
         {
-            if(Childrens != null)
+            if (Childrens != null)
             {
                 foreach (var item in Childrens)
                 {
@@ -58,7 +58,7 @@ namespace AuroraScript.Runtime.Debugger
         }
 
 
-        public T ResolveParent<T>() where T: DebugSymbol
+        public T ResolveParent<T>() where T : DebugSymbol
         {
             if (this is T that) return that;
             if (this.Parent != null)

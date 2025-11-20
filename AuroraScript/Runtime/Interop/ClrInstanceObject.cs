@@ -1,8 +1,6 @@
 using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Types;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace AuroraScript.Runtime.Interop
 {
@@ -43,7 +41,7 @@ namespace AuroraScript.Runtime.Interop
             {
                 var instanceMethods = methods.Where(m => !m.IsStatic).ToArray();
                 if (instanceMethods.Length > 0)
-            {
+                {
                     return new ClrMethodBinding(_descriptor, instanceMethods, this, _registry, false);
                 }
             }
