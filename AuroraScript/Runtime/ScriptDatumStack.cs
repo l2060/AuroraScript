@@ -31,6 +31,24 @@ namespace AuroraScript.Runtime
             PushDatum(ScriptDatum.FromObject(value));
         }
 
+
+
+        public void ReplaceTop(ScriptDatum value)
+        {
+            if (_size == 0)
+            {
+                throw new InvalidOperationException("Stack is empty.");
+            }
+            _buffer[_size - 1] = value;
+        }
+
+        public void ReplaceTop(ScriptObject value)
+        {
+            ReplaceTop(ScriptDatum.FromObject(value));
+        }
+
+
+
         public ScriptDatum PopDatum()
         {
             if (_size == 0)

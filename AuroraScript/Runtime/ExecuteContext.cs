@@ -1,3 +1,4 @@
+using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
@@ -26,6 +27,16 @@ namespace AuroraScript.Runtime
         private AuroraRuntimeException _error;
         private Object _userState;
 
+        /// <summary>
+        /// 当前执行位置模块
+        /// </summary>
+        public ScriptModule CurrentModule
+        {
+            get
+            {
+                return _callStack.Count > 0 ? _callStack.Peek().Module : null;
+            }
+        }
         public ScriptDomain Domain { get; private set; }
         public ExecuteOptions ExecuteOptions { get; private set; } = ExecuteOptions.Default;
 
@@ -72,6 +83,10 @@ namespace AuroraScript.Runtime
             _stopwatch.Restart();
         }
 
+        /// <summary>
+        /// 在CLR中继续中断脚本的执行。
+        /// </summary>
+        /// <returns></returns>
         public ExecuteContext Continue()
         {
             if (_status == ExecuteStatus.Interrupted || _status == ExecuteStatus.Error)
@@ -83,7 +98,6 @@ namespace AuroraScript.Runtime
                     var patchVM = _virtualMachine.PatchVM();
                     patchVM.Patch(this);
                 }
-
                 _virtualMachine.Execute(this);
             }
             return this;
@@ -108,6 +122,16 @@ namespace AuroraScript.Runtime
             }
             return this;
         }
+
+
+        /// <summary>
+        /// 中断脚本执行
+        /// </summary>
+        public void Interrupt()
+        {
+            SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
+        }
+
 
         internal void SetStatus(ExecuteStatus status, ScriptObject result, Exception exception)
         {

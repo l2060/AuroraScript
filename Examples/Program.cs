@@ -35,21 +35,38 @@ namespace Examples
         }
         public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
+            Console.WriteLine(context.UserState);
             if (args == null || args.Length == 0 || args[0].Object is not ClosureFunction callback)
             {
                 return ScriptObject.Null;
             }
-            callback.InvokeFromClr(123, Array.Empty<object>(), thisObject).Done();
+            callback.InvokeFromClr(executeOptions, 123, Array.Empty<object>(), thisObject).Done();
             return ScriptObject.Null;
         }
 
         public static ScriptObject GIVE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-
             Console.WriteLine(context.UserState);
             Console.WriteLine($"GIVE {String.Join(" ", args)}");
             return ScriptObject.Null;
         }
+
+
+        public static ScriptObject CLIENT_INPUT_NUMBER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            Console.WriteLine(context.UserState);
+            Console.WriteLine($"OPEN INPUT {String.Join(" ", args)}");
+            var callback = args[3].Object as ClosureFunction;
+            Task.Run(async () =>
+            {
+                // 模拟回调调用
+                await Task.Delay(1000);
+                callback.InvokeFromClr(123);
+            });
+            return ScriptObject.Null;
+        }
+
+
 
 
 
@@ -94,6 +111,11 @@ namespace Examples
             g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
 
             engine.Global.Define("GIVE", new BondingFunction(GIVE), false, true, false);
+            engine.Global.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, true, false);
+
+
+
+
             engine.Global.Define("PI", g.GetPropertyValue("PI"));
             engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
             engine.Global.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
@@ -130,6 +152,9 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
+
+
+            BenchmarkScript(domain, "UNIT_LIB", "testInput");
         }
 
         private static void BenchmarkScript(ScriptDomain domain, string module, string method, params ScriptObject[] args)
@@ -139,7 +164,7 @@ namespace Examples
             GC.Collect();
             var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
             var stopwatch = Stopwatch.StartNew();
-            using var context = domain.Execute(module, method, executeOptions, args);
+            var context = domain.Execute(module, method, executeOptions, args);
             if (context.Status == ExecuteStatus.Error)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -147,12 +172,18 @@ namespace Examples
                 Console.ResetColor();
                 context.Continue().Done(AbnormalStrategy.Continue);
             }
-            context.Done();
+           // context.Done();
             stopwatch.Stop();
             var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
             var allocatedBytes = afterAlloc - beforeAlloc;
             var elapsedMicroseconds = stopwatch.ElapsedTicks * 1_000.0 / Stopwatch.Frequency;
             WriteBenchmarkResult(module, method, context.Status, context.UsedTime, allocatedBytes / 1024.0);
+
+
+            //if (context.Status == ExecuteStatus.Complete)
+            {
+                context.Dispose();
+            }
         }
 
         private static void WriteBenchmarkResult(string module, string method, ExecuteStatus status, double elapsedMs, double allocatedKb)

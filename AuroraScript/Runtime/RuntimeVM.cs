@@ -229,7 +229,7 @@ namespace AuroraScript.Runtime
 
 
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
-            while (true)
+            while (exeContext.Status == ExecuteStatus.Running)
             {
                 // 从当前指令指针位置读取操作码
                 var opCode = _codeBuffer.ReadOpCode(frame);
@@ -850,7 +850,6 @@ namespace AuroraScript.Runtime
                         if (exeContext.ExecuteOptions.EnabledYield)
                         {
                             exeContext.SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
-                            return;
                         }
                         break;
                     case OpCode.PUSH_0:

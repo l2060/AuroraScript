@@ -10,6 +10,14 @@ function defineTest(name, run) {
 }
 
 
+function testInput(){
+    INPUTNUMBER('购买数量','输入一个0-99的值','number',input_change);
+}
+
+function input_change(value){
+    GIVE("esd",value);
+    console.log("输入值=",value);
+}
 
 
 
