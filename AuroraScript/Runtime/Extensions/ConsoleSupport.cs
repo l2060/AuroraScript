@@ -8,12 +8,12 @@ using System.Linq;
 
 namespace AuroraScript.Runtime.Extensions
 {
-    internal class ConsoleEnvironment : ScriptObject
+    internal class ConsoleSupport : ScriptObject
     {
         private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private static readonly Dictionary<string, long> _times = new();
 
-        public ConsoleEnvironment()
+        public ConsoleSupport()
         {
             Define("log", new BondingFunction(LOG), writeable: false, enumerable: false);
             Define("time", new BondingFunction(TIME), writeable: false, enumerable: false);

@@ -14,15 +14,18 @@ namespace AuroraScript.Core
         /// </summary>
         Function = 6,
 
+        ClrType = 7,
+
+
         /// <summary>
         /// Clr原生方法
         /// </summary>
-        ClrFunction = 7,
+        ClrFunction = 8,
 
         /// <summary>
         /// 原型对象的Clr粘合函数
         /// </summary>
-        ClrBonding = 8
+        ClrBonding = 9
 
 
 

@@ -59,6 +59,14 @@ namespace AuroraScript.Core
             return new ScriptDatum { Kind = ValueKind.ClrFunction, Object = value };
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromClrType(ClrTypeObject value)
+        {
+            return new ScriptDatum { Kind = ValueKind.ClrType, Object = value };
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromBonding(BondingFunction value)
         {
@@ -97,6 +105,10 @@ namespace AuroraScript.Core
             {
                 return FromClrMethodBinding(clrMethodBinding);
             }
+            if (value is ClrTypeObject clrTypeObject)
+            {
+                return FromClrType(clrTypeObject);
+            }
             if (value is BondingFunction bonding)
             {
                 return FromBonding(bonding);
@@ -120,6 +132,8 @@ namespace AuroraScript.Core
                 case ValueKind.Object:
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Array:
+                    return Object ?? ScriptObject.Null;
+                case ValueKind.ClrType:
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Function:
                     return Object ?? ScriptObject.Null;
@@ -173,6 +187,8 @@ namespace AuroraScript.Core
                     return Datums.Array;
                 case ValueKind.Function:
                     return Datums.Function;
+                case ValueKind.ClrType:
+                    return Datums.ClrType;
                 case ValueKind.ClrFunction:
                     return Datums.ClrFunction;
                 case ValueKind.ClrBonding:
@@ -200,6 +216,8 @@ namespace AuroraScript.Core
                 case ValueKind.Array:
                     return Object?.ToString();
                 case ValueKind.Function:
+                    return Object?.ToString();
+                case ValueKind.ClrType:
                     return Object?.ToString();
                 case ValueKind.ClrFunction:
                     return Object?.ToString();

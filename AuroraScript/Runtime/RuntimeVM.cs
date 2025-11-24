@@ -787,15 +787,15 @@ namespace AuroraScript.Runtime
                             // 更新当前帧引用
                             frame = callFrame;
                         }
-                        else if (callable.Kind == ValueKind.ClrFunction && callable.Object is IClrInvokable clrInvokable)
-                        {
-                            var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
-                            PushDatum(callResult);
-                        }
                         else if (callable.Kind == ValueKind.ClrBonding && callable.Object is Callable callableFunc)
                         {
                             var callResult = callableFunc.Invoke(exeContext, null, argDatums);
                             PushObject(callResult);
+                        }
+                        else if ((callable.Kind == ValueKind.ClrType || callable.Kind == ValueKind.ClrFunction) && callable.Object is IClrInvokable clrInvokable)
+                        {
+                            var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
+                            PushDatum(callResult);
                         }
                         else
                         {

@@ -106,7 +106,6 @@ namespace Examples
         public static void Test()
         {
 
-
             var g = engine.NewEnvironment();
             g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
 
@@ -138,6 +137,12 @@ namespace Examples
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+
+
+            
+
+
+            BenchmarkScript(domain, "UNIT_LIB", "testClrType");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");

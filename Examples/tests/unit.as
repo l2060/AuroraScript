@@ -10,16 +10,28 @@ function defineTest(name, run) {
 }
 
 
-function testInput(){
-    INPUTNUMBER('购买数量','输入一个0-99的值','number',input_change);
+function testInput() {
+    INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', input_change);
+
+    INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', (value) => {
+        GIVE("esd",value);
+        console.log("输入值=",value);
+    });
+
 }
 
-function input_change(value){
+function input_change(value) {
     GIVE("esd",value);
     console.log("输入值=",value);
 }
 
-
+function testClrType() {
+    var s = TestObject();
+    s.fs = "ffff";
+    s.Name = "aaaa";
+    // JSON.stringify
+    console.log(s);
+}
 
 
 

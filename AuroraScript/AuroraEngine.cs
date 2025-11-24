@@ -55,12 +55,15 @@ namespace AuroraScript
             Global = new ScriptGlobal();
             Global.AttachRegistry(ClrRegistry);
             // 在全局对象中注册构造函数和全局变量
-            Global.Define("console", new ConsoleEnvironment(), writeable: false, enumerable: false);
+
             Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("String", StringConstructor.INSTANCE.Value, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Number", NumberConstructor.INSTANCE, writeable: false, enumerable: false);
+
+            Global.Define("console", new ConsoleSupport(), writeable: false, enumerable: false);
+            Global.Define("JSON", new JsonSupport(), writeable: false, enumerable: false);
         }
 
 
