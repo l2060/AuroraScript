@@ -127,6 +127,7 @@
         PUSH_TRUE,  // Push true onto the stack
         PUSH_THIS,  // Push true onto the stack
         PUSH_GLOBAL,
+        PUSH_CONTEXT, // Push user context
 
         //
 

@@ -638,6 +638,13 @@ namespace AuroraScript.Compiler.Emits
                 _instructionBuilder.PushGlobal();
                 return;
             }
+            if (node.Identifier.Value == "$ctx")
+            {
+                _instructionBuilder.PushUserContext();
+                return;
+            }
+
+
             if (_scope.Resolve(node.Identifier.Value, out var declare))
             {
                 if (declare.Type == DeclareType.Captured)

@@ -148,7 +148,7 @@ namespace AuroraScript
         /// </summary>
         /// <param name="filename">脚本文件名，可以是相对路径或绝对路径</param>
         /// <returns>异步任务</returns>
-        public async Task BuildAsync(String filename)
+        public async Task BuildAsync()
         {
             var debugSymbols = new DebugSymbolInfo();
             // 初始化指令构建器
@@ -158,13 +158,13 @@ namespace AuroraScript
             // 初始化脚本编译器，设置基础目录和字节码生成器
             var compiler = new ScriptCompiler(_options.BaseDirectory, codeGenerator);
             // 编译脚本文件
-            await compiler.Build(filename);
+            await compiler.Build();
             // 获取字符串常量池
             var stringConstants = _stringSet.List;
             // 生成字节码
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
-            runtimeVM = new RuntimeVM(bytes, stringConstants, debugSymbols, ClrRegistry);
+            runtimeVM = new RuntimeVM(this,bytes, stringConstants, debugSymbols, ClrRegistry);
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;
@@ -180,6 +180,15 @@ namespace AuroraScript
             var environment = ScriptGlobal.With(Global);
             environment.AttachRegistry(ClrRegistry);
             return environment;
+        }
+
+
+        public ScriptDomain CreateDomain(Action<ScriptGlobal> globalConfiguration, Object userState = null)
+        {
+            var domainGlobal = ScriptGlobal.With(Global);
+            domainGlobal.AttachRegistry(ClrRegistry);
+            globalConfiguration(domainGlobal);
+            return CreateDomain(domainGlobal, userState);
         }
 
 

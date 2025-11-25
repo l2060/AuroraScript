@@ -17,5 +17,9 @@ namespace Examples
         public Object Context { get; set; }
 
 
+        public void Test(Double offset, String str)
+        {
+
+        }
     }
 }

@@ -4,6 +4,7 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
+using Microsoft.Win32;
 using System;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -36,6 +37,7 @@ namespace AuroraScript.Runtime
 
         private readonly ClrTypeRegistry _clrRegistry;
 
+        private readonly AuroraEngine _engine;
 
         public PatchVM PatchVM()
         {
@@ -63,8 +65,9 @@ namespace AuroraScript.Runtime
         /// <param name="bytecode">要执行的字节码，由编译器生成的二进制指令序列</param>
         /// <param name="stringConstants">字符串常量池，包含脚本中所有的字符串字面量</param>
 
-        public RuntimeVM(byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols, ClrTypeRegistry clrRegistry)
+        public RuntimeVM(AuroraEngine engine, byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols, ClrTypeRegistry clrRegistry)
         {
+            _engine = engine;
             // 创建字节码缓冲区，用于读取和解析字节码指令
             _codeBuffer = new ByteCodeBuffer(bytecode);
             // 将字符串常量转换为StringValue对象并存储在不可变数组中
@@ -897,6 +900,19 @@ namespace AuroraScript.Runtime
                     case OpCode.PUSH_GLOBAL:
                         PushObject(domainGlobal);
                         break;
+                    case OpCode.PUSH_CONTEXT:
+                        var value5 = exeContext.UserState;
+                        var registry = _engine.ClrRegistry;
+                        if (registry != null && registry.TryGetDescriptor(value5.GetType(), out descriptor))
+                        {
+                            PushObject(new ClrInstanceObject(descriptor, value5, registry));
+                        }
+                        else
+                        {
+                            PushDatum(ScriptDatum.FromNull());
+                        }
+                        break;
+
                 }
             }
         }

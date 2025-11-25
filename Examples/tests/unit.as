@@ -31,6 +31,22 @@ function testClrType() {
     s.Name = "aaaa";
     // JSON.stringify
     console.log(s);
+
+    console.log(Math.Log10(5));
+
+    // 内置关键字 $ctx is UserState in ExecuteOptions
+    $ctx.Test(123.45,'abc');
+}
+
+
+
+function testJson() {
+    var obj = time.createTimer();
+
+    var json = JSON.stringify(obj, true);
+
+    console.log(json);
+
 }
 
 

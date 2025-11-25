@@ -39,7 +39,7 @@ namespace AuroraScript.Compiler
             this.codeGenerator = codeGenerator;
         }
 
-        public async Task Build(string filepath)
+        public async Task Build()
         {
             var files = Directory.GetFiles(_baseDirectory, "*.as", SearchOption.AllDirectories);
             ModuleSyntaxRef[] syntaxRefs = new ModuleSyntaxRef[files.Length];

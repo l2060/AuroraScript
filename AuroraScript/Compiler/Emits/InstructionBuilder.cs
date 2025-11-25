@@ -474,7 +474,10 @@ namespace AuroraScript.Compiler.Emits
             Emit(OpCode.PUSH_GLOBAL);
         }
 
-
+        public void PushUserContext()
+        {
+            Emit(OpCode.PUSH_CONTEXT);
+        }
 
         public void Call(Byte argsCount)
         {

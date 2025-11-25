@@ -37,6 +37,9 @@ export function createTimer(callback, interval = 521) {
         callback,
         interval,
         cancel,
+        numbers: [1, 2, 3, 4],
+        strings: ['a', 'b', 'c', 'd'],
+        datas: { v1: 123, v2: 'hello', v3: true },
         count: 50,
         reset: () => {
             timer.count = 0;

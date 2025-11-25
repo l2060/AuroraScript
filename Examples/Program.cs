@@ -74,8 +74,10 @@ namespace Examples
         public static async Task Main()
         {
             engine.RegisterClrType<TestObject>();
-
-            await engine.BuildAsync("./unit.as");
+            engine.RegisterClrType<UserState>();
+            engine.RegisterClrType(typeof(Math));
+            
+            await engine.BuildAsync();
 
             try
             {
@@ -101,29 +103,24 @@ namespace Examples
             Console.ReadKey();
         }
 
+        private static void GlobalConfiguration(ScriptGlobal g)
+        {
+            g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
+
+            g.Define("GIVE", new BondingFunction(GIVE), false, true, false);
+            g.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
+            g.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, true, false);
+
+            var fo = new TestObject();
+            g.SetPropertyValue("fo", fo);
+        }
+
+
 
 
         public static void Test()
         {
-
-            var g = engine.NewEnvironment();
-            g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
-
-            engine.Global.Define("GIVE", new BondingFunction(GIVE), false, true, false);
-            engine.Global.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, true, false);
-
-
-
-
-            engine.Global.Define("PI", g.GetPropertyValue("PI"));
-            engine.Global.SetPropertyValue("PI", g.GetPropertyValue("PI"));
-            engine.Global.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
-            var fo = new TestObject();
-            engine.Global.SetPropertyValue("fo", fo);
-            //engine.Global.SetPropertyValue("eat", new ClrFunction(TestObject.Eat));
-
-            var domain = engine.CreateDomain(g, userState);
-
+            var domain = engine.CreateDomain(GlobalConfiguration, userState);
             RunAndReportUnitTests(domain);
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
             //if (testInterruption.Status  == ExecuteStatus.Error)
@@ -136,12 +133,12 @@ namespace Examples
             // script function test
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
+            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12346"));
 
 
             
 
-
+            BenchmarkScript(domain, "UNIT_LIB", "testJson");
             BenchmarkScript(domain, "UNIT_LIB", "testClrType");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
@@ -168,7 +165,6 @@ namespace Examples
             GC.WaitForPendingFinalizers();
             GC.Collect();
             var beforeAlloc = GC.GetAllocatedBytesForCurrentThread();
-            var stopwatch = Stopwatch.StartNew();
             var context = domain.Execute(module, method, executeOptions, args);
             if (context.Status == ExecuteStatus.Error)
             {
@@ -177,11 +173,9 @@ namespace Examples
                 Console.ResetColor();
                 context.Continue().Done(AbnormalStrategy.Continue);
             }
-           // context.Done();
-            stopwatch.Stop();
+            // context.Done();
             var afterAlloc = GC.GetAllocatedBytesForCurrentThread();
             var allocatedBytes = afterAlloc - beforeAlloc;
-            var elapsedMicroseconds = stopwatch.ElapsedTicks * 1_000.0 / Stopwatch.Frequency;
             WriteBenchmarkResult(module, method, context.Status, context.UsedTime, allocatedBytes / 1024.0);
 
 
