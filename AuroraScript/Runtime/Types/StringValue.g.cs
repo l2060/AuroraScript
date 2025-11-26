@@ -46,7 +46,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return ScriptObject.Null;
             }
-            return BooleanValue.Of(str.Value.Contains(search.Value));
+            return BooleanValue.Of(str.Value.Contains(search));
         }
 
         public static ScriptObject INDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -57,7 +57,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return NumberValue.Negative1;
             }
-            return NumberValue.Of(str.Value.IndexOf(search.Value, StringComparison.Ordinal));
+            return NumberValue.Of(str.Value.IndexOf(search, StringComparison.Ordinal));
         }
 
         public static ScriptObject LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -68,7 +68,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return NumberValue.Negative1;
             }
-            return NumberValue.Of(str.Value.LastIndexOf(search.Value, StringComparison.Ordinal));
+            return NumberValue.Of(str.Value.LastIndexOf(search, StringComparison.Ordinal));
         }
 
         public static ScriptObject STARTSWITH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -79,7 +79,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return BooleanValue.False;
             }
-            return BooleanValue.Of(str.Value.StartsWith(search.Value, StringComparison.Ordinal));
+            return BooleanValue.Of(str.Value.StartsWith(search, StringComparison.Ordinal));
         }
 
         public static ScriptObject ENDSWITH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -90,7 +90,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return BooleanValue.False;
             }
-            return BooleanValue.Of(str.Value.EndsWith(search.Value, StringComparison.Ordinal));
+            return BooleanValue.Of(str.Value.EndsWith(search, StringComparison.Ordinal));
         }
 
         public static ScriptObject SUBSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -139,7 +139,7 @@ namespace AuroraScript.Runtime.Base
                 return thisObject;
             }
 
-            var segments = str.Value.Split(new[] { separator.Value }, StringSplitOptions.None)
+            var segments = str.Value.Split(new[] { separator }, StringSplitOptions.None)
                 .Select(StringValue.Of)
                 .Cast<ScriptObject>()
                 .ToArray();
@@ -184,13 +184,47 @@ namespace AuroraScript.Runtime.Base
                 return thisObject;
             }
 
-            var search = GetStringArg(args, 0);
-            var replace = GetStringArg(args, 1);
-            if (search == null || replace == null)
+            var target = str.Value;
+            if (args[0].Kind == ValueKind.String)
             {
-                return thisObject;
+                var search = GetStringArg(args, 0);
+                var replace = GetStringArg(args, 1);
+                if (search == null || replace == null)
+                {
+                    return thisObject;
+                }
+                target = target.Replace(search, replace);
             }
-            return StringValue.Of(str.Value.Replace(search.Value, replace.Value));
+            else if (args[0].Kind == ValueKind.Regex)
+            {
+                if (args[1].Kind == ValueKind.String)
+                {
+                    /* TODO
+                     
+                            const paragraph = "I think Ruth's dog is cuter than your dog!";
+
+                            console.log(paragraph.replace("Ruth's", "my"));
+                            // Expected output: "I think my dog is cuter than your dog!"
+
+                            const regex = /Dog/i;
+                            console.log(paragraph.replace(regex, "ferret"));
+                            // Expected output: "I think Ruth's ferret is cuter than your dog!"
+                     */
+                }
+                else if (args[1].Kind == ValueKind.Function)
+                {
+                    /* TODO
+                            function replacer(match, p1, p2, p3, offset, string) {
+                              // p1 是非数字，p2 是数字，且 p3 非字母数字
+                              return [p1, p2, p3].join(" - ");
+                            }
+                            const newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
+                            console.log(newString); // abc - 12345 - #$*%
+                     */
+                }
+            }
+
+            return StringValue.Of(target);
         }
 
         public static ScriptObject PADLEFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -202,12 +236,12 @@ namespace AuroraScript.Runtime.Base
 
             var len = GetNumberArg(args, 0);
             var pad = GetStringArg(args, 1);
-            if (len == null || pad == null || pad.Value.Length == 0)
+            if (len == null || pad == null || pad.Length == 0)
             {
                 return thisObject;
             }
 
-            return StringValue.Of(str.Value.PadLeft(len.Int32Value, pad.Value[0]));
+            return StringValue.Of(str.Value.PadLeft(len.Int32Value, pad[0]));
         }
 
         public static ScriptObject PADRIGHT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -219,12 +253,12 @@ namespace AuroraScript.Runtime.Base
 
             var len = GetNumberArg(args, 0);
             var pad = GetStringArg(args, 1);
-            if (len == null || pad == null || pad.Value.Length == 0)
+            if (len == null || pad == null || pad.Length == 0)
             {
                 return thisObject;
             }
 
-            return StringValue.Of(str.Value.PadRight(len.Int32Value, pad.Value[0]));
+            return StringValue.Of(str.Value.PadRight(len.Int32Value, pad[0]));
         }
 
         public static ScriptObject TRIM(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -270,25 +304,18 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of((Int32)str.Value[index]);
         }
 
-        private static StringValue GetStringArg(ScriptDatum[] args, Int32 index)
+        private static String GetStringArg(ScriptDatum[] args, Int32 index)
         {
             if (args == null || index < 0 || index >= args.Length)
             {
                 return null;
             }
-
             var datum = args[index];
             if (datum.Kind == ValueKind.String && datum.String != null)
             {
-                return datum.String;
+                return datum.String.Value;
             }
-
-            if (datum.Kind == ValueKind.Object && datum.Object is StringValue str)
-            {
-                return str;
-            }
-
-            return datum.ToObject() as StringValue;
+            return null;
         }
 
         private static NumberValue GetNumberArg(ScriptDatum[] args, Int32 index)
