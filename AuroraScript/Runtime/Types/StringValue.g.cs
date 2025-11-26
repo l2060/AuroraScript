@@ -1,6 +1,9 @@
 ﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
+using AuroraScript.Runtime;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace AuroraScript.Runtime.Base
@@ -146,8 +149,33 @@ namespace AuroraScript.Runtime.Base
 
         public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            return thisObject;
+            if (thisObject is not StringValue str)
+            {
+                return ScriptObject.Null;
+            }
+
+            var regex = ResolveRegexArgument(args, requireGlobal: false);
+            if (regex == null)
+            {
+                return ScriptObject.Null;
+            }
+
+            return regex.HasFlag("g")
+                ? regex.MatchOfGlobal(str)
+                : regex.Match(str);
         }
+
+        public static ScriptObject MATCHALL(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (thisObject is not StringValue str)
+            {
+                return ScriptObject.Null;
+            }
+
+            var regex = ResolveRegexArgument(args, requireGlobal: true);
+            return regex?.MatchAll(str) ?? ScriptObject.Null;
+        }
+
 
         public static ScriptObject REPLACE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
@@ -287,6 +315,57 @@ namespace AuroraScript.Runtime.Base
             }
 
             return datum.ToObject() as NumberValue;
+        }
+
+        private static ScriptRegex ResolveRegexArgument(ScriptDatum[] args, Boolean requireGlobal)
+        {
+            ScriptRegex regex = null;
+            if (args != null && args.Length > 0)
+            {
+                var candidate = args[0];
+                if (candidate.Kind == ValueKind.Regex && candidate.Object is ScriptRegex scriptRegex)
+                {
+                    if (requireGlobal && !scriptRegex.HasFlag("g"))
+                    {
+                        throw new AuroraRuntimeException("String.matchAll requires a global regular expression");
+                    }
+                    regex = scriptRegex;
+                }
+                else
+                {
+                    var pattern = CoercePatternFromDatum(candidate);
+                    var flags = requireGlobal ? "g" : "";
+                    regex = RegexManager.Resolve(pattern, flags);
+                }
+            }
+            else
+            {
+                regex = RegexManager.Resolve("undefined", requireGlobal ? "g" : "");
+            }
+
+            return regex;
+        }
+
+        private static String CoercePatternFromDatum(ScriptDatum datum)
+        {
+            switch (datum.Kind)
+            {
+                case ValueKind.String when datum.String != null:
+                    return datum.String.Value;
+                case ValueKind.Number:
+                    return datum.Number.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                case ValueKind.Boolean:
+                    return datum.Boolean ? "true" : "false";
+                case ValueKind.Null:
+                    return "null";
+                default:
+                    var obj = datum.ToObject();
+                    if (obj is StringValue str)
+                    {
+                        return str.Value;
+                    }
+                    return obj?.ToString() ?? String.Empty;
+            }
         }
     }
 }

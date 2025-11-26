@@ -6,9 +6,11 @@ using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AuroraScript.Runtime
 {
@@ -912,10 +914,20 @@ namespace AuroraScript.Runtime
                             PushDatum(ScriptDatum.FromNull());
                         }
                         break;
-
+                    case OpCode.NEW_REGEX:
+                        var _pattern = _codeBuffer.ReadInt32(frame);
+                        var _flags = _codeBuffer.ReadInt32(frame);
+                        var flags = _stringConstants[_flags];
+                        var pattern = _stringConstants[_pattern];
+                        var regex = RegexManager.Resolve(pattern.Value, flags.Value);
+                        PushDatum(ScriptDatum.FromRegex(regex));
+                        break;
                 }
             }
         }
+
+
+
 
     }
 }

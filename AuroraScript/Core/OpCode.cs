@@ -40,7 +40,7 @@
         INIT_MODULE,
         NEW_MAP,      // Create a new map (takes initial capacity)
         NEW_ARRAY,    // Create a new array (takes initial capacity)
-
+        NEW_REGEX,
 
         GET_ITERATOR,    // 获取迭代器
         ITERATOR_VALUE,   // 获取迭代器当前值

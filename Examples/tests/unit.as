@@ -25,7 +25,7 @@ function input_change(value) {
     console.log("输入值=",value);
 }
 
-function testClrType() {
+func testClrType() {
     var s = TestObject();
     s.fs = "ffff";
     s.Name = "aaaa";
@@ -47,7 +47,48 @@ function testJson() {
 
     console.log(json);
 
+    console.log(/profile\.json$/i);
+    var s = /profile\.json$/i.test("profile.json");
+
+    console.log(s);
+
 }
+
+
+func testRegex(){
+    var regex = /(?<animal>fox|cat) jumps over/;
+    var paragraph = "The quick brown fox jumps over the lazy dog. It barked.";
+    const found = paragraph.match(regex);
+    console.log(found.groups,found); // {animal: "fox"}
+
+
+    const paragraph2 = "The quick brown fox jumps over the lazy dog. It barked.";
+    const regex2 = /[A-Z]/g;
+    const found = paragraph2.match(regex2);
+    console.log(found);
+
+
+    const str = "For more information, see Chapter 3.4.5.1";
+    const re = /see (chapter \d+(\.\d)*)/i;
+    const found = str.match(re);
+
+    console.log(found);
+
+
+
+    var regexp = /t(e)(st(\d?))/g;
+    var str = "test1test2";
+
+    var array = str.matchAll(regexp);
+
+    console.log(array[0]);
+    // Expected output: Array ["test1", "e", "st1", "1"]
+
+    console.log(array[1]);
+    // Expected output: Array ["test2", "e", "st2", "2"]
+
+}
+
 
 
 

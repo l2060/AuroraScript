@@ -28,6 +28,7 @@ namespace AuroraScript.Scanning
         public static readonly TokenRules Identifier = new IdentifierRule();
         public static readonly TokenRules Punctuator = new PunctuatorRule();
         public static readonly TokenRules StringBlock = new StringBlockRule();
+        public static readonly TokenRules RegexLiteral = new RegexRule();
 
 
 
@@ -340,6 +341,91 @@ namespace AuroraScript.Scanning
                 }
             }
             return result;
+        }
+    }
+
+    internal class RegexRule : TokenRules
+    {
+        public override RuleTestResult Test(in ReadOnlySpan<Char> codeSpan, in Int32 LineNumber, in Int32 ColumnNumber)
+        {
+            var result = new RuleTestResult();
+            result.ColumnNumber = ColumnNumber;
+            if (codeSpan.Length < 2 || codeSpan[0] != '/')
+            {
+                return result;
+            }
+
+            var lookahead = codeSpan[1];
+            if (lookahead == '/' || lookahead == '*' || lookahead == '=')
+            {
+                return result;
+            }
+
+            var inCharacterClass = false;
+            var escaped = false;
+
+            for (int i = 1; i < codeSpan.Length; i++)
+            {
+                var current = codeSpan[i];
+                if (current == '\n' || current == '\r')
+                {
+                    return result;
+                }
+
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (current == '[')
+                {
+                    inCharacterClass = true;
+                    continue;
+                }
+
+                if (current == ']' && inCharacterClass)
+                {
+                    inCharacterClass = false;
+                    continue;
+                }
+
+                if (current == '/' && !inCharacterClass)
+                {
+                    var literalLength = i + 1;
+                    var flagsLength = 0;
+                    while (literalLength + flagsLength < codeSpan.Length)
+                    {
+                        var flagChar = codeSpan[literalLength + flagsLength];
+                        if (!IsValidFlag(flagChar))
+                        {
+                            break;
+                        }
+                        flagsLength++;
+                    }
+
+                    var totalLength = literalLength + flagsLength;
+                    result.ColumnNumber += totalLength;
+                    result.Length = totalLength;
+                    result.Value = codeSpan.Slice(0, totalLength).ToString();
+                    result.Type = TokenTyped.Regex;
+                    result.Success = true;
+                    return result;
+                }
+            }
+
+            return result;
+        }
+
+        private Boolean IsValidFlag(Char c)
+        {
+            return c == 'g' || c == 'i' || c == 'm' || c == 's' || c == 'u' || c == 'y';
         }
     }
 

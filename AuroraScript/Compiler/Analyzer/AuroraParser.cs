@@ -95,6 +95,7 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_IMPORT) return this.ParseImport();
             if (token.Symbol == Symbols.KW_EXPORT) return this.ParseExportStatement(currentScope);
             if (token.Symbol == Symbols.KW_FUNCTION) return this.ParseFunctionDeclaration(currentScope, MemberAccess.Internal);
+            if (token.Symbol == Symbols.KW_FUNC) return this.ParseFunctionDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
@@ -126,7 +127,7 @@ namespace AuroraScript.Analyzer
         private Statement ParseDeclare(Scope currentScope, MemberAccess access = MemberAccess.Internal)
         {
             this.lexer.NextOfKind(Symbols.KW_DECLARE);
-            if (this.lexer.TestNext(Symbols.KW_FUNCTION))
+            if (this.lexer.TestNext(Symbols.KW_FUNCTION) || this.lexer.TestNext(Symbols.KW_FUNC))
             {
                 // extend function
                 var funcName = this.lexer.NextOfKind<IdentifierToken>();
@@ -517,6 +518,8 @@ namespace AuroraScript.Analyzer
                     if (valueExpression.Type == Tokens.ValueType.String) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Null) tempExp = new LiteralExpression(valueExpression);
                     if (valueExpression.Type == Tokens.ValueType.Boolean) tempExp = new LiteralExpression(valueExpression);
+                    if (valueExpression.Type == Tokens.ValueType.Regex) tempExp = new LiteralExpression(valueExpression);
+
                 }
 
                 // identifier Operand
@@ -1025,7 +1028,7 @@ namespace AuroraScript.Analyzer
         /// <returns></returns>
         private Statement ParseFunctionDeclaration(Scope currentScope, MemberAccess access = MemberAccess.Internal)
         {
-            this.lexer.NextOfKind(Symbols.KW_FUNCTION);
+            this.lexer.NextOfKind(Symbols.KW_FUNCTION, Symbols.KW_FUNC);
             var functionName = this.lexer.NextOfKind<IdentifierToken>();
             // 校验 方法名是否有效
             return this.ParseFunction(functionName, currentScope, access, FunctionFlags.General);
@@ -1048,7 +1051,7 @@ namespace AuroraScript.Analyzer
 
 
             var token = this.lexer.LookAtHead();
-            if (token is KeywordToken && token.Symbol == Symbols.KW_FUNCTION)
+            if (token is KeywordToken && (token.Symbol == Symbols.KW_FUNCTION || token.Symbol == Symbols.KW_FUNC))
             {
                 // function
                 return ParseFunctionDeclaration(currentScope, MemberAccess.Export);

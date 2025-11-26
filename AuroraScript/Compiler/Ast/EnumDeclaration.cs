@@ -15,7 +15,7 @@ namespace AuroraScript.Ast
     {
         internal EnumDeclaration()
         {
-            this.Access = Symbols.KW_INTERNAL;
+            //this.Access = Symbols.KW_INTERNAL;
         }
 
         /// <summary>

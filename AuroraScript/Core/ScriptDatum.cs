@@ -44,6 +44,12 @@ namespace AuroraScript.Core
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromRegex(ScriptRegex value)
+        {
+            return new ScriptDatum { Kind = ValueKind.Regex, Object = value };
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromClosure(ClosureFunction value)
@@ -97,6 +103,10 @@ namespace AuroraScript.Core
             {
                 return FromArray(scriptArray);
             }
+            if (value is ScriptRegex scriptRegex)
+            {
+                return FromRegex(scriptRegex);
+            }
             if (value is ClosureFunction closureFunction)
             {
                 return FromClosure(closureFunction);
@@ -130,6 +140,8 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return String;
                 case ValueKind.Object:
+                    return Object ?? ScriptObject.Null;
+                case ValueKind.Regex:
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Array:
                     return Object ?? ScriptObject.Null;
@@ -185,6 +197,8 @@ namespace AuroraScript.Core
                     return Datums.Object;
                 case ValueKind.Array:
                     return Datums.Array;
+                case ValueKind.Regex:
+                    return Datums.Regex;
                 case ValueKind.Function:
                     return Datums.Function;
                 case ValueKind.ClrType:
@@ -212,6 +226,8 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return String.Value;
                 case ValueKind.Object:
+                    return Object?.ToString();
+                case ValueKind.Regex:
                     return Object?.ToString();
                 case ValueKind.Array:
                     return Object?.ToString();

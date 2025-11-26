@@ -16,6 +16,7 @@ namespace AuroraScript.Runtime.Types
         public static readonly ScriptObject ArrayConstructorPrototype = new ScriptObject(Prototypes.ObjectPrototype);
         public static readonly ScriptObject StringConstructorPrototype = new ScriptObject(Prototypes.ObjectPrototype);
         public static readonly ScriptObject StringValuePrototype = new ScriptObject(Prototypes.ObjectPrototype);
+        public static readonly ScriptObject RegexPrototype = new ScriptObject(Prototypes.ObjectPrototype);
 
 
 
@@ -47,6 +48,12 @@ namespace AuroraScript.Runtime.Types
             BooleanValuePrototype.Define("constructor", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             BooleanValuePrototype.Define("toString", new BondingFunction(BooleanValue.TOSTRING), writeable: false, enumerable: false);
             BooleanValuePrototype.Frozen();
+
+
+            // regex
+            RegexPrototype.Define("constructor", ScriptRegexConstructor.INSTANCE, writeable: false, enumerable: false);
+            RegexPrototype.Define("test", new BondingFunction(ScriptRegex.TEST), writeable: false, enumerable: false);
+            RegexPrototype.Frozen();
 
 
             // Callable
@@ -106,6 +113,7 @@ namespace AuroraScript.Runtime.Types
             StringValuePrototype.Define("substring", new BondingFunction(StringValue.SUBSTRING), writeable: false, enumerable: false);
             StringValuePrototype.Define("split", new BondingFunction(StringValue.SPLIT), writeable: false, enumerable: false);
             StringValuePrototype.Define("match", new BondingFunction(StringValue.MATCH), writeable: false, enumerable: false);
+            StringValuePrototype.Define("matchAll", new BondingFunction(StringValue.MATCHALL), writeable: false, enumerable: false);
             StringValuePrototype.Define("replace", new BondingFunction(StringValue.REPLACE), writeable: false, enumerable: false);
             StringValuePrototype.Define("padLeft", new BondingFunction(StringValue.PADLEFT), writeable: false, enumerable: false);
             StringValuePrototype.Define("padRight", new BondingFunction(StringValue.PADRIGHT), writeable: false, enumerable: false);

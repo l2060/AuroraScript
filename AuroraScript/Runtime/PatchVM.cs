@@ -289,6 +289,9 @@ namespace AuroraScript.Runtime
                     break;
                 case OpCode.PUSH_GLOBAL:
                     break;
+                case OpCode.NEW_REGEX:
+                    pushStack(ScriptObject.Null);
+                    break;
             }
 
         }

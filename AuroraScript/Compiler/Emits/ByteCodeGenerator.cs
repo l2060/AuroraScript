@@ -6,6 +6,7 @@ using AuroraScript.Compiler.Ast.Statements;
 using AuroraScript.Compiler.Exceptions;
 using AuroraScript.Core;
 using AuroraScript.Runtime.Debugger;
+using AuroraScript.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -622,6 +623,10 @@ namespace AuroraScript.Compiler.Emits
             else if (token.Type == Tokens.ValueType.Boolean)
             {
                 _instructionBuilder.PushConstantBoolean((bool)node.Value);
+            }
+            else if (token.Type == Tokens.ValueType.Regex && token is RegexToken regex)
+            {
+                _instructionBuilder.NewRegex(regex.Pattern, regex.Flags);
             }
         }
 

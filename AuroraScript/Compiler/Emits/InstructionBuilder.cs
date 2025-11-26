@@ -53,6 +53,15 @@ namespace AuroraScript.Compiler.Emits
             return AppendInstruction(instruction);
         }
 
+        public Instruction EmitStr2(OpCode opCode, String str1, String str2)
+        {
+            var v1 = _stringSet.GetSlot(str1);
+            var v2 = _stringSet.GetSlot(str2);
+            var instruction = new InstructionStr2(opCode, _position, v1, v2);
+            instruction.String1 = _stringSet.List[v1];
+            instruction.String2 = _stringSet.List[v2];
+            return AppendInstruction(instruction);
+        }
 
 
 
@@ -466,6 +475,13 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.STORE_LOCAL, index);
         }
+
+        public void NewRegex(String pattern, String flags)
+        {
+            EmitStr2(OpCode.NEW_REGEX, pattern,flags);
+        }
+
+
 
 
 

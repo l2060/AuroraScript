@@ -7,6 +7,7 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Examples
@@ -73,10 +74,12 @@ namespace Examples
 
         public static async Task Main()
         {
+            Regex regex = new Regex("profile\\.json$", RegexOptions.IgnoreCase);
+
             engine.RegisterClrType<TestObject>();
             engine.RegisterClrType<UserState>();
             engine.RegisterClrType(typeof(Math));
-            
+
             await engine.BuildAsync();
 
             try
@@ -136,8 +139,8 @@ namespace Examples
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12346"));
 
 
-            
 
+            BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
             BenchmarkScript(domain, "UNIT_LIB", "testClrType");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");

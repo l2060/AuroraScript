@@ -13,11 +13,12 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_IF = new Symbols("if", SymbolTypes.KeyWord);
         public static readonly Symbols KW_AS = new Symbols("as", SymbolTypes.KeyWord);
         public static readonly Symbols KW_ELSE = new Symbols("else", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_TYPE = new Symbols("type", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_TYPE = new Symbols("type", SymbolTypes.KeyWord);
         public static readonly Symbols KW_CONST = new Symbols("const", SymbolTypes.KeyWord);
         public static readonly Symbols KW_FUNCTION = new Symbols("function", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_GET = new Symbols("get", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_SET = new Symbols("set", SymbolTypes.KeyWord);
+        public static readonly Symbols KW_FUNC = new Symbols("func", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_GET = new Symbols("get", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_SET = new Symbols("set", SymbolTypes.KeyWord);
 
         public static readonly Symbols KW_VAR = new Symbols("var", SymbolTypes.KeyWord);
         public static readonly Symbols KW_RETURN = new Symbols("return", SymbolTypes.KeyWord);
@@ -31,28 +32,28 @@ namespace AuroraScript.Compiler
 
 
         public static readonly Symbols KW_WHILE = new Symbols("while", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_PRIVATE = new Symbols("private", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_PROTECTED = new Symbols("protected", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_PUBLIC = new Symbols("public", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_CLASS = new Symbols("class", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_PRIVATE = new Symbols("private", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_PROTECTED = new Symbols("protected", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_PUBLIC = new Symbols("public", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_STATIC = new Symbols("static", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_CLASS = new Symbols("class", SymbolTypes.KeyWord);
 
         public static readonly Symbols KW_IMPORT = new Symbols("import", SymbolTypes.KeyWord);
         public static readonly Symbols KW_FROM = new Symbols("from", SymbolTypes.KeyWord);
         public static readonly Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord);
 
-        public static readonly Symbols KW_EXTENDS = new Symbols("extends", SymbolTypes.KeyWord);
-        public static readonly Symbols KW_IMPLEMENTS = new Symbols("implements", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_EXTENDS = new Symbols("extends", SymbolTypes.KeyWord);
+        //public static readonly Symbols KW_IMPLEMENTS = new Symbols("implements", SymbolTypes.KeyWord);
 
 
         // types
-        public static readonly Symbols KW_THIS = new Symbols("this", SymbolTypes.Identifier);
+        //public static readonly Symbols KW_THIS = new Symbols("this", SymbolTypes.Identifier);
 
         // byte char short ushort long ulong float double
         // number = double
-        public static readonly Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Identifier);
+        //public static readonly Symbols TYPED_NUMBER = new Symbols("number", SymbolTypes.Identifier);
 
 
         /// <summary>

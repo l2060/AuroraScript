@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace AuroraScript.Runtime.Extensions
 {
@@ -57,16 +57,23 @@ namespace AuroraScript.Runtime.Extensions
             {
                 indented = args[1].IsTrue();
             }
+            return Serialize(args[0], indented);
+        }
 
+
+
+        public static ScriptObject Serialize(ScriptDatum datum, Boolean indented = false)
+        {
             var bufferWriter = new ArrayBufferWriter<byte>();
             using var jsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = indented });
             var visited = new HashSet<ScriptObject>(ReferenceComparer.Instance);
-
-            WriteDatum(jsonWriter, args[0], visited);
+            WriteDatum(jsonWriter, datum, visited);
             jsonWriter.Flush();
-
             return StringValue.Of(Encoding.UTF8.GetString(bufferWriter.WrittenSpan));
         }
+
+
+
 
         private static ScriptObject ConvertElement(JsonElement element)
         {

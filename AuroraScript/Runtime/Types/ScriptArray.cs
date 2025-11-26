@@ -146,12 +146,12 @@ namespace AuroraScript.Runtime.Base
 
         public override void SetPropertyValue(String key, ScriptObject value)
         {
-
+            base.SetPropertyValue(key, value);
         }
 
         public override void Define(String key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
-
+            base.Define(key, value, readable, writeable, enumerable);
         }
 
         public override string ToString()

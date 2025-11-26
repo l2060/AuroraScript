@@ -68,6 +68,7 @@ namespace AuroraScript.Analyzer
             this.AddRegex(TokenRules.HexNumber);
             this.AddRegex(TokenRules.Identifier);
             this.AddRegex(TokenRules.Number);
+            this.AddRegex(TokenRules.RegexLiteral);
             this.AddRegex(TokenRules.Punctuator);
             this.AddRegex(TokenRules.StringTemplate);
 
@@ -88,6 +89,17 @@ namespace AuroraScript.Analyzer
             }
             return token;
         }
+
+        public Token NextOfKind(params Symbols[] symbols)
+        {
+            var token = this.Next();
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                if (token.Symbol == symbols[i]) return token;
+            }
+            throw new AuroraLexerException(this.FullPath, token.LineNumber, token.ColumnNumber, $"The keyword {token.Value} appears in the wrong place, it should be {String.Join(",", symbols)}.");
+        }
+
 
         /// <summary>
         /// If it is the specified token, return, otherwise report an error
@@ -247,8 +259,13 @@ namespace AuroraScript.Analyzer
         {
             if (this.bufferLength <= 0) return Token.EOF;
             ReadOnlySpan<Char> span = this.InputData.AsSpan(this.readOffset, this.bufferLength);
+             var allowRegexLiteral = this.ShouldParseRegexLiteral();
             foreach (var rule in this._TokenRules)
             {
+                if (!allowRegexLiteral && Object.ReferenceEquals(rule, TokenRules.RegexLiteral))
+                {
+                    continue;
+                }
                 var result = rule.Test(span, this.LineNumber, this.ColumnNumber);
                 if (result.Success)
                 {
@@ -271,6 +288,50 @@ namespace AuroraScript.Analyzer
             throw new AuroraLexerException(this.FileName, this.LineNumber, this.ColumnNumber, "Invalid keywords 。");
         }
 
+        private Boolean ShouldParseRegexLiteral()
+        {
+            if (this.tokens.Count == 0)
+            {
+                return true;
+            }
+
+            var previousToken = this.tokens[this.tokens.Count - 1];
+            if (previousToken == Token.EOF)
+            {
+                return true;
+            }
+
+            if (previousToken is KeywordToken)
+            {
+                return true;
+            }
+
+            if (previousToken is OperatorToken operatorToken)
+            {
+                var symbol = operatorToken.Symbol;
+                if (symbol == Symbols.OP_INCREMENT || symbol == Symbols.OP_DECREMENT)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            if (previousToken is PunctuatorToken punctuator)
+            {
+                var symbol = punctuator.Symbol;
+                if (symbol == Symbols.PT_RIGHTPARENTHESIS ||
+                    symbol == Symbols.PT_RIGHTBRACKET ||
+                    symbol == Symbols.PT_RIGHTBRACE ||
+                    symbol == Symbols.PT_DOT)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// create token from rule result
         /// </summary>
@@ -283,6 +344,7 @@ namespace AuroraScript.Analyzer
             if (result.Type == TokenTyped.String) token = new StringToken(false);
             if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
             if (result.Type == TokenTyped.Number) token = new NumberToken(result.Value);
+            if (result.Type == TokenTyped.Regex) token = new RegexToken(result.Value);
 
             if (token == null)
             {
