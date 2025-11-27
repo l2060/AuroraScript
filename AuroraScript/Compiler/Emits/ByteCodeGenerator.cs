@@ -469,6 +469,15 @@ namespace AuroraScript.Compiler.Emits
 
         protected override void VisitDeconstructionExpression(DeconstructionExpression node)
         {
+            node.Right?.Accept(this);
+            if (node.Parent is ArrayLiteralExpression)
+            {
+                _instructionBuilder.DeConstructArray();
+            }
+            else if (node.Parent is MapExpression)
+            {
+                _instructionBuilder.DeConstructMap();
+            }
 
         }
 
@@ -689,6 +698,10 @@ namespace AuroraScript.Compiler.Emits
                     // Push the value
                     property.Value.Accept(this);
                     _instructionBuilder.SetProperty(property.Key.Value);
+                }
+                else if (entry is DeconstructionExpression deconstruction)
+                {
+                    deconstruction.Accept(this);
                 }
                 // Pop the result of SET_PROPERTY (the value)
                 //_instructionBuilder.Pop();

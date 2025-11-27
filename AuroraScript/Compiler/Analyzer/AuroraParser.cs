@@ -882,6 +882,7 @@ namespace AuroraScript.Analyzer
                     var spread = new DeconstructionExpression();
                     spread.AddNode(value);
                     constructExpression.AddNode(spread);
+                    this.lexer.TestNext(Symbols.PT_COMMA);
                     continue;
                 }
                 Token varName = this.lexer.TestNextOfKind<IdentifierToken>();

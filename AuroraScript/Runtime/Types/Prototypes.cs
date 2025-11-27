@@ -105,9 +105,6 @@ namespace AuroraScript.Runtime.Types
             ScriptArrayPrototype.Define("unshift", new BondingFunction(ScriptArray.UNSHIFT), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("shift", new BondingFunction(ScriptArray.SHIFT), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("concat", new BondingFunction(ScriptArray.CONCAT), writeable: false, enumerable: false);
-
-
-
             ScriptArrayPrototype.Frozen();
 
 

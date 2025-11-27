@@ -139,6 +139,14 @@ namespace AuroraScript.Runtime.Base
             return Slice(start, _count);
         }
 
+        public Span<ScriptDatum> Values()
+        {
+            return _items.AsSpan(0,_count);
+        }
+
+
+
+
         public ScriptObject Pop()
         {
             return PopDatum().ToObject();

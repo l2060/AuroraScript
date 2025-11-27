@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 
@@ -482,7 +483,14 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
-
+        public void DeConstructArray()
+        {
+            Emit(OpCode.DECONSTRUCT_ARRAY);
+        }
+        public void DeConstructMap()
+        {
+            Emit(OpCode.DECONSTRUCT_MAP);
+        }
 
 
         public void PushGlobal()

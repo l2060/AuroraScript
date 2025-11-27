@@ -641,7 +641,6 @@ namespace AuroraScript.Runtime
                         break;
 
 
-
                     case OpCode.BIT_SHIFT_L:
                         datumRight = PopDatum();
                         datumLeft = PopDatum();
@@ -922,6 +921,32 @@ namespace AuroraScript.Runtime
                         var regex = RegexManager.Resolve(pattern.Value, flags.Value);
                         PushDatum(ScriptDatum.FromRegex(regex));
                         break;
+
+                    case OpCode.DECONSTRUCT_ARRAY:
+                        datumValue = PopDatum();
+                        if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
+                        {
+                            //TODO array.
+
+
+
+                            PushDatum(datumValue);
+                        }
+                        break;
+
+                    case OpCode.DECONSTRUCT_MAP:
+                        datumValue = PopDatum();
+                        value = PopObject();
+                        if (datumValue.Kind == ValueKind.Object && datumValue.Object is ScriptObject value4)
+                        {
+                            var keys = value4.GetKeys();  //TODO  ScriptArray 可枚举
+                            foreach (var key in keys.Values())
+                            {
+                                value.SetPropertyValue(key.String.Value, value4.GetPropertyValue(key.String.Value));
+                            }
+                        }
+                        break;
+
                 }
             }
         }

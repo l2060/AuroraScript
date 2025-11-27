@@ -42,22 +42,32 @@ func testClrType() {
 
 function testJson() {
     var obj = time.createTimer();
-
     var json = JSON.stringify(obj, true);
-
     console.log(json);
-
-    console.log(/profile\.json$/i);
-    var s = /profile\.json$/i.test("profile.json");
-
-    console.log(s);
-
 }
 
 function replacer(match, p1, p2, p3, offset, string) {
   // p1 是非数字，p2 是数字，且 p3 非字母数字
   return [p1, p2, p3].join(" - ");
 }
+
+
+func testDeConstruct(){
+    var a = [4,5,6];
+    var b = [1,2,3, ...a,7,8,9];
+    console.log(b);
+
+    var c = {d:4,e:5,f:6};
+    var d = {a:1,b:2,c:3,...c,g:7,h:8};
+    console.log(d);
+
+
+
+}
+
+
+
+
 
 
 func testRegex(){
@@ -93,6 +103,11 @@ func testRegex(){
     const newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
     console.log(newString); 
     // abc - 12345 - #$*%
+
+    console.log(/profile\.json$/i);
+    var s = /profile\.json$/i.test("profile.json");
+    console.log(s);
+
 
 }
 
