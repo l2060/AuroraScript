@@ -26,10 +26,15 @@
  - [x] 迭代器 Iterator 
  - [x] for in
  - [x] 调试符号表、闭包方法名、行号、列号、调用者行号
- - [x] 导出属性的访问权限  export  const
+ - [ ] 导出属性的访问权限  export  const
  - [x] 固定大小的本地变量表测量
- - [x] CallFrame 复用
+ - [x] CallFrame 和 ExecuteContext复用 降内存
  - [x] 脚本对象NumberValue、StringValue的优化
+ - [x] Regex 正则表达式
+ - [x] JSON 序列化支持
+ - [x] CLR 类型支持
+ - [x] 闭包方法的引用、回调。
+ - [x] 脚本用户上下文
 
 
  
@@ -49,7 +54,7 @@
  Module之间可以通过 Import xxx from 'modulefile'; 进行引用，这里会将modulefile作为当前module的xxx变量，这样你可以通过xxx.yy来访问modulefile的导出方法或属性。
 
  ## Function
- 方法调用支持闭包方法、Lambda方法、方法指针，你可以发挥你的想象。
+ 方法调用支持闭包方法(支持function|func关键字)、Lambda方法、方法指针，你可以发挥你的想象。
 
 
  ## Interruption & Continue
@@ -63,15 +68,18 @@
  
 
 
- ## 支持的类型
- - String
- - Number
- - Boolean
+ ## 支持的类型 通过 typeof 关键字获取
  - Null
+ - Boolean
+ - Number
+ - String
+ - Object
  - Array
- - Map Object
- - Closure
+ - Regex
+ - Function
+ - ClrType
  - ClrFunction
+ - ClrBonding
 
 
  ---
@@ -82,7 +90,7 @@
 // 创建一个脚本环境
 var engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
 // 编译脚本，编译器会扫描工作目录下所有脚本文件，并根据Import语句自动编译依赖的脚本
-await engine.BuildAsync("./unit.as");
+await engine.BuildAsync();
 
 ```
 
@@ -175,7 +183,7 @@ var testContinue = domain.Execute("UNIT_LIB", "testContinue").Done(AbnormalStrat
 
 ```
 
-## 特殊的文本模板
+## 文本模板
 
 ``` csharp
 

@@ -139,7 +139,6 @@ namespace Examples
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12346"));
 
 
-
             BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
             BenchmarkScript(domain, "UNIT_LIB", "testClrType");

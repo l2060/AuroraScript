@@ -67,12 +67,24 @@ namespace AuroraScript.Runtime.Types
 
 
             // NumberConstructor
-            NumberConstructorPrototype.Define("maxValue", NumberConstructor.MAX_VALUE, writeable: false, enumerable: false);
-            NumberConstructorPrototype.Define("minValue", NumberConstructor.MIN_VALUE, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("MAX_VALUE", NumberConstructor.MAX_VALUE, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("MIN_VALUE", NumberConstructor.MIN_VALUE, writeable: false, enumerable: false);
+
+            NumberConstructorPrototype.Define("MAX_SAFE_INTEGER", NumberConstructor.MAX_SAFE_INTEGER, writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("MIN_SAFE_INTEGER", NumberConstructor.MIN_SAFE_INTEGER, writeable: false, enumerable: false);
+
             NumberConstructorPrototype.Define("NaN", NumberConstructor.NaN, writeable: false, enumerable: false);
+
             NumberConstructorPrototype.Define("POSITIVE_INFINITY", NumberConstructor.POSITIVE_INFINITY, writeable: false, enumerable: false);
             NumberConstructorPrototype.Define("NEGATIVE_INFINITY", NumberConstructor.NEGATIVE_INFINITY, writeable: false, enumerable: false);
-            NumberConstructorPrototype.Define("parse", new BondingFunction(NumberConstructor.PARSE), writeable: false, enumerable: false);
+
+            NumberConstructorPrototype.Define("isNaN", new BondingFunction(NumberConstructor.IS_NAN), writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("isInteger", new BondingFunction(NumberConstructor.IS_INTEGER), writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("isInfinity", new BondingFunction(NumberConstructor.IS_INFINITY), writeable: false, enumerable: false);
+
+            NumberConstructorPrototype.Define("parseFloat", new BondingFunction(NumberConstructor.PARSE_FLOAT), writeable: false, enumerable: false);
+            NumberConstructorPrototype.Define("parseInt", new BondingFunction(NumberConstructor.PARSE_INTEGER), writeable: false, enumerable: false);
+
             NumberConstructorPrototype.Frozen();
 
 
@@ -89,16 +101,25 @@ namespace AuroraScript.Runtime.Types
             ScriptArrayPrototype.Define("join", new BondingFunction(ScriptArray.JOIN), writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("constructor", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
             ScriptArrayPrototype.Define("slice", new BondingFunction(ScriptArray.SLICE), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("reverse", new BondingFunction(ScriptArray.REVERSE), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("unshift", new BondingFunction(ScriptArray.UNSHIFT), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("shift", new BondingFunction(ScriptArray.SHIFT), writeable: false, enumerable: false);
+            ScriptArrayPrototype.Define("concat", new BondingFunction(ScriptArray.CONCAT), writeable: false, enumerable: false);
+
+
+
             ScriptArrayPrototype.Frozen();
 
 
             // ArrayConstructor
+            ArrayConstructorPrototype.Define("from", new BondingFunction(ArrayConstructor.FROM), writeable: false, enumerable: false);
+            ArrayConstructorPrototype.Define("isArray", new BondingFunction(ArrayConstructor.IS_ARRAY), writeable: false, enumerable: false);
+            ArrayConstructorPrototype.Define("of", new BondingFunction(ArrayConstructor.OF), writeable: false, enumerable: false); 
             ArrayConstructorPrototype.Frozen();
 
             // StringConstructor
             StringConstructorPrototype.Define("fromCharCode", new BondingFunction(StringConstructor.FROMCHARCODE), writeable: false, enumerable: false);
             StringConstructorPrototype.Define("valueOf", new BondingFunction(StringConstructor.CONSTRUCTOR), writeable: false, enumerable: false);
-            //Prototype.Define("fromCodePoint", new ClrFunction(PARSE),  writeable: false, enumerable: false);
             StringConstructorPrototype.Frozen();
 
 

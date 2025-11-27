@@ -54,6 +54,11 @@ function testJson() {
 
 }
 
+function replacer(match, p1, p2, p3, offset, string) {
+  // p1 是非数字，p2 是数字，且 p3 非字母数字
+  return [p1, p2, p3].join(" - ");
+}
+
 
 func testRegex(){
     var regex = /(?<animal>fox|cat) jumps over/;
@@ -74,8 +79,6 @@ func testRegex(){
 
     console.log(found);
 
-
-
     var regexp = /t(e)(st(\d?))/g;
     var str = "test1test2";
 
@@ -86,6 +89,10 @@ func testRegex(){
 
     console.log(array[1]);
     // Expected output: Array ["test2", "e", "st2", "2"]
+
+    const newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
+    console.log(newString); 
+    // abc - 12345 - #$*%
 
 }
 

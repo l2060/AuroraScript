@@ -99,6 +99,26 @@ namespace AuroraScript.Runtime.Types
             return _flags.IndexOf(flag) > -1;
         }
 
+        internal String Replace(String input, String replacement, Boolean replaceAll)
+        {
+            input ??= String.Empty;
+            replacement ??= String.Empty;
+            var count = replaceAll ? Int32.MaxValue : 1;
+            return _regex.Replace(input, replacement, count);
+        }
+
+        internal String Replace(String input, MatchEvaluator evaluator, Boolean replaceAll)
+        {
+            if (evaluator == null)
+            {
+                throw new ArgumentNullException(nameof(evaluator));
+            }
+
+            input ??= String.Empty;
+            var count = replaceAll ? Int32.MaxValue : 1;
+            return _regex.Replace(input, evaluator, count);
+        }
+
 
         public static ScriptObject TEST(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {

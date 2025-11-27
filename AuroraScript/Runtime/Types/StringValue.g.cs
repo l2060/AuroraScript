@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AuroraScript.Runtime.Base
 {
@@ -197,30 +198,45 @@ namespace AuroraScript.Runtime.Base
             }
             else if (args[0].Kind == ValueKind.Regex)
             {
-                if (args[1].Kind == ValueKind.String)
+                if (args[0].Object is not ScriptRegex regex)
                 {
-                    /* TODO
-                     
-                            const paragraph = "I think Ruth's dog is cuter than your dog!";
-
-                            console.log(paragraph.replace("Ruth's", "my"));
-                            // Expected output: "I think my dog is cuter than your dog!"
-
-                            const regex = /Dog/i;
-                            console.log(paragraph.replace(regex, "ferret"));
-                            // Expected output: "I think Ruth's ferret is cuter than your dog!"
-                     */
+                    return thisObject;
                 }
-                else if (args[1].Kind == ValueKind.Function)
+
+                var input = target ?? String.Empty;
+                var replaceAll = regex.HasFlag("g");
+
+                if (args[1].Kind == ValueKind.String) // replace(/regex/, 'str')
                 {
-                    /* TODO
-                            function replacer(match, p1, p2, p3, offset, string) {
-                              // p1 是非数字，p2 是数字，且 p3 非字母数字
-                              return [p1, p2, p3].join(" - ");
-                            }
-                            const newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
-                            console.log(newString); // abc - 12345 - #$*%
-                     */
+                    var replacement = GetStringArg(args, 1);
+                    if (replacement == null)
+                    {
+                        return thisObject;
+                    }
+
+                    target = regex.Replace(input, replacement, replaceAll);
+                }
+                else if (args[1].Kind == ValueKind.Function && args[1].Object is ClosureFunction callback) // replace(/regex/, (m,p1,p2,p3,offset,str)=>{ })
+                {
+                    var executeOptions = context?.ExecuteOptions ?? ExecuteOptions.Default;
+                    var originalValue = StringValue.Of(input);
+
+                    target = regex.Replace(input, match =>
+                    {
+                        var groupCount = match.Groups.Count;
+                        var callbackArgs = new ScriptObject[groupCount + 2];
+
+                        callbackArgs[0] = StringValue.Of(match.Value);
+                        for (var i = 1; i < groupCount; i++)
+                        {
+                            callbackArgs[i] = match.Groups[i].Success
+                                ? StringValue.Of(match.Groups[i].Value)
+                                : ScriptObject.Null;
+                        }
+                        callbackArgs[groupCount] = NumberValue.Of(match.Index);
+                        callbackArgs[groupCount + 1] = originalValue;
+                        return InvokeReplaceCallback(callback, executeOptions, callbackArgs);
+                    }, replaceAll);
                 }
             }
 
@@ -302,6 +318,37 @@ namespace AuroraScript.Runtime.Base
             }
 
             return NumberValue.Of((Int32)str.Value[index]);
+        }
+
+        private static String InvokeReplaceCallback(ClosureFunction callback, ExecuteOptions executeOptions, ScriptObject[] parameters)
+        {
+            executeOptions ??= ExecuteOptions.Default;
+            var execContext = callback.Invoke(executeOptions, parameters);
+            try
+            {
+                execContext.Done();
+                if (execContext.Status == ExecuteStatus.Error)
+                {
+                    throw execContext.Error ?? new AuroraRuntimeException("The replace callback threw an error.");
+                }
+
+                var result = execContext.Result;
+                if (result == null || result == ScriptObject.Null)
+                {
+                    return String.Empty;
+                }
+
+                if (result is StringValue stringResult)
+                {
+                    return stringResult.Value;
+                }
+
+                return result.ToString() ?? String.Empty;
+            }
+            finally
+            {
+                execContext.Dispose();
+            }
         }
 
         private static String GetStringArg(ScriptDatum[] args, Int32 index)

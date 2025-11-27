@@ -41,6 +41,103 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+
+        public static ScriptObject REVERSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (thisObject is ScriptArray array)
+            {
+                var count = array._count;
+                var items = array._items;
+                if (items != null && count > 1)
+                {
+                    for (int left = 0, right = count - 1; left < right; left++, right--)
+                    {
+                        (items[left], items[right]) = (items[right], items[left]);
+                    }
+                }
+                return array;
+            }
+            return thisObject;
+        }
+
+        public static ScriptObject UNSHIFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (thisObject is ScriptArray array)
+            {
+                if (args == null || args.Length == 0)
+                {
+                    return NumberValue.Of(array._count);
+                }
+
+                var insertCount = args.Length;
+                array.EnsureCapacity(array._count + insertCount);
+                for (int i = array._count - 1; i >= 0; i--)
+                {
+                    array._items[i + insertCount] = array._items[i];
+                }
+                for (int i = 0; i < insertCount; i++)
+                {
+                    array._items[i] = args[i];
+                }
+                array._count += insertCount;
+                return NumberValue.Of(array._count);
+            }
+            return NumberValue.Zero;
+        }
+
+
+        public static ScriptObject SHIFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (thisObject is ScriptArray array)
+            {
+                if (array._count == 0)
+                {
+                    return ScriptObject.Null;
+                }
+
+                var first = array._items[0];
+                for (int i = 1; i < array._count; i++)
+                {
+                    array._items[i - 1] = array._items[i];
+                }
+                array._count--;
+                array._items[array._count] = ScriptDatum.FromNull();
+                return first.ToObject();
+            }
+            return ScriptObject.Null;
+        }
+        public static ScriptObject CONCAT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        {
+            if (thisObject is ScriptArray array)
+            {
+                var result = new ScriptArray(array._count);
+                AppendArrayContents(result, array);
+
+                if (args != null)
+                {
+                    foreach (var arg in args)
+                    {
+                        var obj = arg.ToObject();
+                        if (obj is ScriptArray scriptArray)
+                        {
+                            AppendArrayContents(result, scriptArray);
+                        }
+                        else
+                        {
+                            result.PushDatum(arg);
+                        }
+                    }
+                }
+
+                return result;
+            }
+            return ScriptObject.Null;
+        }
+
+        
+
+
+
         public static ScriptObject SORT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             if (thisObject is not ScriptArray array)
@@ -204,6 +301,16 @@ namespace AuroraScript.Runtime.Base
             return strValue.Slice(start);
         }
 
+        private static void AppendArrayContents(ScriptArray target, ScriptArray source)
+        {
+            if (target == null || source == null || source._count == 0)
+            {
+                return;
+            }
 
+            target.EnsureCapacity(target._count + source._count);
+            Array.Copy(source._items, 0, target._items, target._count, source._count);
+            target._count += source._count;
+        }
     }
 }

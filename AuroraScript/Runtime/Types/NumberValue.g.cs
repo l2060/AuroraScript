@@ -12,6 +12,8 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class NumberValue
     {
+
+
         public static readonly NumberValue Negative1 = new NumberValue(-1);
         public static readonly NumberValue NaN = new NumberValue(Double.NaN);
         public static readonly NumberValue Zero = new NumberValue(0);
