@@ -492,7 +492,7 @@ namespace AuroraScript.Runtime
 
                         if (obj is ScriptObject targetScriptObj)
                         {
-                            targetScriptObj.SetPropertyValue(propName.Value, (Base.ScriptObject)value);
+                            targetScriptObj.SetPropertyValue(propName.Value, value);
                         }
                         else
                         {

@@ -16,7 +16,8 @@ namespace AuroraScript.Core
         public static readonly ScriptDatum ClrFunction = ScriptDatum.FromString(new StringValue("clr:function"));
         public static readonly ScriptDatum ClrBonding = ScriptDatum.FromString(new StringValue("clr:bonding"));
         public static readonly ScriptDatum ClrType = ScriptDatum.FromString(new StringValue("clr:type"));
-
+        public static readonly ScriptDatum Module = ScriptDatum.FromString(new StringValue("module"));
+       
     }
 
 

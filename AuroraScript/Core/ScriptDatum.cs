@@ -43,6 +43,11 @@ namespace AuroraScript.Core
             return new ScriptDatum { Kind = ValueKind.Array, Object = value };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromModule(ScriptModule value)
+        {
+            return new ScriptDatum { Kind = ValueKind.Module, Object = value };
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromRegex(ScriptRegex value)
@@ -123,6 +128,10 @@ namespace AuroraScript.Core
             {
                 return FromBonding(bonding);
             }
+            if (value is ScriptModule module)
+            {
+                return FromModule(module);
+            }
             return new ScriptDatum { Kind = ValueKind.Object, Object = value };
         }
 
@@ -145,6 +154,8 @@ namespace AuroraScript.Core
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Array:
                     return Object ?? ScriptObject.Null;
+                case ValueKind.Module:
+                    return Object ?? ScriptObject.Null;
                 case ValueKind.ClrType:
                     return Object ?? ScriptObject.Null;
                 case ValueKind.Function:
@@ -153,9 +164,8 @@ namespace AuroraScript.Core
                     return Object ?? ScriptObject.Null;
                 case ValueKind.ClrBonding:
                     return Object ?? ScriptObject.Null;
-
                 default:
-                    return ScriptObject.Null;
+                    return Object ?? ScriptObject.Null;
             }
         }
 
@@ -175,6 +185,8 @@ namespace AuroraScript.Core
                 case ValueKind.Object:
                     return Object?.IsTrue() ?? false;
                 case ValueKind.Array:
+                    return Object?.IsTrue() ?? false;
+                case ValueKind.Module:
                     return Object?.IsTrue() ?? false;
                 default:
                     return false;
@@ -197,6 +209,8 @@ namespace AuroraScript.Core
                     return Datums.Object;
                 case ValueKind.Array:
                     return Datums.Array;
+                case ValueKind.Module:
+                    return Datums.Module;
                 case ValueKind.Regex:
                     return Datums.Regex;
                 case ValueKind.Function:
@@ -225,23 +239,8 @@ namespace AuroraScript.Core
                     return Number.ToString();
                 case ValueKind.String:
                     return String.Value;
-                case ValueKind.Object:
-                    return Object?.ToString();
-                case ValueKind.Regex:
-                    return Object?.ToString();
-                case ValueKind.Array:
-                    return Object?.ToString();
-                case ValueKind.Function:
-                    return Object?.ToString();
-                case ValueKind.ClrType:
-                    return Object?.ToString();
-                case ValueKind.ClrFunction:
-                    return Object?.ToString();
-                case ValueKind.ClrBonding:
-                    return Object?.ToString();
-
                 default:
-                    return "";
+                    return Object?.ToString();
             }
         }
 

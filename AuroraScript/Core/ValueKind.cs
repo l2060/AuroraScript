@@ -9,6 +9,9 @@ namespace AuroraScript.Core
         Object,
         Array,
 
+        Module,
+
+
         Regex,
         /// <summary>
         /// 脚本原生方法
