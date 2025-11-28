@@ -26,5 +26,19 @@ namespace AuroraScript.Runtime
                 return Value.ToString();
             }
         }
+
+        public ObjectProperty Clone()
+        {
+            return new ObjectProperty()
+            {
+                Key = Key,
+                Readable = Readable,
+                Writable = Writable,
+                Enumerable = Enumerable,
+                Value = Value
+            };
+        }
+
+
     }
 }

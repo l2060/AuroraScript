@@ -392,15 +392,32 @@ namespace AuroraScript.Runtime
 
                     case OpCode.NEW_ARRAY:
                         var count = _codeBuffer.ReadInt32(frame);
+                        var newArray = new ScriptArray(count);
                         var datumBuffer = new ScriptDatum[count];
                         for (int i = count - 1; i >= 0; i--)
                         {
                             datumBuffer[i] = PopDatum();
                         }
-                        var newArray = new ScriptArray(count);
+                        int index = 0;
                         for (int i = 0; i < count; i++)
                         {
-                            newArray.SetDatum(i, datumBuffer[i]);
+                            if (datumBuffer[i].Kind == ValueKind.Object && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
+                            {
+                                if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
+                                {
+                                    for (int n = 0; n < array1.Length; n++)
+                                    {
+                                        newArray.SetDatum(index, array1.GetDatum(n));
+                                        index++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                newArray.SetDatum(index, datumBuffer[i]);
+                                index++;
+                            }
+
                         }
                         PushObject(newArray);
                         break;
@@ -926,11 +943,8 @@ namespace AuroraScript.Runtime
                         datumValue = PopDatum();
                         if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
                         {
-                            //TODO array.
-
-
-
-                            PushDatum(datumValue);
+                            var deConstruct = new ScriptDeConstruct(array, ValueKind.Array);
+                            PushObject(deConstruct);
                         }
                         break;
 
@@ -939,10 +953,14 @@ namespace AuroraScript.Runtime
                         value = PopObject();
                         if (datumValue.Kind == ValueKind.Object && datumValue.Object is ScriptObject value4)
                         {
-                            var keys = value4.GetKeys();  //TODO  ScriptArray 可枚举
-                            foreach (var key in keys.Values())
+                            value.CopyPropertysFrom(value4, true);
+                        }
+                        else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
+                        {
+                            for (int i = 0; i < array1.Length; i++)
                             {
-                                value.SetPropertyValue(key.String.Value, value4.GetPropertyValue(key.String.Value));
+                                var ele = array1.GetDatum(i);
+                                value.SetPropertyValue(i.ToString(), ele.ToObject());
                             }
                         }
                         break;

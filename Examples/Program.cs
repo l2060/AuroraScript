@@ -14,7 +14,7 @@ namespace Examples
 {
     public class Program
     {
-        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./temp/" });
         private static UserState userState = new UserState();
         private static ExecuteOptions executeOptions = ExecuteOptions.Default.WithUserState(userState);
 
@@ -124,7 +124,7 @@ namespace Examples
         public static void Test()
         {
             var domain = engine.CreateDomain(GlobalConfiguration, userState);
-            RunAndReportUnitTests(domain);
+
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
             //if (testInterruption.Status  == ExecuteStatus.Error)
             //{
@@ -134,15 +134,15 @@ namespace Examples
             //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
             //}
             // script function test
+
+            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
+
+
+            return;
+            RunAndReportUnitTests(domain);
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12346"));
-
-
-
-     
-
-
             BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
             BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
@@ -150,7 +150,6 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
-            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "UNIT_LIB", "test");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");

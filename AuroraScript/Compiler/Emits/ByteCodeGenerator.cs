@@ -478,6 +478,10 @@ namespace AuroraScript.Compiler.Emits
             {
                 _instructionBuilder.DeConstructMap();
             }
+            else
+            {
+                throw new AuroraCompilerException("","不允许的解构运算符");
+            }
 
         }
 

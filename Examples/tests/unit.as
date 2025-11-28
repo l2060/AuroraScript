@@ -58,7 +58,7 @@ func testDeConstruct(){
     console.log(b);
 
     var c = {d:4,e:5,f:6};
-    var d = {a:1,b:2,c:3,...c,g:7,h:8};
+    var d = {a:1,b:2,c:3,...c,g:7,h:8,...b};
     console.log(d);
 
 
@@ -613,24 +613,35 @@ export function testClrFunc() {
     return true;
 }
 
-export function testClosure() {
+func closure1(){
     var title = '123';
-    function makeCounter() {
-        title = 'abc';
-        var count = 0;
+    var count = 0;
+    function makeCounter1() {
         return () => {
+            title = 'ABC';
             count = count + 1;
             return {title,count};
         };
     }
-    var counter = makeCounter();
+    function makeCounter2() {
+        return () => {
+            title = 'XYZ';
+            count = count + 1;
+            return {title,count};
+        };
+    }
+    return { a: makeCounter1() , b: makeCounter2() };
+}
 
-    console.log(counter());
-    console.log(counter());
-    console.log(counter());
 
 
 
+export function testClosure() {
+    var funcs = closure1();
+    console.log(funcs.a());
+    console.log(funcs.b());
+    console.log(funcs.a());
+    console.log(funcs.b());
 }
 
 export function testMD5() {

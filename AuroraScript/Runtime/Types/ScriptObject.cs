@@ -129,6 +129,18 @@ namespace AuroraScript.Runtime.Base
 
 
 
+        public void CopyPropertysFrom(ScriptObject scriptObject, Boolean force = false)
+        {
+            foreach (var item in scriptObject._properties)
+            {
+                if (!this._properties.ContainsKey(item.Key) || force)
+                {
+                    this._properties.Add(item.Key, item.Value.Clone());
+                }
+            }
+        }
+
+
 
 
         /// <summary>
