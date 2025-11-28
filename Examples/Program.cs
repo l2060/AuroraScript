@@ -14,7 +14,7 @@ namespace Examples
 {
     public class Program
     {
-        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./temp/" });
+        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
         private static UserState userState = new UserState();
         private static ExecuteOptions executeOptions = ExecuteOptions.Default.WithUserState(userState);
 
@@ -138,7 +138,6 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
 
 
-            return;
             RunAndReportUnitTests(domain);
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
             BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
