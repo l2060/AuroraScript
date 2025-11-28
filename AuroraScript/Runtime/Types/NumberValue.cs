@@ -28,11 +28,6 @@ namespace AuroraScript.Runtime.Base
             return _value.ToString();
         }
 
-        public override string ToDisplayString()
-        {
-            return _value.ToString();
-        }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Boolean IsTrue()

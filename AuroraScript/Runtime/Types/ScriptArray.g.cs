@@ -33,7 +33,7 @@ namespace AuroraScript.Runtime.Base
 
         public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            if(thisObject is ScriptArray array)
+            if (thisObject is ScriptArray array)
             {
                 return array.PopDatum().ToObject();
             }
@@ -117,8 +117,7 @@ namespace AuroraScript.Runtime.Base
                 {
                     foreach (var arg in args)
                     {
-                        var obj = arg.ToObject();
-                        if (obj is ScriptArray scriptArray)
+                        if (arg.TryGetArray(out var scriptArray))
                         {
                             AppendArrayContents(result, scriptArray);
                         }
@@ -134,7 +133,7 @@ namespace AuroraScript.Runtime.Base
             return ScriptObject.Null;
         }
 
-        
+
 
 
 
@@ -162,7 +161,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        
+
 
 
 
@@ -173,7 +172,7 @@ namespace AuroraScript.Runtime.Base
                 var separator = ",";
                 if (args != null && args.Length > 0)
                 {
-                    separator = CoerceDatumToString(args[0], ",");
+                    separator = args[0].ToString();
                 }
 
                 if (array.Length == 0)
@@ -188,7 +187,7 @@ namespace AuroraScript.Runtime.Base
                     {
                         builder.Append(separator);
                     }
-                    var element = array.GetElement(i);
+                    var element = array.Get(i);
                     builder.Append(CoerceScriptValueToString(element));
                 }
                 return StringValue.Of(builder.ToString());
@@ -196,52 +195,15 @@ namespace AuroraScript.Runtime.Base
             return thisObject;
         }
 
-        private static string CoerceDatumToString(ScriptDatum datum, string fallback)
-        {
-            if (datum.Kind == ValueKind.String && datum.String != null)
-            {
-                return datum.String.Value;
-            }
 
-            var value = datum.ToObject();
-            if (value is StringValue str)
-            {
-                return str.Value;
-            }
-            if (value is NumberValue number)
-            {
-                return number.DoubleValue.ToString(CultureInfo.InvariantCulture);
-            }
-            if (value is BooleanValue bol)
-            {
-                return bol.Value ? "true" : "false";
-            }
-            if (value == null || ReferenceEquals(value, ScriptObject.Null))
+
+        private static string CoerceScriptValueToString(ScriptDatum value)
+        {
+            if (value.Kind == ValueKind.Null)
             {
                 return string.Empty;
             }
-            return value.ToString() ?? fallback;
-        }
-
-        private static string CoerceScriptValueToString(ScriptObject value)
-        {
-            if (value == null || ReferenceEquals(value, ScriptObject.Null))
-            {
-                return string.Empty;
-            }
-            if (value is StringValue str)
-            {
-                return str.Value;
-            }
-            if (value is NumberValue number)
-            {
-                return number.DoubleValue.ToString(CultureInfo.InvariantCulture);
-            }
-            if (value is BooleanValue bol)
-            {
-                return bol.Value ? "true" : "false";
-            }
-            return value.ToString() ?? string.Empty;
+            return value.ToString();
         }
 
         private static int CompareDatumForSort(ScriptDatum left, ScriptDatum right)
@@ -250,9 +212,8 @@ namespace AuroraScript.Runtime.Base
             {
                 return left.Number.CompareTo(right.Number);
             }
-
-            var leftString = CoerceScriptValueToString(left.ToObject());
-            var rightString = CoerceScriptValueToString(right.ToObject());
+            var leftString = CoerceScriptValueToString(left);
+            var rightString = CoerceScriptValueToString(right);
             return string.CompareOrdinal(leftString, rightString);
         }
         public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
@@ -273,15 +234,6 @@ namespace AuroraScript.Runtime.Base
             {
                 start = (Int32)arg0.Number;
             }
-            else
-            {
-                var startObj = arg0.ToObject();
-                if (startObj is NumberValue posNum)
-                {
-                    start = posNum.Int32Value;
-                }
-            }
-
             if (args.Length > 1)
             {
                 var arg1 = args[1];
@@ -289,12 +241,6 @@ namespace AuroraScript.Runtime.Base
                 {
                     var end = (Int32)arg1.Number;
                     return strValue.Slice(start, end);
-                }
-
-                var endObj = arg1.ToObject();
-                if (endObj is NumberValue lenNum)
-                {
-                    return strValue.Slice(start, lenNum.Int32Value);
                 }
             }
 

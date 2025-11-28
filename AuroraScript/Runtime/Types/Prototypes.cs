@@ -111,7 +111,7 @@ namespace AuroraScript.Runtime.Types
             // ArrayConstructor
             ArrayConstructorPrototype.Define("from", new BondingFunction(ArrayConstructor.FROM), writeable: false, enumerable: false);
             ArrayConstructorPrototype.Define("isArray", new BondingFunction(ArrayConstructor.IS_ARRAY), writeable: false, enumerable: false);
-            ArrayConstructorPrototype.Define("of", new BondingFunction(ArrayConstructor.OF), writeable: false, enumerable: false); 
+            ArrayConstructorPrototype.Define("of", new BondingFunction(ArrayConstructor.OF), writeable: false, enumerable: false);
             ArrayConstructorPrototype.Frozen();
 
             // StringConstructor

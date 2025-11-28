@@ -259,7 +259,7 @@ namespace AuroraScript.Analyzer
         {
             if (this.bufferLength <= 0) return Token.EOF;
             ReadOnlySpan<Char> span = this.InputData.AsSpan(this.readOffset, this.bufferLength);
-             var allowRegexLiteral = this.ShouldParseRegexLiteral();
+            var allowRegexLiteral = this.ShouldParseRegexLiteral();
             foreach (var rule in this._TokenRules)
             {
                 if (!allowRegexLiteral && Object.ReferenceEquals(rule, TokenRules.RegexLiteral))

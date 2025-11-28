@@ -26,11 +26,6 @@ namespace AuroraScript.Runtime.Base
             return _value.GetHashCode();
         }
 
-        public override string ToDisplayString()
-        {
-            return $"\"{_value}\"";
-        }
-
 
         public override string ToString()
         {

@@ -21,17 +21,11 @@ namespace AuroraScript.Runtime.Types
             }
 
             var datum = args[0];
-            Int32 codePoint;
+            Int32 codePoint = 0;
             if (datum.Kind == ValueKind.Number)
             {
                 codePoint = (Int32)datum.Number;
             }
-            else
-            {
-                var number = datum.ToObject() as NumberValue;
-                codePoint = number?.Int32Value ?? 0;
-            }
-
             return StringValue.Of(((Char)codePoint).ToString());
         }
 
@@ -41,20 +35,12 @@ namespace AuroraScript.Runtime.Types
             {
                 return StringValue.Empty;
             }
-
             var datum = args[0];
             if (datum.Kind == ValueKind.String && datum.String != null)
             {
                 return datum.String;
             }
-
-            var strObj = datum.ToObject() as StringValue;
-            if (strObj != null)
-            {
-                return strObj;
-            }
-
-            return StringValue.Of(datum.ToObject()?.ToString() ?? String.Empty);
+            return StringValue.Of(datum.ToString());
         }
     }
 }

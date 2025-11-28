@@ -92,7 +92,7 @@ namespace AuroraScript.Runtime.Interop
 
             foreach (var item in values)
             {
-                array.Push(ToScriptObject(item, registry));
+                array.PushDatum(ScriptDatum.FromObject(ToScriptObject(item, registry)));
             }
 
             return array;

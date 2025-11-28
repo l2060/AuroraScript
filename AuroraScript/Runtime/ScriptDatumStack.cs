@@ -75,10 +75,7 @@ namespace AuroraScript.Runtime
             return _buffer[_size - 1];
         }
 
-        public ScriptObject Peek()
-        {
-            return PeekDatum().ToObject();
-        }
+
 
 
         public void Duplicate()

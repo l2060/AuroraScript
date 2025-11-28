@@ -46,16 +46,6 @@ namespace AuroraScript.Runtime.Base
                     }
                     throw new AuroraVMException("未实现的");
                 }
-
-                var obj = arg.ToObject();
-                if (obj is NumberValue num && num.Int32Value == 16)
-                {
-                    return StringValue.Of(thisNumber.Int32Value.ToString("X"));
-                }
-                if (obj is NumberValue)
-                {
-                    throw new AuroraVMException("未实现的");
-                }
             }
 
             return StringValue.Of(thisNumber._value.ToString());

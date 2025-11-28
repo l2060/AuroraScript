@@ -4,13 +4,10 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
-using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace AuroraScript.Runtime
 {
@@ -213,7 +210,7 @@ namespace AuroraScript.Runtime
                     case ValueKind.Null:
                         return ScriptObject.Null.ToString();
                     default:
-                        return keyDatum.ToObject()?.ToString() ?? String.Empty;
+                        return keyDatum.ToString();
                 }
             }
 
@@ -407,14 +404,14 @@ namespace AuroraScript.Runtime
                                 {
                                     for (int n = 0; n < array1.Length; n++)
                                     {
-                                        newArray.SetDatum(index, array1.GetDatum(n));
+                                        newArray.Set(index, array1.Get(n));
                                         index++;
                                     }
                                 }
                             }
                             else
                             {
-                                newArray.SetDatum(index, datumBuffer[i]);
+                                newArray.Set(index, datumBuffer[i]);
                                 index++;
                             }
 
@@ -438,7 +435,7 @@ namespace AuroraScript.Runtime
                         obj = PopObject();
                         if (obj is ItemIterator iterator)
                         {
-                            PushObject(iterator.Value());
+                            PushDatum(iterator.Value());
                         }
                         else
                         {
@@ -545,7 +542,7 @@ namespace AuroraScript.Runtime
                         var datumObjValue = PopDatum();
                         if (datumObjValue.Kind == ValueKind.Array && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
                         {
-                            PushDatum(scriptArray.GetDatum((Int32)datumValue.Number));
+                            PushDatum(scriptArray.Get((Int32)datumValue.Number));
                         }
                         else if (datumObjValue.Kind == ValueKind.Object)
                         {
@@ -564,7 +561,7 @@ namespace AuroraScript.Runtime
                         var datumAssignedValue = PopDatum();
                         if (datumTargetObj.Kind == ValueKind.Array && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
                         {
-                            scriptArray2.SetDatum((Int32)datumValue.Number, datumAssignedValue);
+                            scriptArray2.Set((Int32)datumValue.Number, datumAssignedValue);
                         }
                         else if (datumTargetObj.Kind == ValueKind.Object)
                         {
@@ -628,8 +625,8 @@ namespace AuroraScript.Runtime
                         }
                         else
                         {
-                            var result = datumLeft.ToObject() + datumRight.ToObject();
-                            PushObject(result);
+                            var result = datumLeft.ToString() + datumRight.ToString();
+                            PushDatum(ScriptDatum.FromString(StringValue.Of(result)));
                         }
                         break;
                     case OpCode.SUBTRACT:
@@ -959,7 +956,7 @@ namespace AuroraScript.Runtime
                         {
                             for (int i = 0; i < array1.Length; i++)
                             {
-                                var ele = array1.GetDatum(i);
+                                var ele = array1.Get(i);
                                 value.SetPropertyValue(i.ToString(), ele.ToObject());
                             }
                         }

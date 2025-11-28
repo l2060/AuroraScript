@@ -164,7 +164,7 @@ namespace AuroraScript
             // 生成字节码
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
-            runtimeVM = new RuntimeVM(this,bytes, stringConstants, debugSymbols, ClrRegistry);
+            runtimeVM = new RuntimeVM(this, bytes, stringConstants, debugSymbols, ClrRegistry);
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;

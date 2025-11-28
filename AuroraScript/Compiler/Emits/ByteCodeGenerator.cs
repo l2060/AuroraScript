@@ -488,7 +488,7 @@ namespace AuroraScript.Compiler.Emits
             }
             else
             {
-                throw new AuroraCompilerException("","不允许的解构运算符");
+                throw new AuroraCompilerException("", "不允许的解构运算符");
             }
 
         }

@@ -1,4 +1,3 @@
-using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;

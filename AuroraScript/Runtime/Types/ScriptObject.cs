@@ -1,10 +1,10 @@
-﻿using AuroraScript.Exceptions;
+﻿using AuroraScript.Core;
+using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 
 namespace AuroraScript.Runtime.Base
@@ -180,25 +180,10 @@ namespace AuroraScript.Runtime.Base
 
         public override string ToString()
         {
-            if (_properties == null || _properties.Count == 0) return "[object]";
-            return ToDisplayString();
+            return "[object]";
         }
 
-        public virtual string ToDisplayString()
-        {
-            if (_properties.Count == 0) return "";
-            StringBuilder sb = new StringBuilder();
-            sb.Append("{");
-            foreach (var pair in _properties)
-            {
-                sb.Append($"\"{pair.Key}\": ");
-                sb.Append(pair.Value.Value.ToDisplayString());
-                sb.Append(", ");
-            }
-            sb.Length -= 2;
-            sb.Append("}");
-            return sb.ToString();
-        }
+
 
 
         public static StringValue operator +(ScriptObject a, ScriptObject b)
@@ -215,7 +200,7 @@ namespace AuroraScript.Runtime.Base
 
         ItemIterator IEnumerator.GetIterator()
         {
-            var result = new List<ScriptObject>();
+            var result = new List<ScriptDatum>();
             var current = this;
             while (current != null)
             {
@@ -225,13 +210,13 @@ namespace AuroraScript.Runtime.Base
                     {
                         if (item.Value.Enumerable)
                         {
-                            result.Add(item.Value.Key);
+                            result.Add(ScriptDatum.FromString(item.Value.Key));
                         }
                     }
                 }
                 current = current._prototype;
             }
-            return ItemIterator.FromObjects(result);
+            return new ItemIterator(result.ToArray());
         }
 
 

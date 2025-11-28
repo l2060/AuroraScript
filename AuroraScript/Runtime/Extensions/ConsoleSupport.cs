@@ -24,7 +24,7 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args != null && args.Length > 0)
             {
-                var message = args.Select(arg => arg.ToObject()?.ToString() ?? "null");
+                var message = args.Select(arg => arg.ToString() ?? "null");
                 Console.WriteLine(string.Join(", ", message));
             }
             return Null;
@@ -66,9 +66,7 @@ namespace AuroraScript.Runtime.Extensions
             {
                 return datum.String.Value;
             }
-
-            var obj = datum.ToObject();
-            return (obj as StringValue)?.Value ?? obj?.ToString();
+            return null;
         }
     }
 }

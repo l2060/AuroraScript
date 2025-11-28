@@ -5,8 +5,6 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Diagnostics;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -243,7 +241,7 @@ namespace Examples
                 {
                     for (int i = 0; i < failedCases.Length; i++)
                     {
-                        if (failedCases.GetElement(i) is ScriptObject failedCase)
+                        if (failedCases.Get(i).Object is ScriptObject failedCase)
                         {
                             var name = failedCase.GetPropertyValue("name");
                             var checks = failedCase.GetPropertyValue("checks");
@@ -254,14 +252,14 @@ namespace Examples
                             {
                                 for (int j = 0; j < failures.Length; j++)
                                 {
-                                    if (failures.GetElement(j) is ScriptObject failure)
+                                    if (failures.Get(j).Object is ScriptObject failure)
                                     {
                                         var message = failure.GetPropertyValue("message");
                                         var actual = failure.GetPropertyValue("actual");
                                         var expected = failure.GetPropertyValue("expected");
                                         Console.WriteLine($"      - {message}");
-                                        Console.WriteLine($"        actual: {FormatScriptValue(actual)}");
-                                        Console.WriteLine($"        expected: {FormatScriptValue(expected)}");
+                                        Console.WriteLine($"        actual: {actual}");
+                                        Console.WriteLine($"        expected: {expected}");
                                     }
                                 }
                             }
@@ -273,36 +271,6 @@ namespace Examples
             }
         }
 
-
-
-
-        private static string FormatScriptValue(ScriptObject value)
-        {
-            return value switch
-            {
-                null => "null",
-                ScriptObject obj when ReferenceEquals(obj, ScriptObject.Null) => "null",
-                NumberValue number => number.DoubleValue.ToString(CultureInfo.InvariantCulture),
-                BooleanValue boolean => boolean.Value.ToString(),
-                StringValue str => str.Value,
-                ScriptArray array => FormatArray(array),
-                _ => value.ToDisplayString()
-            };
-        }
-
-        private static string FormatArray(ScriptArray array)
-        {
-            if (array == null || array.Length == 0)
-            {
-                return "[]";
-            }
-            var parts = new string[array.Length];
-            for (int i = 0; i < array.Length; i++)
-            {
-                parts[i] = FormatScriptValue(array.GetElement(i));
-            }
-            return "[" + string.Join(", ", parts) + "]";
-        }
     }
 
 

@@ -74,21 +74,15 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public ScriptObject GetElement(Int32 index)
+        public ScriptDatum Get(Int32 index)
         {
-            if (index < 0 || index >= _count)
-            {
-                return ScriptObject.Null;
-            }
-            return _items[index].ToObject();
+            if (index < 0 || index >= _count) return ScriptDatum.FromNull();
+            return _items[index];
         }
 
-        public void SetElement(NumberValue index, ScriptObject value)
-        {
-            SetDatum(index.Int32Value, ScriptDatum.FromObject(value));
-        }
 
-        internal void SetDatum(Int32 index, ScriptDatum datum)
+
+        internal void Set(Int32 index, ScriptDatum datum)
         {
             if (index < 0) return;
             EnsureCapacity(index + 1);
@@ -105,14 +99,10 @@ namespace AuroraScript.Runtime.Base
             _items[index] = datum;
         }
 
-        public void Push(ScriptObject item)
-        {
-            PushDatum(ScriptDatum.FromObject(item));
-        }
 
         public void PushDatum(ScriptDatum datum)
         {
-            SetDatum(_count, datum);
+            Set(_count, datum);
         }
 
         public ScriptArray Slice(Int32 start, Int32 end)
@@ -141,16 +131,9 @@ namespace AuroraScript.Runtime.Base
 
         public Span<ScriptDatum> Values()
         {
-            return _items.AsSpan(0,_count);
+            return _items.AsSpan(0, _count);
         }
 
-
-
-
-        public ScriptObject Pop()
-        {
-            return PopDatum().ToObject();
-        }
 
         public override void SetPropertyValue(String key, ScriptObject value)
         {
@@ -168,21 +151,11 @@ namespace AuroraScript.Runtime.Base
             var parts = new string[_count];
             for (int i = 0; i < _count; i++)
             {
-                parts[i] = _items[i].ToObject()?.ToString();
+                parts[i] = _items[i].ToString();
             }
             return "[" + String.Join(", ", parts) + "]";
         }
 
-        public override string ToDisplayString()
-        {
-            if (_count == 0) return "[]";
-            var parts = new string[_count];
-            for (int i = 0; i < _count; i++)
-            {
-                parts[i] = _items[i].ToObject()?.ToDisplayString();
-            }
-            return "[" + String.Join(", ", parts) + "]";
-        }
 
         ItemIterator IEnumerator.GetIterator()
         {
@@ -197,11 +170,7 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
-        internal ScriptDatum GetDatum(Int32 index)
-        {
-            if (index < 0 || index >= _count) return ScriptDatum.FromNull();
-            return _items[index];
-        }
+
 
         internal ScriptDatum PopDatum()
         {

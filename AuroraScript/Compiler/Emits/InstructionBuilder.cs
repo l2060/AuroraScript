@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text;
 
 
@@ -479,7 +478,7 @@ namespace AuroraScript.Compiler.Emits
 
         public void NewRegex(String pattern, String flags)
         {
-            EmitStr2(OpCode.NEW_REGEX, pattern,flags);
+            EmitStr2(OpCode.NEW_REGEX, pattern, flags);
         }
 
 

@@ -525,7 +525,7 @@ export function runAllUnitTests() {
     var failedCases = [];
     var passedCount = 0;
     for (var i = 0; i < __testCases.length; i++) {
-        console.log(i,__testCases[i]);
+
         var ctx = executeTest(__testCases[i]);
         results.push(ctx);
         if (ctx.passed) {
@@ -638,10 +638,10 @@ func closure1(){
 
 export function testClosure() {
     var funcs = closure1();
-    console.log(funcs.a());
-    console.log(funcs.b());
-    console.log(funcs.a());
-    console.log(funcs.b());
+    console.log(JSON.stringify(funcs.a()));
+    console.log(JSON.stringify(funcs.b()));
+    console.log(JSON.stringify(funcs.a()));
+    console.log(JSON.stringify(funcs.b()));
 }
 
 export function testMD5() {

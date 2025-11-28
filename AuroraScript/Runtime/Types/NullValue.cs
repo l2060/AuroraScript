@@ -41,11 +41,6 @@ namespace AuroraScript.Runtime.Types
             return "NULL_VALUE";
         }
 
-        public override string ToDisplayString()
-        {
-            return "null";
-        }
-
         public override bool IsTrue()
         {
             return false;

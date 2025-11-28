@@ -1,11 +1,13 @@
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Extensions;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Core
 {
-    public struct ScriptDatum
+    public partial struct ScriptDatum
     {
         public ValueKind Kind;
         public double Number;
@@ -13,76 +15,10 @@ namespace AuroraScript.Core
         public StringValue String;
         public ScriptObject Object;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromNull()
-        {
-            return new ScriptDatum { Kind = ValueKind.Null };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromBoolean(bool value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Boolean, Boolean = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromNumber(double value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Number, Number = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromString(StringValue value)
-        {
-            return new ScriptDatum { Kind = ValueKind.String, String = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromArray(ScriptArray value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Array, Object = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromModule(ScriptModule value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Module, Object = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromRegex(ScriptRegex value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Regex, Object = value };
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromClosure(ClosureFunction value)
-        {
-            return new ScriptDatum { Kind = ValueKind.Function, Object = value };
-        }
 
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromClrMethodBinding(ClrMethodBinding value)
-        {
-            return new ScriptDatum { Kind = ValueKind.ClrFunction, Object = value };
-        }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromClrType(ClrTypeObject value)
-        {
-            return new ScriptDatum { Kind = ValueKind.ClrType, Object = value };
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromBonding(BondingFunction value)
-        {
-            return new ScriptDatum { Kind = ValueKind.ClrBonding, Object = value };
-        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,11 +50,11 @@ namespace AuroraScript.Core
             }
             if (value is ClosureFunction closureFunction)
             {
-                return FromClosure(closureFunction);
+                return FromFunction(closureFunction);
             }
             if (value is ClrMethodBinding clrMethodBinding)
             {
-                return FromClrMethodBinding(clrMethodBinding);
+                return FromClrFunction(clrMethodBinding);
             }
             if (value is ClrTypeObject clrTypeObject)
             {
@@ -148,22 +84,6 @@ namespace AuroraScript.Core
                     return NumberValue.Of(Number);
                 case ValueKind.String:
                     return String;
-                case ValueKind.Object:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.Regex:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.Array:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.Module:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.ClrType:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.Function:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.ClrFunction:
-                    return Object ?? ScriptObject.Null;
-                case ValueKind.ClrBonding:
-                    return Object ?? ScriptObject.Null;
                 default:
                     return Object ?? ScriptObject.Null;
             }
@@ -182,14 +102,8 @@ namespace AuroraScript.Core
                     return Number != 0 && !double.IsNaN(Number);
                 case ValueKind.String:
                     return !string.IsNullOrEmpty(String?.Value);
-                case ValueKind.Object:
-                    return Object?.IsTrue() ?? false;
-                case ValueKind.Array:
-                    return Object?.IsTrue() ?? false;
-                case ValueKind.Module:
-                    return Object?.IsTrue() ?? false;
                 default:
-                    return false;
+                    return Object != null && Object.IsTrue();
             }
         }
 
@@ -240,7 +154,7 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return String.Value;
                 default:
-                    return Object?.ToString();
+                    return JsonSupport.Serialize(this).Value;
             }
         }
 

@@ -377,18 +377,11 @@ namespace AuroraScript.Runtime.Base
             {
                 return NumberValue.Of(datum.Number);
             }
-
             if (datum.Kind == ValueKind.Boolean)
             {
                 return NumberValue.Of(datum.Boolean ? 1 : 0);
             }
-
-            if (datum.Kind == ValueKind.Object && datum.Object is NumberValue num)
-            {
-                return num;
-            }
-
-            return datum.ToObject() as NumberValue;
+            return null;
         }
 
         private static ScriptRegex ResolveRegexArgument(ScriptDatum[] args, Boolean requireGlobal)
@@ -430,15 +423,8 @@ namespace AuroraScript.Runtime.Base
                     return datum.Number.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 case ValueKind.Boolean:
                     return datum.Boolean ? "true" : "false";
-                case ValueKind.Null:
-                    return "null";
                 default:
-                    var obj = datum.ToObject();
-                    if (obj is StringValue str)
-                    {
-                        return str.Value;
-                    }
-                    return obj?.ToString() ?? String.Empty;
+                    return String.Empty;
             }
         }
     }

@@ -196,7 +196,7 @@ namespace AuroraScript.Compiler.Emits
 
         public override string ToString()
         {
-            return OpCode.ToString() + " str(" + String1 + ")" +" str(" + String2 + ")";
+            return OpCode.ToString() + " str(" + String1 + ")" + " str(" + String2 + ")";
         }
 
         public override void WriteTo(BinaryWriter writer)

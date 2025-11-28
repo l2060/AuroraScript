@@ -1,7 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
-using System.IO;
 using System.Text.RegularExpressions;
 
 
@@ -65,7 +64,7 @@ namespace AuroraScript.Runtime.Types
             var result = new ScriptArray(matches.Count);
             for (int i = 0; i < matches.Count; i++)
             {
-                result.SetDatum(i, ScriptDatum.FromString(StringValue.Of(matches[i].Value)));
+                result.Set(i, ScriptDatum.FromString(StringValue.Of(matches[i].Value)));
             }
             return result;
         }
@@ -87,7 +86,7 @@ namespace AuroraScript.Runtime.Types
             for (int i = 0; i < matches.Count; i++)
             {
                 var matchResult = CreateMatchResult(matches[i], str.Value ?? String.Empty);
-                outer.SetDatum(i, ScriptDatum.FromObject(matchResult));
+                outer.Set(i, ScriptDatum.FromObject(matchResult));
             }
             return outer;
         }
@@ -136,18 +135,13 @@ namespace AuroraScript.Runtime.Types
             return _regex.ToString();
         }
 
-        public override string ToDisplayString()
-        {
-            return _regex.ToString();
-        }
-
         private ScriptArray CreateMatchResult(Match match, String input)
         {
             var groupCount = match.Groups.Count;
             var result = new ScriptArray(groupCount);
             for (int i = 0; i < groupCount; i++)
             {
-                result.SetDatum(i, ScriptDatum.FromString(StringValue.Of(match.Groups[i].Value)));
+                result.Set(i, ScriptDatum.FromString(StringValue.Of(match.Groups[i].Value)));
             }
 
             result.SetPropertyValue("index", NumberValue.Of(match.Index));

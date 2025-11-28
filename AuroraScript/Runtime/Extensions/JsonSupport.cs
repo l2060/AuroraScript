@@ -60,9 +60,7 @@ namespace AuroraScript.Runtime.Extensions
             return Serialize(args[0], indented);
         }
 
-
-
-        public static ScriptObject Serialize(ScriptDatum datum, Boolean indented = false)
+        public static StringValue Serialize(ScriptDatum datum, Boolean indented = false)
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
             using var jsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = indented });
@@ -91,7 +89,7 @@ namespace AuroraScript.Runtime.Extensions
                     var index = 0;
                     foreach (var item in element.EnumerateArray())
                     {
-                        array.SetDatum(index++, ScriptDatum.FromObject(ConvertElement(item)));
+                        array.Set(index++, ScriptDatum.FromObject(ConvertElement(item)));
                     }
                     return array;
                 case JsonValueKind.String:
@@ -140,6 +138,8 @@ namespace AuroraScript.Runtime.Extensions
                 case ValueKind.String:
                     writer.WriteStringValue(datum.String?.Value ?? string.Empty);
                     return;
+                case ValueKind.Regex:
+                case ValueKind.Module:
                 case ValueKind.Array:
                 case ValueKind.Object:
                 case ValueKind.Function:
@@ -208,8 +208,7 @@ namespace AuroraScript.Runtime.Extensions
             var keys = value.GetKeys();
             for (int i = 0; i < keys.Length; i++)
             {
-                var keyObject = keys.GetElement(i) as StringValue;
-                var propertyName = keyObject?.Value ?? keys.GetElement(i)?.ToString() ?? string.Empty;
+                var propertyName = keys.Get(i).String.Value;
                 var propertyValue = value.GetPropertyValue(propertyName);
                 writer.WritePropertyName(propertyName);
                 WriteDatum(writer, ScriptDatum.FromObject(propertyValue), visited);
@@ -251,7 +250,7 @@ namespace AuroraScript.Runtime.Extensions
             writer.WriteStartArray();
             for (int i = 0; i < array.Length; i++)
             {
-                WriteDatum(writer, array.GetDatum(i), visited);
+                WriteDatum(writer, array.Get(i), visited);
             }
             writer.WriteEndArray();
 

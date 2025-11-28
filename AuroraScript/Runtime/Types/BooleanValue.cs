@@ -35,10 +35,6 @@ namespace AuroraScript.Runtime.Types
             return StrValue.Value;
         }
 
-        public override string ToDisplayString()
-        {
-            return StrValue.Value;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BooleanValue Of(bool value)

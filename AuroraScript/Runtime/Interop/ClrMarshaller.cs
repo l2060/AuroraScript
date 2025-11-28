@@ -335,7 +335,7 @@ namespace AuroraScript.Runtime.Interop
 
                 for (int i = 0; i < scriptArray.Length; i++)
                 {
-                    var datum = scriptArray.GetDatum(i);
+                    var datum = scriptArray.Get(i);
                     listInstance.Add(datum.ToObject());
                 }
 
@@ -348,7 +348,7 @@ namespace AuroraScript.Runtime.Interop
                 var arrayList = new ArrayList();
                 for (int i = 0; i < scriptArray.Length; i++)
                 {
-                    arrayList.Add(scriptArray.GetDatum(i).ToObject());
+                    arrayList.Add(scriptArray.Get(i).ToObject());
                 }
                 result = arrayList;
                 return true;
@@ -365,7 +365,7 @@ namespace AuroraScript.Runtime.Interop
 
             for (int i = 0; i < length; i++)
             {
-                var datum = scriptArray.GetDatum(i);
+                var datum = scriptArray.Get(i);
                 if (!TryConvertArgument(datum, elementType, registry, out var converted))
                 {
                     if (!TryFallbackArrayConversion(datum, elementType, out converted))
@@ -388,7 +388,7 @@ namespace AuroraScript.Runtime.Interop
 
             for (int i = 0; i < scriptArray.Length; i++)
             {
-                var datum = scriptArray.GetDatum(i);
+                var datum = scriptArray.Get(i);
                 if (!TryConvertArgument(datum, elementType, registry, out var converted))
                 {
                     if (!TryFallbackArrayConversion(datum, elementType, out converted))
