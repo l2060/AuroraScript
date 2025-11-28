@@ -2,16 +2,26 @@
 [0000] UNIT_LIB
 [0001] @UNIT_LIB
 [0002] closure
-[0003] testClosure
-[0004] 123
-[0005] a
-[0006] b
-[0007] ABC
-[0008] title
-[0009] count
-[0010] XYZ
-[0011] console
-[0012] log
+[0003] layeredCounters
+[0004] deepChain
+[0005] makeTracker
+[0006] makeLoopClosures
+[0007] testClosure
+[0008] 123
+[0009] a
+[0010] b
+[0011] ABC
+[0012] title
+[0013] count
+[0014] XYZ
+[0015] slow
+[0016] fast
+[0017] seed
+[0018] localStep
+[0019] anchor
+[0020] shadow
+[0021] console
+[0022] log
 =====================================================================
 = Start Code ========================================================
 =====================================================================
@@ -29,96 +39,108 @@ module: UNIT_LIB unit.as
 # Variable Define
 # Code Block
 [0022] PUSH_THIS
-[0023] CREATE_CLOSURE [0048] (0)
+[0023] CREATE_CLOSURE [0096] (0)
 [0029] SET_THIS_PROPERTY str(closure)
 [0034] PUSH_THIS
-[0035] CREATE_CLOSURE [0384] (0)
-[0041] SET_THIS_PROPERTY str(testClosure)
-[0046] PUSH_TRUE
-[0047] RETURN
+[0035] CREATE_CLOSURE [0432] (0)
+[0041] SET_THIS_PROPERTY str(layeredCounters)
+[0046] PUSH_THIS
+[0047] CREATE_CLOSURE [0626] (0)
+[0053] SET_THIS_PROPERTY str(deepChain)
+[0058] PUSH_THIS
+[0059] CREATE_CLOSURE [0788] (0)
+[0065] SET_THIS_PROPERTY str(makeTracker)
+[0070] PUSH_THIS
+[0071] CREATE_CLOSURE [0882] (0)
+[0077] SET_THIS_PROPERTY str(makeLoopClosures)
+[0082] PUSH_THIS
+[0083] CREATE_CLOSURE [0963] (0)
+[0089] SET_THIS_PROPERTY str(testClosure)
+[0094] PUSH_TRUE
+[0095] RETURN
 
 
 
 
 # begin_func closure
 # Captured variables:
-[0048] ALLOC_LOCALS [4]
-[0053] CAPTURE_VAR 0
-[0058] CAPTURE_VAR 1
-[0063] PUSH_THIS
-[0064] CREATE_CLOSURE [0141] (2)
-[0070] STORE_LOCAL 2
-[0075] CAPTURE_VAR 0
-[0080] CAPTURE_VAR 1
-[0085] PUSH_THIS
-[0086] CREATE_CLOSURE [0262] (2)
-[0092] STORE_LOCAL 3
+[0096] ALLOC_LOCALS [4]
+[0101] CAPTURE_VAR 0
+[0106] CAPTURE_VAR 1
+[0111] PUSH_THIS
+[0112] CREATE_CLOSURE [0189] (2)
+[0118] STORE_LOCAL 2
+[0123] CAPTURE_VAR 0
+[0128] CAPTURE_VAR 1
+[0133] PUSH_THIS
+[0134] CREATE_CLOSURE [0310] (2)
+[0140] STORE_LOCAL 3
 # var title = '123'
-[0097] PUSH_STRING str(123)
-[0102] STORE_LOCAL 0
+[0145] PUSH_STRING str(123)
+[0150] STORE_LOCAL 0
 # var count = 0
-[0107] PUSH_0
-[0108] STORE_LOCAL 1
+[0155] PUSH_0
+[0156] STORE_LOCAL 1
 # return { a: makeCounter1(), b: makeCounter2() }
-[0113] NEW_MAP
-[0114] DUP
-[0115] LOAD_LOCAL 2
-[0120] CALL 0
-[0122] SET_PROPERTY str(a)
-[0127] DUP
-[0128] LOAD_LOCAL 3
-[0133] CALL 0
-[0135] SET_PROPERTY str(b)
-[0140] RETURN
+[0161] NEW_MAP
+[0162] DUP
+[0163] LOAD_LOCAL 2
+[0168] CALL 0
+[0170] SET_PROPERTY str(a)
+[0175] DUP
+[0176] LOAD_LOCAL 3
+[0181] CALL 0
+[0183] SET_PROPERTY str(b)
+[0188] RETURN
 
 
 
 
 # begin_func makeCounter1
 # Captured variables: title, count
-[0141] ALLOC_LOCALS [4]
-[0146] CAPTURE_VAR 0
-[0151] STORE_LOCAL 1
-[0156] CAPTURE_VAR 1
-[0161] STORE_LOCAL 3
+[0189] ALLOC_LOCALS [2]
+[0194] CAPTURE_VAR 0
+[0199] STORE_LOCAL 0
+[0204] CAPTURE_VAR 1
+[0209] STORE_LOCAL 1
 # return AuroraScript.Ast.Expressions.LambdaExpression
-[0166] CAPTURE_VAR 1
-[0171] CAPTURE_VAR 3
-[0176] PUSH_THIS
-[0177] CREATE_CLOSURE [0188] (2)
-[0183] JUMP [0260]
+[0214] LOAD_LOCAL 0
+[0219] LOAD_LOCAL 1
+[0224] PUSH_THIS
+[0225] CREATE_CLOSURE [0236] (2)
+[0231] JUMP [0308]
 
 
 
 
 # begin_func $lambda_10_15
 # Captured variables: title, count
-[0188] ALLOC_LOCALS [4]
-[0193] CAPTURE_VAR 1
-[0198] STORE_LOCAL 1
-[0203] CAPTURE_VAR 3
-[0208] STORE_LOCAL 3
+[0236] ALLOC_LOCALS [2]
+[0241] LOAD_LOCAL 0
+[0246] STORE_LOCAL 0
+[0251] LOAD_LOCAL 1
+[0256] STORE_LOCAL 1
 # title = 'ABC'
-[0213] PUSH_STRING str(ABC)
-[0218] STORE_CAPTURE 1
+[0261] PUSH_STRING str(ABC)
+[0266] STORE_CAPTURE 0
 # count = count + 1
-[0223] LOAD_CAPTURE 3
-[0228] PUSH_1
-[0229] ADD
-[0230] STORE_CAPTURE 3
+[0271] LOAD_CAPTURE 1
+[0276] PUSH_1
+[0277] ADD
+[0278] STORE_CAPTURE 1
 # return { title: title, count: count }
-[0235] NEW_MAP
-[0236] DUP
-[0237] LOAD_CAPTURE 1
-[0242] SET_PROPERTY str(title)
-[0247] DUP
-[0248] LOAD_CAPTURE 3
-[0253] SET_PROPERTY str(count)
-[0258] RETURN
-[0259] RETURN_NULL
+[0283] NEW_MAP
+[0284] DUP
+[0285] LOAD_CAPTURE 0
+[0290] SET_PROPERTY str(title)
+[0295] DUP
+[0296] LOAD_CAPTURE 1
+[0301] SET_PROPERTY str(count)
+[0306] RETURN
+[0307] RETURN_NULL
 # end_func $lambda_10_15
-[0260] RETURN
-[0261] RETURN_NULL
+[0308] RETURN
+[0309] RETURN_NULL
 # end_func makeCounter1
 
 
@@ -126,102 +148,431 @@ module: UNIT_LIB unit.as
 
 # begin_func makeCounter2
 # Captured variables: title, count
-[0262] ALLOC_LOCALS [4]
-[0267] CAPTURE_VAR 0
-[0272] STORE_LOCAL 1
-[0277] CAPTURE_VAR 1
-[0282] STORE_LOCAL 3
+[0310] ALLOC_LOCALS [2]
+[0315] CAPTURE_VAR 0
+[0320] STORE_LOCAL 0
+[0325] CAPTURE_VAR 1
+[0330] STORE_LOCAL 1
 # return AuroraScript.Ast.Expressions.LambdaExpression
-[0287] CAPTURE_VAR 1
-[0292] CAPTURE_VAR 3
-[0297] PUSH_THIS
-[0298] CREATE_CLOSURE [0309] (2)
-[0304] JUMP [0381]
+[0335] LOAD_LOCAL 0
+[0340] LOAD_LOCAL 1
+[0345] PUSH_THIS
+[0346] CREATE_CLOSURE [0357] (2)
+[0352] JUMP [0429]
 
 
 
 
 # begin_func $lambda_17_15
 # Captured variables: title, count
-[0309] ALLOC_LOCALS [4]
-[0314] CAPTURE_VAR 1
-[0319] STORE_LOCAL 1
-[0324] CAPTURE_VAR 3
-[0329] STORE_LOCAL 3
+[0357] ALLOC_LOCALS [2]
+[0362] LOAD_LOCAL 0
+[0367] STORE_LOCAL 0
+[0372] LOAD_LOCAL 1
+[0377] STORE_LOCAL 1
 # title = 'XYZ'
-[0334] PUSH_STRING str(XYZ)
-[0339] STORE_CAPTURE 1
+[0382] PUSH_STRING str(XYZ)
+[0387] STORE_CAPTURE 0
 # count = count + 1
-[0344] LOAD_CAPTURE 3
-[0349] PUSH_1
-[0350] ADD
-[0351] STORE_CAPTURE 3
+[0392] LOAD_CAPTURE 1
+[0397] PUSH_1
+[0398] ADD
+[0399] STORE_CAPTURE 1
 # return { title: title, count: count }
-[0356] NEW_MAP
-[0357] DUP
-[0358] LOAD_CAPTURE 1
-[0363] SET_PROPERTY str(title)
-[0368] DUP
-[0369] LOAD_CAPTURE 3
-[0374] SET_PROPERTY str(count)
-[0379] RETURN
-[0380] RETURN_NULL
+[0404] NEW_MAP
+[0405] DUP
+[0406] LOAD_CAPTURE 0
+[0411] SET_PROPERTY str(title)
+[0416] DUP
+[0417] LOAD_CAPTURE 1
+[0422] SET_PROPERTY str(count)
+[0427] RETURN
+[0428] RETURN_NULL
 # end_func $lambda_17_15
-[0381] RETURN
-[0382] RETURN_NULL
+[0429] RETURN
+[0430] RETURN_NULL
 # end_func makeCounter2
-[0383] RETURN_NULL
+[0431] RETURN_NULL
 # end_func closure
+
+
+
+
+# begin_func layeredCounters
+# Captured variables:
+[0432] ALLOC_LOCALS [3]
+[0437] CAPTURE_VAR 0
+[0442] PUSH_THIS
+[0443] CREATE_CLOSURE [0491] (1)
+[0449] STORE_LOCAL 1
+# var seed = 10
+[0454] PUSH_I8 10
+[0456] STORE_LOCAL 0
+# return { slow: builder(1), fast: builder(3) }
+[0461] NEW_MAP
+[0462] DUP
+[0463] PUSH_1
+[0464] LOAD_LOCAL 1
+[0469] CALL 1
+[0471] SET_PROPERTY str(slow)
+[0476] DUP
+[0477] PUSH_3
+[0478] LOAD_LOCAL 1
+[0483] CALL 1
+[0485] SET_PROPERTY str(fast)
+[0490] RETURN
+
+
+
+
+# begin_func builder
+# Captured variables: seed
+[0491] ALLOC_LOCALS [3]
+[0496] LOAD_ARG 0
+[0498] STORE_LOCAL 0
+[0503] CAPTURE_VAR 0
+[0508] STORE_LOCAL 1
+# var localStep = step
+[0513] LOAD_LOCAL 0
+[0518] STORE_LOCAL 2
+# return AuroraScript.Ast.Expressions.LambdaExpression
+[0523] LOAD_LOCAL 1
+[0528] CAPTURE_VAR 2
+[0533] PUSH_THIS
+[0534] CREATE_CLOSURE [0545] (2)
+[0540] JUMP [0623]
+
+
+
+
+# begin_func $lambda_30_15
+# Captured variables: seed, localStep
+[0545] ALLOC_LOCALS [2]
+[0550] LOAD_LOCAL 1
+[0555] STORE_LOCAL 0
+[0560] CAPTURE_VAR 2
+[0565] STORE_LOCAL 1
+# seed = seed + localStep
+[0570] LOAD_CAPTURE 0
+[0575] LOAD_CAPTURE 1
+[0580] ADD
+[0581] STORE_CAPTURE 0
+# localStep = localStep + 1
+[0586] LOAD_CAPTURE 1
+[0591] PUSH_1
+[0592] ADD
+[0593] STORE_CAPTURE 1
+# return { seed: seed, localStep: localStep }
+[0598] NEW_MAP
+[0599] DUP
+[0600] LOAD_CAPTURE 0
+[0605] SET_PROPERTY str(seed)
+[0610] DUP
+[0611] LOAD_CAPTURE 1
+[0616] SET_PROPERTY str(localStep)
+[0621] RETURN
+[0622] RETURN_NULL
+# end_func $lambda_30_15
+[0623] RETURN
+[0624] RETURN_NULL
+# end_func builder
+[0625] RETURN_NULL
+# end_func layeredCounters
+
+
+
+
+# begin_func deepChain
+# Captured variables:
+[0626] ALLOC_LOCALS [2]
+[0631] CAPTURE_VAR 0
+[0636] PUSH_THIS
+[0637] CREATE_CLOSURE [0662] (1)
+[0643] STORE_LOCAL 1
+# var anchor = 5
+[0648] PUSH_5
+[0649] STORE_LOCAL 0
+# return middle()
+[0654] LOAD_LOCAL 1
+[0659] CALL 0
+[0661] RETURN
+
+
+
+
+# begin_func middle
+# Captured variables: anchor
+[0662] ALLOC_LOCALS [2]
+[0667] CAPTURE_VAR 0
+[0672] STORE_LOCAL 0
+# var shadow = anchor * 2
+[0677] LOAD_CAPTURE 0
+[0682] PUSH_2
+[0683] MULTIPLY
+[0684] STORE_LOCAL 1
+# return AuroraScript.Ast.Expressions.LambdaExpression
+[0689] LOAD_LOCAL 0
+[0694] CAPTURE_VAR 1
+[0699] PUSH_THIS
+[0700] CREATE_CLOSURE [0711] (2)
+[0706] JUMP [0785]
+
+
+
+
+# begin_func $lambda_43_15
+# Captured variables: anchor, shadow
+[0711] ALLOC_LOCALS [2]
+[0716] LOAD_LOCAL 0
+[0721] STORE_LOCAL 0
+[0726] CAPTURE_VAR 1
+[0731] STORE_LOCAL 1
+# anchor = anchor + 2
+[0736] LOAD_CAPTURE 0
+[0741] PUSH_2
+[0742] ADD
+[0743] STORE_CAPTURE 0
+# shadow = shadow + 3
+[0748] LOAD_CAPTURE 1
+[0753] PUSH_3
+[0754] ADD
+[0755] STORE_CAPTURE 1
+# return { anchor: anchor, shadow: shadow }
+[0760] NEW_MAP
+[0761] DUP
+[0762] LOAD_CAPTURE 0
+[0767] SET_PROPERTY str(anchor)
+[0772] DUP
+[0773] LOAD_CAPTURE 1
+[0778] SET_PROPERTY str(shadow)
+[0783] RETURN
+[0784] RETURN_NULL
+# end_func $lambda_43_15
+[0785] RETURN
+[0786] RETURN_NULL
+# end_func middle
+[0787] RETURN_NULL
+# end_func deepChain
+
+
+
+
+# begin_func makeTracker
+# Captured variables:
+[0788] ALLOC_LOCALS [2]
+[0793] LOAD_ARG 0
+[0795] STORE_LOCAL 0
+# var current = seed
+[0800] LOAD_LOCAL 0
+[0805] STORE_LOCAL 1
+# return AuroraScript.Ast.Expressions.LambdaExpression
+[0810] CAPTURE_VAR 1
+[0815] CAPTURE_VAR 0
+[0820] PUSH_THIS
+[0821] CREATE_CLOSURE [0832] (2)
+[0827] JUMP [0880]
+
+
+
+
+# begin_func $lambda_54_11
+# Captured variables: current, seed
+[0832] ALLOC_LOCALS [2]
+[0837] CAPTURE_VAR 1
+[0842] STORE_LOCAL 0
+[0847] CAPTURE_VAR 0
+[0852] STORE_LOCAL 1
+# current = current + seed
+[0857] LOAD_CAPTURE 0
+[0862] LOAD_CAPTURE 1
+[0867] ADD
+[0868] STORE_CAPTURE 0
+# return current
+[0873] LOAD_CAPTURE 0
+[0878] RETURN
+[0879] RETURN_NULL
+# end_func $lambda_54_11
+[0880] RETURN
+[0881] RETURN_NULL
+# end_func makeTracker
+
+
+
+
+# begin_func makeLoopClosures
+# Captured variables:
+[0882] ALLOC_LOCALS [2]
+# var result = []
+[0887] NEW_ARRAY 0
+[0892] STORE_LOCAL 0
+# for
+# var i = 0
+[0897] PUSH_0
+[0898] STORE_LOCAL 1
+# condition i < 3
+[0903] LOAD_LOCAL 1
+[0908] PUSH_3
+[0909] LESS_THAN
+[0910] JUMP_IF_FALSE [0956]
+# body
+# result[i] = makeTracker(i + 1)
+[0915] LOAD_LOCAL 1
+[0920] PUSH_1
+[0921] ADD
+[0922] GET_THIS_PROPERTY str(makeTracker)
+[0927] CALL 1
+[0929] LOAD_LOCAL 1
+[0934] LOAD_LOCAL 0
+[0939] SET_ELEMENT
+# inc i++
+[0940] LOAD_LOCAL 1
+[0945] INCREMENT
+[0946] STORE_LOCAL 1
+[0951] JUMP [0903]
+# return result
+[0956] LOAD_LOCAL 0
+[0961] RETURN
+[0962] RETURN_NULL
+# end_func makeLoopClosures
 
 
 
 
 # begin_func testClosure
 # Captured variables:
-[0384] ALLOC_LOCALS [1]
+[0963] ALLOC_LOCALS [4]
 # var funcs = closure()
-[0389] GET_THIS_PROPERTY str(closure)
-[0394] CALL 0
-[0396] STORE_LOCAL 0
+[0968] GET_THIS_PROPERTY str(closure)
+[0973] CALL 0
+[0975] STORE_LOCAL 0
 # console.log(funcs.a())
-[0401] LOAD_LOCAL 0
-[0406] GET_PROPERTY str(a)
-[0411] CALL 0
-[0413] GET_GLOBAL_PROPERTY str(console)
-[0418] GET_PROPERTY str(log)
-[0423] CALL 1
-[0425] POP
+[0980] LOAD_LOCAL 0
+[0985] GET_PROPERTY str(a)
+[0990] CALL 0
+[0992] GET_GLOBAL_PROPERTY str(console)
+[0997] GET_PROPERTY str(log)
+[1002] CALL 1
+[1004] POP
 # console.log(funcs.b())
-[0426] LOAD_LOCAL 0
-[0431] GET_PROPERTY str(b)
-[0436] CALL 0
-[0438] GET_GLOBAL_PROPERTY str(console)
-[0443] GET_PROPERTY str(log)
-[0448] CALL 1
-[0450] POP
+[1005] LOAD_LOCAL 0
+[1010] GET_PROPERTY str(b)
+[1015] CALL 0
+[1017] GET_GLOBAL_PROPERTY str(console)
+[1022] GET_PROPERTY str(log)
+[1027] CALL 1
+[1029] POP
 # console.log(funcs.a())
-[0451] LOAD_LOCAL 0
-[0456] GET_PROPERTY str(a)
-[0461] CALL 0
-[0463] GET_GLOBAL_PROPERTY str(console)
-[0468] GET_PROPERTY str(log)
-[0473] CALL 1
-[0475] POP
+[1030] LOAD_LOCAL 0
+[1035] GET_PROPERTY str(a)
+[1040] CALL 0
+[1042] GET_GLOBAL_PROPERTY str(console)
+[1047] GET_PROPERTY str(log)
+[1052] CALL 1
+[1054] POP
 # console.log(funcs.b())
-[0476] LOAD_LOCAL 0
-[0481] GET_PROPERTY str(b)
-[0486] CALL 0
-[0488] GET_GLOBAL_PROPERTY str(console)
-[0493] GET_PROPERTY str(log)
-[0498] CALL 1
-[0500] POP
-[0501] RETURN_NULL
+[1055] LOAD_LOCAL 0
+[1060] GET_PROPERTY str(b)
+[1065] CALL 0
+[1067] GET_GLOBAL_PROPERTY str(console)
+[1072] GET_PROPERTY str(log)
+[1077] CALL 1
+[1079] POP
+# var layered = layeredCounters()
+[1080] GET_THIS_PROPERTY str(layeredCounters)
+[1085] CALL 0
+[1087] STORE_LOCAL 1
+# console.log(layered.slow())
+[1092] LOAD_LOCAL 1
+[1097] GET_PROPERTY str(slow)
+[1102] CALL 0
+[1104] GET_GLOBAL_PROPERTY str(console)
+[1109] GET_PROPERTY str(log)
+[1114] CALL 1
+[1116] POP
+# console.log(layered.fast())
+[1117] LOAD_LOCAL 1
+[1122] GET_PROPERTY str(fast)
+[1127] CALL 0
+[1129] GET_GLOBAL_PROPERTY str(console)
+[1134] GET_PROPERTY str(log)
+[1139] CALL 1
+[1141] POP
+# console.log(layered.slow())
+[1142] LOAD_LOCAL 1
+[1147] GET_PROPERTY str(slow)
+[1152] CALL 0
+[1154] GET_GLOBAL_PROPERTY str(console)
+[1159] GET_PROPERTY str(log)
+[1164] CALL 1
+[1166] POP
+# console.log(layered.fast())
+[1167] LOAD_LOCAL 1
+[1172] GET_PROPERTY str(fast)
+[1177] CALL 0
+[1179] GET_GLOBAL_PROPERTY str(console)
+[1184] GET_PROPERTY str(log)
+[1189] CALL 1
+[1191] POP
+# var chained = deepChain()
+[1192] GET_THIS_PROPERTY str(deepChain)
+[1197] CALL 0
+[1199] STORE_LOCAL 2
+# console.log(chained())
+[1204] LOAD_LOCAL 2
+[1209] CALL 0
+[1211] GET_GLOBAL_PROPERTY str(console)
+[1216] GET_PROPERTY str(log)
+[1221] CALL 1
+[1223] POP
+# console.log(chained())
+[1224] LOAD_LOCAL 2
+[1229] CALL 0
+[1231] GET_GLOBAL_PROPERTY str(console)
+[1236] GET_PROPERTY str(log)
+[1241] CALL 1
+[1243] POP
+# var loops = makeLoopClosures()
+[1244] GET_THIS_PROPERTY str(makeLoopClosures)
+[1249] CALL 0
+[1251] STORE_LOCAL 3
+# console.log(loops[0]())
+[1256] LOAD_LOCAL 3
+[1261] PUSH_0
+[1262] GET_ELEMENT
+[1263] CALL 0
+[1265] GET_GLOBAL_PROPERTY str(console)
+[1270] GET_PROPERTY str(log)
+[1275] CALL 1
+[1277] POP
+# console.log(loops[1]())
+[1278] LOAD_LOCAL 3
+[1283] PUSH_1
+[1284] GET_ELEMENT
+[1285] CALL 0
+[1287] GET_GLOBAL_PROPERTY str(console)
+[1292] GET_PROPERTY str(log)
+[1297] CALL 1
+[1299] POP
+# console.log(loops[2]())
+[1300] LOAD_LOCAL 3
+[1305] PUSH_2
+[1306] GET_ELEMENT
+[1307] CALL 0
+[1309] GET_GLOBAL_PROPERTY str(console)
+[1314] GET_PROPERTY str(log)
+[1319] CALL 1
+[1321] POP
+# console.log(loops[0]())
+[1322] LOAD_LOCAL 3
+[1327] PUSH_0
+[1328] GET_ELEMENT
+[1329] CALL 0
+[1331] GET_GLOBAL_PROPERTY str(console)
+[1336] GET_PROPERTY str(log)
+[1341] CALL 1
+[1343] POP
+[1344] RETURN_NULL
 # end_func testClosure
 =====================================================================
 = End Code ==========================================================
 =====================================================================
-{"title": "ABC1", "count": "ABC1"}
-{"title": "XYZ1", "count": "XYZ1"}
-{"title": "ABC1", "count": "ABC1"}
-{"title": "XYZ1", "count": "XYZ1"}
-UNIT_LIB     | testClosure              | Complete     |     12.238 ms |      20.21 KB

@@ -30,12 +30,13 @@ namespace AuroraScript.Core
     {
         public DeclareType Type;
         public int Index;
+        public int CaptureAlias = -1;
     }
 
 
     public class DeclareObject
     {
-        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index, MemberAccess access)
+        public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index, MemberAccess access, Int32 captureAlias = -1)
         {
             Name = name;
             Alias = alias;
@@ -43,6 +44,7 @@ namespace AuroraScript.Core
             Index = index;
             Scope = scope;
             Access = access;
+            CaptureAlias = captureAlias;
         }
 
         public readonly String Name;
@@ -51,6 +53,7 @@ namespace AuroraScript.Core
         public readonly DeclareType Type;
         public readonly int Index;
         public readonly MemberAccess Access;
+        public readonly int CaptureAlias;
     }
 
 
@@ -167,7 +170,7 @@ namespace AuroraScript.Core
 
 
             //var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot, func.Access);
+            var declare = new DeclareObject(this, name, alias, type, slot, func.Access, -1);
             _variables.Add(declare);
             return slot;
         }
@@ -189,7 +192,7 @@ namespace AuroraScript.Core
                 alias = name + "_" + func.Name.LineNumber + "_" + func.Name.ColumnNumber;
             }
             var slot = _stringSet.GetSlot(alias);
-            var declare = new DeclareObject(this, name, alias, type, slot, MemberAccess.Internal);
+            var declare = new DeclareObject(this, name, alias, type, slot, MemberAccess.Internal, -1);
             _variables.Add(declare);
             return slot;
         }
@@ -222,7 +225,7 @@ namespace AuroraScript.Core
                 TrackMax();
             }
 
-            var declare = new DeclareObject(this, name, alias, type, slot, variable.Access);
+            var declare = new DeclareObject(this, name, alias, type, slot, variable.Access, -1);
             _variables.Add(declare);
             return slot;
         }
@@ -230,7 +233,7 @@ namespace AuroraScript.Core
 
 
 
-        public int Declare(DeclareType type, string name)
+        public int Declare(DeclareType type, string name, int captureAlias = -1)
         {
             var val = findByName(name);
             if (val != null)
@@ -252,10 +255,12 @@ namespace AuroraScript.Core
             {
                 slot = _variableBaseCount++;
                 TrackMax();
-                slot = _variableBaseCount++;
-                TrackMax();
             }
-            var declare = new DeclareObject(this, name, name, type, slot, MemberAccess.Internal);
+            if (type == DeclareType.Captured && captureAlias < 0)
+            {
+                throw new AuroraCompilerException("", "Captured variables require an alias slot.");
+            }
+            var declare = new DeclareObject(this, name, name, type, slot, MemberAccess.Internal, captureAlias);
             _variables.Add(declare);
             return slot;
         }
@@ -295,7 +300,7 @@ namespace AuroraScript.Core
             var val = findByName(name);
             if (val != null)
             {
-                value = new ResolveValue() { Type = val.Type, Index = val.Index };
+                value = new ResolveValue() { Type = val.Type, Index = val.Index, CaptureAlias = val.CaptureAlias };
                 return true;
             }
             if (_parent != null)
@@ -313,7 +318,7 @@ namespace AuroraScript.Core
             if (val != null)
             {
                 var offset = val.Index - _variableBaseCount;
-                value = new ResolveValue() { Type = val.Type, Index = offset - depth };
+                value = new ResolveValue() { Type = val.Type, Index = offset - depth, CaptureAlias = val.CaptureAlias };
                 return true;
             }
 

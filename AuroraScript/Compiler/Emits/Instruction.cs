@@ -273,13 +273,17 @@ namespace AuroraScript.Compiler.Emits
 
     public class ClosureCaptured
     {
-        public readonly Int32 Index;
+        public readonly Int32 SourceIndex;
+        public readonly Int32 AliasSlot;
         public readonly String Name;
+        public readonly DeclareType SourceType;
 
-        public ClosureCaptured(String name, Int32 index)
+        public ClosureCaptured(String name, Int32 sourceIndex, Int32 aliasSlot, DeclareType sourceType)
         {
-            Index = index;
+            SourceIndex = sourceIndex;
+            AliasSlot = aliasSlot;
             Name = name;
+            SourceType = sourceType;
         }
 
         public override string ToString()

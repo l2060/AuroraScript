@@ -99,6 +99,11 @@ namespace AuroraScript.Compiler.Emits
             _scope = _scope.Leave();
         }
 
+        private void PushCapturedUpvalue(ClosureCaptured captured)
+        {
+            _instructionBuilder.CaptureVariable(captured.AliasSlot);
+        }
+
         private ClosureCaptured[] EnsureCapturedVariables(FunctionDeclaration function)
         {
             if (function.CapturedVariables != null && function.CapturedVariables.Length > 0)
@@ -119,7 +124,10 @@ namespace AuroraScript.Compiler.Emits
             {
                 if (_scope.Resolve(name, out var declareObject) && (declareObject.Type == DeclareType.Variable || declareObject.Type == DeclareType.Captured))
                 {
-                    list.Add(new ClosureCaptured(name, declareObject.Index));
+                    var aliasSlot = declareObject.Type == DeclareType.Captured
+                        ? declareObject.CaptureAlias
+                        : declareObject.Index;
+                    list.Add(new ClosureCaptured(name, declareObject.Index, aliasSlot, declareObject.Type));
                 }
             }
             function.CapturedVariables = list.ToArray();
@@ -223,7 +231,7 @@ namespace AuroraScript.Compiler.Emits
                 var slot = _scope.Declare(DeclareType.Property, function);
                 foreach (var capturedVar in captured)
                 {
-                    _instructionBuilder.CaptureVariable(capturedVar.Index);
+                    PushCapturedUpvalue(capturedVar);
                 }
                 _instructionBuilder.PushThis();
                 closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure(captured.Length);
@@ -280,7 +288,7 @@ namespace AuroraScript.Compiler.Emits
                 var slot = _scope.Declare((node is ModuleDeclaration) ? DeclareType.Property : DeclareType.Variable, function);
                 foreach (var capturedVar in captured)
                 {
-                    _instructionBuilder.CaptureVariable(capturedVar.Index);
+                    PushCapturedUpvalue(capturedVar);
                 }
                 _instructionBuilder.PushThis();
                 closureMap[function.Name.UniqueValue] = _instructionBuilder.NewClosure(captured.Length);
@@ -330,8 +338,8 @@ namespace AuroraScript.Compiler.Emits
             // 为捕获的变量创建局部变量
             foreach (var captured in capturedVariables)
             {
-                var slot = _scope.Declare(DeclareType.Captured, captured.Name);
-                _instructionBuilder.CaptureVariable(captured.Index);
+                var slot = _scope.Declare(DeclareType.Captured, captured.Name, captured.AliasSlot);
+                PushCapturedUpvalue(captured);
                 _instructionBuilder.StoreLocal(slot);
             }
 
@@ -353,7 +361,7 @@ namespace AuroraScript.Compiler.Emits
             var captured = EnsureCapturedVariables(node.Function);
             foreach (var capturedVar in captured)
             {
-                _instructionBuilder.CaptureVariable(capturedVar.Index);
+                PushCapturedUpvalue(capturedVar);
             }
             // 创建闭包
             _instructionBuilder.PushThis();
