@@ -19,7 +19,7 @@ namespace AuroraScript.Runtime.Interop
         /// <summary>
         /// Convert a CLR value into a script-visible object representation.
         /// </summary>
-        public static ScriptObject ToScriptObject(object value, ClrTypeRegistry registry)
+        public static ScriptObject ToScriptObject(object value)
         {
             if (value == null)
             {
@@ -58,22 +58,22 @@ namespace AuroraScript.Runtime.Interop
 
             if (value is Delegate handler)
             {
-                return WrapDelegate(handler, registry);
+                return WrapDelegate(handler);
             }
 
             if (value is IDictionary dictionary)
             {
-                return ConvertDictionary(dictionary, registry);
+                return ConvertDictionary(dictionary);
             }
 
             if (value is IEnumerable enumerable && value is not string)
             {
-                return ToScriptArray(enumerable, registry);
+                return ToScriptArray(enumerable);
             }
 
-            if (registry != null && registry.TryGetDescriptor(value.GetType(), out var descriptor))
+            if (ClrTypeResolver.ResolveType(value.GetType(), out var descriptor))
             {
-                return new ClrInstanceObject(descriptor, value, registry);
+                return new ClrInstanceObject(descriptor, value);
             }
 
             throw new InvalidOperationException($"Cannot convert value of type '{value.GetType().FullName}' to ScriptObject. Register the CLR type or provide a custom adapter.");
@@ -82,7 +82,7 @@ namespace AuroraScript.Runtime.Interop
         /// <summary>
         /// Converts a CLR enumerable (array, list, etc.) into a <see cref="ScriptArray"/>.
         /// </summary>
-        public static ScriptArray ToScriptArray(IEnumerable values, ClrTypeRegistry registry)
+        public static ScriptArray ToScriptArray(IEnumerable values)
         {
             var array = new ScriptArray();
             if (values == null)
@@ -92,7 +92,7 @@ namespace AuroraScript.Runtime.Interop
 
             foreach (var item in values)
             {
-                array.PushDatum(ScriptDatum.FromObject(ToScriptObject(item, registry)));
+                array.PushDatum(ScriptDatum.FromObject(ToScriptObject(item)));
             }
 
             return array;
@@ -101,41 +101,41 @@ namespace AuroraScript.Runtime.Interop
         /// <summary>
         /// Converts a set of CLR arguments to script values.
         /// </summary>
-        public static ScriptObject[] ToScriptObjectArray(IEnumerable<object> values, ClrTypeRegistry registry)
+        public static ScriptObject[] ToScriptObjectArray(IEnumerable<object> values)
         {
             if (values == null)
             {
                 return Array.Empty<ScriptObject>();
             }
-            return values.Select(v => ToScriptObject(v, registry)).ToArray();
+            return values.Select(v => ToScriptObject(v)).ToArray();
         }
 
         /// <summary>
         /// Converts a set of CLR arguments into <see cref="ScriptDatum"/> instances, ready for VM invocation.
         /// </summary>
-        public static ScriptDatum[] ToDatumArray(IEnumerable<object> values, ClrTypeRegistry registry)
+        public static ScriptDatum[] ToDatumArray(IEnumerable<object> values)
         {
             if (values == null)
             {
                 return Array.Empty<ScriptDatum>();
             }
 
-            return values.Select(v => ScriptDatum.FromObject(ToScriptObject(v, registry))).ToArray();
+            return values.Select(v => ScriptDatum.FromObject(ToScriptObject(v))).ToArray();
         }
 
-        private static ScriptObject ConvertDictionary(IDictionary dictionary, ClrTypeRegistry registry)
+        private static ScriptObject ConvertDictionary(IDictionary dictionary)
         {
             var obj = new ScriptObject();
             foreach (DictionaryEntry entry in dictionary)
             {
                 var key = entry.Key?.ToString() ?? string.Empty;
-                obj.SetPropertyValue(key, ToScriptObject(entry.Value, registry));
+                obj.SetPropertyValue(key, ToScriptObject(entry.Value));
             }
 
             return obj;
         }
 
-        private static ScriptObject WrapDelegate(Delegate handler, ClrTypeRegistry registry)
+        private static ScriptObject WrapDelegate(Delegate handler)
         {
             if (handler is ClrDatumDelegate datumDelegate)
             {
@@ -144,13 +144,13 @@ namespace AuroraScript.Runtime.Interop
 
             return new BondingFunction((context, thisObject, args) =>
             {
-                var prepared = PrepareDelegateArguments(handler, args, registry);
+                var prepared = PrepareDelegateArguments(handler, args);
                 var result = handler.DynamicInvoke(prepared);
-                return ToScriptObject(result, registry);
+                return ToScriptObject(result);
             });
         }
 
-        private static object[] PrepareDelegateArguments(Delegate handler, ScriptDatum[] args, ClrTypeRegistry registry)
+        private static object[] PrepareDelegateArguments(Delegate handler, ScriptDatum[] args)
         {
             var parameters = handler.Method.GetParameters();
             if (parameters.Length == 0)
@@ -163,13 +163,13 @@ namespace AuroraScript.Runtime.Interop
             {
                 if (IsParamArray(parameters[i]))
                 {
-                    prepared[i] = ConvertParamArray(parameters[i], args, i, registry);
+                    prepared[i] = ConvertParamArray(parameters[i], args, i);
                     continue;
                 }
 
                 if (args != null && i < args.Length)
                 {
-                    if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, registry, out var converted))
+                    if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, out var converted))
                     {
                         throw new InvalidOperationException($"Cannot convert script argument #{i} to '{parameters[i].ParameterType.FullName}' for delegate '{handler.Method.DeclaringType?.Name}.{handler.Method.Name}'.");
                     }
@@ -191,14 +191,14 @@ namespace AuroraScript.Runtime.Interop
             return prepared;
         }
 
-        private static object ConvertParamArray(ParameterInfo parameter, ScriptDatum[] args, int startIndex, ClrTypeRegistry registry)
+        private static object ConvertParamArray(ParameterInfo parameter, ScriptDatum[] args, int startIndex)
         {
             var elementType = parameter.ParameterType.GetElementType() ?? typeof(object);
             var available = Math.Max(0, (args?.Length ?? 0) - startIndex);
             var array = Array.CreateInstance(elementType, available);
             for (int offset = 0; offset < available; offset++)
             {
-                if (!ClrMarshaller.TryConvertArgument(args[startIndex + offset], elementType, registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(args[startIndex + offset], elementType, out var converted))
                 {
                     throw new InvalidOperationException($"Cannot convert variadic script argument #{startIndex + offset} to '{elementType.FullName}'.");
                 }

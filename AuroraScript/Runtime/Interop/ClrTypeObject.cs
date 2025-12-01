@@ -9,12 +9,10 @@ namespace AuroraScript.Runtime.Interop
     public sealed class ClrTypeObject : ScriptObject, IClrInvokable
     {
         private readonly ClrTypeDescriptor _descriptor;
-        private readonly ClrTypeRegistry _registry;
 
-        public ClrTypeObject(ClrTypeDescriptor descriptor, ClrTypeRegistry registry)
+        public ClrTypeObject(ClrTypeDescriptor descriptor)
         {
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
-            _registry = registry;
             Frozen();
         }
 
@@ -34,7 +32,7 @@ namespace AuroraScript.Runtime.Interop
                     continue;
                 }
                 var instance = ctor.Invoke(invokeArgs);
-                return new ClrInstanceObject(_descriptor, instance, _registry);
+                return new ClrInstanceObject(_descriptor, instance);
             }
             throw new InvalidOperationException($"No matching constructor found for '{_descriptor.Type.FullName}'.");
         }
@@ -50,14 +48,14 @@ namespace AuroraScript.Runtime.Interop
             if (property != null && property.GetMethod != null && property.GetMethod.IsStatic)
             {
                 var value = property.GetValue(null);
-                return ClrMarshaller.ToScript(value, _registry);
+                return ClrMarshaller.ToScript(value);
             }
 
             var field = _descriptor.GetField(key);
             if (field != null && field.IsStatic)
             {
                 var value = field.GetValue(null);
-                return ClrMarshaller.ToScript(value, _registry);
+                return ClrMarshaller.ToScript(value);
             }
 
             var methods = _descriptor.GetMethods(key);
@@ -66,7 +64,7 @@ namespace AuroraScript.Runtime.Interop
                 var staticMethods = methods.Where(m => m.IsStatic).ToArray();
                 if (staticMethods.Length > 0)
                 {
-                    return new ClrMethodBinding(_descriptor, staticMethods, null, _registry, true);
+                    return new ClrMethodBinding(_descriptor, staticMethods, null, true);
                 }
             }
 
@@ -78,7 +76,7 @@ namespace AuroraScript.Runtime.Interop
             var property = _descriptor.GetProperty(key);
             if (property != null && property.SetMethod != null && property.SetMethod.IsStatic)
             {
-                if (!ClrMarshaller.TryConvertArgument(value, property.PropertyType, _registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(value, property.PropertyType, out var converted))
                 {
                     throw new InvalidOperationException($"Cannot convert script value to '{property.PropertyType.FullName}'.");
                 }
@@ -89,7 +87,7 @@ namespace AuroraScript.Runtime.Interop
             var field = _descriptor.GetField(key);
             if (field != null && field.IsStatic)
             {
-                if (!ClrMarshaller.TryConvertArgument(value, field.FieldType, _registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(value, field.FieldType, out var converted))
                 {
                     throw new InvalidOperationException($"Cannot convert script value to '{field.FieldType.FullName}'.");
                 }
@@ -112,7 +110,7 @@ namespace AuroraScript.Runtime.Interop
             invokeArgs = new object[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, _registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, out var converted))
                 {
                     invokeArgs = null;
                     return false;

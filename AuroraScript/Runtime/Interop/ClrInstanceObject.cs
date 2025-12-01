@@ -7,16 +7,14 @@ namespace AuroraScript.Runtime.Interop
     public sealed class ClrInstanceObject : ScriptObject
     {
         private readonly ClrTypeDescriptor _descriptor;
-        private readonly ClrTypeRegistry _registry;
 
         public object Instance { get; }
 
         internal ClrTypeDescriptor Descriptor => _descriptor;
 
-        public ClrInstanceObject(ClrTypeDescriptor descriptor, object instance, ClrTypeRegistry registry)
+        public ClrInstanceObject(ClrTypeDescriptor descriptor, object instance)
         {
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
-            _registry = registry;
             Instance = instance;
         }
 
@@ -26,14 +24,14 @@ namespace AuroraScript.Runtime.Interop
             if (property != null && property.GetMethod != null && !property.GetMethod.IsStatic)
             {
                 var value = property.GetValue(Instance);
-                return ClrMarshaller.ToScript(value, _registry);
+                return ClrMarshaller.ToScript(value);
             }
 
             var field = _descriptor.GetField(key);
             if (field != null && !field.IsStatic)
             {
                 var value = field.GetValue(Instance);
-                return ClrMarshaller.ToScript(value, _registry);
+                return ClrMarshaller.ToScript(value);
             }
 
             var methods = _descriptor.GetMethods(key);
@@ -42,7 +40,7 @@ namespace AuroraScript.Runtime.Interop
                 var instanceMethods = methods.Where(m => !m.IsStatic).ToArray();
                 if (instanceMethods.Length > 0)
                 {
-                    return new ClrMethodBinding(_descriptor, instanceMethods, this, _registry, false);
+                    return new ClrMethodBinding(_descriptor, instanceMethods, this, false);
                 }
             }
 
@@ -54,7 +52,7 @@ namespace AuroraScript.Runtime.Interop
             var property = _descriptor.GetProperty(key);
             if (property != null && property.SetMethod != null && !property.SetMethod.IsStatic)
             {
-                if (!ClrMarshaller.TryConvertArgument(value, property.PropertyType, _registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(value, property.PropertyType, out var converted))
                 {
                     throw new InvalidOperationException($"Cannot convert script value to '{property.PropertyType.FullName}'.");
                 }
@@ -65,7 +63,7 @@ namespace AuroraScript.Runtime.Interop
             var field = _descriptor.GetField(key);
             if (field != null && !field.IsStatic)
             {
-                if (!ClrMarshaller.TryConvertArgument(value, field.FieldType, _registry, out var converted))
+                if (!ClrMarshaller.TryConvertArgument(value, field.FieldType, out var converted))
                 {
                     throw new InvalidOperationException($"Cannot convert script value to '{field.FieldType.FullName}'.");
                 }

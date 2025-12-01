@@ -917,10 +917,9 @@ namespace AuroraScript.Runtime
                         break;
                     case OpCode.PUSH_CONTEXT:
                         var value5 = exeContext.UserState;
-                        var registry = _engine.ClrRegistry;
-                        if (registry != null && registry.TryGetDescriptor(value5.GetType(), out descriptor))
+                        if (ClrTypeResolver.ResolveType(value5.GetType(), out descriptor))
                         {
-                            PushObject(new ClrInstanceObject(descriptor, value5, registry));
+                            PushObject(new ClrInstanceObject(descriptor, value5));
                         }
                         else
                         {

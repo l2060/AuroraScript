@@ -65,7 +65,7 @@ namespace AuroraScript.Runtime.Types
             if (args != null && args.Length > 0)
             {
                 var registry = Domain?.Engine?.ClrRegistry;
-                scriptArgs = ClrValueConverter.ToScriptObjectArray(args, registry);
+                scriptArgs = ClrValueConverter.ToScriptObjectArray(args);
             }
             return Invoke(options, scriptArgs);
         }

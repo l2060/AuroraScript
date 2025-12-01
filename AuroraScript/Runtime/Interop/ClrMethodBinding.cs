@@ -12,10 +12,9 @@ namespace AuroraScript.Runtime.Interop
         private readonly ClrTypeDescriptor _descriptor;
         private readonly MethodInvoker[] _compiledInvokers;
         private readonly ClrInstanceObject _instance;
-        private readonly ClrTypeRegistry _registry;
         private readonly bool _isStatic;
 
-        internal ClrMethodBinding(ClrTypeDescriptor descriptor, MethodBase[] methods, ClrInstanceObject instance, ClrTypeRegistry registry, bool isStatic)
+        internal ClrMethodBinding(ClrTypeDescriptor descriptor, MethodBase[] methods, ClrInstanceObject instance, bool isStatic)
         {
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             if (methods == null)
@@ -23,7 +22,6 @@ namespace AuroraScript.Runtime.Interop
                 throw new ArgumentNullException(nameof(methods));
             }
             _instance = instance;
-            _registry = registry;
             _isStatic = isStatic;
 
             _compiledInvokers = CompileInvokers(methods);
@@ -47,7 +45,7 @@ namespace AuroraScript.Runtime.Interop
                     continue;
                 }
 
-                if (invoker.TryInvoke(targetInstance, args, _registry, out var result))
+                if (invoker.TryInvoke(targetInstance, args, out var result))
                 {
                     return result;
                 }
@@ -65,7 +63,7 @@ namespace AuroraScript.Runtime.Interop
             }
             return invokers.ToArray();
         }
-        private delegate bool InvokeDelegate(object target, ScriptDatum[] args, ClrTypeRegistry registry, out ScriptDatum result);
+        private delegate bool InvokeDelegate(object target, ScriptDatum[] args, out ScriptDatum result);
 
         private readonly struct MethodInvoker
         {
@@ -81,7 +79,7 @@ namespace AuroraScript.Runtime.Interop
                 _invoke = invoke;
             }
 
-            public bool TryInvoke(object target, ScriptDatum[] args, ClrTypeRegistry registry, out ScriptDatum result)
+            public bool TryInvoke(object target, ScriptDatum[] args, out ScriptDatum result)
             {
                 if (!IsStatic && target == null)
                 {
@@ -96,7 +94,7 @@ namespace AuroraScript.Runtime.Interop
                     return false;
                 }
 
-                return _invoke(target, effectiveArgs, registry, out result);
+                return _invoke(target, effectiveArgs, out result);
             }
 
             public static class Compiler
@@ -140,7 +138,7 @@ namespace AuroraScript.Runtime.Interop
                 {
                     if (method.ReturnType == typeof(void))
                     {
-                        return (object target, ScriptDatum[] arguments, ClrTypeRegistry registry, out ScriptDatum result) =>
+                        return (object target, ScriptDatum[] arguments, out ScriptDatum result) =>
                         {
                             method.Invoke(target, Array.Empty<object>());
                             result = ScriptDatum.FromNull();
@@ -148,10 +146,10 @@ namespace AuroraScript.Runtime.Interop
                         };
                     }
 
-                    return (object target, ScriptDatum[] arguments, ClrTypeRegistry registry, out ScriptDatum result) =>
+                    return (object target, ScriptDatum[] arguments, out ScriptDatum result) =>
                     {
                         var invocationResult = method.Invoke(target, Array.Empty<object>());
-                        result = ClrMarshaller.ToDatum(invocationResult, registry);
+                        result = ClrMarshaller.ToDatum(invocationResult);
                         return true;
                     };
                 }
@@ -161,9 +159,9 @@ namespace AuroraScript.Runtime.Interop
                     var parameterType = parameter.ParameterType;
                     if (method.ReturnType == typeof(void))
                     {
-                        return (object target, ScriptDatum[] args, ClrTypeRegistry registry, out ScriptDatum result) =>
+                        return (object target, ScriptDatum[] args, out ScriptDatum result) =>
                         {
-                            if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, registry, out var converted))
+                            if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                             {
                                 result = ScriptDatum.FromNull();
                                 return false;
@@ -175,16 +173,16 @@ namespace AuroraScript.Runtime.Interop
                         };
                     }
 
-                    return (object target, ScriptDatum[] args, ClrTypeRegistry registry, out ScriptDatum result) =>
+                    return (object target, ScriptDatum[] args, out ScriptDatum result) =>
                     {
-                        if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, registry, out var converted))
+                        if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                         {
                             result = ScriptDatum.FromNull();
                             return false;
                         }
 
                         var invocationResult = method.Invoke(target, new[] { converted });
-                        result = ClrMarshaller.ToDatum(invocationResult, registry);
+                        result = ClrMarshaller.ToDatum(invocationResult);
                         return true;
                     };
                 }
@@ -200,12 +198,12 @@ namespace AuroraScript.Runtime.Interop
                         _parameters = method.GetParameters();
                     }
 
-                    public bool Invoke(object target, ScriptDatum[] args, ClrTypeRegistry registry, out ScriptDatum result)
+                    public bool Invoke(object target, ScriptDatum[] args, out ScriptDatum result)
                     {
                         var invokeArgs = new object[_parameters.Length];
                         for (int i = 0; i < _parameters.Length; i++)
                         {
-                            if (!ClrMarshaller.TryConvertArgument(args[i], _parameters[i].ParameterType, registry, out var converted))
+                            if (!ClrMarshaller.TryConvertArgument(args[i], _parameters[i].ParameterType, out var converted))
                             {
                                 result = ScriptDatum.FromNull();
                                 return false;
@@ -220,7 +218,7 @@ namespace AuroraScript.Runtime.Interop
                             return true;
                         }
 
-                        result = ClrMarshaller.ToDatum(invocationResult, registry);
+                        result = ClrMarshaller.ToDatum(invocationResult);
                         return true;
                     }
                 }

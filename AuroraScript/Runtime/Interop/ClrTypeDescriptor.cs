@@ -33,6 +33,13 @@ namespace AuroraScript.Runtime.Interop
             _constructors = new Lazy<ConstructorInfo[]>(() => type.GetConstructors(options.Binding));
         }
 
+        internal ClrTypeDescriptor(Type type)
+        {
+            Type = type;
+            _constructors = new Lazy<ConstructorInfo[]>(() => []);
+        }
+
+
         /// <summary>
         /// 获取指定名称的方法集合，后续可用于生成动态桩。
         /// </summary>
@@ -69,7 +76,7 @@ namespace AuroraScript.Runtime.Interop
 
         public ClrTypeObject GetOrCreateTypeObject()
         {
-            return _typeObject ??= new ClrTypeObject(this, _registry);
+            return _typeObject ??= new ClrTypeObject(this);
         }
 
         private MethodBase[] ResolveMethods(string name)

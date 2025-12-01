@@ -10,7 +10,7 @@ namespace AuroraScript.Runtime.Interop
 {
     internal static class ClrMarshaller
     {
-        public static bool TryConvertArgument(ScriptObject scriptValue, Type targetType, ClrTypeRegistry registry, out object result)
+        public static bool TryConvertArgument(ScriptObject scriptValue, Type targetType, out object result)
         {
             result = null;
             if (targetType == typeof(ScriptObject) || targetType == typeof(ScriptObject[]))
@@ -70,7 +70,7 @@ namespace AuroraScript.Runtime.Interop
 
             if (scriptValue is ScriptArray scriptArray)
             {
-                if (TryConvertScriptArray(scriptArray, targetType, registry, out result))
+                if (TryConvertScriptArray(scriptArray, targetType, out result))
                 {
                     return true;
                 }
@@ -100,7 +100,7 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
-        public static bool TryConvertArgument(ScriptDatum datum, Type targetType, ClrTypeRegistry registry, out object result)
+        public static bool TryConvertArgument(ScriptDatum datum, Type targetType, out object result)
         {
             switch (datum.Kind)
             {
@@ -149,10 +149,10 @@ namespace AuroraScript.Runtime.Interop
                     }
                     break;
                 case ValueKind.Object:
-                    return TryConvertArgument(datum.Object, targetType, registry, out result);
+                    return TryConvertArgument(datum.Object, targetType, out result);
 
                 case ValueKind.Array:
-                    if (datum.Object is ScriptArray arrayValue && TryConvertScriptArray(arrayValue, targetType, registry, out result))
+                    if (datum.Object is ScriptArray arrayValue && TryConvertScriptArray(arrayValue, targetType, out result))
                     {
                         return true;
                     }
@@ -164,7 +164,7 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
-        public static ScriptDatum ToDatum(object value, ClrTypeRegistry registry)
+        public static ScriptDatum ToDatum(object value)
         {
             if (value == null)
             {
@@ -217,17 +217,17 @@ namespace AuroraScript.Runtime.Interop
                 return ScriptDatum.FromNumber(Convert.ToDouble(enumValue, CultureInfo.InvariantCulture));
             }
 
-            if (registry != null && registry.TryGetDescriptor(value.GetType(), out var descriptor))
+            if (ClrTypeResolver.ResolveType(value.GetType(), out var descriptor))
             {
-                return ScriptDatum.FromObject(new ClrInstanceObject(descriptor, value, registry));
+                return ScriptDatum.FromObject(new ClrInstanceObject(descriptor, value));
             }
 
             throw new InvalidOperationException($"The return type '{value.GetType().FullName}' is not registered for CLR interop.");
         }
 
-        public static ScriptObject ToScript(object value, ClrTypeRegistry registry)
+        public static ScriptObject ToScript(object value)
         {
-            return ToDatum(value, registry).ToObject();
+            return ToDatum(value).ToObject();
         }
 
 
@@ -270,7 +270,7 @@ namespace AuroraScript.Runtime.Interop
             }
         }
 
-        private static bool TryConvertScriptArray(ScriptArray scriptArray, Type targetType, ClrTypeRegistry registry, out object result)
+        private static bool TryConvertScriptArray(ScriptArray scriptArray, Type targetType, out object result)
         {
             if (targetType == typeof(ScriptArray) || typeof(ScriptArray).IsAssignableFrom(targetType))
             {
@@ -281,12 +281,12 @@ namespace AuroraScript.Runtime.Interop
             if (targetType.IsArray)
             {
                 var elementType = targetType.GetElementType() ?? typeof(object);
-                return TryConvertToClrArray(scriptArray, elementType, registry, out result);
+                return TryConvertToClrArray(scriptArray, elementType, out result);
             }
 
             if (TryGetGenericEnumerableElementType(targetType, out var element))
             {
-                if (!TryConvertToTypedList(scriptArray, element, registry, out var listObject))
+                if (!TryConvertToTypedList(scriptArray, element, out var listObject))
                 {
                     result = null;
                     return false;
@@ -358,7 +358,7 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
-        private static bool TryConvertToClrArray(ScriptArray scriptArray, Type elementType, ClrTypeRegistry registry, out object result)
+        private static bool TryConvertToClrArray(ScriptArray scriptArray, Type elementType,  out object result)
         {
             var length = scriptArray.Length;
             var arrayInstance = Array.CreateInstance(elementType, length);
@@ -366,7 +366,7 @@ namespace AuroraScript.Runtime.Interop
             for (int i = 0; i < length; i++)
             {
                 var datum = scriptArray.Get(i);
-                if (!TryConvertArgument(datum, elementType, registry, out var converted))
+                if (!TryConvertArgument(datum, elementType, out var converted))
                 {
                     if (!TryFallbackArrayConversion(datum, elementType, out converted))
                     {
@@ -381,7 +381,7 @@ namespace AuroraScript.Runtime.Interop
             return true;
         }
 
-        private static bool TryConvertToTypedList(ScriptArray scriptArray, Type elementType, ClrTypeRegistry registry, out object listObject)
+        private static bool TryConvertToTypedList(ScriptArray scriptArray, Type elementType, out object listObject)
         {
             var listType = typeof(List<>).MakeGenericType(elementType);
             var list = (IList)Activator.CreateInstance(listType);
@@ -389,7 +389,7 @@ namespace AuroraScript.Runtime.Interop
             for (int i = 0; i < scriptArray.Length; i++)
             {
                 var datum = scriptArray.Get(i);
-                if (!TryConvertArgument(datum, elementType, registry, out var converted))
+                if (!TryConvertArgument(datum, elementType, out var converted))
                 {
                     if (!TryFallbackArrayConversion(datum, elementType, out converted))
                     {

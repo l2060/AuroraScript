@@ -52,7 +52,7 @@ namespace AuroraScript.Runtime.Types
                 throw new AuroraException("CLR type registry is not available. Ensure the ScriptGlobal is attached to an engine before setting CLR values.");
             }
 
-            return ClrValueConverter.ToScriptObject(value, registry);
+            return ClrValueConverter.ToScriptObject(value);
         }
 
         public void SetPropertyValue(string key, object value)
