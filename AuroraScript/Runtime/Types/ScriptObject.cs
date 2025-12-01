@@ -91,24 +91,32 @@ namespace AuroraScript.Runtime.Base
         /// <exception cref="AuroraRuntimeException"></exception>
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
+            SetPropertyValue(StringValue.Of(key), value);
+        }
+
+
+        public virtual void SetPropertyValue(StringValue key, ScriptObject value)
+        {
             if (_properties == null) return;
             if (_isFrozen)
             {
                 throw new AuroraVMException("You cannot modify this object");
             }
-            _properties.TryGetValue(key, out var existValue);
+            _properties.TryGetValue(key.Value, out var existValue);
             if (existValue == null)
             {
                 existValue = new ObjectProperty();
-                existValue.Key = StringValue.Of(key);
+                existValue.Key = key;
                 existValue.Readable = true;
                 existValue.Writable = true;
                 existValue.Enumerable = true;
-                _properties[key] = existValue;
+                _properties[key.Value] = existValue;
             }
             if (!existValue.Writable) throw new AuroraVMException("Property disables write");
             existValue.Value = value;
         }
+
+
 
 
         public virtual Boolean DeletePropertyValue(String key)

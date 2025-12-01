@@ -8,19 +8,17 @@ namespace AuroraScript.Core
         String,
         Object,
         Array,
-
         Module,
-
-
         Regex,
         /// <summary>
         /// 脚本原生方法
         /// </summary>
         Function,
 
+        /// <summary>
+        /// Clr原生类型
+        /// </summary>
         ClrType,
-
-
         /// <summary>
         /// Clr原生方法
         /// </summary>

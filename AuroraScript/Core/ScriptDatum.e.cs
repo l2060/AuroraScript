@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Core
@@ -34,6 +35,13 @@ namespace AuroraScript.Core
         public static ScriptDatum FromString(StringValue value)
         {
             return new ScriptDatum { Kind = ValueKind.String, String = value };
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromString(String value)
+        {
+            return new ScriptDatum { Kind = ValueKind.String, String = StringValue.Of(value) };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,6 +89,16 @@ namespace AuroraScript.Core
         {
             return new ScriptDatum { Kind = ValueKind.ClrBonding, Object = value };
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromBonding(ClrDatumDelegate value)
+        {
+            return new ScriptDatum { Kind = ValueKind.ClrBonding, Object = new BondingFunction(value) };
+        }
+
+
+
 
     }
 }

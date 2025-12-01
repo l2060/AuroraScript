@@ -154,7 +154,7 @@ namespace AuroraScript.Core
                 case ValueKind.String:
                     return String.Value;
                 default:
-                    return JsonSupport.Serialize(this).Value;
+                    return Object.ToString();
             }
         }
 

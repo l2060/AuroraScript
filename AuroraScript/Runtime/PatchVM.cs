@@ -85,6 +85,13 @@ namespace AuroraScript.Runtime
                 case OpCode.STORE_CAPTURE:
                     break;
 
+
+                case OpCode.PUSH_CONTEXT:
+                    break;
+
+                case OpCode.PUSH_ARGUMENTS:
+                    break;
+
                 case OpCode.CREATE_CLOSURE:
                     _codeBuffer.ReadInt32(frame);
                     var captured = _codeBuffer.ReadByte(frame);

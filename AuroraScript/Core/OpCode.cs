@@ -130,7 +130,7 @@
         PUSH_THIS,  // Push true onto the stack
         PUSH_GLOBAL,
         PUSH_CONTEXT, // Push user context
-
+        PUSH_ARGUMENTS, //Push Arguments
         //
 
     }

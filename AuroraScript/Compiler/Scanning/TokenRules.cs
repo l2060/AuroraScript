@@ -250,7 +250,7 @@ namespace AuroraScript.Scanning
                             result.Length = i + 1;
                             result.Value = sb.ToString();// codeSpan.Slice(1, i - 1).ToString();
                             result.Success = true;
-                            result.Type = TokenTyped.String;
+                            result.Type = keychar == '`' ? TokenTyped.StringTemplate : TokenTyped.String;
                             break;
                         }
                     }

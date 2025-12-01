@@ -2,6 +2,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
+using System;
 
 
 namespace AuroraScript.Runtime.Types
@@ -30,14 +31,18 @@ namespace AuroraScript.Runtime.Types
         /// </summary>
         private readonly RuntimeVM _virtualMachine;
 
+
+        private readonly Object UserState;
+
         /// <summary>
         /// 创建新的脚本域
         /// </summary>
         /// <param name="engine">引擎实例</param>
         /// <param name="vm">虚拟机实例</param>
         /// <param name="domainGlobal">域全局对象</param>
-        internal ScriptDomain(AuroraEngine engine, RuntimeVM vm, ScriptGlobal domainGlobal)
+        internal ScriptDomain(AuroraEngine engine, RuntimeVM vm, ScriptGlobal domainGlobal, Object userState)
         {
+            UserState = userState;
             // 设置全局对象
             Global = domainGlobal;
             // 设置引擎实例
@@ -79,8 +84,16 @@ namespace AuroraScript.Runtime.Types
                 // 如果不是闭包函数，设置错误状态并返回
                 throw new AuroraException($"{methodName} is not a valid internal method");
             }
+            if (options == null)
+            {
+                options = ExecuteOptions.Default;
+            }
+            if (options.UserState == null && this.UserState != null)
+            {
+                options = options.WithUserState(this.UserState);
+            }
             // 创建新的执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
+            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options);
             // 创建调用帧并压入调用栈
             exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
             // 执行函数
@@ -185,27 +198,6 @@ namespace AuroraScript.Runtime.Types
             _virtualMachine.Execute(exeContext);
             return exeContext;
         }
-
-        public ExecuteContext Execute2(ClosureFunction closure, params ScriptDatum[] arguments)
-        {
-            return Execute2(closure, ExecuteOptions.Default, arguments);
-        }
-
-
-
-
-        /// <summary>
-        /// 使用默认选项直接执行闭包函数
-        /// </summary>
-        /// <param name="closure">要执行的闭包函数</param>
-        /// <param name="arguments">传递给函数的参数</param>
-        /// <returns>执行上下文，包含执行结果和状态</returns>
-        public ExecuteContext Execute(ClosureFunction closure, params ScriptObject[] arguments)
-        {
-            // 调用带有默认选项的方法
-            return Execute(closure, ExecuteOptions.Default, arguments);
-        }
-
 
 
 

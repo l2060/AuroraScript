@@ -669,8 +669,11 @@ namespace AuroraScript.Compiler.Emits
                 _instructionBuilder.PushUserContext();
                 return;
             }
-
-
+            if (node.Identifier.Value == "$args")
+            {
+                _instructionBuilder.PushArguments();
+                return;
+            }
             if (_scope.Resolve(node.Identifier.Value, out var declare))
             {
                 if (declare.Type == DeclareType.Captured)

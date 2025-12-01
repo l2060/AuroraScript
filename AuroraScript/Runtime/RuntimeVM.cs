@@ -489,7 +489,7 @@ namespace AuroraScript.Runtime
 
                         if (obj is ScriptObject targetScriptObj)
                         {
-                            targetScriptObj.SetPropertyValue(propName.Value, value);
+                            targetScriptObj.SetPropertyValue(propName, value);
                         }
                         else
                         {
@@ -513,7 +513,7 @@ namespace AuroraScript.Runtime
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
                         value = PopObject();
-                        frame.Module.SetPropertyValue(propName.Value, value);
+                        frame.Module.SetPropertyValue(propName, value);
                         break;
 
                     case OpCode.GET_GLOBAL_PROPERTY:
@@ -926,6 +926,10 @@ namespace AuroraScript.Runtime
                         {
                             PushDatum(ScriptDatum.FromNull());
                         }
+                        break;
+                    case OpCode.PUSH_ARGUMENTS:
+                        argDatum = ScriptDatum.FromArray(new ScriptArray(frame.Arguments));
+                        PushDatum(argDatum);
                         break;
                     case OpCode.NEW_REGEX:
                         var _pattern = _codeBuffer.ReadInt32(frame);

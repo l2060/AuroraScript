@@ -24,11 +24,24 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args != null && args.Length > 0)
             {
-                var message = args.Select(arg => arg.ToString() ?? "null");
+                var message = args.Select(arg => DatumToString(arg) ?? "null");
                 Console.WriteLine(string.Join(", ", message));
             }
             return Null;
         }
+
+
+
+
+        private static String DatumToString(ScriptDatum datum)
+        {
+            if (datum.Kind == ValueKind.Object)
+            {
+                return JsonSupport.Serialize(datum, false).Value;
+            }
+            return datum.ToString();
+        }
+
 
         public static ScriptObject TIME(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {

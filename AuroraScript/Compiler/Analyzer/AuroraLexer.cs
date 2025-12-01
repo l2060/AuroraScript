@@ -342,6 +342,7 @@ namespace AuroraScript.Analyzer
         {
             Token token = null;
             if (result.Type == TokenTyped.String) token = new StringToken(false);
+            if (result.Type == TokenTyped.StringTemplate) token = new StringToken(false);
             if (result.Type == TokenTyped.StringBlock) token = new StringToken(true);
             if (result.Type == TokenTyped.Number) token = new NumberToken(result.Value);
             if (result.Type == TokenTyped.Regex) token = new RegexToken(result.Value);

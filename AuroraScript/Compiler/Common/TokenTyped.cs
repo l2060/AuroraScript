@@ -4,6 +4,8 @@
     {
         Unknown,
         String,
+        StringTemplate,
+
         Regex,
 
         StringBlock,

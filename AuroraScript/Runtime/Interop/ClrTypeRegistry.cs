@@ -119,22 +119,6 @@ namespace AuroraScript.Runtime.Interop
             }
         }
 
-        public IReadOnlyCollection<ClrTypeDescriptor> Snapshot()
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                EnsureNotDisposed();
-                return _aliasMap.Values is IReadOnlyCollection<ClrTypeDescriptor> collection
-                    ? collection
-                    : new List<ClrTypeDescriptor>(_aliasMap.Values);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-        }
-
         public void Dispose()
         {
             if (_disposed) return;

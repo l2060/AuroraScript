@@ -207,7 +207,7 @@ namespace AuroraScript
                 domainGlobal = ScriptGlobal.With(Global);
                 domainGlobal.AttachRegistry(ClrRegistry);
             }
-            var domain = new ScriptDomain(this, runtimeVM, domainGlobal);
+            var domain = new ScriptDomain(this, runtimeVM, domainGlobal, userState);
             // 创建执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default.WithUserState(userState));
             // 创建初始调用帧并压入调用栈

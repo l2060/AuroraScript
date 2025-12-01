@@ -47,6 +47,27 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
+        public ScriptArray(ScriptDatum[] array)
+        {
+            this._prototype = Prototypes.ScriptArrayPrototype;
+            if (array == null || array.Length == 0)
+            {
+                _items = Array.Empty<ScriptDatum>();
+                _count = 0;
+            }
+            else
+            {
+                _items = new ScriptDatum[Math.Max(4, array.Length)];
+                _count = array.Length;
+                for (int i = 0; i < _count; i++)
+                {
+                    _items[i] = array[i];
+                }
+            }
+        }
+
+
+
         public ScriptArray(ScriptObject[] array)
         {
             this._prototype = Prototypes.ScriptArrayPrototype;
@@ -134,16 +155,6 @@ namespace AuroraScript.Runtime.Base
             return _items.AsSpan(0, _count);
         }
 
-
-        public override void SetPropertyValue(String key, ScriptObject value)
-        {
-            base.SetPropertyValue(key, value);
-        }
-
-        public override void Define(String key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
-        {
-            base.Define(key, value, readable, writeable, enumerable);
-        }
 
         public override string ToString()
         {
