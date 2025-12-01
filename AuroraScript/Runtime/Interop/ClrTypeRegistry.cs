@@ -1,5 +1,4 @@
-﻿using AuroraScript.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -10,73 +9,39 @@ namespace AuroraScript.Runtime.Interop
     /// </summary>
     public sealed class ClrTypeRegistry : IDisposable
     {
-        private readonly Dictionary<string, ClrTypeDescriptor> _aliasMap = new(StringComparer.Ordinal);
-        private readonly Dictionary<Type, ClrTypeDescriptor> _typeMap = new();
+        private readonly Dictionary<string, ClrTypeObject> _aliasMap = new(StringComparer.Ordinal);
+
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         private bool _disposed;
 
-        public ClrTypeDescriptor RegisterType(string alias, Type type, ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterType(Type type, string alias = null, ClrTypeOptions options = null)
         {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("alias cannot be null or whitespace", nameof(alias));
-            }
             if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                alias = type.Name;
+            }
             alias = alias.Trim();
             options ??= ClrTypeOptions.Default;
-
-            _lock.EnterWriteLock();
-            try
-            {
-                EnsureNotDisposed();
-
-                if (_aliasMap.TryGetValue(alias, out var existing))
-                {
-                    if (!overwrite && !options.AllowOverride)
-                    {
-                        throw new AuroraException($"CLR type alias '{alias}' has already been registered for '{existing.Type.FullName}'.");
-                    }
-                }
-
-                if (_typeMap.TryGetValue(type, out var existingDescriptor) && !ReferenceEquals(existingDescriptor, existing))
-                {
-                    if (!overwrite && !options.AllowOverride)
-                    {
-                        throw new AuroraException($"CLR type '{type.FullName}' has already been registered with alias '{existingDescriptor.Alias}'.");
-                    }
-                }
-
-                var descriptor = new ClrTypeDescriptor(alias, type, options, this);
-                _aliasMap[alias] = descriptor;
-                _typeMap[type] = descriptor;
-                return descriptor;
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
+            ClrTypeResolver.ResolveType(type, out var typeDescriptor);
+            var clrType = new ClrTypeObject(type, typeDescriptor);
+            _aliasMap.Add(alias, clrType);
         }
+
+
+
 
         public bool UnregisterType(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias)) return false;
-            alias = alias.Trim();
             _lock.EnterWriteLock();
             try
             {
                 EnsureNotDisposed();
-                if (_aliasMap.Remove(alias, out var descriptor))
-                {
-                    if (descriptor != null)
-                    {
-                        _typeMap.Remove(descriptor.Type);
-                    }
-                    return true;
-                }
-                return false;
+                return _aliasMap.Remove(alias, out var descriptor);
             }
             finally
             {
@@ -84,34 +49,15 @@ namespace AuroraScript.Runtime.Interop
             }
         }
 
-        public bool TryGetDescriptor(string alias, out ClrTypeDescriptor descriptor)
+        public bool TryGetClrType(string alias, out ClrTypeObject descriptor)
         {
             descriptor = null;
             if (string.IsNullOrWhiteSpace(alias)) return false;
-            //alias = alias.Trim();
-
             _lock.EnterReadLock();
             try
             {
                 EnsureNotDisposed();
                 return _aliasMap.TryGetValue(alias, out descriptor);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-        }
-
-        public bool TryGetDescriptor(Type type, out ClrTypeDescriptor descriptor)
-        {
-            descriptor = null;
-            if (type == null) return false;
-
-            _lock.EnterReadLock();
-            try
-            {
-                EnsureNotDisposed();
-                return _typeMap.TryGetValue(type, out descriptor);
             }
             finally
             {

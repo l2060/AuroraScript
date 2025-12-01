@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -13,30 +13,13 @@ namespace AuroraScript.Runtime.Interop
         private readonly ConcurrentDictionary<string, PropertyInfo> _propertyCache = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, FieldInfo> _fieldCache = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, EventInfo> _eventCache = new(StringComparer.Ordinal);
-        private readonly Lazy<ConstructorInfo[]> _constructors;
+        private readonly BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+        public readonly Type Type;
 
-        private readonly ClrTypeRegistry _registry;
-        private ClrTypeObject _typeObject;
-
-        public string Alias { get; }
-
-        public Type Type { get; }
-
-        public ClrTypeOptions Options { get; }
-
-        internal ClrTypeDescriptor(string alias, Type type, ClrTypeOptions options, ClrTypeRegistry registry)
-        {
-            Alias = alias;
-            Type = type;
-            Options = options;
-            _registry = registry;
-            _constructors = new Lazy<ConstructorInfo[]>(() => type.GetConstructors(options.Binding));
-        }
 
         internal ClrTypeDescriptor(Type type)
         {
             Type = type;
-            _constructors = new Lazy<ConstructorInfo[]>(() => []);
         }
 
 
@@ -69,35 +52,25 @@ namespace AuroraScript.Runtime.Interop
             return _eventCache.GetOrAdd(name, ResolveEvent);
         }
 
-        public ConstructorInfo[] GetConstructors()
-        {
-            return _constructors.Value;
-        }
-
-        public ClrTypeObject GetOrCreateTypeObject()
-        {
-            return _typeObject ??= new ClrTypeObject(this);
-        }
-
         private MethodBase[] ResolveMethods(string name)
         {
-            var members = Type.GetMember(name, MemberTypes.Method, Options.Binding);
+            var members = Type.GetMember(name, MemberTypes.Method, _bindingFlags);
             return Array.ConvertAll(members, m => (MethodBase)m);
         }
 
         private FieldInfo ResolveField(string name)
         {
-            return Type.GetField(name, Options.Binding);
+            return Type.GetField(name, _bindingFlags);
         }
 
         private PropertyInfo ResolveProperty(string name)
         {
-            return Type.GetProperty(name, Options.Binding);
+            return Type.GetProperty(name, _bindingFlags);
         }
 
         private EventInfo ResolveEvent(string name)
         {
-            return Type.GetEvent(name, Options.Binding);
+            return Type.GetEvent(name, _bindingFlags);
         }
     }
 }

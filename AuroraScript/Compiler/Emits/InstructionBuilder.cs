@@ -506,7 +506,7 @@ namespace AuroraScript.Compiler.Emits
         {
             Emit(OpCode.PUSH_ARGUMENTS);
         }
-        
+
 
 
         public void Call(Byte argsCount)

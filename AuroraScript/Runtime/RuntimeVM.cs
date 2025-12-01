@@ -64,7 +64,7 @@ namespace AuroraScript.Runtime
         /// <param name="bytecode">要执行的字节码，由编译器生成的二进制指令序列</param>
         /// <param name="stringConstants">字符串常量池，包含脚本中所有的字符串字面量</param>
 
-        public RuntimeVM(AuroraEngine engine, byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols, ClrTypeRegistry clrRegistry)
+        public RuntimeVM(AuroraEngine engine, byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols)
         {
             _engine = engine;
             // 创建字节码缓冲区，用于读取和解析字节码指令
@@ -73,7 +73,7 @@ namespace AuroraScript.Runtime
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
             // 调试符号信息
             _debugSymbols = debugSymbols;
-            _clrRegistry = clrRegistry;
+            _clrRegistry = engine.ClrRegistry;
         }
 
 
@@ -519,9 +519,9 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_GLOBAL_PROPERTY:
                         propNameIndex = _codeBuffer.ReadInt32(frame);
                         propName = _stringConstants[propNameIndex];
-                        if (_clrRegistry != null && _clrRegistry.TryGetDescriptor(propName.Value, out var descriptor))
+                        if (_clrRegistry.TryGetClrType(propName.Value, out var clrType))
                         {
-                            value = descriptor.GetOrCreateTypeObject();
+                            value = clrType;
                         }
                         else
                         {
@@ -917,7 +917,7 @@ namespace AuroraScript.Runtime
                         break;
                     case OpCode.PUSH_CONTEXT:
                         var value5 = exeContext.UserState;
-                        if (ClrTypeResolver.ResolveType(value5.GetType(), out descriptor))
+                        if (ClrTypeResolver.ResolveType(value5.GetType(), out var descriptor))
                         {
                             PushObject(new ClrInstanceObject(descriptor, value5));
                         }

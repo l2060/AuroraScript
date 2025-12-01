@@ -1,4 +1,4 @@
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
@@ -358,7 +358,7 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
-        private static bool TryConvertToClrArray(ScriptArray scriptArray, Type elementType,  out object result)
+        private static bool TryConvertToClrArray(ScriptArray scriptArray, Type elementType, out object result)
         {
             var length = scriptArray.Length;
             var arrayInstance = Array.CreateInstance(elementType, length);

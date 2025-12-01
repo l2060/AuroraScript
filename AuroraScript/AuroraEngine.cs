@@ -51,9 +51,7 @@ namespace AuroraScript
         {
             Prototypes.Proload();
             _options = options;
-
-            Global = new ScriptGlobal();
-            Global.AttachRegistry(ClrRegistry);
+            Global = new ScriptGlobal(this);
             // 在全局对象中注册构造函数和全局变量
 
             Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
@@ -83,31 +81,31 @@ namespace AuroraScript
         }
 
 
-        public ClrTypeDescriptor RegisterClrType<T>(string alias, ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterClrType<T>(string alias, ClrTypeOptions options = null)
         {
-            return ClrRegistry.RegisterType(alias, typeof(T), options, overwrite);
+            ClrRegistry.RegisterType(typeof(T), alias, options);
         }
 
-        public ClrTypeDescriptor RegisterClrType<T>(ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterClrType<T>(ClrTypeOptions options = null)
         {
             var type = typeof(T);
-            return ClrRegistry.RegisterType(type.Name, type, options, overwrite);
+            ClrRegistry.RegisterType(type, type.Name, options);
         }
 
-        public ClrTypeDescriptor RegisterClrType(Type type, ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterClrType(Type type, ClrTypeOptions options = null)
         {
-            return ClrRegistry.RegisterType(type.Name, type, options, overwrite);
+            ClrRegistry.RegisterType(type, type.Name, options);
         }
 
-        public ClrTypeDescriptor RegisterClrType(Type type, string alias, ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterClrType(Type type, string alias, ClrTypeOptions options = null)
         {
-            return ClrRegistry.RegisterType(alias, type, options, overwrite);
+            ClrRegistry.RegisterType(type, alias, options);
         }
 
 
-        public ClrTypeDescriptor RegisterClrType(string alias, Type type, ClrTypeOptions options = null, bool overwrite = false)
+        public void RegisterClrType(string alias, Type type, ClrTypeOptions options = null)
         {
-            return ClrRegistry.RegisterType(alias, type, options, overwrite);
+            ClrRegistry.RegisterType(type, alias, options);
         }
 
         /// <summary>
@@ -164,7 +162,7 @@ namespace AuroraScript
             // 生成字节码
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
-            runtimeVM = new RuntimeVM(this, bytes, stringConstants, debugSymbols, ClrRegistry);
+            runtimeVM = new RuntimeVM(this, bytes, stringConstants, debugSymbols);
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;
@@ -177,16 +175,14 @@ namespace AuroraScript
         /// <returns></returns>
         public ScriptGlobal NewEnvironment()
         {
-            var environment = ScriptGlobal.With(Global);
-            environment.AttachRegistry(ClrRegistry);
+            var environment = ScriptGlobal.With(this, Global);
             return environment;
         }
 
 
         public ScriptDomain CreateDomain(Action<ScriptGlobal> globalConfiguration, Object userState = null)
         {
-            var domainGlobal = ScriptGlobal.With(Global);
-            domainGlobal.AttachRegistry(ClrRegistry);
+            var domainGlobal = ScriptGlobal.With(this, Global);
             globalConfiguration(domainGlobal);
             return CreateDomain(domainGlobal, userState);
         }
@@ -204,8 +200,7 @@ namespace AuroraScript
             // 创建域全局对象，继承自引擎全局对象
             if (domainGlobal == null)
             {
-                domainGlobal = ScriptGlobal.With(Global);
-                domainGlobal.AttachRegistry(ClrRegistry);
+                domainGlobal = ScriptGlobal.With(this, Global);
             }
             var domain = new ScriptDomain(this, runtimeVM, domainGlobal, userState);
             // 创建执行上下文

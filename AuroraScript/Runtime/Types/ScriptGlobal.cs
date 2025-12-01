@@ -1,42 +1,23 @@
-﻿using AuroraScript.Exceptions;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 
 namespace AuroraScript.Runtime.Types
 {
     public class ScriptGlobal : ScriptObject
     {
-        private ClrTypeRegistry _clrRegistry;
+        public AuroraEngine Engine { get; private set; }
 
 
-        internal static ScriptGlobal With(ScriptObject prototype)
+        internal ScriptGlobal(AuroraEngine engine, ScriptObject prototype = null)
         {
-            return new ScriptGlobal()
-            {
-                _prototype = prototype
-            };
+            Engine = engine;
+            _prototype = prototype;
         }
 
 
-
-        internal void AttachRegistry(ClrTypeRegistry registry)
+        internal static ScriptGlobal With(AuroraEngine engine, ScriptObject prototype)
         {
-            _clrRegistry = registry;
-        }
-
-        private ClrTypeRegistry ResolveRegistry()
-        {
-            if (_clrRegistry != null)
-            {
-                return _clrRegistry;
-            }
-
-            if (_prototype is ScriptGlobal globalPrototype)
-            {
-                return globalPrototype.ResolveRegistry();
-            }
-
-            return null;
+            return new ScriptGlobal(engine, prototype);
         }
 
         private ScriptObject ConvertClrValue(object value)
@@ -45,13 +26,6 @@ namespace AuroraScript.Runtime.Types
             {
                 return scriptObject;
             }
-
-            var registry = ResolveRegistry();
-            if (registry == null)
-            {
-                throw new AuroraException("CLR type registry is not available. Ensure the ScriptGlobal is attached to an engine before setting CLR values.");
-            }
-
             return ClrValueConverter.ToScriptObject(value);
         }
 

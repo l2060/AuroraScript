@@ -1,4 +1,4 @@
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
 using System.Linq;
@@ -9,17 +9,19 @@ namespace AuroraScript.Runtime.Interop
     public sealed class ClrTypeObject : ScriptObject, IClrInvokable
     {
         private readonly ClrTypeDescriptor _descriptor;
+        private readonly Lazy<ConstructorInfo[]> _constructors;
 
-        public ClrTypeObject(ClrTypeDescriptor descriptor)
+        public ClrTypeObject(Type type, ClrTypeDescriptor descriptor)
         {
+            _constructors = new Lazy<ConstructorInfo[]>(() => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance));
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Frozen();
         }
 
         public ScriptObject Construct(ScriptDatum[] args)
         {
-            var constructors = _descriptor.GetConstructors();
-            if (constructors == null || constructors.Length == 0)
+            var constructors = _constructors.Value;
+            if (constructors.Length == 0)
             {
                 throw new InvalidOperationException($"CLR type '{_descriptor.Type.FullName}' does not expose public constructors.");
             }

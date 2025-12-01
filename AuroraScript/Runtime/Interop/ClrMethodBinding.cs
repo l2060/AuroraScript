@@ -229,14 +229,14 @@ namespace AuroraScript.Runtime.Interop
                         nameof(ClrMarshaller.TryConvertArgument),
                         BindingFlags.Public | BindingFlags.Static,
                         binder: null,
-                        types: new[] { typeof(ScriptDatum), typeof(Type), typeof(ClrTypeRegistry), typeof(object).MakeByRefType() },
+                        types: new[] { typeof(ScriptDatum), typeof(Type),  typeof(object).MakeByRefType() },
                         modifiers: null);
 
                     private static readonly MethodInfo ToDatumMethod = typeof(ClrMarshaller).GetMethod(
                         nameof(ClrMarshaller.ToDatum),
                         BindingFlags.Public | BindingFlags.Static,
                         binder: null,
-                        types: new[] { typeof(object), typeof(ClrTypeRegistry) },
+                        types: new[] { typeof(object) },
                         modifiers: null);
 
                     private static readonly MethodInfo FromNullMethod = typeof(ScriptDatum).GetMethod(
@@ -290,7 +290,7 @@ namespace AuroraScript.Runtime.Interop
                         var parameters = method.GetParameters();
                         var targetParameter = Expression.Parameter(typeof(object), "target");
                         var argsParameter = Expression.Parameter(typeof(ScriptDatum[]), "args");
-                        var registryParameter = Expression.Parameter(typeof(ClrTypeRegistry), "registry");
+
                         var resultParameter = Expression.Parameter(typeof(ScriptDatum).MakeByRefType(), "result");
 
                         var variables = new List<ParameterExpression>();
@@ -323,7 +323,6 @@ namespace AuroraScript.Runtime.Interop
                                 TryConvertDatumMethod,
                                 Expression.ArrayIndex(argsParameter, Expression.Constant(i)),
                                 Expression.Constant(parameterType, typeof(Type)),
-                                registryParameter,
                                 convertedVar);
 
                             bodyExpressions.Add(Expression.IfThen(Expression.IsFalse(conversionCall), failureBlock));
@@ -342,8 +341,7 @@ namespace AuroraScript.Runtime.Interop
                         {
                             var convertedResult = Expression.Call(
                                 ToDatumMethod,
-                                Expression.Convert(callExpression, typeof(object)),
-                                registryParameter);
+                                Expression.Convert(callExpression, typeof(object)));
                             bodyExpressions.Add(Expression.Assign(resultParameter, convertedResult));
                         }
 
@@ -351,7 +349,7 @@ namespace AuroraScript.Runtime.Interop
                         bodyExpressions.Add(Expression.Label(returnLabel, Expression.Constant(false)));
 
                         var body = Expression.Block(variables, bodyExpressions);
-                        var lambda = Expression.Lambda<InvokeDelegate>(body, targetParameter, argsParameter, registryParameter, resultParameter);
+                        var lambda = Expression.Lambda<InvokeDelegate>(body, targetParameter, argsParameter, resultParameter);
                         return lambda.Compile();
                     }
                 }
