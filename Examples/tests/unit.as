@@ -12,7 +12,7 @@ function defineTest(name, run) {
 
 function testInput() {
     INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', input_change);
-
+    
     INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', (value) => {
         GIVE("esd",value);
         console.log("输入值=",value);
@@ -36,6 +36,7 @@ func testClrType() {
 
     // 内置关键字 $ctx is UserState in ExecuteOptions
     $ctx.Test(123.45,'abc');
+    console.log($args);
 }
 
 

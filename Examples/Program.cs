@@ -39,7 +39,7 @@ namespace Examples
             {
                 return ScriptObject.Null;
             }
-            callback.InvokeFromClr(executeOptions, 123, Array.Empty<object>(), thisObject).Done();
+            callback.InvokeFromClr(context.ExecuteOptions, 123, Array.Empty<object>(), thisObject).Done();
             return ScriptObject.Null;
         }
 
@@ -143,7 +143,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
             BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrType");
+            BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
