@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Buffers;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -398,7 +399,7 @@ namespace AuroraScript.Runtime
                         int index = 0;
                         for (int i = 0; i < count; i++)
                         {
-                            if (datumBuffer[i].Kind == ValueKind.Object && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
+                            if (datumBuffer[i].Kind.Include(ValueKind.Object) && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
                             {
                                 if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
                                 {
@@ -540,11 +541,11 @@ namespace AuroraScript.Runtime
                     case OpCode.GET_ELEMENT:
                         datumValue = PopDatum();
                         var datumObjValue = PopDatum();
-                        if (datumObjValue.Kind == ValueKind.Array && datumObjValue.Object is ScriptArray scriptArray && datumValue.Kind == ValueKind.Number)
+                        if (datumObjValue.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
                         {
                             PushDatum(scriptArray.Get((Int32)datumValue.Number));
                         }
-                        else if (datumObjValue.Kind == ValueKind.Object)
+                        else if (datumObjValue.Kind.Include(ValueKind.Object))
                         {
                             var key = ExtractPropertyKey(datumValue);
                             PushObject(datumObjValue.Object.GetPropertyValue(key));
@@ -559,11 +560,11 @@ namespace AuroraScript.Runtime
                         var datumTargetObj = PopDatum();
                         datumValue = PopDatum();
                         var datumAssignedValue = PopDatum();
-                        if (datumTargetObj.Kind == ValueKind.Array && datumTargetObj.Object is ScriptArray scriptArray2 && datumValue.Kind == ValueKind.Number)
+                        if (datumTargetObj.TryGetArray(out scriptArray) && datumValue.Kind == ValueKind.Number)
                         {
-                            scriptArray2.Set((Int32)datumValue.Number, datumAssignedValue);
+                            scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
                         }
-                        else if (datumTargetObj.Kind == ValueKind.Object)
+                        else if (datumTargetObj.Kind.Include(ValueKind.Object))
                         {
                             var key = ExtractPropertyKey(datumValue);
                             datumTargetObj.Object.SetPropertyValue(key, datumAssignedValue.ToObject());
@@ -951,9 +952,9 @@ namespace AuroraScript.Runtime
                     case OpCode.DECONSTRUCT_MAP:
                         datumValue = PopDatum();
                         value = PopObject();
-                        if (datumValue.Kind == ValueKind.Object && datumValue.Object is ScriptObject value4)
+                        if (datumValue.Kind.Include(ValueKind.Object))
                         {
-                            value.CopyPropertysFrom(value4, true);
+                            value.CopyPropertysFrom(datumValue.Object, true);
                         }
                         else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
                         {

@@ -35,7 +35,7 @@ namespace Examples
         public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             Console.WriteLine(context.UserState);
-            if (args == null || args.Length == 0 || args[0].Object is not ClosureFunction callback)
+            if (args.Length == 0 || args[0].Object is not ClosureFunction callback)
             {
                 return ScriptObject.Null;
             }
@@ -132,25 +132,24 @@ namespace Examples
             //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
             //}
             // script function test
+            BenchmarkScript(domain, "MAIN", "main");
 
-            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
-
-
-            RunAndReportUnitTests(domain);
-            BenchmarkScript(domain, "TIMER_LIB", "testCallback");
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12345"));
-            BenchmarkScript(domain, "MD5_LIB", "MD5", new StringValue("12346"));
-            BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
-            BenchmarkScript(domain, "UNIT_LIB", "testRegex");
-            BenchmarkScript(domain, "UNIT_LIB", "testJson");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
-            BenchmarkScript(domain, "UNIT_LIB", "testIterator");
-            BenchmarkScript(domain, "UNIT_LIB", "test");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            BenchmarkScript(domain, "UNIT_LIB", "forTest", new NumberValue(1_000_000));
+            //RunAndReportUnitTests(domain);
+            //BenchmarkScript(domain, "UNIT_LIB", "testClosure");
+            //BenchmarkScript(domain, "TIMER_LIB", "testCallback");
+            //BenchmarkScript(domain, "UNIT_LIB", "testInput");
+            //BenchmarkScript(domain, "UNIT_LIB", "testDatetime");
+            //BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
+            //BenchmarkScript(domain, "UNIT_LIB", "testRegex");
+            //BenchmarkScript(domain, "UNIT_LIB", "testJson");
+            //BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
+            //BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+            //BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
+            //BenchmarkScript(domain, "UNIT_LIB", "testIterator");
+            //BenchmarkScript(domain, "UNIT_LIB", "test");
+            //BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            //BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            //BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));
@@ -159,7 +158,7 @@ namespace Examples
 
 
 
-            BenchmarkScript(domain, "UNIT_LIB", "testInput");
+
         }
 
         private static void BenchmarkScript(ScriptDomain domain, string module, string method, params ScriptObject[] args)
@@ -211,7 +210,7 @@ namespace Examples
 
         private static void RunAndReportUnitTests(ScriptDomain domain)
         {
-            using var context = domain.Execute("UNIT_LIB", "runAllUnitTests");
+            using var context = domain.Execute("UNIT_LIB", "testAllUnits");
             context.Done();
 
             if (context.Status != ExecuteStatus.Complete)

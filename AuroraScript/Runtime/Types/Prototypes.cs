@@ -17,6 +17,9 @@ namespace AuroraScript.Runtime.Types
         public static readonly ScriptObject StringConstructorPrototype = new ScriptObject(Prototypes.ObjectPrototype);
         public static readonly ScriptObject StringValuePrototype = new ScriptObject(Prototypes.ObjectPrototype);
         public static readonly ScriptObject RegexPrototype = new ScriptObject(Prototypes.ObjectPrototype);
+        public static readonly ScriptObject DateConstructorPrototype = new ScriptObject(Prototypes.ObjectPrototype);
+        public static readonly ScriptObject DatePrototype = new ScriptObject(Prototypes.ObjectPrototype);
+
 
 
 
@@ -55,6 +58,15 @@ namespace AuroraScript.Runtime.Types
             RegexPrototype.Define("test", new BondingFunction(ScriptRegex.TEST), writeable: false, enumerable: false);
             RegexPrototype.Frozen();
 
+
+            //date 
+            DateConstructorPrototype.Define("now", new BondingFunction(ScriptDateConstructor.NOW), writeable: false, enumerable: false);
+            DateConstructorPrototype.Define("utcNow", new BondingFunction(ScriptDateConstructor.UTC_NOW), writeable: false, enumerable: false);
+            DateConstructorPrototype.Define("parse", new BondingFunction(ScriptDateConstructor.PARSE), writeable: false, enumerable: false);
+
+            DatePrototype.Define("constructor", ScriptDateConstructor.INSTANCE, writeable: false, enumerable: false);
+            DatePrototype.Define("toString", new BondingFunction(ScriptDateConstructor.TOSTRING), writeable: false, enumerable: false);
+            DatePrototype.Frozen();
 
             // Callable
             //CallablePrototype.Define("bind", new ClrFunction(Callable.BIND), writeable: false, enumerable: false);

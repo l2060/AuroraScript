@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using System;
 
@@ -54,18 +55,18 @@ namespace AuroraScript.Runtime.Types
             FuncName = funcName;
         }
 
-        public ExecuteContext Invoke(ExecuteOptions options, params ScriptObject[] args)
+        public ExecuteContext Invoke(ExecuteOptions options, params ScriptDatum[] args)
         {
-            return Domain.Execute(this, options, args);
+            return Domain.Execute2(this, options, args);
         }
 
         public ExecuteContext InvokeFromClr(ExecuteOptions options, params object[] args)
         {
-            ScriptObject[] scriptArgs = Array.Empty<ScriptObject>();
+            ScriptDatum[] scriptArgs = Array.Empty<ScriptDatum>();
             if (args != null && args.Length > 0)
             {
                 var registry = Domain?.Engine?.ClrRegistry;
-                scriptArgs = ClrValueConverter.ToScriptObjectArray(args);
+                scriptArgs = ClrMarshaller.ToDatums(args);
             }
             return Invoke(options, scriptArgs);
         }

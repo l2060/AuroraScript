@@ -37,7 +37,6 @@ namespace AuroraScript.Core
             return new ScriptDatum { Kind = ValueKind.String, String = value };
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromString(String value)
         {
@@ -51,10 +50,25 @@ namespace AuroraScript.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromModule(ScriptModule value)
+        public static ScriptDatum FromDate(ScriptDate date)
         {
-            return new ScriptDatum { Kind = ValueKind.Module, Object = value };
+            return new ScriptDatum { Kind = ValueKind.Date, Object = date };
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromDate(DateTime date)
+        {
+            return new ScriptDatum { Kind = ValueKind.Date, Object = new ScriptDate(date) };
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromDate(DateTimeOffset date)
+        {
+            return new ScriptDatum { Kind = ValueKind.Date, Object = new ScriptDate(date) };
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromRegex(ScriptRegex value)
@@ -78,7 +92,7 @@ namespace AuroraScript.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptDatum FromClrType(ClrTypeObject value)
+        public static ScriptDatum FromClrType(ClrType value)
         {
             return new ScriptDatum { Kind = ValueKind.ClrType, Object = value };
         }

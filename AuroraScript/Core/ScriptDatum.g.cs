@@ -48,11 +48,11 @@ namespace AuroraScript.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetClrType(out ClrTypeObject value)
+        public Boolean TryGetClrType(out ClrType value)
         {
             if (this.Kind == ValueKind.ClrType)
             {
-                value = (ClrTypeObject)this.Object;
+                value = (ClrType)this.Object;
                 return true;
             }
             value = null;

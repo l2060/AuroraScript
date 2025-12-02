@@ -26,7 +26,7 @@ namespace AuroraScript.Runtime.Types
             {
                 return scriptObject;
             }
-            return ClrValueConverter.ToScriptObject(value);
+            return ClrMarshaller.ToScript(value);
         }
 
         public void SetPropertyValue(string key, object value)

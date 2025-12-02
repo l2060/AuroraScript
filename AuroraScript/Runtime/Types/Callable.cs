@@ -1,11 +1,12 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AuroraScript.Runtime.Types
 {
 
-    public delegate ScriptObject ClrDatumDelegate(ExecuteContext context, ScriptObject module, ScriptDatum[] args);
+    public delegate ScriptObject ClrDatumDelegate([NotNull] ExecuteContext context, ScriptObject module, [NotNull] ScriptDatum[] args);
 
     public abstract class Callable : ScriptObject
     {

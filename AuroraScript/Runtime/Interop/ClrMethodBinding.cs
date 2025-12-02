@@ -23,7 +23,6 @@ namespace AuroraScript.Runtime.Interop
             }
             _instance = instance;
             _isStatic = isStatic;
-
             _compiledInvokers = CompileInvokers(methods);
         }
 
@@ -229,7 +228,7 @@ namespace AuroraScript.Runtime.Interop
                         nameof(ClrMarshaller.TryConvertArgument),
                         BindingFlags.Public | BindingFlags.Static,
                         binder: null,
-                        types: new[] { typeof(ScriptDatum), typeof(Type),  typeof(object).MakeByRefType() },
+                        types: new[] { typeof(ScriptDatum), typeof(Type), typeof(object).MakeByRefType() },
                         modifiers: null);
 
                     private static readonly MethodInfo ToDatumMethod = typeof(ClrMarshaller).GetMethod(

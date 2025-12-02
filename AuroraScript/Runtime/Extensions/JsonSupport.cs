@@ -24,21 +24,17 @@ namespace AuroraScript.Runtime.Extensions
 
         public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            if (args == null || args.Length == 0)
-            {
-                return Null;
-            }
-
-            var jsonText = ExtractJsonText(args[0]);
-            if (string.IsNullOrWhiteSpace(jsonText))
-            {
-                return Null;
-            }
-
             try
             {
-                using var document = JsonDocument.Parse(jsonText);
-                return ConvertElement(document.RootElement);
+                if (args.TryGetString(0, out var jsonText))
+                {
+                    using var document = JsonDocument.Parse(jsonText);
+                    return ConvertElement(document.RootElement);
+                }
+                else
+                {
+                    return Null;
+                }
             }
             catch (JsonException ex)
             {
@@ -48,16 +44,12 @@ namespace AuroraScript.Runtime.Extensions
 
         public static ScriptObject STRINGIFY(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
-            var indented = false;
-            if (args == null || args.Length == 0)
+            args.TryGetBoolean(1, out var indented);
+            if (args.TryGet(0, out var datum))
             {
-                return Null;
+                return Serialize(datum, indented);
             }
-            if (args.Length >= 2)
-            {
-                indented = args[1].IsTrue();
-            }
-            return Serialize(args[0], indented);
+            throw new AuroraRuntimeException($"JSON.stringify error.");
         }
 
         public static StringValue Serialize(ScriptDatum datum, Boolean indented = false)
@@ -139,7 +131,6 @@ namespace AuroraScript.Runtime.Extensions
                     writer.WriteStringValue(datum.String?.Value ?? string.Empty);
                     return;
                 case ValueKind.Regex:
-                case ValueKind.Module:
                 case ValueKind.Array:
                 case ValueKind.Object:
                 case ValueKind.Function:
@@ -159,6 +150,13 @@ namespace AuroraScript.Runtime.Extensions
             if (value == null || value == Null)
             {
                 writer.WriteNullValue();
+                return;
+            }
+
+            if (value is ScriptGlobal scriptGlobal)
+            {
+                writer.WriteStartObject();
+                writer.WriteEndObject();
                 return;
             }
 

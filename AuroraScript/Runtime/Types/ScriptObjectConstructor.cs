@@ -26,9 +26,9 @@ namespace AuroraScript.Runtime.Types
         {
             if (args != null && args.Length == 1)
             {
-                if (args[0].Kind == ValueKind.Object)
+                if (args[0].Object is ScriptObject scriptObject)
                 {
-                    return args[0].Object.GetKeys();
+                    return scriptObject.GetKeys();
                 }
             }
             return new ScriptArray();

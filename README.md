@@ -32,9 +32,12 @@
  - [x] 脚本对象NumberValue、StringValue的优化
  - [x] Regex 正则表达式
  - [x] JSON 序列化支持
- - [x] CLR 类型支持
+ - [x] CLR类型定义， 支持在脚本中创建对象
+ - [x] CLR类型自动解析
  - [x] 闭包方法的引用、回调。
  - [x] 脚本用户上下文
+ - [x] Date 日期对象实现
+ - [x] 数组和对象的解构（仅实现合并）
 
 
  
@@ -76,6 +79,7 @@
  - Object
  - Array
  - Regex
+ - Date
  - Function
  - ClrType
  - ClrFunction
@@ -83,6 +87,21 @@
 
 
  ---
+
+## Script Internal Key Words
+this  `current Module key` [option]
+
+global domain global object 
+
+$ctx get UserContext in execute
+
+$args get function call arguments
+
+$('modulename')  equal global['modulename']
+
+
+
+
 
 ##  创建环境 & 编译脚本
 ``` csharp  

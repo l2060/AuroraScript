@@ -224,17 +224,17 @@ namespace AuroraScript.Runtime.Base
                     target = regex.Replace(input, match =>
                     {
                         var groupCount = match.Groups.Count;
-                        var callbackArgs = new ScriptObject[groupCount + 2];
+                        var callbackArgs = new ScriptDatum[groupCount + 2];
 
-                        callbackArgs[0] = StringValue.Of(match.Value);
+                        callbackArgs[0] = ScriptDatum.FromString(match.Value);
                         for (var i = 1; i < groupCount; i++)
                         {
                             callbackArgs[i] = match.Groups[i].Success
-                                ? StringValue.Of(match.Groups[i].Value)
-                                : ScriptObject.Null;
+                                ? ScriptDatum.FromString(match.Groups[i].Value)
+                                : ScriptDatum.FromNull();
                         }
-                        callbackArgs[groupCount] = NumberValue.Of(match.Index);
-                        callbackArgs[groupCount + 1] = originalValue;
+                        callbackArgs[groupCount] = ScriptDatum.FromNumber(match.Index);
+                        callbackArgs[groupCount + 1] = ScriptDatum.FromString(originalValue);
                         return InvokeReplaceCallback(callback, executeOptions, callbackArgs);
                     }, replaceAll);
                 }
@@ -320,7 +320,7 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of((Int32)str.Value[index]);
         }
 
-        private static String InvokeReplaceCallback(ClosureFunction callback, ExecuteOptions executeOptions, ScriptObject[] parameters)
+        private static String InvokeReplaceCallback(ClosureFunction callback, ExecuteOptions executeOptions, ScriptDatum[] parameters)
         {
             executeOptions ??= ExecuteOptions.Default;
             var execContext = callback.Invoke(executeOptions, parameters);

@@ -50,6 +50,9 @@
     <None Update="tests\timer.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="tests\main.as">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="tests\unit.as">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

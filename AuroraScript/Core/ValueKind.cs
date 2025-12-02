@@ -1,36 +1,40 @@
+using System;
+
 namespace AuroraScript.Core
 {
-    public enum ValueKind : byte
+    [Flags]
+    public enum ValueKind : Int16
     {
-        Null,
-        Boolean,
-        Number,
-        String,
-        Object,
-        Array,
-        Module,
-        Regex,
+        Null = 0,
+        Boolean = 1 << 0,
+        Number = 1 << 1,
+        String = 1 << 2,
+        Object = 1 << 3,
+
+        Array = Object | (1 << 4),
+
+        Date = Object | (1 << 5),
+
+        Regex = Object | (1 << 6),
         /// <summary>
         /// 脚本原生方法
         /// </summary>
-        Function,
+        Function = Object | (1 << 7),
 
         /// <summary>
         /// Clr原生类型
         /// </summary>
-        ClrType,
+        ClrType = Object | (1 << 8),
+
         /// <summary>
         /// Clr原生方法
         /// </summary>
-        ClrFunction,
+        ClrFunction = Object | (1 << 9),
 
         /// <summary>
         /// 原型对象的Clr粘合函数
         /// </summary>
-        ClrBonding
-
-
-
+        ClrBonding = Object | (1 << 10)
     }
 }
 

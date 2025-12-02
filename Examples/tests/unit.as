@@ -31,20 +31,32 @@ func testClrType() {
     s.Name = "aaaa";
     // JSON.stringify
     console.log(s);
-
     console.log(Math.Log10(5));
-
     // 内置关键字 $ctx is UserState in ExecuteOptions
     $ctx.Test(123.45,'abc');
     console.log($args);
 }
 
 
+func testDatetime(){
+    console.log("Current     Time", Date.now().toString());
+    console.log("Current UTC Time", Date.utcNow().toString());
+
+
+    console.log("Current     Time", Date.now().toString("yyyy-MM-dd HH:mm:ss fff"));
+    console.log("Current UTC Time", Date.utcNow().toString("yyyy-MM-dd HH:mm:ss fff"));
+
+}
+
+
+
+
 
 function testJson() {
     var obj = time.createTimer();
     var json = JSON.stringify(obj, true);
-    console.log(json);
+    var obj = JSON.parse(json);
+    console.log(json, obj);
 }
 
 function replacer(match, p1, p2, p3, offset, string) {
@@ -61,9 +73,6 @@ func testDeConstruct(){
     var c = {d:4,e:5,f:6};
     var d = {a:1,b:2,c:3,...c,g:7,h:8,...b};
     console.log(d);
-
-
-
 }
 
 
@@ -521,7 +530,7 @@ defineTest("performance.baseline", (ctx) => {
     expectEqual(ctx, benchmarkStrings(10), 10, "benchmarkStrings deterministic check");
 });
 
-export function runAllUnitTests() {
+export function testAllUnits() {
     var results = [];
     var failedCases = [];
     var passedCount = 0;
@@ -585,7 +594,7 @@ function testInterruption() {
     console.log("End testInterruption");
 }
 
-export function forTest(count = 1000) {
+export function testFor(count = 1000) {
     for (var o = 0; o < count; o++) {
         // .....
     }

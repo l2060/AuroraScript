@@ -6,12 +6,12 @@ using System.Reflection;
 
 namespace AuroraScript.Runtime.Interop
 {
-    public sealed class ClrTypeObject : ScriptObject, IClrInvokable
+    public sealed class ClrType : ScriptObject, IClrInvokable
     {
         private readonly ClrTypeDescriptor _descriptor;
         private readonly Lazy<ConstructorInfo[]> _constructors;
 
-        public ClrTypeObject(Type type, ClrTypeDescriptor descriptor)
+        public ClrType(Type type, ClrTypeDescriptor descriptor)
         {
             _constructors = new Lazy<ConstructorInfo[]>(() => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance));
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));

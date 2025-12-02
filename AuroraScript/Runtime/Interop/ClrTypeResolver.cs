@@ -7,9 +7,6 @@ namespace AuroraScript.Runtime.Interop
     {
         private static readonly Dictionary<Type, ClrTypeDescriptor> _typeMap = new();
 
-
-
-
         public static bool ResolveType(Type type, out ClrTypeDescriptor descriptor)
         {
             descriptor = null;
@@ -20,6 +17,12 @@ namespace AuroraScript.Runtime.Interop
                 _typeMap.Add(type, descriptor);
             }
             return true;
+        }
+
+
+        public static void clean()
+        {
+            _typeMap.Clear();
         }
     }
 }

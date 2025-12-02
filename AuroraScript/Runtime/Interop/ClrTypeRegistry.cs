@@ -9,7 +9,7 @@ namespace AuroraScript.Runtime.Interop
     /// </summary>
     public sealed class ClrTypeRegistry : IDisposable
     {
-        private readonly Dictionary<string, ClrTypeObject> _aliasMap = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, ClrType> _aliasMap = new(StringComparer.Ordinal);
 
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         private bool _disposed;
@@ -27,7 +27,7 @@ namespace AuroraScript.Runtime.Interop
             alias = alias.Trim();
             options ??= ClrTypeOptions.Default;
             ClrTypeResolver.ResolveType(type, out var typeDescriptor);
-            var clrType = new ClrTypeObject(type, typeDescriptor);
+            var clrType = new ClrType(type, typeDescriptor);
             _aliasMap.Add(alias, clrType);
         }
 
@@ -49,7 +49,7 @@ namespace AuroraScript.Runtime.Interop
             }
         }
 
-        public bool TryGetClrType(string alias, out ClrTypeObject descriptor)
+        public bool TryGetClrType(string alias, out ClrType descriptor)
         {
             descriptor = null;
             if (string.IsNullOrWhiteSpace(alias)) return false;

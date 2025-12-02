@@ -43,6 +43,10 @@ namespace AuroraScript.Core
             {
                 return FromArray(scriptArray);
             }
+            if (value is ScriptDate scriptDate)
+            {
+                return FromDate(scriptDate);
+            }
             if (value is ScriptRegex scriptRegex)
             {
                 return FromRegex(scriptRegex);
@@ -55,17 +59,13 @@ namespace AuroraScript.Core
             {
                 return FromClrFunction(clrMethodBinding);
             }
-            if (value is ClrTypeObject clrTypeObject)
+            if (value is ClrType clrTypeObject)
             {
                 return FromClrType(clrTypeObject);
             }
             if (value is BondingFunction bonding)
             {
                 return FromBonding(bonding);
-            }
-            if (value is ScriptModule module)
-            {
-                return FromModule(module);
             }
             return new ScriptDatum { Kind = ValueKind.Object, Object = value };
         }
@@ -120,10 +120,10 @@ namespace AuroraScript.Core
                     return Datums.String;
                 case ValueKind.Object:
                     return Datums.Object;
+                case ValueKind.Date:
+                    return Datums.Date;
                 case ValueKind.Array:
                     return Datums.Array;
-                case ValueKind.Module:
-                    return Datums.Module;
                 case ValueKind.Regex:
                     return Datums.Regex;
                 case ValueKind.Function:

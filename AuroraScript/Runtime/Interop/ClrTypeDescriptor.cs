@@ -52,6 +52,10 @@ namespace AuroraScript.Runtime.Interop
             return _eventCache.GetOrAdd(name, ResolveEvent);
         }
 
+
+
+
+
         private MethodBase[] ResolveMethods(string name)
         {
             var members = Type.GetMember(name, MemberTypes.Method, _bindingFlags);
