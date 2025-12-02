@@ -132,24 +132,24 @@ namespace Examples
             //    testInterruption.Continue().Done(AbnormalStrategy.Continue);
             //}
             // script function test
-            BenchmarkScript(domain, "MAIN", "main");
+            //BenchmarkScript(domain, "MAIN", "main");
 
             //RunAndReportUnitTests(domain);
-            //BenchmarkScript(domain, "UNIT_LIB", "testClosure");
-            //BenchmarkScript(domain, "TIMER_LIB", "testCallback");
-            //BenchmarkScript(domain, "UNIT_LIB", "testInput");
-            //BenchmarkScript(domain, "UNIT_LIB", "testDatetime");
-            //BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
-            //BenchmarkScript(domain, "UNIT_LIB", "testRegex");
-            //BenchmarkScript(domain, "UNIT_LIB", "testJson");
-            //BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
-            //BenchmarkScript(domain, "UNIT_LIB", "testMD5");
-            //BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
-            //BenchmarkScript(domain, "UNIT_LIB", "testIterator");
-            //BenchmarkScript(domain, "UNIT_LIB", "test");
-            //BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            //BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
-            //BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
+            BenchmarkScript(domain, "UNIT_LIB", "testClosure");
+            BenchmarkScript(domain, "TIMER_LIB", "testCallback");
+            BenchmarkScript(domain, "UNIT_LIB", "testInput");
+            BenchmarkScript(domain, "UNIT_LIB", "testDatetime");
+            BenchmarkScript(domain, "UNIT_LIB", "testDeConstruct");
+            BenchmarkScript(domain, "UNIT_LIB", "testRegex");
+            BenchmarkScript(domain, "UNIT_LIB", "testJson");
+            BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
+            BenchmarkScript(domain, "UNIT_LIB", "testIterator");
+            BenchmarkScript(domain, "UNIT_LIB", "test");
+            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+            BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));

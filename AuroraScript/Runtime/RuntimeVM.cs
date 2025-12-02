@@ -18,6 +18,20 @@ namespace AuroraScript.Runtime
     /// </summary>
     internal class RuntimeVM
     {
+        // 静态委托缓存，避免每次调用时创建新的 lambda
+        private static readonly Func<double, double> NegateOp = v => -v;
+        private static readonly Func<double, double> IncrementOp = v => v + 1;
+        private static readonly Func<double, double> DecrementOp = v => v - 1;
+        private static readonly Func<double, double> BitNotOp = v => ~(long)v;
+        private static readonly Func<double, double, double> SubtractOp = (l, r) => l - r;
+        private static readonly Func<double, double, double> MultiplyOp = (l, r) => l * r;
+        private static readonly Func<double, double, double> DivideOp = (l, r) => l / r;
+        private static readonly Func<double, double, double> ModOp = (l, r) => l % r;
+        private static readonly Func<double, double, bool> LessThanOp = (l, r) => l < r;
+        private static readonly Func<double, double, bool> LessEqualOp = (l, r) => l <= r;
+        private static readonly Func<double, double, bool> GreaterThanOp = (l, r) => l > r;
+        private static readonly Func<double, double, bool> GreaterEqualOp = (l, r) => l >= r;
+
         /// <summary>
         /// 字符串常量池，存储脚本中使用的所有字符串常量
         /// 通过索引快速访问字符串值，避免重复创建相同的字符串对象
@@ -134,9 +148,9 @@ namespace AuroraScript.Runtime
 
 
 
-            // 数值一元操作的lambda函数，用于简化代码
+            // 数值一元操作的局部方法，用于简化代码
             // 对栈顶的数值执行一元操作，如果不是数值则返回默认值
-            var NumberUnaryOperation = (double defaultValue, Func<double, double> operation) =>
+            void NumberUnaryOperation(double defaultValue, Func<double, double> operation)
             {
                 var datum = PopDatum();
                 if (datum.Kind == ValueKind.Number)
@@ -147,7 +161,7 @@ namespace AuroraScript.Runtime
                 {
                     PushDatum(ScriptDatum.FromNumber(defaultValue));
                 }
-            };
+            }
 
 
 
@@ -155,7 +169,8 @@ namespace AuroraScript.Runtime
 
 
 
-            var NumberBinaryOperation = (double defaultValue, Func<double, double, double> operation) =>
+            // 数值二元操作的局部方法
+            void NumberBinaryOperation(double defaultValue, Func<double, double, double> operation)
             {
                 var right = PopDatum();
                 var left = PopDatum();
@@ -167,7 +182,7 @@ namespace AuroraScript.Runtime
                 {
                     PushDatum(ScriptDatum.FromNumber(defaultValue));
                 }
-            };
+            }
 
             Boolean DatumEquals(ScriptDatum leftDatum, ScriptDatum rightDatum)
             {
@@ -215,7 +230,8 @@ namespace AuroraScript.Runtime
                 }
             }
 
-            var NumberBinaryPredicate = (Func<double, double, bool> predicate) =>
+            // 数值二元谓词的局部方法
+            void NumberBinaryPredicate(Func<double, double, bool> predicate)
             {
                 var right = PopDatum();
                 var left = PopDatum();
@@ -227,7 +243,7 @@ namespace AuroraScript.Runtime
                 {
                     PushDatum(ScriptDatum.FromBoolean(false));
                 }
-            };
+            }
 
 
 
@@ -599,18 +615,18 @@ namespace AuroraScript.Runtime
                         break;
 
                     case OpCode.LESS_THAN:
-                        NumberBinaryPredicate((l, r) => l < r);
+                        NumberBinaryPredicate(LessThanOp);
                         break;
 
                     case OpCode.LESS_EQUAL:
-                        NumberBinaryPredicate((l, r) => l <= r);
+                        NumberBinaryPredicate(LessEqualOp);
                         break;
 
                     case OpCode.GREATER_THAN:
-                        NumberBinaryPredicate((l, r) => l > r);
+                        NumberBinaryPredicate(GreaterThanOp);
                         break;
                     case OpCode.GREATER_EQUAL:
-                        NumberBinaryPredicate((l, r) => l >= r);
+                        NumberBinaryPredicate(GreaterEqualOp);
                         break;
 
 
@@ -631,28 +647,28 @@ namespace AuroraScript.Runtime
                         }
                         break;
                     case OpCode.SUBTRACT:
-                        NumberBinaryOperation(double.NaN, (l, r) => l - r);
+                        NumberBinaryOperation(double.NaN, SubtractOp);
                         break;
                     case OpCode.MULTIPLY:
-                        NumberBinaryOperation(double.NaN, (l, r) => l * r);
+                        NumberBinaryOperation(double.NaN, MultiplyOp);
                         break;
                     case OpCode.DIVIDE:
-                        NumberBinaryOperation(double.NaN, (l, r) => l / r);
+                        NumberBinaryOperation(double.NaN, DivideOp);
                         break;
                     case OpCode.MOD:
-                        NumberBinaryOperation(double.NaN, (l, r) => l % r);
+                        NumberBinaryOperation(double.NaN, ModOp);
                         break;
                     case OpCode.NEGATE:
-                        NumberUnaryOperation(double.NaN, (v) => -v);
+                        NumberUnaryOperation(double.NaN, NegateOp);
                         break;
                     case OpCode.INCREMENT:
-                        NumberUnaryOperation(double.NaN, (v) => v + 1);
+                        NumberUnaryOperation(double.NaN, IncrementOp);
                         break;
                     case OpCode.DECREMENT:
-                        NumberUnaryOperation(double.NaN, (v) => v - 1);
+                        NumberUnaryOperation(double.NaN, DecrementOp);
                         break;
                     case OpCode.BIT_NOT:
-                        NumberUnaryOperation(-1, v => ~(long)v);
+                        NumberUnaryOperation(-1, BitNotOp);
                         break;
 
 
