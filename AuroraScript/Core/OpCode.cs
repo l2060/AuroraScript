@@ -25,6 +25,10 @@
 
         LOAD_LOCAL = 13,     // 将local变量加载到栈上 
         STORE_LOCAL = 14,    // 将栈顶元素保存到变量（移除栈顶元素）
+        LOAD_LOCAL_L,     // 将local变量加载到栈上
+        STORE_LOCAL_L,   // 将栈顶元素保存到变量（移除栈顶元素）
+
+
 
         ALLOC_LOCALS,   // 申请本地变量栈  大小
 

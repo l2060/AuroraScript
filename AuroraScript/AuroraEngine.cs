@@ -69,7 +69,10 @@ namespace AuroraScript
 
 
 
-
+        public void PrintStatistics()
+        {
+            runtimeVM.PrintOpCounts();
+        }
 
 
         /// <summary>

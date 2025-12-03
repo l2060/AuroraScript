@@ -15,7 +15,7 @@ namespace AuroraScript.Runtime
         public Int32 LastInstructionPointer;
         public Int32 Pointer;
 
-        private ScriptDatum[] _locals;
+        internal ScriptDatum[] _locals;
         private Int32 _localsUsed;
         private Dictionary<Int32, Upvalue> _openUpvalues;
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
@@ -72,7 +72,7 @@ namespace AuroraScript.Runtime
             return Arguments[index];
         }
 
-        public ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
+        public  ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
 
         internal Upvalue GetCapturedUpvalue(Int32 slot)
         {
@@ -112,11 +112,12 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum GetLocalDatum(Int32 index)
         {
-            if (_locals == null || index >= _locals.Length || index < 0)
+            var locals = _locals;
+            if (locals == null || (uint)index >= (uint)locals.Length)
             {
                 return ScriptDatum.FromNull();
             }
-            return _locals[index];
+            return locals[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -126,8 +127,15 @@ namespace AuroraScript.Runtime
             {
                 return;
             }
-            EnsureLocalCapacity(index + 1);
-            _locals[index] = datum;
+
+            var locals = _locals;
+            if (locals == null || index >= locals.Length)
+            {
+                EnsureLocalCapacity(index + 1);
+                locals = _locals;
+            }
+
+            locals[index] = datum;
             if (index + 1 > _localsUsed)
             {
                 _localsUsed = index + 1;

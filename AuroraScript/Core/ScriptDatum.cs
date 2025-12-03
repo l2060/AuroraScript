@@ -6,18 +6,36 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Core
 {
+
     public partial struct ScriptDatum
     {
         public ValueKind Kind;
-        public double Number;
-        public bool Boolean;
-        public StringValue String;
-        public ScriptObject Object;
+        private UnionNumber _numeric;
+        private ScriptObject _object;
 
+        public double Number
+        {
+            readonly get => _numeric.DoubleValue;
+            set => _numeric.DoubleValue = value;
+        }
 
+        public bool Boolean
+        {
+            readonly get => _numeric.Int64Value != 0;
+            set => _numeric.Int64Value = value ? 1L : 0L;
+        }
 
+        public ScriptObject Object
+        {
+            readonly get => _object;
+            set => _object = value;
+        }
 
-
+        public StringValue String
+        {
+            readonly get => _object as StringValue;
+            set => _object = value;
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

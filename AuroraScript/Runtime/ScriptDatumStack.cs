@@ -1,6 +1,7 @@
 using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
 {
@@ -17,13 +18,18 @@ namespace AuroraScript.Runtime
 
         public int Count => _size;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushDatum(ScriptDatum datum)
         {
-            if (_size == _buffer.Length)
+            var buffer = _buffer;
+            var size = _size;
+            if (size == buffer.Length)
             {
-                Array.Resize(ref _buffer, _buffer.Length * 2);
+                Array.Resize(ref _buffer, buffer.Length * 2);
+                buffer = _buffer;
             }
-            _buffer[_size++] = datum;
+            buffer[size] = datum;
+            _size = size + 1;
         }
 
         public void Push(ScriptObject value)
@@ -33,6 +39,7 @@ namespace AuroraScript.Runtime
 
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReplaceTop(ScriptDatum value)
         {
             if (_size == 0)
@@ -49,15 +56,18 @@ namespace AuroraScript.Runtime
 
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum PopDatum()
         {
             if (_size == 0)
             {
                 throw new InvalidOperationException("Stack is empty.");
             }
-            var index = --_size;
-            var value = _buffer[index];
-            _buffer[index] = default;
+            var buffer = _buffer;
+            var index = _size - 1;
+            var value = buffer[index];
+            buffer[index] = default;
+            _size = index;
             return value;
         }
 
@@ -66,6 +76,7 @@ namespace AuroraScript.Runtime
             return PopDatum().ToObject();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum PeekDatum()
         {
             if (_size == 0)
@@ -75,24 +86,55 @@ namespace AuroraScript.Runtime
             return _buffer[_size - 1];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref ScriptDatum PeekRef(int offset = 0)
+        {
+            var index = _size - 1 - offset;
+            if (index < 0)
+            {
+                throw new InvalidOperationException("Stack does not have enough elements.");
+            }
+            return ref _buffer[index];
+        }
 
 
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Duplicate()
         {
             PushDatum(PeekDatum());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Swap()
         {
-            var value1 = _buffer[_size];
-            var value2 = _buffer[_size - 1];
-            _buffer[_size - 1] = value2;
-            _buffer[_size] = value1;
-            //PushDatum(PeekDatum());
+            if (_size < 2)
+            {
+                throw new InvalidOperationException("Stack has fewer than two elements.");
+            }
+            var buffer = _buffer;
+            var topIndex = _size - 1;
+            var belowIndex = topIndex - 1;
+            ref var top = ref buffer[topIndex];
+            var temp = top;
+            top = buffer[belowIndex];
+            buffer[belowIndex] = temp;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PopDiscard()
+        {
+            if (_size == 0)
+            {
+                throw new InvalidOperationException("Stack is empty.");
+            }
+            var index = --_size;
+            _buffer[index] = default;
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             Array.Clear(_buffer, 0, _size);

@@ -98,6 +98,7 @@ namespace Examples
                 Console.WriteLine(ex.Message);
                 Console.ResetColor();
             }
+            engine.PrintStatistics();
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();

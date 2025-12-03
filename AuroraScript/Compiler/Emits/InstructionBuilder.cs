@@ -467,13 +467,31 @@ namespace AuroraScript.Compiler.Emits
 
         public void LoadLocal(int index)
         {
-            Emit(OpCode.LOAD_LOCAL, index);
+            if (index <= 255)
+            {
+                Emit(OpCode.LOAD_LOCAL, (Byte)index);
+            }
+            else
+            {
+                Emit(OpCode.LOAD_LOCAL_L, index);
+            }         
         }
+
+
+
 
 
         public void StoreLocal(int index)
         {
-            Emit(OpCode.STORE_LOCAL, index);
+       
+            if (index <= 255)
+            {
+                Emit(OpCode.STORE_LOCAL, (Byte)index);
+            }
+            else
+            {
+                Emit(OpCode.STORE_LOCAL_L, index);
+            }
         }
 
         public void NewRegex(String pattern, String flags)
