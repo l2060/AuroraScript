@@ -89,7 +89,7 @@ namespace AuroraScript.Runtime.Types
                 return enumerator.GetIterator();
             }
 
-            if (datum.TryGetObject(out var candidate) && candidate is IEnumerator iterator)
+            if (datum.TryGetAnyObject(out var candidate) && candidate is IEnumerator iterator)
             {
                 return iterator.GetIterator();
             }

@@ -14,13 +14,23 @@ namespace AuroraScript.Core
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetObject(out ScriptObject value)
+        public Boolean TryGetAnyObject(out ScriptObject value)
         {
             value = this.Object;
             return this.Object != null;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Boolean TryGetObject(out ScriptObject value)
+        {
+            if (this.Kind >= ValueKind.Object)
+            {
+                value = this.Object;
+                return true;
+            }
+            value = null;
+            return false;
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -136,6 +136,7 @@ namespace Examples
             //BenchmarkScript(domain, "MAIN", "main");
 
             //RunAndReportUnitTests(domain);
+            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
             BenchmarkScript(domain, "UNIT_LIB", "testInput");
@@ -144,7 +145,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
             BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
-            BenchmarkScript(domain, "UNIT_LIB", "testMD5");
+ 
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
             BenchmarkScript(domain, "UNIT_LIB", "test");

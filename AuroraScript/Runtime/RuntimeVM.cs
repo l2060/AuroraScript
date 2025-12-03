@@ -340,7 +340,7 @@ namespace AuroraScript.Runtime
             Action<ScriptObject> PushObject = _operandStack.Push;
 
 
-        
+
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
@@ -348,552 +348,552 @@ namespace AuroraScript.Runtime
                 var opCode = _codeBuffer.ReadOpCode(frame);
                 var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
-
-      
                 var start = Stopwatch.GetTimestamp();
-
                 delegate*<RuntimeVM, ExecuteContext, ref CallFrame, OpCode, bool> handler = _opDispatch[opIndex];
                 if (handler != null)
                 {
                     handler(this, exeContext, ref frame, opCode);
- 
                 }
-
-                // 根据操作码执行相应的操作
-                // 这是虚拟机的指令分派表，每个case对应一种字节码指令
-                switch (opCode)
+                else
                 {
-                    // 基本栈操作
-                    case OpCode.NOP:
-                        // 空操作
-                        break;
+                    // 根据操作码执行相应的操作
+                    // 这是虚拟机的指令分派表，每个case对应一种字节码指令
+                    switch (opCode)
+                    {
+                        // 基本栈操作
+                        case OpCode.NOP:
+                            // 空操作
+                            break;
 
-                    case OpCode.POP:
-                        // 弹出栈顶元素
-                        PopDatum();
-                        break;
-
-                    case OpCode.DUP:
-                        // 复制栈顶元素
-                        _operandStack.Duplicate();
-                        //var topDatum = PeekDatum();
-                        //PushDatum(topDatum);
-                        break;
-
-                    case OpCode.SWAP:
-                        // 交换栈顶两个元素
-                        _operandStack.Swap();
-                        break;
-
-                    case OpCode.LOAD_ARG:
-                        //
-                        var argIndex = _codeBuffer.ReadByte(frame);
-                        var argDatum = frame.GetArgumentDatum(argIndex);
-                        PushDatum(argDatum);
-                        break;
-
-                    case OpCode.TRY_LOAD_ARG:
-                        propNameIndex = _codeBuffer.ReadByte(frame);
-                        if (frame.TryGetArgumentDatum(propNameIndex, out var tryArgDatum))
-                        {
+                        case OpCode.POP:
+                            // 弹出栈顶元素
                             PopDatum();
-                            PushDatum(tryArgDatum);
-                        }
-                        break;
+                            break;
 
-                    case OpCode.PUSH_I8:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadSByte(frame)));
-                        break;
+                        case OpCode.DUP:
+                            // 复制栈顶元素
+                            _operandStack.Duplicate();
+                            //var topDatum = PeekDatum();
+                            //PushDatum(topDatum);
+                            break;
 
-                    case OpCode.PUSH_I16:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt16(frame)));
-                        break;
+                        case OpCode.SWAP:
+                            // 交换栈顶两个元素
+                            _operandStack.Swap();
+                            break;
 
-                    case OpCode.PUSH_I32:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt32(frame)));
-                        break;
+                        case OpCode.LOAD_ARG:
+                            //
+                            var argIndex = _codeBuffer.ReadByte(frame);
+                            var argDatum = frame.GetArgumentDatum(argIndex);
+                            PushDatum(argDatum);
+                            break;
 
-                    case OpCode.PUSH_I64:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt64(frame)));
-                        break;
-                    case OpCode.PUSH_F32:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadFloat(frame)));
-                        break;
-
-                    case OpCode.PUSH_F64:
-                        PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadDouble(frame)));
-                        break;
-
-                    case OpCode.PUSH_STRING:
-                        var stringIndex = _codeBuffer.ReadInt32(frame);
-                        PushDatum(ScriptDatum.FromString(_stringConstants[stringIndex]));
-                        break;
-
-
-                    case OpCode.LOAD_LOCAL:
-                    case OpCode.STORE_LOCAL:
-                    case OpCode.LOAD_CAPTURE:
-                    case OpCode.STORE_CAPTURE:
-                        // handled by delegate* jump table fast path
-                        break;
-
-                    case OpCode.CREATE_CLOSURE:
-                        var closureOffset = _codeBuffer.ReadInt32(frame);
-                        var captureCount = _codeBuffer.ReadByte(frame);
-                        var entryPointer = frame.Pointer + closureOffset;
-
-                        var moduleObject = PopObject();
-                        var moduleForClosure = moduleObject as ScriptModule;
-
-                        ClosureUpvalue[] capturedUpvalues;
-                        if (captureCount == 0)
-                        {
-                            capturedUpvalues = Array.Empty<ClosureUpvalue>();
-                        }
-                        else
-                        {
-                            capturedUpvalues = new ClosureUpvalue[captureCount];
-                            for (int i = captureCount - 1; i >= 0; i--)
+                        case OpCode.TRY_LOAD_ARG:
+                            propNameIndex = _codeBuffer.ReadByte(frame);
+                            if (frame.TryGetArgumentDatum(propNameIndex, out var tryArgDatum))
                             {
-                                var upvalueObj = PopObject();
-                                if (upvalueObj is not Upvalue upvalue)
-                                {
-                                    throw new AuroraVMException("Invalid captured upvalue");
-                                }
-                                var aliasSlot = upvalue.ConsumeAliasSlot();
-                                capturedUpvalues[i] = new ClosureUpvalue(aliasSlot, upvalue);
+                                PopDatum();
+                                PushDatum(tryArgDatum);
                             }
-                        }
+                            break;
 
-                        var closure = new ClosureFunction(frame.Domain, moduleForClosure, entryPointer, capturedUpvalues);
-                        PushObject(closure);
-                        break;
+                        case OpCode.PUSH_I8:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadSByte(frame)));
+                            break;
 
-                    case OpCode.CAPTURE_VAR:
-                        var slotIndex = _codeBuffer.ReadInt32(frame);
-                        var capturedUpvalue = frame.GetCapturedUpvalue(slotIndex) ?? frame.GetOrCreateUpvalue(slotIndex);
-                        capturedUpvalue.MarkAliasSlot(slotIndex);
-                        PushObject(capturedUpvalue);
-                        break;
+                        case OpCode.PUSH_I16:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt16(frame)));
+                            break;
 
-                    case OpCode.INIT_MODULE:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        var module = new ScriptModule(propName.Value);
-                        domainGlobal.Define("@" + propName.Value, module, writeable: false, enumerable: true);
-                        break;
+                        case OpCode.PUSH_I32:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt32(frame)));
+                            break;
 
-                    case OpCode.NEW_MAP:
-                        PushObject(new ScriptObject());
-                        break;
+                        case OpCode.PUSH_I64:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadInt64(frame)));
+                            break;
+                        case OpCode.PUSH_F32:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadFloat(frame)));
+                            break;
 
-                    case OpCode.NEW_ARRAY:
-                        var count = _codeBuffer.ReadInt32(frame);
-                        var newArray = new ScriptArray(count);
-                        var datumBuffer = new ScriptDatum[count];
-                        for (int i = count - 1; i >= 0; i--)
-                        {
-                            datumBuffer[i] = PopDatum();
-                        }
-                        int index = 0;
-                        for (int i = 0; i < count; i++)
-                        {
-                            if (datumBuffer[i].Kind.Include(ValueKind.Object) && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
+                        case OpCode.PUSH_F64:
+                            PushDatum(ScriptDatum.FromNumber(_codeBuffer.ReadDouble(frame)));
+                            break;
+
+                        case OpCode.PUSH_STRING:
+                            var stringIndex = _codeBuffer.ReadInt32(frame);
+                            PushDatum(ScriptDatum.FromString(_stringConstants[stringIndex]));
+                            break;
+
+
+                        case OpCode.LOAD_LOCAL:
+                        case OpCode.STORE_LOCAL:
+                        case OpCode.LOAD_CAPTURE:
+                        case OpCode.STORE_CAPTURE:
+                            // handled by delegate* jump table fast path
+                            break;
+
+                        case OpCode.CREATE_CLOSURE:
+                            var closureOffset = _codeBuffer.ReadInt32(frame);
+                            var captureCount = _codeBuffer.ReadByte(frame);
+                            var entryPointer = frame.Pointer + closureOffset;
+
+                            var moduleObject = PopObject();
+                            var moduleForClosure = moduleObject as ScriptModule;
+
+                            ClosureUpvalue[] capturedUpvalues;
+                            if (captureCount == 0)
                             {
-                                if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
-                                {
-                                    for (int n = 0; n < array1.Length; n++)
-                                    {
-                                        newArray.Set(index, array1.Get(n));
-                                        index++;
-                                    }
-                                }
+                                capturedUpvalues = Array.Empty<ClosureUpvalue>();
                             }
                             else
                             {
-                                newArray.Set(index, datumBuffer[i]);
-                                index++;
+                                capturedUpvalues = new ClosureUpvalue[captureCount];
+                                for (int i = captureCount - 1; i >= 0; i--)
+                                {
+                                    var upvalueObj = PopObject();
+                                    if (upvalueObj is not Upvalue upvalue)
+                                    {
+                                        throw new AuroraVMException("Invalid captured upvalue");
+                                    }
+                                    var aliasSlot = upvalue.ConsumeAliasSlot();
+                                    capturedUpvalues[i] = new ClosureUpvalue(aliasSlot, upvalue);
+                                }
                             }
 
-                        }
-                        PushObject(newArray);
-                        break;
+                            var closure = new ClosureFunction(frame.Domain, moduleForClosure, entryPointer, capturedUpvalues);
+                            PushObject(closure);
+                            break;
 
-                    case OpCode.GET_ITERATOR:
-                        obj = PopObject();
-                        if (obj is IEnumerator iterable)
-                        {
-                            PushObject(iterable.GetIterator());
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Object {obj} does not support iterators.");
-                        }
-                        break;
+                        case OpCode.CAPTURE_VAR:
+                            var slotIndex = _codeBuffer.ReadInt32(frame);
+                            var capturedUpvalue = frame.GetCapturedUpvalue(slotIndex) ?? frame.GetOrCreateUpvalue(slotIndex);
+                            capturedUpvalue.MarkAliasSlot(slotIndex);
+                            PushObject(capturedUpvalue);
+                            break;
 
-                    case OpCode.ITERATOR_VALUE:
-                        obj = PopObject();
-                        if (obj is ItemIterator iterator)
-                        {
-                            PushDatum(iterator.Value());
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Object {obj} not iterator.");
-                        }
-                        break;
+                        case OpCode.INIT_MODULE:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            var module = new ScriptModule(propName.Value);
+                            domainGlobal.Define("@" + propName.Value, module, writeable: false, enumerable: true);
+                            break;
 
-                    case OpCode.ITERATOR_HAS_VALUE:
-                        obj = PopObject();
-                        if (obj is ItemIterator iterator2)
-                        {
-                            PushDatum(ScriptDatum.FromBoolean(iterator2.HasValue()));
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Object {obj} not iterator.");
-                        }
-                        break;
+                        case OpCode.NEW_MAP:
+                            PushObject(new ScriptObject());
+                            break;
 
-                    case OpCode.ITERATOR_NEXT:
-                        obj = PopObject();
-                        if (obj is ItemIterator iterator3)
-                        {
-                            iterator3.Next();
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Object {obj} not iterator.");
-                        }
-                        break;
-                    case OpCode.GET_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        obj = PopObject();
-
-                        if (obj is ScriptObject scriptObj)
-                        {
-                            PushObject(scriptObj.GetPropertyValue(propName.Value));
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Cannot get property '{propName}' from {obj}");
-                        }
-                        break;
-
-                    case OpCode.SET_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = PopObject();
-                        obj = PopObject();
-
-                        if (obj is ScriptObject targetScriptObj)
-                        {
-                            targetScriptObj.SetPropertyValue(propName, value);
-                        }
-                        else
-                        {
-                            throw new AuroraVMException($"Cannot set property '{propName}' on {obj}");
-                        }
-                        break;
-
-                    case OpCode.DELETE_PROPERTY:
-                        value = PopObject();
-                        obj = PopObject();
-                        obj.DeletePropertyValue(value.ToString());
-                        break;
-                    case OpCode.GET_THIS_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = frame.Module.GetPropertyValue(propName.Value);
-                        PushObject(value);
-                        break;
-
-                    case OpCode.SET_THIS_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = PopObject();
-                        frame.Module.SetPropertyValue(propName, value);
-                        break;
-
-                    case OpCode.GET_GLOBAL_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        if (_clrRegistry.TryGetClrType(propName.Value, out var clrType))
-                        {
-                            value = clrType;
-                        }
-                        else
-                        {
-                            value = domainGlobal.GetPropertyValue(propName.Value);
-                        }
-                        PushObject(value);
-                        break;
-
-                    case OpCode.SET_GLOBAL_PROPERTY:
-                        propNameIndex = _codeBuffer.ReadInt32(frame);
-                        propName = _stringConstants[propNameIndex];
-                        value = PopObject();
-                        domainGlobal.SetPropertyValue(propName.Value, value);
-                        break;
-
-                    case OpCode.GET_ELEMENT:
-                        datumValue = PopDatum();
-                        var datumObjValue = PopDatum();
-                        if (datumObjValue.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
-                        {
-                            PushDatum(scriptArray.Get((Int32)datumValue.Number));
-                        }
-                        else if (datumObjValue.Kind.Include(ValueKind.Object))
-                        {
-                            var key = ExtractPropertyKey(ref datumValue);
-                            PushObject(datumObjValue.Object.GetPropertyValue(key));
-                        }
-                        else
-                        {
-                            PushDatum(ScriptDatum.FromNull());
-                        }
-                        break;
-
-                    case OpCode.SET_ELEMENT:
-                        var datumTargetObj = PopDatum();
-                        datumValue = PopDatum();
-                        var datumAssignedValue = PopDatum();
-                        if (datumTargetObj.TryGetArray(out scriptArray) && datumValue.Kind == ValueKind.Number)
-                        {
-                            scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
-                        }
-                        else if (datumTargetObj.Kind.Include(ValueKind.Object))
-                        {
-                            var key = ExtractPropertyKey(ref datumValue);
-                            datumTargetObj.Object.SetPropertyValue(key, datumAssignedValue.ToObject());
-                        }
-                        break;
-
-                    case OpCode.LOGIC_NOT:
-                    case OpCode.LOGIC_AND:
-                    case OpCode.LOGIC_OR:
-                    case OpCode.EQUAL:
-                    case OpCode.NOT_EQUAL:
-                    case OpCode.LESS_THAN:
-                    case OpCode.LESS_EQUAL:
-                    case OpCode.GREATER_THAN:
-                    case OpCode.GREATER_EQUAL:
-                        // handled by delegate* jump table fast path
-                        break;
-
-                    case OpCode.ADD:
-                        datumRight = PopDatum();
-                        datumLeft = PopDatum();
-                        if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
-                        {
-                            PushDatum(ScriptDatum.FromNumber(datumLeft.Number + datumRight.Number));
-                        }
-                        else
-                        {
-                            var result = datumLeft.ToString() + datumRight.ToString();
-                            PushDatum(ScriptDatum.FromString(StringValue.Of(result)));
-                        }
-                        break;
-                    case OpCode.TYPEOF:
-                        datumRight = PopDatum();
-                        PushDatum(datumRight.TypeOf());
-                        break;
-                    case OpCode.ALLOC_LOCALS:
-                    case OpCode.JUMP:
-                    case OpCode.JUMP_IF_FALSE:
-                    case OpCode.JUMP_IF_TRUE:
-                        // handled by delegate* jump table fast path
-                        break;
-                    case OpCode.CALL:
-                        // 函数调用指令
-                        // 从栈顶弹出可调用对象
-                        var callable = PopDatum();
-                        // 读取参数数量
-                        var argCount = _codeBuffer.ReadByte(frame);
-                        // 创建参数数组
-                        var argDatums = new ScriptDatum[argCount];
-                        // 从栈中弹出参数，注意参数顺序是从右到左
-                        for (int i = argCount - 1; i >= 0; i--)
-                        {
-                            argDatums[i] = PopDatum();
-                        }
-                        if (callable.Kind == ValueKind.Function && callable.Object is ClosureFunction closureFunc)
-                        {
-                            if (_callStack.Count > exeContext.ExecuteOptions.MaxCallStackDepth)
+                        case OpCode.NEW_ARRAY:
+                            var count = _codeBuffer.ReadInt32(frame);
+                            var newArray = new ScriptArray(count);
+                            var datumBuffer = new ScriptDatum[count];
+                            for (int i = count - 1; i >= 0; i--)
                             {
-                                throw new AuroraVMException("The number of method call stacks exceeds the limit of " + exeContext.ExecuteOptions.MaxCallStackDepth);
+                                datumBuffer[i] = PopDatum();
                             }
-                            // 如果是脚本中定义的闭包函数
-                            // 创建新的调用帧，包含环境、全局对象、模块和入口点
-                            var callFrame = CallFramePool.Rent(frame.Domain, closureFunc.Module, closureFunc.EntryPointer, argDatums, closureFunc.CapturedUpvalues);
-                            // 将新帧压入调用栈
-                            _callStack.Push(callFrame);
-                            // 更新当前帧引用
-                            frame = callFrame;
-                        }
-                        else if (callable.Kind == ValueKind.ClrBonding && callable.Object is Callable callableFunc)
-                        {
-                            var callResult = callableFunc.Invoke(exeContext, null, argDatums);
-                            PushObject(callResult);
-                        }
-                        else if ((callable.Kind == ValueKind.ClrType || callable.Kind == ValueKind.ClrFunction) && callable.Object is IClrInvokable clrInvokable)
-                        {
-                            var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
-                            PushDatum(callResult);
-                        }
-                        else
-                        {
-                            // 如果不是可调用对象，抛出异常
-                            throw new InvalidOperationException($"Cannot call {callable.Kind}");
-                        }
-                        break;
-
-                    case OpCode.RETURN:
-                        // 函数返回指令
-                        // 获取返回值（如果有）
-                        datumValue = _operandStack.Count > 0 ? PopDatum() : ScriptDatum.FromNull();
-                        value = datumValue.ToObject();
-                        // 弹出当前调用帧
-                        var finishedFrame = _callStack.Pop();
-                        CallFramePool.Return(finishedFrame);
-
-                        // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
-                        if (_callStack.Count == 0)
-                        {
-                            // 设置执行状态为完成，并返回最终结果
-                            exeContext.SetStatus(ExecuteStatus.Complete, value, null);
-                            return;
-                        }
-
-                        // 如果调用栈不为空，说明是从子函数返回到调用者
-                        // 将返回值压入操作数栈，供调用者使用
-                        PushDatum(datumValue);
-                        // 切换到调用者的帧继续执行
-                        frame = _callStack.Peek();
-                        break;
-
-                    case OpCode.RETURN_NULL:
-
-                        // 弹出当前调用帧
-                        CallFramePool.Return(_callStack.Pop());
-                        // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
-                        if (_callStack.Count == 0)
-                        {
-                            // 设置执行状态为完成，并返回最终结果
-                            exeContext.SetStatus(ExecuteStatus.Complete, value, null);
-                            return;
-                        }
-                        // 如果调用栈不为空，说明是从子函数返回到调用者
-                        // 将返回值压入操作数栈，供调用者使用
-                        PushDatum(ScriptDatum.FromNull());
-                        // 切换到调用者的帧继续执行
-                        frame = _callStack.Peek();
-                        break;
-                    case OpCode.YIELD:
-                        // TODO
-                        if (exeContext.ExecuteOptions.EnabledYield)
-                        {
-                            exeContext.SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
-                        }
-                        break;
-                    case OpCode.PUSH_0:
-                        PushDatum(ScriptDatum.FromNumber(0));
-                        break;
-                    case OpCode.PUSH_1:
-                        PushDatum(ScriptDatum.FromNumber(1));
-                        break;
-                    case OpCode.PUSH_2:
-                        PushDatum(ScriptDatum.FromNumber(2));
-                        break;
-                    case OpCode.PUSH_3:
-                        PushDatum(ScriptDatum.FromNumber(3));
-                        break;
-                    case OpCode.PUSH_4:
-                        PushDatum(ScriptDatum.FromNumber(4));
-                        break;
-                    case OpCode.PUSH_5:
-                        PushDatum(ScriptDatum.FromNumber(5));
-                        break;
-                    case OpCode.PUSH_6:
-                        PushDatum(ScriptDatum.FromNumber(6));
-                        break;
-                    case OpCode.PUSH_7:
-                        PushDatum(ScriptDatum.FromNumber(7));
-                        break;
-                    case OpCode.PUSH_8:
-                        PushDatum(ScriptDatum.FromNumber(8));
-                        break;
-                    case OpCode.PUSH_9:
-                        PushDatum(ScriptDatum.FromNumber(9));
-                        break;
-                    case OpCode.PUSH_NULL:
-                        PushDatum(ScriptDatum.FromNull());
-                        break;
-                    case OpCode.PUSH_FALSE:
-                        PushDatum(ScriptDatum.FromBoolean(false));
-                        break;
-                    case OpCode.PUSH_TRUE:
-                        PushDatum(ScriptDatum.FromBoolean(true));
-                        break;
-                    case OpCode.PUSH_THIS:
-                        PushObject(frame.Module);
-                        break;
-                    case OpCode.PUSH_GLOBAL:
-                        PushObject(domainGlobal);
-                        break;
-                    case OpCode.PUSH_CONTEXT:
-                        var value5 = exeContext.UserState;
-                        if (ClrTypeResolver.ResolveType(value5.GetType(), out var descriptor))
-                        {
-                            PushObject(new ClrInstanceObject(descriptor, value5));
-                        }
-                        else
-                        {
-                            PushDatum(ScriptDatum.FromNull());
-                        }
-                        break;
-                    case OpCode.PUSH_ARGUMENTS:
-                        argDatum = ScriptDatum.FromArray(new ScriptArray(frame.Arguments));
-                        PushDatum(argDatum);
-                        break;
-                    case OpCode.NEW_REGEX:
-                        var _pattern = _codeBuffer.ReadInt32(frame);
-                        var _flags = _codeBuffer.ReadInt32(frame);
-                        var flags = _stringConstants[_flags];
-                        var pattern = _stringConstants[_pattern];
-                        var regex = RegexManager.Resolve(pattern.Value, flags.Value);
-                        PushDatum(ScriptDatum.FromRegex(regex));
-                        break;
-
-                    case OpCode.DECONSTRUCT_ARRAY:
-                        datumValue = PopDatum();
-                        if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
-                        {
-                            var deConstruct = new ScriptDeConstruct(array, ValueKind.Array);
-                            PushObject(deConstruct);
-                        }
-                        break;
-
-                    case OpCode.DECONSTRUCT_MAP:
-                        datumValue = PopDatum();
-                        value = PopObject();
-                        if (datumValue.Kind.Include(ValueKind.Object))
-                        {
-                            value.CopyPropertysFrom(datumValue.Object, true);
-                        }
-                        else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
-                        {
-                            for (int i = 0; i < array1.Length; i++)
+                            int index = 0;
+                            for (int i = 0; i < count; i++)
                             {
-                                var ele = array1.Get(i);
-                                value.SetPropertyValue(i.ToString(), ele.ToObject());
-                            }
-                        }
-                        break;
+                                if (datumBuffer[i].Kind.Include(ValueKind.Object) && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
+                                {
+                                    if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
+                                    {
+                                        for (int n = 0; n < array1.Length; n++)
+                                        {
+                                            newArray.Set(index, array1.Get(n));
+                                            index++;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    newArray.Set(index, datumBuffer[i]);
+                                    index++;
+                                }
 
+                            }
+                            PushObject(newArray);
+                            break;
+
+                        case OpCode.GET_ITERATOR:
+                            obj = PopObject();
+                            if (obj is IEnumerator iterable)
+                            {
+                                PushObject(iterable.GetIterator());
+                            }
+                            else
+                            {
+                                throw new AuroraVMException($"Object {obj} does not support iterators.");
+                            }
+                            break;
+
+                        case OpCode.ITERATOR_VALUE:
+                            obj = PopObject();
+                            if (obj is ItemIterator iterator)
+                            {
+                                PushDatum(iterator.Value());
+                            }
+                            else
+                            {
+                                throw new AuroraVMException($"Object {obj} not iterator.");
+                            }
+                            break;
+
+                        case OpCode.ITERATOR_HAS_VALUE:
+                            obj = PopObject();
+                            if (obj is ItemIterator iterator2)
+                            {
+                                PushDatum(ScriptDatum.FromBoolean(iterator2.HasValue()));
+                            }
+                            else
+                            {
+                                throw new AuroraVMException($"Object {obj} not iterator.");
+                            }
+                            break;
+
+                        case OpCode.ITERATOR_NEXT:
+                            obj = PopObject();
+                            if (obj is ItemIterator iterator3)
+                            {
+                                iterator3.Next();
+                            }
+                            else
+                            {
+                                throw new AuroraVMException($"Object {obj} not iterator.");
+                            }
+                            break;
+                        case OpCode.GET_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+
+                            ref var topDatum = ref _operandStack.PeekRef();
+                            if (topDatum.TryGetAnyObject(out obj))
+                            {
+                                topDatum = ScriptDatum.FromObject(obj.GetPropertyValue(propName.Value));
+                            }
+                            else if (topDatum.Kind == ValueKind.Number || topDatum.Kind == ValueKind.Boolean)
+                            {
+                                topDatum = ScriptDatum.FromObject(topDatum.ToObject().GetPropertyValue(propName.Value));
+                            }
+                            //var datum = PopDatum();
+                            //if (datum.TryGetAnyObject(out obj))
+                            //{
+                            //    PushObject(obj.GetPropertyValue(propName.Value));
+                            //}
+                            //else if (datum.Kind == ValueKind.Number || datum.Kind == ValueKind.Boolean)
+                            //{
+                            //    PushObject(datum.ToObject().GetPropertyValue(propName.Value));
+                            //}
+                            break;
+
+                        case OpCode.SET_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            value = PopObject();
+                            if (PopDatum().TryGetAnyObject(out obj))
+                            {
+                                obj.SetPropertyValue(propName, value);
+                            }
+                            break;
+
+                        case OpCode.DELETE_PROPERTY:
+                            value = PopObject();
+                            obj = PopObject();
+                            obj.DeletePropertyValue(value.ToString());
+                            break;
+                        case OpCode.GET_THIS_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            value = frame.Module.GetPropertyValue(propName.Value);
+                            PushObject(value);
+                            break;
+
+                        case OpCode.SET_THIS_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            value = PopObject();
+                            frame.Module.SetPropertyValue(propName, value);
+                            break;
+
+                        case OpCode.GET_GLOBAL_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            if (_clrRegistry.TryGetClrType(propName.Value, out var clrType))
+                            {
+                                value = clrType;
+                            }
+                            else
+                            {
+                                value = domainGlobal.GetPropertyValue(propName.Value);
+                            }
+                            PushObject(value);
+                            break;
+
+                        case OpCode.SET_GLOBAL_PROPERTY:
+                            propNameIndex = _codeBuffer.ReadInt32(frame);
+                            propName = _stringConstants[propNameIndex];
+                            value = PopObject();
+                            domainGlobal.SetPropertyValue(propName.Value, value);
+                            break;
+
+                        case OpCode.GET_ELEMENT:
+                            datumValue = PopDatum();
+                            var datumObjValue = PopDatum();
+                            if (datumObjValue.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
+                            {
+                                PushDatum(scriptArray.Get((Int32)datumValue.Number));
+                            }
+                            else if (datumObjValue.Kind.Include(ValueKind.Object))
+                            {
+                                var key = ExtractPropertyKey(ref datumValue);
+                                PushObject(datumObjValue.Object.GetPropertyValue(key));
+                            }
+                            else
+                            {
+                                PushDatum(ScriptDatum.FromNull());
+                            }
+                            break;
+
+                        case OpCode.SET_ELEMENT:
+                            var datumTargetObj = PopDatum();
+                            datumValue = PopDatum();
+                            var datumAssignedValue = PopDatum();
+                            if (datumTargetObj.TryGetArray(out scriptArray) && datumValue.Kind == ValueKind.Number)
+                            {
+                                scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
+                            }
+                            else if (datumTargetObj.Kind.Include(ValueKind.Object))
+                            {
+                                var key = ExtractPropertyKey(ref datumValue);
+                                datumTargetObj.Object.SetPropertyValue(key, datumAssignedValue.ToObject());
+                            }
+                            break;
+
+                        case OpCode.LOGIC_NOT:
+                        case OpCode.LOGIC_AND:
+                        case OpCode.LOGIC_OR:
+                        case OpCode.EQUAL:
+                        case OpCode.NOT_EQUAL:
+                        case OpCode.LESS_THAN:
+                        case OpCode.LESS_EQUAL:
+                        case OpCode.GREATER_THAN:
+                        case OpCode.GREATER_EQUAL:
+                            // handled by delegate* jump table fast path
+                            break;
+
+                        case OpCode.ADD:
+                            datumRight = PopDatum();
+                            datumLeft = PopDatum();
+                            if (datumLeft.Kind == ValueKind.Number && datumRight.Kind == ValueKind.Number)
+                            {
+                                PushDatum(ScriptDatum.FromNumber(datumLeft.Number + datumRight.Number));
+                            }
+                            else
+                            {
+                                var result = datumLeft.ToString() + datumRight.ToString();
+                                PushDatum(ScriptDatum.FromString(StringValue.Of(result)));
+                            }
+                            break;
+                        case OpCode.TYPEOF:
+                            datumRight = PopDatum();
+                            PushDatum(datumRight.TypeOf());
+                            break;
+                        case OpCode.ALLOC_LOCALS:
+                        case OpCode.JUMP:
+                        case OpCode.JUMP_IF_FALSE:
+                        case OpCode.JUMP_IF_TRUE:
+                            // handled by delegate* jump table fast path
+                            break;
+                        case OpCode.CALL:
+                            // 函数调用指令
+                            // 从栈顶弹出可调用对象
+                            var callable = PopDatum();
+                            // 读取参数数量
+                            var argCount = _codeBuffer.ReadByte(frame);
+                            // 创建参数数组
+                            var argDatums = new ScriptDatum[argCount];
+                            // 从栈中弹出参数，注意参数顺序是从右到左
+                            for (int i = argCount - 1; i >= 0; i--)
+                            {
+                                argDatums[i] = PopDatum();
+                            }
+                            if (callable.Kind == ValueKind.Function && callable.Object is ClosureFunction closureFunc)
+                            {
+                                if (_callStack.Count > exeContext.ExecuteOptions.MaxCallStackDepth)
+                                {
+                                    throw new AuroraVMException("The number of method call stacks exceeds the limit of " + exeContext.ExecuteOptions.MaxCallStackDepth);
+                                }
+                                // 如果是脚本中定义的闭包函数
+                                // 创建新的调用帧，包含环境、全局对象、模块和入口点
+                                var callFrame = CallFramePool.Rent(frame.Domain, closureFunc.Module, closureFunc.EntryPointer, argDatums, closureFunc.CapturedUpvalues);
+                                // 将新帧压入调用栈
+                                _callStack.Push(callFrame);
+                                // 更新当前帧引用
+                                frame = callFrame;
+                            }
+                            else if (callable.Kind == ValueKind.ClrBonding && callable.Object is Callable callableFunc)
+                            {
+                                var callResult = callableFunc.Invoke(exeContext, null, argDatums);
+                                PushObject(callResult);
+                            }
+                            else if ((callable.Kind == ValueKind.ClrType || callable.Kind == ValueKind.ClrFunction) && callable.Object is IClrInvokable clrInvokable)
+                            {
+                                var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
+                                PushDatum(callResult);
+                            }
+                            else
+                            {
+                                // 如果不是可调用对象，抛出异常
+                                throw new InvalidOperationException($"Cannot call {callable.Kind}");
+                            }
+                            break;
+
+                        case OpCode.RETURN:
+                            // 函数返回指令
+                            // 获取返回值（如果有）
+                            datumValue = _operandStack.Count > 0 ? PopDatum() : ScriptDatum.FromNull();
+                            value = datumValue.ToObject();
+                            // 弹出当前调用帧
+                            var finishedFrame = _callStack.Pop();
+                            CallFramePool.Return(finishedFrame);
+
+                            // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
+                            if (_callStack.Count == 0)
+                            {
+                                // 设置执行状态为完成，并返回最终结果
+                                exeContext.SetStatus(ExecuteStatus.Complete, value, null);
+                                return;
+                            }
+
+                            // 如果调用栈不为空，说明是从子函数返回到调用者
+                            // 将返回值压入操作数栈，供调用者使用
+                            PushDatum(datumValue);
+                            // 切换到调用者的帧继续执行
+                            frame = _callStack.Peek();
+                            break;
+
+                        case OpCode.RETURN_NULL:
+
+                            // 弹出当前调用帧
+                            CallFramePool.Return(_callStack.Pop());
+                            // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
+                            if (_callStack.Count == 0)
+                            {
+                                // 设置执行状态为完成，并返回最终结果
+                                exeContext.SetStatus(ExecuteStatus.Complete, value, null);
+                                return;
+                            }
+                            // 如果调用栈不为空，说明是从子函数返回到调用者
+                            // 将返回值压入操作数栈，供调用者使用
+                            PushDatum(ScriptDatum.FromNull());
+                            // 切换到调用者的帧继续执行
+                            frame = _callStack.Peek();
+                            break;
+                        case OpCode.YIELD:
+                            // TODO
+                            if (exeContext.ExecuteOptions.EnabledYield)
+                            {
+                                exeContext.SetStatus(ExecuteStatus.Interrupted, ScriptObject.Null, null);
+                            }
+                            break;
+                        case OpCode.PUSH_0:
+                            PushDatum(ScriptDatum.FromNumber(0));
+                            break;
+                        case OpCode.PUSH_1:
+                            PushDatum(ScriptDatum.FromNumber(1));
+                            break;
+                        case OpCode.PUSH_2:
+                            PushDatum(ScriptDatum.FromNumber(2));
+                            break;
+                        case OpCode.PUSH_3:
+                            PushDatum(ScriptDatum.FromNumber(3));
+                            break;
+                        case OpCode.PUSH_4:
+                            PushDatum(ScriptDatum.FromNumber(4));
+                            break;
+                        case OpCode.PUSH_5:
+                            PushDatum(ScriptDatum.FromNumber(5));
+                            break;
+                        case OpCode.PUSH_6:
+                            PushDatum(ScriptDatum.FromNumber(6));
+                            break;
+                        case OpCode.PUSH_7:
+                            PushDatum(ScriptDatum.FromNumber(7));
+                            break;
+                        case OpCode.PUSH_8:
+                            PushDatum(ScriptDatum.FromNumber(8));
+                            break;
+                        case OpCode.PUSH_9:
+                            PushDatum(ScriptDatum.FromNumber(9));
+                            break;
+                        case OpCode.PUSH_NULL:
+                            PushDatum(ScriptDatum.FromNull());
+                            break;
+                        case OpCode.PUSH_FALSE:
+                            PushDatum(ScriptDatum.FromBoolean(false));
+                            break;
+                        case OpCode.PUSH_TRUE:
+                            PushDatum(ScriptDatum.FromBoolean(true));
+                            break;
+                        case OpCode.PUSH_THIS:
+                            PushObject(frame.Module);
+                            break;
+                        case OpCode.PUSH_GLOBAL:
+                            PushObject(domainGlobal);
+                            break;
+                        case OpCode.PUSH_CONTEXT:
+                            var value5 = exeContext.UserState;
+                            if (ClrTypeResolver.ResolveType(value5.GetType(), out var descriptor))
+                            {
+                                PushObject(new ClrInstanceObject(descriptor, value5));
+                            }
+                            else
+                            {
+                                PushDatum(ScriptDatum.FromNull());
+                            }
+                            break;
+                        case OpCode.PUSH_ARGUMENTS:
+                            argDatum = ScriptDatum.FromArray(new ScriptArray(frame.Arguments));
+                            PushDatum(argDatum);
+                            break;
+                        case OpCode.NEW_REGEX:
+                            var _pattern = _codeBuffer.ReadInt32(frame);
+                            var _flags = _codeBuffer.ReadInt32(frame);
+                            var flags = _stringConstants[_flags];
+                            var pattern = _stringConstants[_pattern];
+                            var regex = RegexManager.Resolve(pattern.Value, flags.Value);
+                            PushDatum(ScriptDatum.FromRegex(regex));
+                            break;
+
+                        case OpCode.DECONSTRUCT_ARRAY:
+                            datumValue = PopDatum();
+                            if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
+                            {
+                                var deConstruct = new ScriptDeConstruct(array, ValueKind.Array);
+                                PushObject(deConstruct);
+                            }
+                            break;
+
+                        case OpCode.DECONSTRUCT_MAP:
+                            datumValue = PopDatum();
+                            value = PopObject();
+                            if (datumValue.Kind.Include(ValueKind.Object))
+                            {
+                                value.CopyPropertysFrom(datumValue.Object, true);
+                            }
+                            else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
+                            {
+                                for (int i = 0; i < array1.Length; i++)
+                                {
+                                    var ele = array1.Get(i);
+                                    value.SetPropertyValue(i.ToString(), ele.ToObject());
+                                }
+                            }
+                            break;
+
+                    }
                 }
-
                 var end = Stopwatch.GetTimestamp();
 
                 _opTicks[opIndex] += (end - start);
