@@ -1,8 +1,7 @@
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
 using System.Runtime.CompilerServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime
 {
