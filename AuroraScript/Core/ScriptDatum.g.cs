@@ -97,6 +97,25 @@ namespace AuroraScript.Core
 
 
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Boolean TryGetClrInvokable(out IClrInvokable value)
+        {
+            if (this.Kind == ValueKind.ClrFunction || Kind == ValueKind.ClrType)
+            {
+                value = (IClrInvokable)Object;
+                return true;
+            }
+            value = null;
+            return false;
+        }
+
+
+
+
+        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boolean TryGetFunction(out ClosureFunction value)
         {

@@ -1,6 +1,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace AuroraScript.Runtime
         private ExecuteStatus _status = ExecuteStatus.Idle;
         private ScriptObject _result = ScriptObject.Null;
         private AuroraRuntimeException _error;
-        private Object _userState;
+        private ScriptObject _userState;
 
         /// <summary>
         /// 当前执行位置模块
@@ -230,7 +231,7 @@ namespace AuroraScript.Runtime
         public ScriptObject Result => _result;
         public AuroraRuntimeException Error => _error;
 
-        public Object UserState => _userState;
+        public ScriptObject UserState => _userState;
 
         public void Reset()
         {

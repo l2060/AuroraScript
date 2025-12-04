@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;

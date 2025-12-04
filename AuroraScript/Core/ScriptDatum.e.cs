@@ -8,7 +8,7 @@ namespace AuroraScript.Core
 {
     public partial struct ScriptDatum
     {
-
+        public static readonly ScriptDatum Null = ScriptDatum.FromNull();
 
 
 

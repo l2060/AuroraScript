@@ -2,6 +2,7 @@ using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
 using System.Runtime.CompilerServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime
 {
@@ -32,7 +33,24 @@ namespace AuroraScript.Runtime
             _size = size + 1;
         }
 
-        public void Push(ScriptObject value)
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushRef( ref ScriptDatum datum)
+        {
+            var buffer = _buffer;
+            var size = _size;
+            if (size == buffer.Length)
+            {
+                Array.Resize(ref _buffer, buffer.Length * 2);
+                buffer = _buffer;
+            }
+            buffer[size] = datum;
+            _size = size + 1;
+        }
+
+
+        public void PushObject(ScriptObject value)
         {
             PushDatum(ScriptDatum.FromObject(value));
         }
@@ -71,7 +89,7 @@ namespace AuroraScript.Runtime
             return value;
         }
 
-        public ScriptObject Pop()
+        public ScriptObject PopObject()
         {
             return PopDatum().ToObject();
         }
@@ -96,7 +114,6 @@ namespace AuroraScript.Runtime
             }
             return ref _buffer[index];
         }
-
 
 
 

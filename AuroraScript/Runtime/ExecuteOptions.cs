@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
+using System;
 
 namespace AuroraScript.Runtime
 {
@@ -28,10 +30,17 @@ namespace AuroraScript.Runtime
         /// <summary>
         /// 
         /// </summary>
-        public readonly Object UserState = null;
+        public readonly ScriptObject UserState = ScriptObject.Null;
 
+        public ExecuteOptions()
+        {
+            UserState = ScriptObject.Null;
+            MaxCallStackDepth = 1024;
+            AutoInterruption = 0;
+            EnabledYield = false;
+        }
 
-        public ExecuteOptions(Int32 maxCallStackDepth = 1024, Object userState = null, Int32 autoInterruption = 0, bool yieldEnabled = false)
+        private ExecuteOptions(Int32 maxCallStackDepth = 1024, ScriptObject userState = null, Int32 autoInterruption = 0, bool yieldEnabled = false)
         {
             UserState = userState;
             MaxCallStackDepth = maxCallStackDepth;
@@ -50,7 +59,12 @@ namespace AuroraScript.Runtime
         public ExecuteOptions WithUserState(Object value)
         {
             if (ReferenceEquals(value, UserState)) return this;
-            return new ExecuteOptions(MaxCallStackDepth, value, AutoInterruption, EnabledYield);
+            ScriptObject clrInstance = ScriptObject.Null;
+            if (ClrTypeResolver.ResolveType(value.GetType(), out var descriptor))
+            {
+                clrInstance = new ClrInstanceObject(descriptor, value);
+            }
+            return new ExecuteOptions(MaxCallStackDepth, clrInstance, AutoInterruption, EnabledYield);
         }
 
         public ExecuteOptions WithAutoInterruption(Int32 value)

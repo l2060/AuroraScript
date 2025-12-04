@@ -1,11 +1,13 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Types;
 using System;
 using System.Runtime.CompilerServices;
 
+
 namespace AuroraScript
 {
-    internal static class Extended
+    public static class Extended
     {
 
         /// <summary>
@@ -130,6 +132,30 @@ namespace AuroraScript
             value = default;
             return false;
         }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetFunction(this ScriptDatum[] source, Int32 index, out ClosureFunction value)
+        {
+            if (source != null && index >= 0 && index < source.Length)
+            {
+                var datum = source[index];
+                if (datum.Kind == ValueKind.Number)
+                {
+                    value = datum.Object as ClosureFunction;
+                    return true;
+                }
+            }
+            value = default;
+            return false;
+        }
+
+
+
+
+
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

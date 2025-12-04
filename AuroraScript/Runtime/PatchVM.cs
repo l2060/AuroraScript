@@ -29,7 +29,7 @@ namespace AuroraScript.Runtime
 
 
             var popStack = _operandStack.PopDatum;
-            var pushStack = _operandStack.Push;
+            var pushStack = _operandStack.PushObject;
 
             var opCode = _codeBuffer.ReadOpCode(frame);
             switch (opCode)

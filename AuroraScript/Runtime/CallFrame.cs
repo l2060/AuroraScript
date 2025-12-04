@@ -121,6 +121,20 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref ScriptDatum GetLocalRef(Int32 index)
+        {
+            var locals = _locals;
+            if (locals == null || (uint)index >= (uint)locals.Length)
+            {
+                throw new Exception();
+                //return ScriptDatum.FromNull();
+            }
+            return ref locals[index];
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetLocalDatum(Int32 index, ScriptDatum datum)
         {
             if (index < 0)

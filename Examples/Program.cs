@@ -35,11 +35,10 @@ namespace Examples
         public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
         {
             Console.WriteLine(context.UserState);
-            if (args.Length == 0 || args[0].Object is not ClosureFunction callback)
+            if (args.TryGetFunction(0, out var callback))
             {
-                return ScriptObject.Null;
+                callback.InvokeFromClr(context.ExecuteOptions, 123, Array.Empty<object>(), thisObject).Done();
             }
-            callback.InvokeFromClr(context.ExecuteOptions, 123, Array.Empty<object>(), thisObject).Done();
             return ScriptObject.Null;
         }
 
@@ -55,13 +54,15 @@ namespace Examples
         {
             Console.WriteLine(context.UserState);
             Console.WriteLine($"OPEN INPUT {String.Join(" ", args)}");
-            var callback = args[3].Object as ClosureFunction;
-            Task.Run(async () =>
+            if (args.TryGetFunction(3, out var callback))
             {
-                // 模拟回调调用
-                await Task.Delay(1000);
-                callback.InvokeFromClr(123);
-            });
+                Task.Run(async () =>
+                {
+                    // 模拟回调调用
+                    await Task.Delay(1000);
+                    callback.InvokeFromClr(context.ExecuteOptions, 123);
+                });
+            }
             return ScriptObject.Null;
         }
 
@@ -135,7 +136,7 @@ namespace Examples
             // script function test
             //BenchmarkScript(domain, "MAIN", "main");
 
-            //RunAndReportUnitTests(domain);
+            RunAndReportUnitTests(domain);
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");
             BenchmarkScript(domain, "UNIT_LIB", "testClosure");
             BenchmarkScript(domain, "TIMER_LIB", "testCallback");
@@ -145,7 +146,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "testRegex");
             BenchmarkScript(domain, "UNIT_LIB", "testJson");
             BenchmarkScript(domain, "UNIT_LIB", "testClrType", new StringValue("PI"), new NumberValue(Math.PI));
- 
+
             BenchmarkScript(domain, "UNIT_LIB", "testMD5_1000");
             BenchmarkScript(domain, "UNIT_LIB", "testIterator");
             BenchmarkScript(domain, "UNIT_LIB", "test");
