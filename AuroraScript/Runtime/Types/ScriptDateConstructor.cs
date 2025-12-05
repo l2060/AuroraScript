@@ -17,7 +17,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return PARSE(context, thisObject, args);
         }
@@ -41,19 +41,19 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static ScriptObject NOW(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return new ScriptDate(DateTime.Now);
         }
 
 
-        public static ScriptObject UTC_NOW(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject UTC_NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return new ScriptDate(DateTime.UtcNow);
         }
 
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptDate date)
             {
@@ -69,7 +69,7 @@ namespace AuroraScript.Runtime.Types
             return ScriptObject.Null;
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (args.TryGetInteger(0, out var value)) // ticks
             {

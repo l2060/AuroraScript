@@ -47,10 +47,10 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
-        public ScriptArray(ScriptDatum[] array)
+        public ScriptArray(Span<ScriptDatum> array)
         {
             this._prototype = Prototypes.ScriptArrayPrototype;
-            if (array == null || array.Length == 0)
+            if (array.Length == 0)
             {
                 _items = Array.Empty<ScriptDatum>();
                 _count = 0;

@@ -28,7 +28,7 @@ namespace AuroraScript.Runtime.Base
         public static readonly NumberValue Num9 = new NumberValue(9);
 
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not NumberValue thisNumber)
             {

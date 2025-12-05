@@ -18,14 +18,14 @@ namespace AuroraScript.Runtime.Interop
             Frozen();
         }
 
-        public ScriptObject Construct(ScriptDatum[] args)
+        public ScriptObject Construct(Span<ScriptDatum> args)
         {
             var constructors = _constructors.Value;
             if (constructors.Length == 0)
             {
                 throw new InvalidOperationException($"CLR type '{_descriptor.Type.FullName}' does not expose public constructors.");
             }
-            args ??= Array.Empty<ScriptDatum>();
+            //args ??= Array.Empty<ScriptDatum>();
 
             foreach (var ctor in constructors)
             {
@@ -39,7 +39,7 @@ namespace AuroraScript.Runtime.Interop
             throw new InvalidOperationException($"No matching constructor found for '{_descriptor.Type.FullName}'.");
         }
 
-        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return ScriptDatum.FromObject(Construct(args));
         }
@@ -100,7 +100,7 @@ namespace AuroraScript.Runtime.Interop
             base.SetPropertyValue(key, value);
         }
 
-        internal bool TryBuildArguments(MethodBase method, ScriptDatum[] args, out object[] invokeArgs)
+        internal bool TryBuildArguments(MethodBase method, Span<ScriptDatum> args, out object[] invokeArgs)
         {
             var parameters = method.GetParameters();
             if (parameters.Length != args.Length)

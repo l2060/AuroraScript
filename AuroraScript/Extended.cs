@@ -26,9 +26,9 @@ namespace AuroraScript
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetNumber(this ScriptDatum[] source, Int32 index, out double value)
+        public static bool TryGetNumber(this Span<ScriptDatum> source, Int32 index, out double value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
                 if (datum.Kind == ValueKind.Number)
@@ -51,9 +51,9 @@ namespace AuroraScript
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetInteger(this ScriptDatum[] source, Int32 index, out Int64 value)
+        public static bool TryGetInteger(this Span<ScriptDatum> source, Int32 index, out Int64 value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
                 if (datum.Kind == ValueKind.Number)
@@ -79,9 +79,9 @@ namespace AuroraScript
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetString(this ScriptDatum[] source, Int32 index, out String value)
+        public static bool TryGetString(this Span<ScriptDatum> source, Int32 index, out String value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
 
@@ -106,9 +106,9 @@ namespace AuroraScript
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetObject(this ScriptDatum[] source, Int32 index, out ScriptObject value)
+        public static bool TryGetObject(this Span<ScriptDatum> source, Int32 index, out ScriptObject value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
                 if (datum.Object != null)
@@ -122,9 +122,9 @@ namespace AuroraScript
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(this ScriptDatum[] source, Int32 index, out ScriptDatum value)
+        public static bool TryGet(this Span<ScriptDatum> source, Int32 index, out ScriptDatum value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 value = source[index];
                 return true;
@@ -136,9 +136,9 @@ namespace AuroraScript
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetFunction(this ScriptDatum[] source, Int32 index, out ClosureFunction value)
+        public static bool TryGetFunction(this Span<ScriptDatum> source, Int32 index, out ClosureFunction value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
                 if (datum.Kind == ValueKind.Number)
@@ -159,9 +159,9 @@ namespace AuroraScript
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetBoolean(this ScriptDatum[] source, Int32 index, out Boolean value)
+        public static bool TryGetBoolean(this Span<ScriptDatum> source, Int32 index, out Boolean value)
         {
-            if (source != null && index >= 0 && index < source.Length)
+            if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
 

@@ -20,12 +20,17 @@ namespace AuroraScript.Runtime.Extensions
             Define("timeEnd", new BondingFunction(TIMEEND), writeable: false, enumerable: false);
         }
 
-        public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (args.Length > 0)
             {
-                var message = args.Select(arg => DatumToString(arg) ?? "null");
-                Console.WriteLine(string.Join(", ", message));
+                for (int i = 0; i < args.Length; i++)
+                {
+                    var arg = args[i];
+                    Console.Write(DatumToString(arg) ?? "null");
+                    Console.Write(", ");
+                }
+                Console.WriteLine();
             }
             return Null;
         }
@@ -43,7 +48,7 @@ namespace AuroraScript.Runtime.Extensions
         }
 
 
-        public static ScriptObject TIME(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TIME(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (args.TryGetString(0, out var label))
             {
@@ -52,7 +57,7 @@ namespace AuroraScript.Runtime.Extensions
             return Null;
         }
 
-        public static ScriptObject TIMEEND(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TIMEEND(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (args.TryGetString(0, out var label) && _times.TryGetValue(label, out var start))
             {

@@ -5,6 +5,7 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ namespace Examples
                 return $"Static Eat: [{String.Join(",", strings)}]";
             }
         }
-        public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             Console.WriteLine(context.UserState);
             if (args.TryGetFunction(0, out var callback))
@@ -42,18 +43,18 @@ namespace Examples
             return ScriptObject.Null;
         }
 
-        public static ScriptObject GIVE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject GIVE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             Console.WriteLine(context.UserState);
-            Console.WriteLine($"GIVE {String.Join(" ", args)}");
+            //Console.WriteLine($"GIVE {String.Join(" ", args)}");
             return ScriptObject.Null;
         }
 
 
-        public static ScriptObject CLIENT_INPUT_NUMBER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CLIENT_INPUT_NUMBER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             Console.WriteLine(context.UserState);
-            Console.WriteLine($"OPEN INPUT {String.Join(" ", args)}");
+            //Console.WriteLine($"OPEN INPUT {String.Join(" ", args)}");
             if (args.TryGetFunction(3, out var callback))
             {
                 Task.Run(async () =>
@@ -159,7 +160,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
-
+     
 
 
         }

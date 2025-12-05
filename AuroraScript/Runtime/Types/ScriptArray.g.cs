@@ -18,7 +18,7 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of(strValue.Length);
         }
 
-        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array && args != null)
             {
@@ -31,7 +31,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -42,7 +42,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject REVERSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject REVERSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -60,7 +60,7 @@ namespace AuroraScript.Runtime.Base
             return thisObject;
         }
 
-        public static ScriptObject UNSHIFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject UNSHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -86,7 +86,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject SHIFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject SHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -106,7 +106,7 @@ namespace AuroraScript.Runtime.Base
             }
             return ScriptObject.Null;
         }
-        public static ScriptObject CONCAT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONCAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -137,7 +137,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject SORT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject SORT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not ScriptArray array)
             {
@@ -165,7 +165,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject JOIN(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject JOIN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is ScriptArray array)
             {
@@ -216,7 +216,7 @@ namespace AuroraScript.Runtime.Base
             var rightString = CoerceScriptValueToString(right);
             return string.CompareOrdinal(leftString, rightString);
         }
-        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not ScriptArray strValue)
             {

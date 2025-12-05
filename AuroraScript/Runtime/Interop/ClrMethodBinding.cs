@@ -26,9 +26,9 @@ namespace AuroraScript.Runtime.Interop
             _compiledInvokers = CompileInvokers(methods);
         }
 
-        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            args ??= Array.Empty<ScriptDatum>();
+            //args ??= Array.Empty<ScriptDatum>();
             var targetHolder = _instance ?? thisObject as ClrInstanceObject;
             if (!_isStatic && targetHolder == null)
             {
@@ -62,7 +62,7 @@ namespace AuroraScript.Runtime.Interop
             }
             return invokers.ToArray();
         }
-        private delegate bool InvokeDelegate(object target, ScriptDatum[] args, out ScriptDatum result);
+        private delegate bool InvokeDelegate(object target, Span<ScriptDatum> args, out ScriptDatum result);
 
         private readonly struct MethodInvoker
         {
@@ -78,7 +78,7 @@ namespace AuroraScript.Runtime.Interop
                 _invoke = invoke;
             }
 
-            public bool TryInvoke(object target, ScriptDatum[] args, out ScriptDatum result)
+            public bool TryInvoke(object target, Span<ScriptDatum> args, out ScriptDatum result)
             {
                 if (!IsStatic && target == null)
                 {
@@ -86,7 +86,7 @@ namespace AuroraScript.Runtime.Interop
                     return false;
                 }
 
-                var effectiveArgs = args ?? Array.Empty<ScriptDatum>();
+                var effectiveArgs = args;
                 if (_expectedArgumentCount >= 0 && effectiveArgs.Length != _expectedArgumentCount)
                 {
                     result = ScriptDatum.FromNull();
@@ -137,7 +137,7 @@ namespace AuroraScript.Runtime.Interop
                 {
                     if (method.ReturnType == typeof(void))
                     {
-                        return (object target, ScriptDatum[] arguments, out ScriptDatum result) =>
+                        return (object target, Span<ScriptDatum> arguments, out ScriptDatum result) =>
                         {
                             method.Invoke(target, Array.Empty<object>());
                             result = ScriptDatum.FromNull();
@@ -145,7 +145,7 @@ namespace AuroraScript.Runtime.Interop
                         };
                     }
 
-                    return (object target, ScriptDatum[] arguments, out ScriptDatum result) =>
+                    return (object target, Span<ScriptDatum> arguments, out ScriptDatum result) =>
                     {
                         var invocationResult = method.Invoke(target, Array.Empty<object>());
                         result = ClrMarshaller.ToDatum(invocationResult);
@@ -158,7 +158,7 @@ namespace AuroraScript.Runtime.Interop
                     var parameterType = parameter.ParameterType;
                     if (method.ReturnType == typeof(void))
                     {
-                        return (object target, ScriptDatum[] args, out ScriptDatum result) =>
+                        return (object target, Span<ScriptDatum> args, out ScriptDatum result) =>
                         {
                             if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                             {
@@ -172,7 +172,7 @@ namespace AuroraScript.Runtime.Interop
                         };
                     }
 
-                    return (object target, ScriptDatum[] args, out ScriptDatum result) =>
+                    return (object target, Span<ScriptDatum> args, out ScriptDatum result) =>
                     {
                         if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                         {
@@ -197,7 +197,7 @@ namespace AuroraScript.Runtime.Interop
                         _parameters = method.GetParameters();
                     }
 
-                    public bool Invoke(object target, ScriptDatum[] args, out ScriptDatum result)
+                    public bool Invoke(object target, Span<ScriptDatum> args, out ScriptDatum result)
                     {
                         var invokeArgs = new object[_parameters.Length];
                         for (int i = 0; i < _parameters.Length; i++)

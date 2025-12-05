@@ -119,9 +119,9 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject TEST(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TEST(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args != null && args.Length >= 1)
+            if (args.Length >= 1)
             {
                 var regex = thisObject as ScriptRegex;
                 return regex.Test(args[0]);

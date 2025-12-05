@@ -22,7 +22,7 @@ namespace AuroraScript.Runtime.Extensions
             Define("stringify", new BondingFunction(STRINGIFY), writeable: false, enumerable: false);
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace AuroraScript.Runtime.Extensions
             }
         }
 
-        public static ScriptObject STRINGIFY(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject STRINGIFY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             args.TryGetBoolean(1, out var indented);
             if (args.TryGet(0, out var datum))

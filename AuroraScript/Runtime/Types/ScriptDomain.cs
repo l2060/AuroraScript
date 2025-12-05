@@ -95,7 +95,10 @@ namespace AuroraScript.Runtime.Types
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
+            var callFrame = CallFramePool.Rent();
+            callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
+            callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
+            exeContext._callStack.Push(callFrame);
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
@@ -135,7 +138,10 @@ namespace AuroraScript.Runtime.Types
                 // 创建新的执行上下文
                 ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
                 // 创建调用帧并压入调用栈
-                exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
+                var callFrame = CallFramePool.Rent();
+                callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
+                callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
+                exeContext._callStack.Push(callFrame);
                 // 执行函数
                 _virtualMachine.Execute(exeContext);
                 return exeContext;
@@ -176,7 +182,10 @@ namespace AuroraScript.Runtime.Types
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, ClrMarshaller.ConvertArguments(arguments), closure.CapturedUpvalues));
+            var callFrame = CallFramePool.Rent();
+            callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
+            callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
+            exeContext._callStack.Push(callFrame);
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;
@@ -193,7 +202,10 @@ namespace AuroraScript.Runtime.Types
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
             // 创建调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(this, closure.Module, closure.EntryPointer, arguments, closure.CapturedUpvalues));
+            var callFrame = CallFramePool.Rent();
+            callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
+            callFrame.Arguments.Copy(arguments);
+            exeContext._callStack.Push(callFrame);
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;

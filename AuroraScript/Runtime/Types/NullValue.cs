@@ -1,6 +1,7 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -16,7 +17,7 @@ namespace AuroraScript.Runtime.Types
             Frozen();
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return valueString;
         }

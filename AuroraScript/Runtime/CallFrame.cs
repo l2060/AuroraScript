@@ -10,17 +10,15 @@ namespace AuroraScript.Runtime
     public sealed class CallFrame : IDisposable
     {
         private const Int32 DefaultLocalCapacity = 8;
-
-        public Int32 EntryPointer { get; private set; }
+        internal ScriptDatum[] _locals;
+        public Int32 EntryPointer;
         public Int32 LastInstructionPointer;
         public Int32 Pointer;
-
-        internal ScriptDatum[] _locals;
         private Int32 _localsUsed;
         private Dictionary<Int32, Upvalue> _openUpvalues;
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
+        internal readonly CallArguments Arguments = new CallArguments();
 
-        public ScriptDatum[] Arguments { get; private set; } = Array.Empty<ScriptDatum>();
         public ScriptModule Module { get; private set; }
         public ScriptDomain Domain { get; private set; }
 
@@ -28,16 +26,14 @@ namespace AuroraScript.Runtime
         {
         }
 
-        internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+        internal void Initialize(ScriptDomain domain, ScriptModule module, Int32 entryPointer, ClosureUpvalue[] captured)
         {
             Domain = domain;
             Module = module;
             EntryPointer = entryPointer;
             Pointer = entryPointer;
             LastInstructionPointer = entryPointer;
-            Arguments = argumentDatums ?? Array.Empty<ScriptDatum>();
             _capturedUpvalues = captured ?? Array.Empty<ClosureUpvalue>();
-
             var requiredLocals = Math.Max(DefaultLocalCapacity, Arguments.Length);
             var previouslyUsed = _localsUsed;
             EnsureLocalCapacity(requiredLocals);
@@ -243,7 +239,7 @@ namespace AuroraScript.Runtime
             }
             _localsUsed = 0;
             _openUpvalues?.Clear();
-            Arguments = Array.Empty<ScriptDatum>();
+            Arguments.Clean();
             _capturedUpvalues = Array.Empty<ClosureUpvalue>();
             Module = null;
             Domain = null;

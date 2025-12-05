@@ -22,9 +22,9 @@ namespace AuroraScript.Runtime
             _prototype = Prototypes.NumberConstructorPrototype;
         }
 
-        public static ScriptObject PARSE_FLOAT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PARSE_FLOAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return NumberValue.NaN;
             }
@@ -36,9 +36,9 @@ namespace AuroraScript.Runtime
 
             return NumberValue.NaN;
         }
-        public static ScriptObject PARSE_INTEGER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PARSE_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return NumberValue.NaN;
             }
@@ -52,25 +52,25 @@ namespace AuroraScript.Runtime
         }
 
 
-        public static ScriptObject IS_NAN(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject IS_NAN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsNaN(args[0].Number)));
         }
 
-        public static ScriptObject IS_INTEGER(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject IS_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsInteger(args[0].Number)));
         }
 
 
-        public static ScriptObject IS_INFINITY(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject IS_INFINITY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsInfinity(args[0].Number)));
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return NumberValue.Zero;
             }

@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Types;
+using System;
 
 namespace AuroraScript.Runtime.Base
 {
@@ -16,7 +17,7 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Zero;
         }
 
-        public static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return StringValue.Of(thisObject?.ToString() ?? StringValue.Empty.Value);
         }

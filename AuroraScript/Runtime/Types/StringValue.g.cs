@@ -13,21 +13,21 @@ namespace AuroraScript.Runtime.Base
     {
         public readonly static StringValue Empty = new StringValue("");
 
-        public static ScriptObject TOLOWERCASE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TOLOWERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is StringValue strValue
                 ? StringValue.Of(strValue.Value.ToLowerInvariant())
                 : ScriptObject.Null;
         }
 
-        public static ScriptObject TOUPPERCASE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TOUPPERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is StringValue strValue
                 ? StringValue.Of(strValue.Value.ToUpperInvariant())
                 : ScriptObject.Null;
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject;
         }
@@ -39,7 +39,7 @@ namespace AuroraScript.Runtime.Base
                 : NumberValue.Zero;
         }
 
-        public static ScriptObject CONTANINS(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONTANINS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
@@ -50,7 +50,7 @@ namespace AuroraScript.Runtime.Base
             return BooleanValue.Of(str.Value.Contains(search));
         }
 
-        public static ScriptObject INDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject INDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
@@ -61,7 +61,7 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of(str.Value.IndexOf(search, StringComparison.Ordinal));
         }
 
-        public static ScriptObject LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
@@ -72,7 +72,7 @@ namespace AuroraScript.Runtime.Base
             return NumberValue.Of(str.Value.LastIndexOf(search, StringComparison.Ordinal));
         }
 
-        public static ScriptObject STARTSWITH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject STARTSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
@@ -83,7 +83,7 @@ namespace AuroraScript.Runtime.Base
             return BooleanValue.Of(str.Value.StartsWith(search, StringComparison.Ordinal));
         }
 
-        public static ScriptObject ENDSWITH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject ENDSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
@@ -94,7 +94,7 @@ namespace AuroraScript.Runtime.Base
             return BooleanValue.Of(str.Value.EndsWith(search, StringComparison.Ordinal));
         }
 
-        public static ScriptObject SUBSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject SUBSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str)
             {
@@ -127,7 +127,7 @@ namespace AuroraScript.Runtime.Base
             return StringValue.Of(str.Value.Substring(safeStart));
         }
 
-        public static ScriptObject SPLIT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject SPLIT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str)
             {
@@ -148,7 +148,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str)
             {
@@ -166,7 +166,7 @@ namespace AuroraScript.Runtime.Base
                 : regex.Match(str);
         }
 
-        public static ScriptObject MATCHALL(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject MATCHALL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str)
             {
@@ -178,7 +178,7 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static ScriptObject REPLACE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject REPLACE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
@@ -243,7 +243,7 @@ namespace AuroraScript.Runtime.Base
             return StringValue.Of(target);
         }
 
-        public static ScriptObject PADLEFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PADLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
@@ -260,7 +260,7 @@ namespace AuroraScript.Runtime.Base
             return StringValue.Of(str.Value.PadLeft(len.Int32Value, pad[0]));
         }
 
-        public static ScriptObject PADRIGHT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PADRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
@@ -277,28 +277,28 @@ namespace AuroraScript.Runtime.Base
             return StringValue.Of(str.Value.PadRight(len.Int32Value, pad[0]));
         }
 
-        public static ScriptObject TRIM(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TRIM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is StringValue str
                 ? StringValue.Of(str.Value.Trim())
                 : ScriptObject.Null;
         }
 
-        public static ScriptObject TRIMLEFT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TRIMLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is StringValue str
                 ? StringValue.Of(str.Value.TrimStart())
                 : ScriptObject.Null;
         }
 
-        public static ScriptObject TRIMRIGHT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject TRIMRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is StringValue str
                 ? StringValue.Of(str.Value.TrimEnd())
                 : ScriptObject.Null;
         }
 
-        public static ScriptObject CHARCODEAT(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CHARCODEAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             if (thisObject is not StringValue str)
             {
@@ -351,7 +351,7 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
-        private static String GetStringArg(ScriptDatum[] args, Int32 index)
+        private static String GetStringArg(Span<ScriptDatum> args, Int32 index)
         {
             if (args == null || index < 0 || index >= args.Length)
             {
@@ -365,7 +365,7 @@ namespace AuroraScript.Runtime.Base
             return null;
         }
 
-        private static NumberValue GetNumberArg(ScriptDatum[] args, Int32 index)
+        private static NumberValue GetNumberArg(Span<ScriptDatum> args, Int32 index)
         {
             if (args == null || index < 0 || index >= args.Length)
             {
@@ -384,7 +384,7 @@ namespace AuroraScript.Runtime.Base
             return null;
         }
 
-        private static ScriptRegex ResolveRegexArgument(ScriptDatum[] args, Boolean requireGlobal)
+        private static ScriptRegex ResolveRegexArgument(Span<ScriptDatum> args, Boolean requireGlobal)
         {
             ScriptRegex regex = null;
             if (args != null && args.Length > 0)

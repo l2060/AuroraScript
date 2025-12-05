@@ -15,9 +15,9 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 throw new Exception();
             }

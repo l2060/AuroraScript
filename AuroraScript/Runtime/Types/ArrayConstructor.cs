@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -14,9 +15,9 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static ScriptObject FROM(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject FROM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return ScriptObject.Null;
             }
@@ -43,7 +44,7 @@ namespace AuroraScript.Runtime.Types
             return result;
         }
 
-        public static ScriptObject OF(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject OF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var array = new ScriptArray(args.Length);
             for (int i = 0; i < args.Length; i++)
@@ -54,7 +55,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject IS_ARRAY(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject IS_ARRAY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return BooleanValue.Of(args.Length > 0 && args[0].Kind == ValueKind.Array);
         }
@@ -63,10 +64,10 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var capacity = 0;
-            if (args != null && args.Length == 1)
+            if (args.Length == 1)
             {
                 var datum = args[0];
                 if (datum.Kind == ValueKind.Number)

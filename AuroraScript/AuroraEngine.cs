@@ -72,6 +72,10 @@ namespace AuroraScript
         public void PrintStatistics()
         {
             runtimeVM.PrintOpCounts();
+
+            Console.WriteLine("==================================");
+            Console.WriteLine("CallFramePool Size = " + CallFramePool.Size);
+
         }
 
 
@@ -192,6 +196,8 @@ namespace AuroraScript
             return CreateDomain(domainGlobal, userState);
         }
 
+ 
+
 
 
         /// <summary>
@@ -211,7 +217,9 @@ namespace AuroraScript
             // 创建执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default.WithUserState(userState));
             // 创建初始调用帧并压入调用栈
-            exeContext._callStack.Push(CallFramePool.Rent(domain, null, 0, Array.Empty<ScriptDatum>(), Array.Empty<ClosureUpvalue>()));
+            var callFrame = CallFramePool.Rent();
+            callFrame.Initialize(domain, null, 0, Array.Empty<ClosureUpvalue>());
+            exeContext._callStack.Push(callFrame);
             // 执行初始化代码
             runtimeVM.Execute(exeContext);
             if (exeContext.Error != null)

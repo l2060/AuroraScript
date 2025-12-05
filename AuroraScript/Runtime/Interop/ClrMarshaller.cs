@@ -524,7 +524,7 @@ namespace AuroraScript.Runtime.Interop
 
 
 
-        private static object[] PrepareDelegateArguments(Delegate handler, ScriptDatum[] args)
+        private static object[] PrepareDelegateArguments(Delegate handler, Span<ScriptDatum> args)
         {
             var parameters = handler.Method.GetParameters();
             if (parameters.Length == 0)
@@ -541,7 +541,7 @@ namespace AuroraScript.Runtime.Interop
                     continue;
                 }
 
-                if (args != null && i < args.Length)
+                if (i < args.Length)
                 {
                     if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, out var converted))
                     {
@@ -565,10 +565,10 @@ namespace AuroraScript.Runtime.Interop
             return prepared;
         }
 
-        private static object ConvertParamArray(ParameterInfo parameter, ScriptDatum[] args, int startIndex)
+        private static object ConvertParamArray(ParameterInfo parameter, Span<ScriptDatum> args, int startIndex)
         {
             var elementType = parameter.ParameterType.GetElementType() ?? typeof(object);
-            var available = Math.Max(0, (args?.Length ?? 0) - startIndex);
+            var available = Math.Max(0, args.Length - startIndex);
             var array = Array.CreateInstance(elementType, available);
             for (int offset = 0; offset < available; offset++)
             {

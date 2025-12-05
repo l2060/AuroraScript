@@ -20,7 +20,7 @@ namespace AuroraScript.Runtime.Types
             StrValue = valueString;
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             return thisObject is BooleanValue boolean ? boolean.StrValue : StringValue.Of("false");
         }

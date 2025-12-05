@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -12,9 +13,9 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args != null && args.Length == 1)
+            if (args.Length == 1)
             {
                 return new ScriptObject(args[0].ToObject());
             }
@@ -22,9 +23,9 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject KEYS(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject KEYS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args != null && args.Length == 1)
+            if (args.Length == 1)
             {
                 if (args[0].Object is ScriptObject scriptObject)
                 {

@@ -13,9 +13,9 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.StringConstructorPrototype;
         }
 
-        public static ScriptObject FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return StringValue.Empty;
             }
@@ -29,9 +29,9 @@ namespace AuroraScript.Runtime.Types
             return StringValue.Of(((Char)codePoint).ToString());
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return StringValue.Empty;
             }

@@ -22,12 +22,12 @@ namespace AuroraScript.Runtime
     /// </summary>
     internal  unsafe partial class RuntimeVM
     {
-        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, OpCode, bool>[] _opDispatch;
+        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[] _opDispatch;
 
         static RuntimeVM()
         {
             var maxOp = Enum.GetValues(typeof(OpCode)).Cast<byte>().Max();
-            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, OpCode, bool>[maxOp + 1];
+            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void>[maxOp + 1];
 
 
                  
@@ -155,7 +155,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, OpCode, bool> handler)
+        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void> handler)
         {
             _opDispatch[(Int32)opCode] = handler;
         }
@@ -219,7 +219,7 @@ namespace AuroraScript.Runtime
             foreach (var (index, count) in ordered)
             {
                 var code = (OpCode)index;
-                Console.WriteLine($"OPCODE {code,-20} : {count,-20}   useTicks: {_opTicks[index],-20}");
+                Console.WriteLine($"OPCODE {code,-20} COUNT: {count,-20}   TICKS: {_opTicks[index],-20}");
             }
         }
 
@@ -296,10 +296,10 @@ namespace AuroraScript.Runtime
                 var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
                 var start = Stopwatch.GetTimestamp();
-                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, OpCode, bool> handler = _opDispatch[opIndex];
+                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = _opDispatch[opIndex];
                 if (handler != null)
                 {
-                    handler(this, exeContext, ref frame, opCode);
+                    handler(this, exeContext, ref frame);
                 }
                 else
                 {

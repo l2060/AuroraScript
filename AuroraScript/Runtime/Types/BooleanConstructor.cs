@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System;
 
 
 namespace AuroraScript.Runtime.Types
@@ -13,9 +14,9 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.BooleanConstructorPrototype;
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return BooleanValue.False;
             }
@@ -23,9 +24,9 @@ namespace AuroraScript.Runtime.Types
             return args[0].IsTrue() ? BooleanValue.True : BooleanValue.False;
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
-            if (args == null || args.Length == 0)
+            if (args.Length == 0)
             {
                 return BooleanValue.False;
             }

@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace AuroraScript.Runtime.Types
 {
 
-    public delegate ScriptObject ClrDatumDelegate([NotNull] ExecuteContext context, ScriptObject module, [NotNull] ScriptDatum[] args);
+    public delegate ScriptObject ClrDatumDelegate([NotNull] ExecuteContext context, ScriptObject module, [NotNull] Span<ScriptDatum> args);
 
     public abstract class Callable : ScriptObject
     {
@@ -36,6 +36,6 @@ namespace AuroraScript.Runtime.Types
         }
 
         public readonly ClrDatumDelegate DatumMethod;
-        public abstract ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args);
+        public abstract ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args);
     }
 }

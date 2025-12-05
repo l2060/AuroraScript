@@ -1,5 +1,6 @@
 using AuroraScript.Core;
 using AuroraScript.Runtime.Types;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -11,7 +12,7 @@ namespace AuroraScript.Runtime
         private static readonly ConcurrentBag<CallFrame> _pool = new();
         private static int _count;
 
-        internal static CallFrame Rent(ScriptDomain domain, ScriptModule module, int entryPointer, ScriptDatum[] argumentDatums, ClosureUpvalue[] captured)
+        internal static CallFrame Rent()
         {
             if (!_pool.TryTake(out var frame))
             {
@@ -21,8 +22,6 @@ namespace AuroraScript.Runtime
             {
                 Interlocked.Decrement(ref _count);
             }
-
-            frame.Initialize(domain, module, entryPointer, argumentDatums, captured);
             return frame;
         }
 
@@ -44,5 +43,11 @@ namespace AuroraScript.Runtime
                 frame.ResetFull();
             }
         }
+
+        internal static Int32 Size {
+            get { return _pool.Count; }
+        }
+
+
     }
 }

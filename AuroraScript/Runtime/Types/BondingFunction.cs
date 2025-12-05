@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
+using System;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -16,7 +17,7 @@ namespace AuroraScript.Runtime.Types
 
         }
 
-        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, ScriptDatum[] args)
+        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
         {
             var target = (thisObject == null) ? Target : thisObject;
             return DatumMethod(context, target, args);
