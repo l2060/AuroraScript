@@ -19,6 +19,9 @@ namespace AuroraScript.Runtime
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
         internal readonly CallArguments Arguments = new CallArguments();
 
+        public Int32 ReturnIndex;
+
+
         public ScriptModule Module { get; private set; }
         public ScriptDomain Domain { get; private set; }
 

@@ -22,12 +22,13 @@ namespace AuroraScript.Runtime
     /// </summary>
     internal  unsafe partial class RuntimeVM
     {
-        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[] _opDispatch;
+        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void>[] _opDispatch;
+        private static readonly IntPtr[] _handlerPtrTable;
 
         static RuntimeVM()
         {
             var maxOp = Enum.GetValues(typeof(OpCode)).Cast<byte>().Max();
-            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void>[maxOp + 1];
+            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void>[maxOp + 1];
 
 
                  
@@ -164,18 +165,23 @@ namespace AuroraScript.Runtime
             RegisterHandler(OpCode.PUSH_F32, &PUSH_F32);
             RegisterHandler(OpCode.PUSH_F64, &PUSH_F64);
             RegisterHandler(OpCode.PUSH_STRING, &PUSH_STRING);
-
-
-
-                  
-
-
+            _handlerPtrTable = BuildHandlerPtrTable();
 
         }
 
-        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void> handler)
+        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void> handler)
         {
             _opDispatch[(Int32)opCode] = handler;
+        }
+
+        private static IntPtr[] BuildHandlerPtrTable()
+        {
+            var table = new IntPtr[_opDispatch.Length];
+            for (int i = 0; i < _opDispatch.Length; i++)
+            {
+                table[i] = (IntPtr)_opDispatch[i];
+            }
+            return table;
         }
 
 
@@ -190,6 +196,11 @@ namespace AuroraScript.Runtime
         /// 包含编译后的指令序列，由虚拟机解释执行
         /// </summary>
         private readonly ByteCodeBuffer _codeBuffer;
+
+        /// <summary>
+        /// 解析后的指令序列，用于新执行引擎。
+        /// </summary>
+        private readonly Instruction[] _instructions;
 
         /// <summary>
         /// 调试符号信息，包含脚本的调试信息，如行号、函数名等
@@ -254,6 +265,7 @@ namespace AuroraScript.Runtime
             _engine = engine;
             // 创建字节码缓冲区，用于读取和解析字节码指令
             _codeBuffer = new ByteCodeBuffer(bytecode);
+            _instructions = InstructionDecoder.Decode(bytecode, _handlerPtrTable);
             // 将字符串常量转换为StringValue对象并存储在不可变数组中
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
             // 调试符号信息
@@ -288,45 +300,34 @@ namespace AuroraScript.Runtime
         /// <param name="exeContext">执行上下文，包含操作数栈、调用栈和全局环境</param>
         private void ExecuteFrame(ExecuteContext exeContext)
         {
-            // 设置执行状态为运行中
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
 
-            // 获取调用栈和操作数栈的引用，提高访问效率
-            var _callStack = exeContext._callStack;
-            var _operandStack = exeContext._operandStack;
+            var frame = exeContext._callStack.Peek();
+            var stream = new InstructionStream(_instructions, frame.Pointer);
 
-            // 获取当前调用帧
-            var frame = _callStack.Peek();
-            ref ScriptDatum[] _locals = ref frame._locals;
-            // 获取当前域的全局对象
-            ScriptGlobal domainGlobal = frame.Domain.Global;
-
-            Func<ScriptDatum> PopDatum = _operandStack.PopDatum;
-            Action<ScriptDatum> PushDatum = _operandStack.PushDatum;
-            Func<ScriptObject> PopObject = _operandStack.PopObject;
-            Action<ScriptObject> PushObject = _operandStack.PushObject;
-
-            // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
-                // 从当前指令指针位置读取操作码
-                var opCode = _codeBuffer.ReadOpCode(frame);
-                var opIndex = (Int32)opCode;
-                _opCounts[opIndex]++;
-                var start = Stopwatch.GetTimestamp();
-                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = _opDispatch[opIndex];
-                if (handler != null)
+                ref var instruction = ref stream.Current;
+                var handlerPtr = instruction.HandlerPtr;
+                if (handlerPtr == IntPtr.Zero)
                 {
-                    handler(this, exeContext, ref frame);
+                    throw new Exception($"无效的 {instruction.OpCode}");
                 }
-                else
-                {
-                    throw new Exception($"无效的 {opCode}");
-                }
-                var end = Stopwatch.GetTimestamp();
 
-                _opTicks[opIndex] += (end - start);
+                stream.NextIP = stream.IP + 1;
+                var opIndex = (int)instruction.OpCode;
+                _opCounts[opIndex]++;
+
+                var handler = (delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction ,ref InstructionStream, void>)handlerPtr;
+                //var start = Stopwatch.GetTimestamp();
+                handler(this, exeContext, ref frame, ref instruction,ref stream);
+                //var end = Stopwatch.GetTimestamp();
+
+                //_opTicks[opIndex] += end - start;
+                stream.Advance();
             }
+
+            frame.Pointer = stream.IP;
         }
 
 
