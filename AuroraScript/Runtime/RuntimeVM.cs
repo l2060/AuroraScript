@@ -20,17 +20,17 @@ namespace AuroraScript.Runtime
     /// AuroraScript 运行时虚拟机，负责执行字节码并管理运行时环境
     /// 作为脚本引擎的核心组件，实现了字节码的解释执行和运行时环境的管理
     /// </summary>
-    internal  unsafe partial class RuntimeVM
+    internal unsafe partial class RuntimeVM
     {
         private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[] _opDispatch;
 
         static RuntimeVM()
         {
             var maxOp = Enum.GetValues(typeof(OpCode)).Cast<byte>().Max();
-            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void>[maxOp + 1];
+            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[maxOp + 1];
 
 
-                 
+
 
             RegisterHandler(OpCode.NOP, &NOP);
             RegisterHandler(OpCode.POP, &POP);
@@ -54,7 +54,7 @@ namespace AuroraScript.Runtime
 
 
 
-                
+
 
             RegisterHandler(OpCode.GET_ELEMENT, &GET_ELEMENT);
             RegisterHandler(OpCode.SET_ELEMENT, &SET_ELEMENT);
@@ -121,7 +121,7 @@ namespace AuroraScript.Runtime
             RegisterHandler(OpCode.DECONSTRUCT_MAP, &DECONSTRUCT_MAP);
 
 
-              
+
 
             RegisterHandler(OpCode.GET_ITERATOR, &GET_ITERATOR);
             RegisterHandler(OpCode.ITERATOR_VALUE, &ITERATOR_VALUE);
@@ -167,13 +167,13 @@ namespace AuroraScript.Runtime
 
 
 
-                  
+
 
 
 
         }
 
-        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame,void> handler)
+        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler)
         {
             _opDispatch[(Int32)opCode] = handler;
         }
@@ -290,22 +290,10 @@ namespace AuroraScript.Runtime
         {
             // 设置执行状态为运行中
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
-
             // 获取调用栈和操作数栈的引用，提高访问效率
             var _callStack = exeContext._callStack;
-            var _operandStack = exeContext._operandStack;
-
             // 获取当前调用帧
             var frame = _callStack.Peek();
-            ref ScriptDatum[] _locals = ref frame._locals;
-            // 获取当前域的全局对象
-            ScriptGlobal domainGlobal = frame.Domain.Global;
-
-            Func<ScriptDatum> PopDatum = _operandStack.PopDatum;
-            Action<ScriptDatum> PushDatum = _operandStack.PushDatum;
-            Func<ScriptObject> PopObject = _operandStack.PopObject;
-            Action<ScriptObject> PushObject = _operandStack.PushObject;
-
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
@@ -315,14 +303,8 @@ namespace AuroraScript.Runtime
                 _opCounts[opIndex]++;
                 //var start = Stopwatch.GetTimestamp();
                 delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = _opDispatch[opIndex];
-                if (handler != null)
-                {
-                    handler(this, exeContext, ref frame);
-                }
-                else
-                {
-                    throw new Exception($"无效的 {opCode}");
-                }
+                handler(this, exeContext, ref frame);
+
                 //var end = Stopwatch.GetTimestamp();
 
                 //_opTicks[opIndex] += (end - start);
