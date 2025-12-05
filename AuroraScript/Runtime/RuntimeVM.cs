@@ -313,7 +313,7 @@ namespace AuroraScript.Runtime
                 var opCode = _codeBuffer.ReadOpCode(frame);
                 var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
-                var start = Stopwatch.GetTimestamp();
+                //var start = Stopwatch.GetTimestamp();
                 delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = _opDispatch[opIndex];
                 if (handler != null)
                 {
@@ -323,9 +323,9 @@ namespace AuroraScript.Runtime
                 {
                     throw new Exception($"无效的 {opCode}");
                 }
-                var end = Stopwatch.GetTimestamp();
+                //var end = Stopwatch.GetTimestamp();
 
-                _opTicks[opIndex] += (end - start);
+                //_opTicks[opIndex] += (end - start);
             }
         }
 
