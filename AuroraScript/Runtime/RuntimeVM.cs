@@ -92,6 +92,24 @@ namespace AuroraScript.Runtime
             RegisterHandler(OpCode.JUMP_IF_FALSE, &JUMP_IF_FALSE);
             RegisterHandler(OpCode.JUMP_IF_TRUE, &JUMP_IF_TRUE);
             RegisterHandler(OpCode.ADD, &ADD);
+            RegisterHandler(OpCode.INC_LOCAL, &INC_LOCAL);
+            RegisterHandler(OpCode.INC_LOCAL_L, &INC_LOCAL_L);
+            RegisterHandler(OpCode.DEC_LOCAL, &DEC_LOCAL);
+            RegisterHandler(OpCode.DEC_LOCAL_L, &DEC_LOCAL_L);
+            RegisterHandler(OpCode.INC_LOCAL_POST, &INC_LOCAL_POST);
+            RegisterHandler(OpCode.INC_LOCAL_POST_L, &INC_LOCAL_POST_L);
+            RegisterHandler(OpCode.DEC_LOCAL_POST, &DEC_LOCAL_POST);
+            RegisterHandler(OpCode.DEC_LOCAL_POST_L, &DEC_LOCAL_POST_L);
+            RegisterHandler(OpCode.ADD_LOCAL_STACK, &ADD_LOCAL_STACK);
+            RegisterHandler(OpCode.ADD_LOCAL_STACK_L, &ADD_LOCAL_STACK_L);
+            RegisterHandler(OpCode.SUB_LOCAL_STACK, &SUB_LOCAL_STACK);
+            RegisterHandler(OpCode.SUB_LOCAL_STACK_L, &SUB_LOCAL_STACK_L);
+            RegisterHandler(OpCode.MUL_LOCAL_STACK, &MUL_LOCAL_STACK);
+            RegisterHandler(OpCode.MUL_LOCAL_STACK_L, &MUL_LOCAL_STACK_L);
+            RegisterHandler(OpCode.DIV_LOCAL_STACK, &DIV_LOCAL_STACK);
+            RegisterHandler(OpCode.DIV_LOCAL_STACK_L, &DIV_LOCAL_STACK_L);
+            RegisterHandler(OpCode.MOD_LOCAL_STACK, &MOD_LOCAL_STACK);
+            RegisterHandler(OpCode.MOD_LOCAL_STACK_L, &MOD_LOCAL_STACK_L);
             RegisterHandler(OpCode.TYPEOF, &TYPEOF);
 
             RegisterHandler(OpCode.CREATE_CLOSURE, &CREATE_CLOSURE);

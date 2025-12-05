@@ -653,7 +653,6 @@ namespace AuroraScript.Runtime
         private static void BIT_NOT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteUnaryNumberOp(exeContext, UnaryNumberOp.BitNot, -1);
-
         }
 
         private static void BIT_SHIFT_LEFT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
@@ -1006,8 +1005,165 @@ namespace AuroraScript.Runtime
 
         }
 
+        private static void INC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: 1d, isPostfix: false);
+        }
 
+        private static void INC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: 1d, isPostfix: false);
+        }
 
+        private static void DEC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: -1d, isPostfix: false);
+        }
+
+        private static void DEC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: -1d, isPostfix: false);
+        }
+
+        private static void INC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: 1d, isPostfix: true);
+        }
+
+        private static void INC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: 1d, isPostfix: true);
+        }
+
+        private static void DEC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: -1d, isPostfix: true);
+        }
+
+        private static void DEC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: -1d, isPostfix: true);
+        }
+
+        private static void ADD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Add);
+        }
+
+        private static void ADD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Add);
+        }
+
+        private static void SUB_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Subtract);
+        }
+
+        private static void SUB_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Subtract);
+        }
+
+        private static void MUL_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Multiply);
+        }
+
+        private static void MUL_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Multiply);
+        }
+
+        private static void DIV_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Divide);
+        }
+
+        private static void DIV_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Divide);
+        }
+
+        private static void MOD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Mod);
+        }
+
+        private static void MOD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Mod);
+        }
+
+        private enum LocalStackOp : byte
+        {
+            Add,
+            Subtract,
+            Multiply,
+            Divide,
+            Mod
+        }
+
+        private static void HandleLocalIncrement(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, bool useLongIndex, double delta, bool isPostfix)
+        {
+            var stack = exeContext._operandStack;
+            var index = useLongIndex ? vm._codeBuffer.ReadInt32(frame) : vm._codeBuffer.ReadByte(frame);
+            ref var slot = ref frame.GetLocalRef(index);
+            var original = slot;
+            if (!TryGetNumber(in slot, out var current))
+            {
+                current = double.NaN;
+            }
+            var newValue = current + delta;
+            slot = ScriptDatum.FromNumber(newValue);
+            var result = isPostfix ? original : slot;
+            stack.PushDatum(result);
+        }
+
+        private static void HandleLocalBinaryFromStack(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, bool useLongIndex, LocalStackOp operation)
+        {
+            var stack = exeContext._operandStack;
+            var index = useLongIndex ? vm._codeBuffer.ReadInt32(frame) : vm._codeBuffer.ReadByte(frame);
+            ref var leftSlot = ref frame.GetLocalRef(index);
+            var rightSlot = stack.PopDatum();
+            switch (operation)
+            {
+                case LocalStackOp.Add:
+                    if (leftSlot.Kind == ValueKind.Number && rightSlot.Kind == ValueKind.Number)
+                    {
+                        leftSlot.Number = leftSlot.Number + rightSlot.Number;
+                    }
+                    else
+                    {
+                        leftSlot = ScriptDatum.FromString(leftSlot.ToString() + rightSlot.ToString());
+                    }
+                    break;
+                case LocalStackOp.Subtract:
+                    ApplyBinaryToLocal(ref leftSlot, in rightSlot, BinaryNumberOp.Subtract);
+                    break;
+                case LocalStackOp.Multiply:
+                    ApplyBinaryToLocal(ref leftSlot, in rightSlot, BinaryNumberOp.Multiply);
+                    break;
+                case LocalStackOp.Divide:
+                    ApplyBinaryToLocal(ref leftSlot, in rightSlot, BinaryNumberOp.Divide);
+                    break;
+                case LocalStackOp.Mod:
+                    ApplyBinaryToLocal(ref leftSlot, in rightSlot, BinaryNumberOp.Mod);
+                    break;
+            }
+        }
+
+        private static void ApplyBinaryToLocal(ref ScriptDatum leftSlot, in ScriptDatum rightSlot, BinaryNumberOp operation)
+        {
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
+            {
+                leftSlot = ScriptDatum.FromNumber(ApplyBinaryOp(operation, leftNumber, rightNumber));
+            }
+            else
+            {
+                leftSlot = ScriptDatum.FromNumber(double.NaN);
+            }
+        }
 
         #endregion
 

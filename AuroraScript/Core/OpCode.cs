@@ -101,6 +101,25 @@
         BIT_XOR,   // ^
         BIT_NOT,   // ~
 
+        INC_LOCAL,
+        INC_LOCAL_L,
+        DEC_LOCAL,
+        DEC_LOCAL_L,
+        INC_LOCAL_POST,
+        INC_LOCAL_POST_L,
+        DEC_LOCAL_POST,
+        DEC_LOCAL_POST_L,
+        ADD_LOCAL_STACK,
+        ADD_LOCAL_STACK_L,
+        SUB_LOCAL_STACK,
+        SUB_LOCAL_STACK_L,
+        MUL_LOCAL_STACK,
+        MUL_LOCAL_STACK_L,
+        DIV_LOCAL_STACK,
+        DIV_LOCAL_STACK_L,
+        MOD_LOCAL_STACK,
+        MOD_LOCAL_STACK_L,
+
 
 
         TYPEOF,

@@ -849,6 +849,41 @@ namespace AuroraScript.Compiler.Emits
             // 确定操作码
             OpCode opCode = DetermineUnaryOpCode(node.Operator);
 
+            if ((opCode == OpCode.INCREMENT || opCode == OpCode.DECREMENT)
+                && operand is NameExpression localName
+                && TryResolveLocalSlot(localName.Identifier.Value, out var localSlot))
+            {
+                var needResult = node.Parent != null;
+                if (node.Type == UnaryType.Prefix)
+                {
+                    if (opCode == OpCode.INCREMENT)
+                    {
+                        _instructionBuilder.IncrementLocal(localSlot);
+                    }
+                    else
+                    {
+                        _instructionBuilder.DecrementLocal(localSlot);
+                    }
+                }
+                else
+                {
+                    if (opCode == OpCode.INCREMENT)
+                    {
+                        _instructionBuilder.IncrementLocalPost(localSlot);
+                    }
+                    else
+                    {
+                        _instructionBuilder.DecrementLocalPost(localSlot);
+                    }
+                }
+
+                if (!needResult)
+                {
+                    _instructionBuilder.Pop();
+                }
+                return;
+            }
+
             if (node.Type == UnaryType.Prefix)
             {
                 // 前缀操作：先执行操作，再返回值
@@ -1101,6 +1136,11 @@ namespace AuroraScript.Compiler.Emits
 
         protected override void VisitCompoundExpression(CompoundExpression node)
         {
+            if (TryEmitLocalCompound(node))
+            {
+                return;
+            }
+
             node.Left.Accept(this);
             node.Right.Accept(this);
             if (node.Operator == Operator.CompoundAdd) _instructionBuilder.Emit(OpCode.ADD);
@@ -1116,6 +1156,60 @@ namespace AuroraScript.Compiler.Emits
         }
 
 
+
+        private bool TryResolveLocalSlot(String identifier, out Int32 slot)
+        {
+            slot = -1;
+            if (_scope.Resolve(identifier, out var declareObject) && declareObject.Type == DeclareType.Variable)
+            {
+                slot = declareObject.Index;
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryEmitLocalCompound(CompoundExpression node)
+        {
+            if (node.Left is not NameExpression nameExpr)
+            {
+                return false;
+            }
+
+            if (!TryResolveLocalSlot(nameExpr.Identifier.Value, out var slot))
+            {
+                return false;
+            }
+
+            node.Right.Accept(this);
+
+            if (node.Operator == Operator.CompoundAdd)
+            {
+                _instructionBuilder.AddLocalFromStack(slot);
+                return true;
+            }
+            if (node.Operator == Operator.CompoundSubtract)
+            {
+                _instructionBuilder.SubtractLocalFromStack(slot);
+                return true;
+            }
+            if (node.Operator == Operator.CompoundMultiply)
+            {
+                _instructionBuilder.MultiplyLocalFromStack(slot);
+                return true;
+            }
+            if (node.Operator == Operator.CompoundDivide)
+            {
+                _instructionBuilder.DivideLocalFromStack(slot);
+                return true;
+            }
+            if (node.Operator == Operator.CompoundModulo)
+            {
+                _instructionBuilder.ModuloLocalFromStack(slot);
+                return true;
+            }
+
+            return false;
+        }
 
         private void MoveValueTo(String property)
         {

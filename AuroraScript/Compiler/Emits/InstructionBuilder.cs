@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 
 namespace AuroraScript.Compiler.Emits
@@ -102,6 +103,16 @@ namespace AuroraScript.Compiler.Emits
         {
             var instruction = new InstructionInt64(opCode, _position, param);
             return AppendInstruction(instruction);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Instruction EmitLocalIndexed(OpCode shortOp, OpCode longOp, int index)
+        {
+            if ((uint)index <= byte.MaxValue)
+            {
+                return Emit(shortOp, (Byte)index);
+            }
+            return Emit(longOp, index);
         }
 
         private Instruction AppendInstruction(Instruction instruction)
@@ -492,6 +503,51 @@ namespace AuroraScript.Compiler.Emits
             {
                 Emit(OpCode.STORE_LOCAL_L, index);
             }
+        }
+
+        public void IncrementLocal(int index)
+        {
+            EmitLocalIndexed(OpCode.INC_LOCAL, OpCode.INC_LOCAL_L, index);
+        }
+
+        public void IncrementLocalPost(int index)
+        {
+            EmitLocalIndexed(OpCode.INC_LOCAL_POST, OpCode.INC_LOCAL_POST_L, index);
+        }
+
+        public void DecrementLocal(int index)
+        {
+            EmitLocalIndexed(OpCode.DEC_LOCAL, OpCode.DEC_LOCAL_L, index);
+        }
+
+        public void DecrementLocalPost(int index)
+        {
+            EmitLocalIndexed(OpCode.DEC_LOCAL_POST, OpCode.DEC_LOCAL_POST_L, index);
+        }
+
+        public void AddLocalFromStack(int index)
+        {
+            EmitLocalIndexed(OpCode.ADD_LOCAL_STACK, OpCode.ADD_LOCAL_STACK_L, index);
+        }
+
+        public void SubtractLocalFromStack(int index)
+        {
+            EmitLocalIndexed(OpCode.SUB_LOCAL_STACK, OpCode.SUB_LOCAL_STACK_L, index);
+        }
+
+        public void MultiplyLocalFromStack(int index)
+        {
+            EmitLocalIndexed(OpCode.MUL_LOCAL_STACK, OpCode.MUL_LOCAL_STACK_L, index);
+        }
+
+        public void DivideLocalFromStack(int index)
+        {
+            EmitLocalIndexed(OpCode.DIV_LOCAL_STACK, OpCode.DIV_LOCAL_STACK_L, index);
+        }
+
+        public void ModuloLocalFromStack(int index)
+        {
+            EmitLocalIndexed(OpCode.MOD_LOCAL_STACK, OpCode.MOD_LOCAL_STACK_L, index);
         }
 
         public void NewRegex(String pattern, String flags)
