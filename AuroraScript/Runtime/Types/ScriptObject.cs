@@ -69,8 +69,7 @@ namespace AuroraScript.Runtime.Base
             ScriptObject own = thisObject != null ? thisObject : this;
             if (_properties != null)
             {
-                _properties.TryGetValue(key, out var value);
-                if (value != null)
+                if (_properties.TryGetValue(key, out var value))
                 {
                     if (!value.Readable) throw new AuroraVMException("Property disables write");
                     return value.Value;
@@ -102,8 +101,7 @@ namespace AuroraScript.Runtime.Base
             {
                 throw new AuroraVMException("You cannot modify this object");
             }
-            _properties.TryGetValue(key.Value, out var existValue);
-            if (existValue == null)
+            if (!_properties.TryGetValue(key.Value, out var existValue))
             {
                 existValue = new ObjectProperty();
                 existValue.Key = key;
@@ -167,8 +165,7 @@ namespace AuroraScript.Runtime.Base
             {
                 throw new AuroraVMException("You cannot modify this object");
             }
-            _properties.TryGetValue(key, out var existValue);
-            if (existValue == null)
+            if (!_properties.TryGetValue(key, out var existValue))
             {
                 existValue = new ObjectProperty();
                 existValue.Key = StringValue.Of(key);

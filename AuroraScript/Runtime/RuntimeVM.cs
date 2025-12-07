@@ -294,6 +294,7 @@ namespace AuroraScript.Runtime
             var _callStack = exeContext._callStack;
             // 获取当前调用帧
             var frame = _callStack.Peek();
+            var opDispatch = _opDispatch;
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
@@ -301,13 +302,12 @@ namespace AuroraScript.Runtime
                 var opCode = _codeBuffer.ReadOpCode(frame);
                 var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
-                //var start = Stopwatch.GetTimestamp();
-                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = _opDispatch[opIndex];
+                var start = Stopwatch.GetTimestamp();
+                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = opDispatch[opIndex];
                 handler(this, exeContext, ref frame);
 
-                //var end = Stopwatch.GetTimestamp();
-
-                //_opTicks[opIndex] += (end - start);
+                var end = Stopwatch.GetTimestamp();
+                _opTicks[opIndex] += (end - start);
             }
         }
 

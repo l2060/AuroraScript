@@ -17,8 +17,6 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Core.OpCode ReadOpCode(CallFrame frame)
         {
-            // if (frame.Pointer >= _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
             frame.LastInstructionPointer = frame.Pointer;
             var opCode = (Core.OpCode)_byteCode[frame.Pointer++];
             return opCode;
@@ -28,8 +26,6 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SByte ReadSByte(CallFrame frame)
         {
-            // if (frame.Pointer >= _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
             return (SByte)_byteCode[frame.Pointer++];
         }
 
@@ -37,8 +33,6 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Byte ReadByte(CallFrame frame)
         {
-            // if (frame.Pointer >= _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
             return _byteCode[frame.Pointer++];
         }
 
@@ -46,9 +40,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Int16 ReadInt16(CallFrame frame)
         {
-            // if (frame.Pointer + 2 > _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
-            short value = BitConverter.ToInt16(_byteCode, frame.Pointer);
+            short value = Unsafe.ReadUnaligned<Int16>(ref _byteCode[frame.Pointer]);
             frame.Pointer += 2;
             return value;
         }
@@ -58,9 +50,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Single ReadFloat(CallFrame frame)
         {
-            // if (frame.Pointer + 4 > _byteCode.Length)
-                // throw new InvalidOperationException("指令指针超出范围");
-            float value = BitConverter.ToSingle(_byteCode, frame.Pointer);
+            float value = Unsafe.ReadUnaligned<Single>(ref _byteCode[frame.Pointer]);
             frame.Pointer += 4;
             return value;
         }
@@ -69,9 +59,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Double ReadDouble(CallFrame frame)
         {
-            // if (frame.Pointer + 8 > _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
-            double value = BitConverter.ToDouble(_byteCode, frame.Pointer);
+            double value = Unsafe.ReadUnaligned<Double>(ref _byteCode[frame.Pointer]);
             frame.Pointer += 8;
             return value;
         }
@@ -80,9 +68,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Int32 ReadInt32(CallFrame frame)
         {
-            // if (frame.Pointer + 4 > _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
-            int value = BitConverter.ToInt32(_byteCode, frame.Pointer);
+            int value = Unsafe.ReadUnaligned<int>(ref _byteCode[frame.Pointer]);
             frame.Pointer += 4;
             return value;
         }
@@ -90,9 +76,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Int64 ReadInt64(CallFrame frame)
         {
-            // if (frame.Pointer + 8 > _byteCode.Length)
-            //     throw new InvalidOperationException("指令指针超出范围");
-            Int64 value = BitConverter.ToInt64(_byteCode, frame.Pointer);
+            Int64 value = Unsafe.ReadUnaligned<Int64>(ref _byteCode[frame.Pointer]);
             frame.Pointer += 8;
             return value;
         }
