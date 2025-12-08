@@ -112,9 +112,21 @@ namespace AuroraScript.Core
         }
 
 
+ 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Boolean TryGetDate(out ScriptDate value)
+        {
+            if (this.Kind == ValueKind.Date)
+            {
+                value = (ScriptDate)this.Object;
+                return true;
+            }
+            value = null;
+            return false;
+        }
 
 
-        
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boolean TryGetFunction(out ClosureFunction value)

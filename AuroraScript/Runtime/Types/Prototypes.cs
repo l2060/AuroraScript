@@ -37,6 +37,7 @@ namespace AuroraScript.Runtime.Types
             ObjectPrototype.Define("keys", new BondingFunction(ScriptObjectConstructor.KEYS), writeable: false, enumerable: false);
             ObjectPrototype.Define("constructor", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             ObjectPrototype.Define("length", new BondingGetter(ScriptObject.LENGTH), writeable: false, enumerable: false);
+            ObjectPrototype.Define("equal", new BondingFunction(ScriptObject.EQUAL), writeable: false, enumerable: false);
             ObjectPrototype.Frozen();
 
 

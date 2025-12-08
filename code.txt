@@ -1,5 +1,4 @@
-[0000] NOP
-Create Domain:
+Ôªø[0000] NOP
 [0001] INIT_MODULE str(MAIN)
 [0006] INIT_MODULE str(MD5_LIB)
 [0011] INIT_MODULE str(TIMER_LIB)
@@ -22,32 +21,18 @@ Create Domain:
 [0076] POP
 [0077] PUSH_GLOBAL
 [0078] RETURN
-module: MAIN main.as
-# Module Import
-# Variable Define
 [0079] PUSH_NULL
 [0080] SET_THIS_PROPERTY str(_testCases)
-# Code Block
 [0085] PUSH_THIS
 [0086] CREATE_CLOSURE [0109] (0)
 [0092] SET_THIS_PROPERTY str(main)
-# var _testCases = []
 [0097] NEW_ARRAY 0
 [0102] SET_THIS_PROPERTY str(_testCases)
 [0107] PUSH_TRUE
 [0108] RETURN
-
-
-
-
-# begin_func main
-# Captured variables:
 [0109] ALLOC_LOCALS [6]
-# for in
-# var key =
 [0114] PUSH_NULL
 [0115] STORE_LOCAL 0
-# condition key in Object.keys(global)
 [0117] PUSH_GLOBAL
 [0118] GET_GLOBAL_PROPERTY str(Object)
 [0123] GET_PROPERTY str(keys)
@@ -57,11 +42,9 @@ module: MAIN main.as
 [0133] LOAD_LOCAL 1
 [0135] ITERATOR_HAS_VALUE
 [0136] JUMP_IF_FALSE [0289]
-# IteratorValue
 [0141] LOAD_LOCAL 1
 [0143] ITERATOR_VALUE
 [0144] STORE_LOCAL 0
-# body
 [0146] PUSH_GLOBAL
 [0147] LOAD_LOCAL 0
 [0149] GET_ELEMENT
@@ -75,11 +58,8 @@ module: MAIN main.as
 [0162] NOT_EQUAL
 [0163] LOGIC_AND
 [0164] JUMP_IF_FALSE [0281]
-# for in
-# var propName =
 [0169] PUSH_NULL
 [0170] STORE_LOCAL 2
-# condition propName in Object.keys(global[key])
 [0172] PUSH_GLOBAL
 [0173] LOAD_LOCAL 0
 [0175] GET_ELEMENT
@@ -91,11 +71,9 @@ module: MAIN main.as
 [0191] LOAD_LOCAL 3
 [0193] ITERATOR_HAS_VALUE
 [0194] JUMP_IF_FALSE [0281]
-# IteratorValue
 [0199] LOAD_LOCAL 3
 [0201] ITERATOR_VALUE
 [0202] STORE_LOCAL 2
-# body
 [0204] PUSH_GLOBAL
 [0205] LOAD_LOCAL 0
 [0207] GET_ELEMENT
@@ -110,7 +88,6 @@ module: MAIN main.as
 [0230] CALL 1
 [0232] LOGIC_AND
 [0233] JUMP_IF_FALSE [0273]
-# _testCases.push({ name: propName, method: global[key][propName] })
 [0238] NEW_MAP
 [0239] DUP
 [0240] LOAD_LOCAL 2
@@ -132,23 +109,17 @@ module: MAIN main.as
 [0281] LOAD_LOCAL 1
 [0283] ITERATOR_NEXT
 [0284] JUMP [0133]
-# for in
-# var _case =
 [0289] PUSH_NULL
 [0290] STORE_LOCAL 4
-# condition _case in _testCases
 [0292] GET_THIS_PROPERTY str(_testCases)
 [0297] GET_ITERATOR
 [0298] STORE_LOCAL 5
 [0300] LOAD_LOCAL 5
 [0302] ITERATOR_HAS_VALUE
 [0303] JUMP_IF_FALSE [0356]
-# IteratorValue
 [0308] LOAD_LOCAL 5
 [0310] ITERATOR_VALUE
 [0311] STORE_LOCAL 4
-# body
-# console.log('start Test Case', _case.name)
 [0313] PUSH_STRING str(start Test Case)
 [0318] LOAD_LOCAL 4
 [0320] GET_PROPERTY str(name)
@@ -156,7 +127,6 @@ module: MAIN main.as
 [0330] GET_PROPERTY str(log)
 [0335] CALL 2
 [0337] POP
-# _case.method()
 [0338] LOAD_LOCAL 4
 [0340] GET_PROPERTY str(method)
 [0345] CALL 0
@@ -165,11 +135,6 @@ module: MAIN main.as
 [0350] ITERATOR_NEXT
 [0351] JUMP [0300]
 [0356] RETURN_NULL
-# end_func main
-module: MD5_LIB md5.as
-# Module Import
-# Variable Define
-# Code Block
 [0357] PUSH_THIS
 [0358] CREATE_CLOSURE [0539] (0)
 [0364] SET_THIS_PROPERTY str(testError)
@@ -217,45 +182,28 @@ module: MD5_LIB md5.as
 [0532] SET_THIS_PROPERTY str(MD5)
 [0537] PUSH_TRUE
 [0538] RETURN
-
-
-
-
-# begin_func testError
-# Captured variables:
 [0539] ALLOC_LOCALS [1]
-# console.log('Start testError')
 [0544] PUSH_STRING str(Start testError)
 [0549] GET_GLOBAL_PROPERTY str(console)
 [0554] GET_PROPERTY str(log)
 [0559] CALL 1
 [0561] POP
-# var ax = xxxx.c(1)
 [0562] PUSH_1
 [0563] GET_GLOBAL_PROPERTY str(xxxx)
 [0568] GET_PROPERTY str(c)
 [0573] CALL 1
 [0575] STORE_LOCAL 0
-# console.log('End testError')
 [0577] PUSH_STRING str(End testError)
 [0582] GET_GLOBAL_PROPERTY str(console)
 [0587] GET_PROPERTY str(log)
 [0592] CALL 1
 [0594] POP
 [0595] RETURN_NULL
-# end_func testError
-
-
-
-
-# begin_func RotateLeft
-# Captured variables:
 [0596] ALLOC_LOCALS [2]
 [0601] LOAD_ARG 0
 [0603] STORE_LOCAL 0
 [0605] LOAD_ARG 1
 [0607] STORE_LOCAL 1
-# return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
 [0609] LOAD_LOCAL 0
 [0611] LOAD_LOCAL 1
 [0613] BIT_SHIFT_L
@@ -267,54 +215,37 @@ module: MD5_LIB md5.as
 [0622] BIT_OR
 [0623] RETURN
 [0624] RETURN_NULL
-# end_func RotateLeft
-
-
-
-
-# begin_func AddUnsigned
-# Captured variables:
 [0625] ALLOC_LOCALS [7]
 [0630] LOAD_ARG 0
 [0632] STORE_LOCAL 0
 [0634] LOAD_ARG 1
 [0636] STORE_LOCAL 1
-# var lX4 =
 [0638] PUSH_NULL
 [0639] STORE_LOCAL 2
-# var lY4 =
 [0641] PUSH_NULL
 [0642] STORE_LOCAL 3
-# var lX8 =
 [0644] PUSH_NULL
 [0645] STORE_LOCAL 4
-# var lY8 =
 [0647] PUSH_NULL
 [0648] STORE_LOCAL 5
-# var lResult =
 [0650] PUSH_NULL
 [0651] STORE_LOCAL 6
-# lX8 = (lX & 0x80000000)
 [0653] LOAD_LOCAL 0
 [0655] PUSH_I64 2147483648
 [0664] BIT_AND
 [0665] STORE_LOCAL 4
-# lY8 = (lY & 0x80000000)
 [0667] LOAD_LOCAL 1
 [0669] PUSH_I64 2147483648
 [0678] BIT_AND
 [0679] STORE_LOCAL 5
-# lX4 = (lX & 0x40000000)
 [0681] LOAD_LOCAL 0
 [0683] PUSH_I32 1073741824
 [0688] BIT_AND
 [0689] STORE_LOCAL 2
-# lY4 = (lY & 0x40000000)
 [0691] LOAD_LOCAL 1
 [0693] PUSH_I32 1073741824
 [0698] BIT_AND
 [0699] STORE_LOCAL 3
-# lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF)
 [0701] LOAD_LOCAL 0
 [0703] PUSH_I32 1073741823
 [0708] BIT_AND
@@ -327,7 +258,6 @@ module: MD5_LIB md5.as
 [0722] LOAD_LOCAL 3
 [0724] BIT_AND
 [0725] JUMP_IF_FALSE [0749]
-# return (lResult ^ 0x80000000 ^ lX8 ^ lY8)
 [0730] LOAD_LOCAL 6
 [0732] PUSH_I64 2147483648
 [0741] BIT_XOR
@@ -344,7 +274,6 @@ module: MD5_LIB md5.as
 [0761] PUSH_I32 1073741824
 [0766] BIT_AND
 [0767] JUMP_IF_FALSE [0796]
-# return (lResult ^ 0xC0000000 ^ lX8 ^ lY8)
 [0772] LOAD_LOCAL 6
 [0774] PUSH_I64 3221225472
 [0783] BIT_XOR
@@ -354,7 +283,6 @@ module: MD5_LIB md5.as
 [0789] BIT_XOR
 [0790] RETURN
 [0791] JUMP [0811]
-# return (lResult ^ 0x40000000 ^ lX8 ^ lY8)
 [0796] LOAD_LOCAL 6
 [0798] PUSH_I32 1073741824
 [0803] BIT_XOR
@@ -364,7 +292,6 @@ module: MD5_LIB md5.as
 [0809] BIT_XOR
 [0810] RETURN
 [0811] JUMP [0825]
-# return (lResult ^ lX8 ^ lY8)
 [0816] LOAD_LOCAL 6
 [0818] LOAD_LOCAL 4
 [0820] BIT_XOR
@@ -372,13 +299,6 @@ module: MD5_LIB md5.as
 [0823] BIT_XOR
 [0824] RETURN
 [0825] RETURN_NULL
-# end_func AddUnsigned
-
-
-
-
-# begin_func F
-# Captured variables:
 [0826] ALLOC_LOCALS [3]
 [0831] LOAD_ARG 0
 [0833] STORE_LOCAL 0
@@ -386,7 +306,6 @@ module: MD5_LIB md5.as
 [0837] STORE_LOCAL 1
 [0839] LOAD_ARG 2
 [0841] STORE_LOCAL 2
-# return (x & y) | ((~x) & z)
 [0843] LOAD_LOCAL 0
 [0845] LOAD_LOCAL 1
 [0847] BIT_AND
@@ -397,13 +316,6 @@ module: MD5_LIB md5.as
 [0854] BIT_OR
 [0855] RETURN
 [0856] RETURN_NULL
-# end_func F
-
-
-
-
-# begin_func G
-# Captured variables:
 [0857] ALLOC_LOCALS [3]
 [0862] LOAD_ARG 0
 [0864] STORE_LOCAL 0
@@ -411,7 +323,6 @@ module: MD5_LIB md5.as
 [0868] STORE_LOCAL 1
 [0870] LOAD_ARG 2
 [0872] STORE_LOCAL 2
-# return (x & z) | (y & (~z))
 [0874] LOAD_LOCAL 0
 [0876] LOAD_LOCAL 2
 [0878] BIT_AND
@@ -422,13 +333,6 @@ module: MD5_LIB md5.as
 [0885] BIT_OR
 [0886] RETURN
 [0887] RETURN_NULL
-# end_func G
-
-
-
-
-# begin_func H
-# Captured variables:
 [0888] ALLOC_LOCALS [3]
 [0893] LOAD_ARG 0
 [0895] STORE_LOCAL 0
@@ -436,7 +340,6 @@ module: MD5_LIB md5.as
 [0899] STORE_LOCAL 1
 [0901] LOAD_ARG 2
 [0903] STORE_LOCAL 2
-# return (x ^ y ^ z)
 [0905] LOAD_LOCAL 0
 [0907] LOAD_LOCAL 1
 [0909] BIT_XOR
@@ -444,13 +347,6 @@ module: MD5_LIB md5.as
 [0912] BIT_XOR
 [0913] RETURN
 [0914] RETURN_NULL
-# end_func H
-
-
-
-
-# begin_func I
-# Captured variables:
 [0915] ALLOC_LOCALS [3]
 [0920] LOAD_ARG 0
 [0922] STORE_LOCAL 0
@@ -458,7 +354,6 @@ module: MD5_LIB md5.as
 [0926] STORE_LOCAL 1
 [0928] LOAD_ARG 2
 [0930] STORE_LOCAL 2
-# return (y ^ (x | (~z)))
 [0932] LOAD_LOCAL 1
 [0934] LOAD_LOCAL 0
 [0936] LOAD_LOCAL 2
@@ -467,13 +362,6 @@ module: MD5_LIB md5.as
 [0940] BIT_XOR
 [0941] RETURN
 [0942] RETURN_NULL
-# end_func I
-
-
-
-
-# begin_func FF
-# Captured variables:
 [0943] ALLOC_LOCALS [7]
 [0948] LOAD_ARG 0
 [0950] STORE_LOCAL 0
@@ -489,7 +377,6 @@ module: MD5_LIB md5.as
 [0970] STORE_LOCAL 5
 [0972] LOAD_ARG 6
 [0974] STORE_LOCAL 6
-# a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac))
 [0976] LOAD_LOCAL 0
 [0978] LOAD_LOCAL 1
 [0980] LOAD_LOCAL 2
@@ -505,7 +392,6 @@ module: MD5_LIB md5.as
 [1009] GET_THIS_PROPERTY str(AddUnsigned)
 [1014] CALL 2
 [1016] STORE_LOCAL 0
-# return AddUnsigned(RotateLeft(a, s), b)
 [1018] LOAD_LOCAL 0
 [1020] LOAD_LOCAL 5
 [1022] GET_THIS_PROPERTY str(RotateLeft)
@@ -515,13 +401,6 @@ module: MD5_LIB md5.as
 [1036] CALL 2
 [1038] RETURN
 [1039] RETURN_NULL
-# end_func FF
-
-
-
-
-# begin_func GG
-# Captured variables:
 [1040] ALLOC_LOCALS [7]
 [1045] LOAD_ARG 0
 [1047] STORE_LOCAL 0
@@ -537,7 +416,6 @@ module: MD5_LIB md5.as
 [1067] STORE_LOCAL 5
 [1069] LOAD_ARG 6
 [1071] STORE_LOCAL 6
-# a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac))
 [1073] LOAD_LOCAL 0
 [1075] LOAD_LOCAL 1
 [1077] LOAD_LOCAL 2
@@ -553,7 +431,6 @@ module: MD5_LIB md5.as
 [1106] GET_THIS_PROPERTY str(AddUnsigned)
 [1111] CALL 2
 [1113] STORE_LOCAL 0
-# return AddUnsigned(RotateLeft(a, s), b)
 [1115] LOAD_LOCAL 0
 [1117] LOAD_LOCAL 5
 [1119] GET_THIS_PROPERTY str(RotateLeft)
@@ -563,13 +440,6 @@ module: MD5_LIB md5.as
 [1133] CALL 2
 [1135] RETURN
 [1136] RETURN_NULL
-# end_func GG
-
-
-
-
-# begin_func HH
-# Captured variables:
 [1137] ALLOC_LOCALS [7]
 [1142] LOAD_ARG 0
 [1144] STORE_LOCAL 0
@@ -585,7 +455,6 @@ module: MD5_LIB md5.as
 [1164] STORE_LOCAL 5
 [1166] LOAD_ARG 6
 [1168] STORE_LOCAL 6
-# a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac))
 [1170] LOAD_LOCAL 0
 [1172] LOAD_LOCAL 1
 [1174] LOAD_LOCAL 2
@@ -601,7 +470,6 @@ module: MD5_LIB md5.as
 [1203] GET_THIS_PROPERTY str(AddUnsigned)
 [1208] CALL 2
 [1210] STORE_LOCAL 0
-# return AddUnsigned(RotateLeft(a, s), b)
 [1212] LOAD_LOCAL 0
 [1214] LOAD_LOCAL 5
 [1216] GET_THIS_PROPERTY str(RotateLeft)
@@ -611,13 +479,6 @@ module: MD5_LIB md5.as
 [1230] CALL 2
 [1232] RETURN
 [1233] RETURN_NULL
-# end_func HH
-
-
-
-
-# begin_func II
-# Captured variables:
 [1234] ALLOC_LOCALS [7]
 [1239] LOAD_ARG 0
 [1241] STORE_LOCAL 0
@@ -633,7 +494,6 @@ module: MD5_LIB md5.as
 [1261] STORE_LOCAL 5
 [1263] LOAD_ARG 6
 [1265] STORE_LOCAL 6
-# a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac))
 [1267] LOAD_LOCAL 0
 [1269] LOAD_LOCAL 1
 [1271] LOAD_LOCAL 2
@@ -649,7 +509,6 @@ module: MD5_LIB md5.as
 [1300] GET_THIS_PROPERTY str(AddUnsigned)
 [1305] CALL 2
 [1307] STORE_LOCAL 0
-# return AddUnsigned(RotateLeft(a, s), b)
 [1309] LOAD_LOCAL 0
 [1311] LOAD_LOCAL 5
 [1313] GET_THIS_PROPERTY str(RotateLeft)
@@ -659,29 +518,18 @@ module: MD5_LIB md5.as
 [1327] CALL 2
 [1329] RETURN
 [1330] RETURN_NULL
-# end_func II
-
-
-
-
-# begin_func ConvertToWordArray
-# Captured variables:
 [1331] ALLOC_LOCALS [9]
 [1336] LOAD_ARG 0
 [1338] STORE_LOCAL 0
-# var lWordCount =
 [1340] PUSH_NULL
 [1341] STORE_LOCAL 1
-# var lMessageLength = str.length
 [1343] LOAD_LOCAL 0
 [1345] GET_PROPERTY str(length)
 [1350] STORE_LOCAL 2
-# var lNumberOfWords_temp1 = lMessageLength + 8
 [1352] LOAD_LOCAL 2
 [1354] PUSH_8
 [1355] ADD
 [1356] STORE_LOCAL 3
-# var lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (lNumberOfWords_temp1 % 64)) / 64
 [1358] LOAD_LOCAL 3
 [1360] LOAD_LOCAL 3
 [1362] PUSH_I8 64
@@ -690,31 +538,26 @@ module: MD5_LIB md5.as
 [1366] PUSH_I8 64
 [1368] DIVIDE
 [1369] STORE_LOCAL 4
-# var lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16
 [1371] LOAD_LOCAL 4
 [1373] PUSH_1
 [1374] ADD
 [1375] PUSH_I8 16
 [1377] MULTIPLY
 [1378] STORE_LOCAL 5
-# var lWordArray = Array(lNumberOfWords - 1)
 [1380] LOAD_LOCAL 5
 [1382] PUSH_1
 [1383] SUBTRACT
 [1384] GET_GLOBAL_PROPERTY str(Array)
 [1389] CALL 1
 [1391] STORE_LOCAL 6
-# var lBytePosition = 0
 [1393] PUSH_0
 [1394] STORE_LOCAL 7
-# var lByteCount = 0
 [1396] PUSH_0
 [1397] STORE_LOCAL 8
 [1399] LOAD_LOCAL 8
 [1401] LOAD_LOCAL 2
 [1403] LESS_THAN
 [1404] JUMP_IF_FALSE [1461]
-# lWordCount = (lByteCount - (lByteCount % 4)) / 4
 [1409] LOAD_LOCAL 8
 [1411] LOAD_LOCAL 8
 [1413] PUSH_4
@@ -723,14 +566,12 @@ module: MD5_LIB md5.as
 [1416] PUSH_4
 [1417] DIVIDE
 [1418] STORE_LOCAL 1
-# lBytePosition = (lByteCount % 4) * 8
 [1420] LOAD_LOCAL 8
 [1422] PUSH_4
 [1423] MOD
 [1424] PUSH_8
 [1425] MULTIPLY
 [1426] STORE_LOCAL 7
-# lWordArray[lWordCount] = (lWordArray[lWordCount] | (str.charCodeAt(lByteCount) << lBytePosition))
 [1428] LOAD_LOCAL 6
 [1430] LOAD_LOCAL 1
 [1432] GET_ELEMENT
@@ -744,11 +585,9 @@ module: MD5_LIB md5.as
 [1448] LOAD_LOCAL 1
 [1450] LOAD_LOCAL 6
 [1452] SET_ELEMENT
-# lByteCount++
 [1453] INC_LOCAL_POST 8
 [1455] POP
 [1456] JUMP [1399]
-# lWordCount = (lByteCount - (lByteCount % 4)) / 4
 [1461] LOAD_LOCAL 8
 [1463] LOAD_LOCAL 8
 [1465] PUSH_4
@@ -757,14 +596,12 @@ module: MD5_LIB md5.as
 [1468] PUSH_4
 [1469] DIVIDE
 [1470] STORE_LOCAL 1
-# lBytePosition = (lByteCount % 4) * 8
 [1472] LOAD_LOCAL 8
 [1474] PUSH_4
 [1475] MOD
 [1476] PUSH_8
 [1477] MULTIPLY
 [1478] STORE_LOCAL 7
-# lWordArray[lWordCount] = lWordArray[lWordCount] | (0x80 << lBytePosition)
 [1480] LOAD_LOCAL 6
 [1482] LOAD_LOCAL 1
 [1484] GET_ELEMENT
@@ -775,7 +612,6 @@ module: MD5_LIB md5.as
 [1492] LOAD_LOCAL 1
 [1494] LOAD_LOCAL 6
 [1496] SET_ELEMENT
-# lWordArray[lNumberOfWords - 2] = lMessageLength << 3
 [1497] LOAD_LOCAL 2
 [1499] PUSH_3
 [1500] BIT_SHIFT_L
@@ -784,7 +620,6 @@ module: MD5_LIB md5.as
 [1504] SUBTRACT
 [1505] LOAD_LOCAL 6
 [1507] SET_ELEMENT
-# lWordArray[lNumberOfWords - 1] = lMessageLength >> 29
 [1508] LOAD_LOCAL 2
 [1510] PUSH_I8 29
 [1512] BIT_SHIFT_R
@@ -793,43 +628,26 @@ module: MD5_LIB md5.as
 [1516] SUBTRACT
 [1517] LOAD_LOCAL 6
 [1519] SET_ELEMENT
-# return lWordArray
 [1520] LOAD_LOCAL 6
 [1522] RETURN
 [1523] RETURN_NULL
-# end_func ConvertToWordArray
-
-
-
-
-# begin_func WordToHex
-# Captured variables:
 [1524] ALLOC_LOCALS [5]
 [1529] LOAD_ARG 0
 [1531] STORE_LOCAL 0
-# var WordToHexValue = ''
 [1533] PUSH_STRING str()
 [1538] STORE_LOCAL 1
-# var WordToHexValue_temp = ''
 [1540] PUSH_STRING str()
 [1545] STORE_LOCAL 2
-# var lByte =
 [1547] PUSH_NULL
 [1548] STORE_LOCAL 3
-# var lCount =
 [1550] PUSH_NULL
 [1551] STORE_LOCAL 4
-# for
-# lCount = 0
 [1553] PUSH_0
 [1554] STORE_LOCAL 4
-# condition lCount <= 3
 [1556] LOAD_LOCAL 4
 [1558] PUSH_3
 [1559] LESS_EQUAL
 [1560] JUMP_IF_FALSE [1629]
-# body
-# lByte = (lValue >> (lCount * 8)) & 255
 [1565] LOAD_LOCAL 0
 [1567] LOAD_LOCAL 4
 [1569] PUSH_8
@@ -838,7 +656,6 @@ module: MD5_LIB md5.as
 [1572] PUSH_I16 255
 [1575] BIT_AND
 [1576] STORE_LOCAL 3
-# WordToHexValue_temp = '0' + lByte.toString(16)
 [1578] PUSH_STRING str(0)
 [1583] PUSH_I8 16
 [1585] LOAD_LOCAL 3
@@ -846,7 +663,6 @@ module: MD5_LIB md5.as
 [1592] CALL 1
 [1594] ADD
 [1595] STORE_LOCAL 2
-# WordToHexValue = WordToHexValue + WordToHexValue_temp.substring(WordToHexValue_temp.length - 2, 2)
 [1597] LOAD_LOCAL 1
 [1599] LOAD_LOCAL 2
 [1601] GET_PROPERTY str(length)
@@ -858,25 +674,15 @@ module: MD5_LIB md5.as
 [1616] CALL 2
 [1618] ADD
 [1619] STORE_LOCAL 1
-# inc lCount++
 [1621] INC_LOCAL_POST 4
 [1623] POP
 [1624] JUMP [1556]
-# return WordToHexValue
 [1629] LOAD_LOCAL 1
 [1631] RETURN
 [1632] RETURN_NULL
-# end_func WordToHex
-
-
-
-
-# begin_func Utf8Encode
-# Captured variables:
 [1633] ALLOC_LOCALS [4]
 [1638] LOAD_ARG 0
 [1640] STORE_LOCAL 0
-# string = string.replace('/\r\n/g', '\n')
 [1642] PUSH_STRING str(/
 /g)
 [1647] PUSH_STRING str(
@@ -885,21 +691,15 @@ module: MD5_LIB md5.as
 [1654] GET_PROPERTY str(replace)
 [1659] CALL 2
 [1661] STORE_LOCAL 0
-# var utfText = ''
 [1663] PUSH_STRING str()
 [1668] STORE_LOCAL 1
-# for
-# var n = 0
 [1670] PUSH_0
 [1671] STORE_LOCAL 2
-# condition n < string.length
 [1673] LOAD_LOCAL 2
 [1675] LOAD_LOCAL 0
 [1677] GET_PROPERTY str(length)
 [1682] LESS_THAN
 [1683] JUMP_IF_FALSE [1879]
-# body
-# var c = string.charCodeAt(n)
 [1688] LOAD_LOCAL 2
 [1690] LOAD_LOCAL 0
 [1692] GET_PROPERTY str(charCodeAt)
@@ -971,118 +771,78 @@ module: MD5_LIB md5.as
 [1862] GET_PROPERTY str(fromCharCode)
 [1867] CALL 1
 [1869] ADD_LOCAL_STACK 1
-# inc n++
 [1871] INC_LOCAL_POST 2
 [1873] POP
 [1874] JUMP [1673]
-# return utfText
 [1879] LOAD_LOCAL 1
 [1881] RETURN
 [1882] RETURN_NULL
-# end_func Utf8Encode
-
-
-
-
-# begin_func MD5
-# Captured variables:
 [1883] ALLOC_LOCALS [28]
 [1888] LOAD_ARG 0
 [1890] STORE_LOCAL 0
-# var a = 0x67452301
 [1892] PUSH_I32 1732584193
 [1897] STORE_LOCAL 1
-# var b = 0xEFCDAB89
 [1899] PUSH_I64 4023233417
 [1908] STORE_LOCAL 2
-# var c = 0x98BADCFE
 [1910] PUSH_I64 2562383102
 [1919] STORE_LOCAL 3
-# var d = 0x10325476
 [1921] PUSH_I32 271733878
 [1926] STORE_LOCAL 4
-# var S11 = 7
 [1928] PUSH_7
 [1929] STORE_LOCAL 5
-# var S12 = 12
 [1931] PUSH_I8 12
 [1933] STORE_LOCAL 6
-# var S13 = 17
 [1935] PUSH_I8 17
 [1937] STORE_LOCAL 7
-# var S14 = 22
 [1939] PUSH_I8 22
 [1941] STORE_LOCAL 8
-# var S21 = 5
 [1943] PUSH_5
 [1944] STORE_LOCAL 9
-# var S22 = 9
 [1946] PUSH_9
 [1947] STORE_LOCAL 10
-# var S23 = 14
 [1949] PUSH_I8 14
 [1951] STORE_LOCAL 11
-# var S24 = 20
 [1953] PUSH_I8 20
 [1955] STORE_LOCAL 12
-# var S31 = 4
 [1957] PUSH_4
 [1958] STORE_LOCAL 13
-# var S32 = 11
 [1960] PUSH_I8 11
 [1962] STORE_LOCAL 14
-# var S33 = 16
 [1964] PUSH_I8 16
 [1966] STORE_LOCAL 15
-# var S34 = 23
 [1968] PUSH_I8 23
 [1970] STORE_LOCAL 16
-# var S41 = 6
 [1972] PUSH_6
 [1973] STORE_LOCAL 17
-# var S42 = 10
 [1975] PUSH_I8 10
 [1977] STORE_LOCAL 18
-# var S43 = 15
 [1979] PUSH_I8 15
 [1981] STORE_LOCAL 19
-# var S44 = 21
 [1983] PUSH_I8 21
 [1985] STORE_LOCAL 20
-# string = Utf8Encode(string)
 [1987] LOAD_LOCAL 0
 [1989] GET_THIS_PROPERTY str(Utf8Encode)
 [1994] CALL 1
 [1996] STORE_LOCAL 0
-# var x = ConvertToWordArray(string)
 [1998] LOAD_LOCAL 0
 [2000] GET_THIS_PROPERTY str(ConvertToWordArray)
 [2005] CALL 1
 [2007] STORE_LOCAL 21
-# for
-# var k = 0
 [2009] PUSH_0
 [2010] STORE_LOCAL 23
-# condition k < x.length
 [2012] LOAD_LOCAL 23
 [2014] LOAD_LOCAL 21
 [2016] GET_PROPERTY str(length)
 [2021] LESS_THAN
 [2022] JUMP_IF_FALSE [4288]
-# body
-# var AA = a
 [2027] LOAD_LOCAL 1
 [2029] STORE_LOCAL 24
-# var BB = b
 [2031] LOAD_LOCAL 2
 [2033] STORE_LOCAL 25
-# var CC = c
 [2035] LOAD_LOCAL 3
 [2037] STORE_LOCAL 26
-# var DD = d
 [2039] LOAD_LOCAL 4
 [2041] STORE_LOCAL 27
-# a = FF(a, b, c, d, x[k + 0], S11, 0xD76AA478)
 [2043] LOAD_LOCAL 1
 [2045] LOAD_LOCAL 2
 [2047] LOAD_LOCAL 3
@@ -1097,7 +857,6 @@ module: MD5_LIB md5.as
 [2069] GET_THIS_PROPERTY str(FF)
 [2074] CALL 7
 [2076] STORE_LOCAL 1
-# d = FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756)
 [2078] LOAD_LOCAL 4
 [2080] LOAD_LOCAL 1
 [2082] LOAD_LOCAL 2
@@ -1112,7 +871,6 @@ module: MD5_LIB md5.as
 [2104] GET_THIS_PROPERTY str(FF)
 [2109] CALL 7
 [2111] STORE_LOCAL 4
-# c = FF(c, d, a, b, x[k + 2], S13, 0x242070DB)
 [2113] LOAD_LOCAL 3
 [2115] LOAD_LOCAL 4
 [2117] LOAD_LOCAL 1
@@ -1127,7 +885,6 @@ module: MD5_LIB md5.as
 [2135] GET_THIS_PROPERTY str(FF)
 [2140] CALL 7
 [2142] STORE_LOCAL 3
-# b = FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE)
 [2144] LOAD_LOCAL 2
 [2146] LOAD_LOCAL 3
 [2148] LOAD_LOCAL 4
@@ -1142,7 +899,6 @@ module: MD5_LIB md5.as
 [2170] GET_THIS_PROPERTY str(FF)
 [2175] CALL 7
 [2177] STORE_LOCAL 2
-# a = FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF)
 [2179] LOAD_LOCAL 1
 [2181] LOAD_LOCAL 2
 [2183] LOAD_LOCAL 3
@@ -1157,7 +913,6 @@ module: MD5_LIB md5.as
 [2205] GET_THIS_PROPERTY str(FF)
 [2210] CALL 7
 [2212] STORE_LOCAL 1
-# d = FF(d, a, b, c, x[k + 5], S12, 0x4787C62A)
 [2214] LOAD_LOCAL 4
 [2216] LOAD_LOCAL 1
 [2218] LOAD_LOCAL 2
@@ -1172,7 +927,6 @@ module: MD5_LIB md5.as
 [2236] GET_THIS_PROPERTY str(FF)
 [2241] CALL 7
 [2243] STORE_LOCAL 4
-# c = FF(c, d, a, b, x[k + 6], S13, 0xA8304613)
 [2245] LOAD_LOCAL 3
 [2247] LOAD_LOCAL 4
 [2249] LOAD_LOCAL 1
@@ -1187,7 +941,6 @@ module: MD5_LIB md5.as
 [2271] GET_THIS_PROPERTY str(FF)
 [2276] CALL 7
 [2278] STORE_LOCAL 3
-# b = FF(b, c, d, a, x[k + 7], S14, 0xFD469501)
 [2280] LOAD_LOCAL 2
 [2282] LOAD_LOCAL 3
 [2284] LOAD_LOCAL 4
@@ -1202,7 +955,6 @@ module: MD5_LIB md5.as
 [2306] GET_THIS_PROPERTY str(FF)
 [2311] CALL 7
 [2313] STORE_LOCAL 2
-# a = FF(a, b, c, d, x[k + 8], S11, 0x698098D8)
 [2315] LOAD_LOCAL 1
 [2317] LOAD_LOCAL 2
 [2319] LOAD_LOCAL 3
@@ -1217,7 +969,6 @@ module: MD5_LIB md5.as
 [2337] GET_THIS_PROPERTY str(FF)
 [2342] CALL 7
 [2344] STORE_LOCAL 1
-# d = FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF)
 [2346] LOAD_LOCAL 4
 [2348] LOAD_LOCAL 1
 [2350] LOAD_LOCAL 2
@@ -1232,7 +983,6 @@ module: MD5_LIB md5.as
 [2372] GET_THIS_PROPERTY str(FF)
 [2377] CALL 7
 [2379] STORE_LOCAL 4
-# c = FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1)
 [2381] LOAD_LOCAL 3
 [2383] LOAD_LOCAL 4
 [2385] LOAD_LOCAL 1
@@ -1247,7 +997,6 @@ module: MD5_LIB md5.as
 [2408] GET_THIS_PROPERTY str(FF)
 [2413] CALL 7
 [2415] STORE_LOCAL 3
-# b = FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE)
 [2417] LOAD_LOCAL 2
 [2419] LOAD_LOCAL 3
 [2421] LOAD_LOCAL 4
@@ -1262,7 +1011,6 @@ module: MD5_LIB md5.as
 [2444] GET_THIS_PROPERTY str(FF)
 [2449] CALL 7
 [2451] STORE_LOCAL 2
-# a = FF(a, b, c, d, x[k + 12], S11, 0x6B901122)
 [2453] LOAD_LOCAL 1
 [2455] LOAD_LOCAL 2
 [2457] LOAD_LOCAL 3
@@ -1277,7 +1025,6 @@ module: MD5_LIB md5.as
 [2476] GET_THIS_PROPERTY str(FF)
 [2481] CALL 7
 [2483] STORE_LOCAL 1
-# d = FF(d, a, b, c, x[k + 13], S12, 0xFD987193)
 [2485] LOAD_LOCAL 4
 [2487] LOAD_LOCAL 1
 [2489] LOAD_LOCAL 2
@@ -1292,7 +1039,6 @@ module: MD5_LIB md5.as
 [2512] GET_THIS_PROPERTY str(FF)
 [2517] CALL 7
 [2519] STORE_LOCAL 4
-# c = FF(c, d, a, b, x[k + 14], S13, 0xA679438E)
 [2521] LOAD_LOCAL 3
 [2523] LOAD_LOCAL 4
 [2525] LOAD_LOCAL 1
@@ -1307,7 +1053,6 @@ module: MD5_LIB md5.as
 [2548] GET_THIS_PROPERTY str(FF)
 [2553] CALL 7
 [2555] STORE_LOCAL 3
-# b = FF(b, c, d, a, x[k + 15], S14, 0x49B40821)
 [2557] LOAD_LOCAL 2
 [2559] LOAD_LOCAL 3
 [2561] LOAD_LOCAL 4
@@ -1322,7 +1067,6 @@ module: MD5_LIB md5.as
 [2580] GET_THIS_PROPERTY str(FF)
 [2585] CALL 7
 [2587] STORE_LOCAL 2
-# a = GG(a, b, c, d, x[k + 1], S21, 0xF61E2562)
 [2589] LOAD_LOCAL 1
 [2591] LOAD_LOCAL 2
 [2593] LOAD_LOCAL 3
@@ -1337,7 +1081,6 @@ module: MD5_LIB md5.as
 [2615] GET_THIS_PROPERTY str(GG)
 [2620] CALL 7
 [2622] STORE_LOCAL 1
-# d = GG(d, a, b, c, x[k + 6], S22, 0xC040B340)
 [2624] LOAD_LOCAL 4
 [2626] LOAD_LOCAL 1
 [2628] LOAD_LOCAL 2
@@ -1352,7 +1095,6 @@ module: MD5_LIB md5.as
 [2650] GET_THIS_PROPERTY str(GG)
 [2655] CALL 7
 [2657] STORE_LOCAL 4
-# c = GG(c, d, a, b, x[k + 11], S23, 0x265E5A51)
 [2659] LOAD_LOCAL 3
 [2661] LOAD_LOCAL 4
 [2663] LOAD_LOCAL 1
@@ -1367,7 +1109,6 @@ module: MD5_LIB md5.as
 [2682] GET_THIS_PROPERTY str(GG)
 [2687] CALL 7
 [2689] STORE_LOCAL 3
-# b = GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA)
 [2691] LOAD_LOCAL 2
 [2693] LOAD_LOCAL 3
 [2695] LOAD_LOCAL 4
@@ -1382,7 +1123,6 @@ module: MD5_LIB md5.as
 [2717] GET_THIS_PROPERTY str(GG)
 [2722] CALL 7
 [2724] STORE_LOCAL 2
-# a = GG(a, b, c, d, x[k + 5], S21, 0xD62F105D)
 [2726] LOAD_LOCAL 1
 [2728] LOAD_LOCAL 2
 [2730] LOAD_LOCAL 3
@@ -1397,7 +1137,6 @@ module: MD5_LIB md5.as
 [2752] GET_THIS_PROPERTY str(GG)
 [2757] CALL 7
 [2759] STORE_LOCAL 1
-# d = GG(d, a, b, c, x[k + 10], S22, 0x2441453)
 [2761] LOAD_LOCAL 4
 [2763] LOAD_LOCAL 1
 [2765] LOAD_LOCAL 2
@@ -1412,7 +1151,6 @@ module: MD5_LIB md5.as
 [2784] GET_THIS_PROPERTY str(GG)
 [2789] CALL 7
 [2791] STORE_LOCAL 4
-# c = GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681)
 [2793] LOAD_LOCAL 3
 [2795] LOAD_LOCAL 4
 [2797] LOAD_LOCAL 1
@@ -1427,7 +1165,6 @@ module: MD5_LIB md5.as
 [2820] GET_THIS_PROPERTY str(GG)
 [2825] CALL 7
 [2827] STORE_LOCAL 3
-# b = GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8)
 [2829] LOAD_LOCAL 2
 [2831] LOAD_LOCAL 3
 [2833] LOAD_LOCAL 4
@@ -1442,7 +1179,6 @@ module: MD5_LIB md5.as
 [2855] GET_THIS_PROPERTY str(GG)
 [2860] CALL 7
 [2862] STORE_LOCAL 2
-# a = GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6)
 [2864] LOAD_LOCAL 1
 [2866] LOAD_LOCAL 2
 [2868] LOAD_LOCAL 3
@@ -1457,7 +1193,6 @@ module: MD5_LIB md5.as
 [2886] GET_THIS_PROPERTY str(GG)
 [2891] CALL 7
 [2893] STORE_LOCAL 1
-# d = GG(d, a, b, c, x[k + 14], S22, 0xC33707D6)
 [2895] LOAD_LOCAL 4
 [2897] LOAD_LOCAL 1
 [2899] LOAD_LOCAL 2
@@ -1472,7 +1207,6 @@ module: MD5_LIB md5.as
 [2922] GET_THIS_PROPERTY str(GG)
 [2927] CALL 7
 [2929] STORE_LOCAL 4
-# c = GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87)
 [2931] LOAD_LOCAL 3
 [2933] LOAD_LOCAL 4
 [2935] LOAD_LOCAL 1
@@ -1487,7 +1221,6 @@ module: MD5_LIB md5.as
 [2957] GET_THIS_PROPERTY str(GG)
 [2962] CALL 7
 [2964] STORE_LOCAL 3
-# b = GG(b, c, d, a, x[k + 8], S24, 0x455A14ED)
 [2966] LOAD_LOCAL 2
 [2968] LOAD_LOCAL 3
 [2970] LOAD_LOCAL 4
@@ -1502,7 +1235,6 @@ module: MD5_LIB md5.as
 [2988] GET_THIS_PROPERTY str(GG)
 [2993] CALL 7
 [2995] STORE_LOCAL 2
-# a = GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905)
 [2997] LOAD_LOCAL 1
 [2999] LOAD_LOCAL 2
 [3001] LOAD_LOCAL 3
@@ -1517,7 +1249,6 @@ module: MD5_LIB md5.as
 [3024] GET_THIS_PROPERTY str(GG)
 [3029] CALL 7
 [3031] STORE_LOCAL 1
-# d = GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8)
 [3033] LOAD_LOCAL 4
 [3035] LOAD_LOCAL 1
 [3037] LOAD_LOCAL 2
@@ -1532,7 +1263,6 @@ module: MD5_LIB md5.as
 [3059] GET_THIS_PROPERTY str(GG)
 [3064] CALL 7
 [3066] STORE_LOCAL 4
-# c = GG(c, d, a, b, x[k + 7], S23, 0x676F02D9)
 [3068] LOAD_LOCAL 3
 [3070] LOAD_LOCAL 4
 [3072] LOAD_LOCAL 1
@@ -1547,7 +1277,6 @@ module: MD5_LIB md5.as
 [3090] GET_THIS_PROPERTY str(GG)
 [3095] CALL 7
 [3097] STORE_LOCAL 3
-# b = GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A)
 [3099] LOAD_LOCAL 2
 [3101] LOAD_LOCAL 3
 [3103] LOAD_LOCAL 4
@@ -1562,7 +1291,6 @@ module: MD5_LIB md5.as
 [3126] GET_THIS_PROPERTY str(GG)
 [3131] CALL 7
 [3133] STORE_LOCAL 2
-# a = HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942)
 [3135] LOAD_LOCAL 1
 [3137] LOAD_LOCAL 2
 [3139] LOAD_LOCAL 3
@@ -1577,7 +1305,6 @@ module: MD5_LIB md5.as
 [3161] GET_THIS_PROPERTY str(HH)
 [3166] CALL 7
 [3168] STORE_LOCAL 1
-# d = HH(d, a, b, c, x[k + 8], S32, 0x8771F681)
 [3170] LOAD_LOCAL 4
 [3172] LOAD_LOCAL 1
 [3174] LOAD_LOCAL 2
@@ -1592,7 +1319,6 @@ module: MD5_LIB md5.as
 [3196] GET_THIS_PROPERTY str(HH)
 [3201] CALL 7
 [3203] STORE_LOCAL 4
-# c = HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122)
 [3205] LOAD_LOCAL 3
 [3207] LOAD_LOCAL 4
 [3209] LOAD_LOCAL 1
@@ -1607,7 +1333,6 @@ module: MD5_LIB md5.as
 [3228] GET_THIS_PROPERTY str(HH)
 [3233] CALL 7
 [3235] STORE_LOCAL 3
-# b = HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C)
 [3237] LOAD_LOCAL 2
 [3239] LOAD_LOCAL 3
 [3241] LOAD_LOCAL 4
@@ -1622,7 +1347,6 @@ module: MD5_LIB md5.as
 [3264] GET_THIS_PROPERTY str(HH)
 [3269] CALL 7
 [3271] STORE_LOCAL 2
-# a = HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44)
 [3273] LOAD_LOCAL 1
 [3275] LOAD_LOCAL 2
 [3277] LOAD_LOCAL 3
@@ -1637,7 +1361,6 @@ module: MD5_LIB md5.as
 [3299] GET_THIS_PROPERTY str(HH)
 [3304] CALL 7
 [3306] STORE_LOCAL 1
-# d = HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9)
 [3308] LOAD_LOCAL 4
 [3310] LOAD_LOCAL 1
 [3312] LOAD_LOCAL 2
@@ -1652,7 +1375,6 @@ module: MD5_LIB md5.as
 [3330] GET_THIS_PROPERTY str(HH)
 [3335] CALL 7
 [3337] STORE_LOCAL 4
-# c = HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60)
 [3339] LOAD_LOCAL 3
 [3341] LOAD_LOCAL 4
 [3343] LOAD_LOCAL 1
@@ -1667,7 +1389,6 @@ module: MD5_LIB md5.as
 [3365] GET_THIS_PROPERTY str(HH)
 [3370] CALL 7
 [3372] STORE_LOCAL 3
-# b = HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70)
 [3374] LOAD_LOCAL 2
 [3376] LOAD_LOCAL 3
 [3378] LOAD_LOCAL 4
@@ -1682,7 +1403,6 @@ module: MD5_LIB md5.as
 [3401] GET_THIS_PROPERTY str(HH)
 [3406] CALL 7
 [3408] STORE_LOCAL 2
-# a = HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6)
 [3410] LOAD_LOCAL 1
 [3412] LOAD_LOCAL 2
 [3414] LOAD_LOCAL 3
@@ -1697,7 +1417,6 @@ module: MD5_LIB md5.as
 [3433] GET_THIS_PROPERTY str(HH)
 [3438] CALL 7
 [3440] STORE_LOCAL 1
-# d = HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA)
 [3442] LOAD_LOCAL 4
 [3444] LOAD_LOCAL 1
 [3446] LOAD_LOCAL 2
@@ -1712,7 +1431,6 @@ module: MD5_LIB md5.as
 [3468] GET_THIS_PROPERTY str(HH)
 [3473] CALL 7
 [3475] STORE_LOCAL 4
-# c = HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085)
 [3477] LOAD_LOCAL 3
 [3479] LOAD_LOCAL 4
 [3481] LOAD_LOCAL 1
@@ -1727,7 +1445,6 @@ module: MD5_LIB md5.as
 [3503] GET_THIS_PROPERTY str(HH)
 [3508] CALL 7
 [3510] STORE_LOCAL 3
-# b = HH(b, c, d, a, x[k + 6], S34, 0x4881D05)
 [3512] LOAD_LOCAL 2
 [3514] LOAD_LOCAL 3
 [3516] LOAD_LOCAL 4
@@ -1742,7 +1459,6 @@ module: MD5_LIB md5.as
 [3534] GET_THIS_PROPERTY str(HH)
 [3539] CALL 7
 [3541] STORE_LOCAL 2
-# a = HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039)
 [3543] LOAD_LOCAL 1
 [3545] LOAD_LOCAL 2
 [3547] LOAD_LOCAL 3
@@ -1757,7 +1473,6 @@ module: MD5_LIB md5.as
 [3569] GET_THIS_PROPERTY str(HH)
 [3574] CALL 7
 [3576] STORE_LOCAL 1
-# d = HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5)
 [3578] LOAD_LOCAL 4
 [3580] LOAD_LOCAL 1
 [3582] LOAD_LOCAL 2
@@ -1772,7 +1487,6 @@ module: MD5_LIB md5.as
 [3605] GET_THIS_PROPERTY str(HH)
 [3610] CALL 7
 [3612] STORE_LOCAL 4
-# c = HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8)
 [3614] LOAD_LOCAL 3
 [3616] LOAD_LOCAL 4
 [3618] LOAD_LOCAL 1
@@ -1787,7 +1501,6 @@ module: MD5_LIB md5.as
 [3637] GET_THIS_PROPERTY str(HH)
 [3642] CALL 7
 [3644] STORE_LOCAL 3
-# b = HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665)
 [3646] LOAD_LOCAL 2
 [3648] LOAD_LOCAL 3
 [3650] LOAD_LOCAL 4
@@ -1802,7 +1515,6 @@ module: MD5_LIB md5.as
 [3672] GET_THIS_PROPERTY str(HH)
 [3677] CALL 7
 [3679] STORE_LOCAL 2
-# a = II(a, b, c, d, x[k + 0], S41, 0xF4292244)
 [3681] LOAD_LOCAL 1
 [3683] LOAD_LOCAL 2
 [3685] LOAD_LOCAL 3
@@ -1817,7 +1529,6 @@ module: MD5_LIB md5.as
 [3707] GET_THIS_PROPERTY str(II)
 [3712] CALL 7
 [3714] STORE_LOCAL 1
-# d = II(d, a, b, c, x[k + 7], S42, 0x432AFF97)
 [3716] LOAD_LOCAL 4
 [3718] LOAD_LOCAL 1
 [3720] LOAD_LOCAL 2
@@ -1832,7 +1543,6 @@ module: MD5_LIB md5.as
 [3738] GET_THIS_PROPERTY str(II)
 [3743] CALL 7
 [3745] STORE_LOCAL 4
-# c = II(c, d, a, b, x[k + 14], S43, 0xAB9423A7)
 [3747] LOAD_LOCAL 3
 [3749] LOAD_LOCAL 4
 [3751] LOAD_LOCAL 1
@@ -1847,7 +1557,6 @@ module: MD5_LIB md5.as
 [3774] GET_THIS_PROPERTY str(II)
 [3779] CALL 7
 [3781] STORE_LOCAL 3
-# b = II(b, c, d, a, x[k + 5], S44, 0xFC93A039)
 [3783] LOAD_LOCAL 2
 [3785] LOAD_LOCAL 3
 [3787] LOAD_LOCAL 4
@@ -1862,7 +1571,6 @@ module: MD5_LIB md5.as
 [3809] GET_THIS_PROPERTY str(II)
 [3814] CALL 7
 [3816] STORE_LOCAL 2
-# a = II(a, b, c, d, x[k + 12], S41, 0x655B59C3)
 [3818] LOAD_LOCAL 1
 [3820] LOAD_LOCAL 2
 [3822] LOAD_LOCAL 3
@@ -1877,7 +1585,6 @@ module: MD5_LIB md5.as
 [3841] GET_THIS_PROPERTY str(II)
 [3846] CALL 7
 [3848] STORE_LOCAL 1
-# d = II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92)
 [3850] LOAD_LOCAL 4
 [3852] LOAD_LOCAL 1
 [3854] LOAD_LOCAL 2
@@ -1892,7 +1599,6 @@ module: MD5_LIB md5.as
 [3876] GET_THIS_PROPERTY str(II)
 [3881] CALL 7
 [3883] STORE_LOCAL 4
-# c = II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D)
 [3885] LOAD_LOCAL 3
 [3887] LOAD_LOCAL 4
 [3889] LOAD_LOCAL 1
@@ -1907,7 +1613,6 @@ module: MD5_LIB md5.as
 [3912] GET_THIS_PROPERTY str(II)
 [3917] CALL 7
 [3919] STORE_LOCAL 3
-# b = II(b, c, d, a, x[k + 1], S44, 0x85845DD1)
 [3921] LOAD_LOCAL 2
 [3923] LOAD_LOCAL 3
 [3925] LOAD_LOCAL 4
@@ -1922,7 +1627,6 @@ module: MD5_LIB md5.as
 [3947] GET_THIS_PROPERTY str(II)
 [3952] CALL 7
 [3954] STORE_LOCAL 2
-# a = II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F)
 [3956] LOAD_LOCAL 1
 [3958] LOAD_LOCAL 2
 [3960] LOAD_LOCAL 3
@@ -1937,7 +1641,6 @@ module: MD5_LIB md5.as
 [3978] GET_THIS_PROPERTY str(II)
 [3983] CALL 7
 [3985] STORE_LOCAL 1
-# d = II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0)
 [3987] LOAD_LOCAL 4
 [3989] LOAD_LOCAL 1
 [3991] LOAD_LOCAL 2
@@ -1952,7 +1655,6 @@ module: MD5_LIB md5.as
 [4014] GET_THIS_PROPERTY str(II)
 [4019] CALL 7
 [4021] STORE_LOCAL 4
-# c = II(c, d, a, b, x[k + 6], S43, 0xA3014314)
 [4023] LOAD_LOCAL 3
 [4025] LOAD_LOCAL 4
 [4027] LOAD_LOCAL 1
@@ -1967,7 +1669,6 @@ module: MD5_LIB md5.as
 [4049] GET_THIS_PROPERTY str(II)
 [4054] CALL 7
 [4056] STORE_LOCAL 3
-# b = II(b, c, d, a, x[k + 13], S44, 0x4E0811A1)
 [4058] LOAD_LOCAL 2
 [4060] LOAD_LOCAL 3
 [4062] LOAD_LOCAL 4
@@ -1982,7 +1683,6 @@ module: MD5_LIB md5.as
 [4081] GET_THIS_PROPERTY str(II)
 [4086] CALL 7
 [4088] STORE_LOCAL 2
-# a = II(a, b, c, d, x[k + 4], S41, 0xF7537E82)
 [4090] LOAD_LOCAL 1
 [4092] LOAD_LOCAL 2
 [4094] LOAD_LOCAL 3
@@ -1997,7 +1697,6 @@ module: MD5_LIB md5.as
 [4116] GET_THIS_PROPERTY str(II)
 [4121] CALL 7
 [4123] STORE_LOCAL 1
-# d = II(d, a, b, c, x[k + 11], S42, 0xBD3AF235)
 [4125] LOAD_LOCAL 4
 [4127] LOAD_LOCAL 1
 [4129] LOAD_LOCAL 2
@@ -2012,7 +1711,6 @@ module: MD5_LIB md5.as
 [4152] GET_THIS_PROPERTY str(II)
 [4157] CALL 7
 [4159] STORE_LOCAL 4
-# c = II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB)
 [4161] LOAD_LOCAL 3
 [4163] LOAD_LOCAL 4
 [4165] LOAD_LOCAL 1
@@ -2027,7 +1725,6 @@ module: MD5_LIB md5.as
 [4183] GET_THIS_PROPERTY str(II)
 [4188] CALL 7
 [4190] STORE_LOCAL 3
-# b = II(b, c, d, a, x[k + 9], S44, 0xEB86D391)
 [4192] LOAD_LOCAL 2
 [4194] LOAD_LOCAL 3
 [4196] LOAD_LOCAL 4
@@ -2042,35 +1739,29 @@ module: MD5_LIB md5.as
 [4218] GET_THIS_PROPERTY str(II)
 [4223] CALL 7
 [4225] STORE_LOCAL 2
-# a = AddUnsigned(a, AA)
 [4227] LOAD_LOCAL 1
 [4229] LOAD_LOCAL 24
 [4231] GET_THIS_PROPERTY str(AddUnsigned)
 [4236] CALL 2
 [4238] STORE_LOCAL 1
-# b = AddUnsigned(b, BB)
 [4240] LOAD_LOCAL 2
 [4242] LOAD_LOCAL 25
 [4244] GET_THIS_PROPERTY str(AddUnsigned)
 [4249] CALL 2
 [4251] STORE_LOCAL 2
-# c = AddUnsigned(c, CC)
 [4253] LOAD_LOCAL 3
 [4255] LOAD_LOCAL 26
 [4257] GET_THIS_PROPERTY str(AddUnsigned)
 [4262] CALL 2
 [4264] STORE_LOCAL 3
-# d = AddUnsigned(d, DD)
 [4266] LOAD_LOCAL 4
 [4268] LOAD_LOCAL 27
 [4270] GET_THIS_PROPERTY str(AddUnsigned)
 [4275] CALL 2
 [4277] STORE_LOCAL 4
-# inc AuroraScript.Compiler.Ast.Expressions.CompoundExpression
 [4279] PUSH_I8 16
 [4281] ADD_LOCAL_STACK 23
 [4283] JUMP [2012]
-# var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d)
 [4288] LOAD_LOCAL 1
 [4290] GET_THIS_PROPERTY str(WordToHex)
 [4295] CALL 1
@@ -2087,23 +1778,17 @@ module: MD5_LIB md5.as
 [4324] CALL 1
 [4326] ADD
 [4327] STORE_LOCAL 22
-# return temp.toLowerCase()
 [4329] LOAD_LOCAL 22
 [4331] GET_PROPERTY str(toLowerCase)
 [4336] CALL 0
 [4338] RETURN
 [4339] RETURN_NULL
-# end_func MD5
-module: TIMER_LIB timer.as
-# Module Import
-# Variable Define
 [4340] PUSH_NULL
 [4341] SET_THIS_PROPERTY str(timeCount)
 [4346] PUSH_NULL
 [4347] SET_THIS_PROPERTY str(resetCount)
 [4352] PUSH_NULL
 [4353] SET_THIS_PROPERTY str(timers)
-# Code Block
 [4358] PUSH_THIS
 [4359] CREATE_CLOSURE [4448] (0)
 [4365] SET_THIS_PROPERTY str(time_proc)
@@ -2119,13 +1804,10 @@ module: TIMER_LIB timer.as
 [4406] PUSH_THIS
 [4407] CREATE_CLOSURE [5061] (0)
 [4413] SET_THIS_PROPERTY str(Close)
-# var timeCount = 0
 [4418] PUSH_0
 [4419] SET_THIS_PROPERTY str(timeCount)
-# export var resetCount = 0
 [4424] PUSH_0
 [4425] SET_THIS_PROPERTY str(resetCount)
-# export var timers = [0, 1, 2, 3, 4, 5]
 [4430] PUSH_0
 [4431] PUSH_1
 [4432] PUSH_2
@@ -2136,12 +1818,6 @@ module: TIMER_LIB timer.as
 [4441] SET_THIS_PROPERTY str(timers)
 [4446] PUSH_TRUE
 [4447] RETURN
-
-
-
-
-# begin_func time_proc
-# Captured variables:
 [4448] ALLOC_LOCALS [5]
 [4453] LOAD_ARG 0
 [4455] STORE_LOCAL 0
@@ -2149,30 +1825,23 @@ module: TIMER_LIB timer.as
 [4459] STORE_LOCAL 1
 [4461] LOAD_ARG 2
 [4463] STORE_LOCAL 2
-# for in
-# var item =
 [4465] PUSH_NULL
 [4466] STORE_LOCAL 3
-# condition item in timers
 [4468] GET_THIS_PROPERTY str(timers)
 [4473] GET_ITERATOR
 [4474] STORE_LOCAL 4
 [4476] LOAD_LOCAL 4
 [4478] ITERATOR_HAS_VALUE
 [4479] JUMP_IF_FALSE [4508]
-# IteratorValue
 [4484] LOAD_LOCAL 4
 [4486] ITERATOR_VALUE
 [4487] STORE_LOCAL 3
-# body
-# timeCount++
 [4489] GET_THIS_PROPERTY str(timeCount)
 [4494] INCREMENT
 [4495] SET_THIS_PROPERTY str(timeCount)
 [4500] LOAD_LOCAL 4
 [4502] ITERATOR_NEXT
 [4503] JUMP [4476]
-# console.log(timer, arrays, clrdata, $ctx)
 [4508] LOAD_LOCAL 0
 [4510] LOAD_LOCAL 1
 [4512] LOAD_LOCAL 2
@@ -2182,27 +1851,12 @@ module: TIMER_LIB timer.as
 [4525] CALL 4
 [4527] POP
 [4528] RETURN_NULL
-# end_func time_proc
-
-
-
-
-# begin_func testCallback
-# Captured variables:
 [4529] ALLOC_LOCALS [0]
-# CREATE_TIMER(time_proc)
 [4534] GET_THIS_PROPERTY str(time_proc)
 [4539] GET_GLOBAL_PROPERTY str(CREATE_TIMER)
 [4544] CALL 1
 [4546] POP
 [4547] RETURN_NULL
-# end_func testCallback
-
-
-
-
-# begin_func createTimer
-# Captured variables:
 [4548] ALLOC_LOCALS [5]
 [4553] LOAD_ARG 0
 [4555] STORE_LOCAL 0
@@ -2220,7 +1874,6 @@ module: TIMER_LIB timer.as
 [4598] PUSH_THIS
 [4599] CREATE_CLOSURE [4908] (4)
 [4605] STORE_LOCAL 4
-# var timer = { timeId: timeCount++, callback: callback, interval: interval, cancel: cancel, numbers: [1, 2, 3, 4], strings: ['a', 'b', 'c', 'd'], datas: { v1: 123, v2: 'hello', v3: true }, count: 50, reset: AuroraScript.Ast.Expressions.LambdaExpression }
 [4607] NEW_MAP
 [4608] DUP
 [4609] GET_THIS_PROPERTY str(timeCount)
@@ -2272,74 +1925,46 @@ module: TIMER_LIB timer.as
 [4748] PUSH_THIS
 [4749] CREATE_CLOSURE [4760] (2)
 [4755] JUMP [4804]
-
-
-
-
-# begin_func $lambda_44_15
-# Captured variables: timer, log
 [4760] ALLOC_LOCALS [2]
 [4765] CAPTURE_VAR 2
 [4770] STORE_LOCAL 0
 [4772] CAPTURE_VAR 3
 [4777] STORE_LOCAL 1
-# timer.count = 0
 [4779] LOAD_CAPTURE 0
 [4784] PUSH_0
 [4785] SET_PROPERTY str(count)
-# log('reset')
 [4790] PUSH_STRING str(reset)
 [4795] LOAD_CAPTURE 1
 [4800] CALL 1
 [4802] POP
 [4803] RETURN_NULL
-# end_func $lambda_44_15
 [4804] SET_PROPERTY str(reset)
 [4809] STORE_LOCAL 2
-# log(
-|>
-|> 1. ’‚ «“ª∏ˆÃÿ ‚µƒ◊÷∑˚¥Æƒ£∞Â
-|> 2. ÷ß≥÷∂‡––Œƒ±æ\n123
-|> 3. À¸ª·»√¥˙¬Îø¥∆¿¥∏¸ Ê∑˛
-|> 4. <Buy/@Buy> <Close/@Close>
-|> 4. <Buys/@Buys:input-number>
-|>
-)
 [4811] PUSH_STRING str(
-1. ’‚ «“ª∏ˆÃÿ ‚µƒ◊÷∑˚¥Æƒ£∞Â
-2. ÷ß≥÷∂‡––Œƒ±æ\n123
-3. À¸ª·»√¥˙¬Îø¥∆¿¥∏¸ Ê∑˛
+1. ËøôÊòØ‰∏Ä‰∏™ÁâπÊÆäÁöÑÂ≠óÁ¨¶‰∏≤Ê®°Êùø
+2. ÊîØÊåÅÂ§öË°åÊñáÊú¨\n123
+3. ÂÆÉ‰ºöËÆ©‰ª£Á†ÅÁúãËµ∑Êù•Êõ¥ËàíÊúç
 4. <Buy/@Buy> <Close/@Close>
 4. <Buys/@Buys:input-number>
 )
 [4816] LOAD_LOCAL 3
 [4818] CALL 1
 [4820] POP
-# Yield;
 [4821] YIELD
-# timers.push(timer)
 [4822] LOAD_LOCAL 2
 [4824] GET_THIS_PROPERTY str(timers)
 [4829] GET_PROPERTY str(push)
 [4834] CALL 1
 [4836] POP
-# return Object(timer)
 [4837] LOAD_LOCAL 2
 [4839] GET_GLOBAL_PROPERTY str(Object)
 [4844] CALL 1
 [4846] RETURN
-
-
-
-
-# begin_func log
-# Captured variables: timer
 [4847] ALLOC_LOCALS [2]
 [4852] LOAD_ARG 0
 [4854] STORE_LOCAL 0
 [4856] CAPTURE_VAR 2
 [4861] STORE_LOCAL 1
-# console.log('Timer:' + timer.timeId + ' [' + text + ']')
 [4863] PUSH_STRING str(Timer:)
 [4868] LOAD_CAPTURE 1
 [4873] GET_PROPERTY str(timeId)
@@ -2355,13 +1980,6 @@ module: TIMER_LIB timer.as
 [4904] CALL 1
 [4906] POP
 [4907] RETURN_NULL
-# end_func log
-
-
-
-
-# begin_func cancel
-# Captured variables: log, timer, callback, interval
 [4908] ALLOC_LOCALS [4]
 [4913] CAPTURE_VAR 3
 [4918] STORE_LOCAL 0
@@ -2371,81 +1989,51 @@ module: TIMER_LIB timer.as
 [4932] STORE_LOCAL 2
 [4934] CAPTURE_VAR 1
 [4939] STORE_LOCAL 3
-# log('canceled')
 [4941] PUSH_STRING str(canceled)
 [4946] LOAD_CAPTURE 0
 [4951] CALL 1
 [4953] POP
-# timer.cancel = null
 [4954] LOAD_CAPTURE 1
 [4959] PUSH_NULL
 [4960] SET_PROPERTY str(cancel)
-# timeCount--
 [4965] GET_THIS_PROPERTY str(timeCount)
 [4970] DECREMENT
 [4971] SET_THIS_PROPERTY str(timeCount)
-# timer.timeId = null
 [4976] LOAD_CAPTURE 1
 [4981] PUSH_NULL
 [4982] SET_PROPERTY str(timeId)
-# timer.callback = null
 [4987] LOAD_CAPTURE 1
 [4992] PUSH_NULL
 [4993] SET_PROPERTY str(callback)
-# timer.interval = null
 [4998] LOAD_CAPTURE 1
 [5003] PUSH_NULL
 [5004] SET_PROPERTY str(interval)
-# timer.reset = null
 [5009] LOAD_CAPTURE 1
 [5014] PUSH_NULL
 [5015] SET_PROPERTY str(reset)
-# timer.count = null
 [5020] LOAD_CAPTURE 1
 [5025] PUSH_NULL
 [5026] SET_PROPERTY str(count)
-# timer.abc = 'abc'
 [5031] LOAD_CAPTURE 1
 [5036] PUSH_STRING str(abc)
 [5041] SET_PROPERTY str(abc)
-# return true
 [5046] PUSH_TRUE
 [5047] RETURN
 [5048] RETURN_NULL
-# end_func cancel
 [5049] RETURN_NULL
-# end_func createTimer
-
-
-
-
-# begin_func Buy
-# Captured variables:
 [5050] ALLOC_LOCALS [1]
 [5055] PUSH_1
 [5056] TRY_LOAD_ARG 0
 [5058] STORE_LOCAL 0
 [5060] RETURN_NULL
-# end_func Buy
-
-
-
-
-# begin_func Close
-# Captured variables:
 [5061] ALLOC_LOCALS [0]
 [5066] RETURN_NULL
-# end_func Close
-module: UNIT_LIB unit.as
-# Module Import
 [5067] GET_GLOBAL_PROPERTY str(@TIMER_LIB)
 [5072] SET_THIS_PROPERTY str(time)
 [5077] GET_GLOBAL_PROPERTY str(@MD5_LIB)
 [5082] SET_THIS_PROPERTY str(md5)
-# Variable Define
 [5087] PUSH_NULL
 [5088] SET_THIS_PROPERTY str(__testCases)
-# Code Block
 [5093] PUSH_THIS
 [5094] CREATE_CLOSURE [8362] (0)
 [5100] SET_THIS_PROPERTY str(defineTest)
@@ -2560,46 +2148,30 @@ module: UNIT_LIB unit.as
 [5537] PUSH_THIS
 [5538] CREATE_CLOSURE [12936] (0)
 [5544] SET_THIS_PROPERTY str(testMD5_1000)
-# var __testCases = []
 [5549] NEW_ARRAY 0
 [5554] SET_THIS_PROPERTY str(__testCases)
-# defineTest('math.arithmetic', AuroraScript.Ast.Expressions.LambdaExpression)
 [5559] PUSH_STRING str(math.arithmetic)
 [5564] PUSH_THIS
 [5565] CREATE_CLOSURE [5576] (0)
 [5571] JUMP [5771]
-
-
-
-
-# begin_func $lambda_348_29
-# Captured variables:
 [5576] ALLOC_LOCALS [6]
 [5581] LOAD_ARG 0
 [5583] STORE_LOCAL 0
-# var total = 0
 [5585] PUSH_0
 [5586] STORE_LOCAL 1
-# for
-# var i = 0
 [5588] PUSH_0
 [5589] STORE_LOCAL 4
-# condition i <= 100
 [5591] LOAD_LOCAL 4
 [5593] PUSH_I8 100
 [5595] LESS_EQUAL
 [5596] JUMP_IF_FALSE [5616]
-# body
-# total = total + i
 [5601] LOAD_LOCAL 1
 [5603] LOAD_LOCAL 4
 [5605] ADD
 [5606] STORE_LOCAL 1
-# inc i++
 [5608] INC_LOCAL_POST 4
 [5610] POP
 [5611] JUMP [5591]
-# expectEqual(ctx, total, 5050, 'Sum from 0 to 100 inclusive')
 [5616] LOAD_LOCAL 0
 [5618] LOAD_LOCAL 1
 [5620] PUSH_I16 5050
@@ -2607,7 +2179,6 @@ module: UNIT_LIB unit.as
 [5628] GET_THIS_PROPERTY str(expectEqual)
 [5633] CALL 4
 [5635] POP
-# expectEqual(ctx, 7 * 6 - 4, 38, 'Combined multiplication and subtraction')
 [5636] LOAD_LOCAL 0
 [5638] PUSH_7
 [5639] PUSH_6
@@ -2619,12 +2190,10 @@ module: UNIT_LIB unit.as
 [5650] GET_THIS_PROPERTY str(expectEqual)
 [5655] CALL 4
 [5657] POP
-# var modulo = 59 % 12
 [5658] PUSH_I8 59
 [5660] PUSH_I8 12
 [5662] MOD
 [5663] STORE_LOCAL 2
-# expectEqual(ctx, modulo, 11, 'Modulo remainder check')
 [5665] LOAD_LOCAL 0
 [5667] LOAD_LOCAL 2
 [5669] PUSH_I8 11
@@ -2632,29 +2201,21 @@ module: UNIT_LIB unit.as
 [5676] GET_THIS_PROPERTY str(expectEqual)
 [5681] CALL 4
 [5683] POP
-# var exponent = 1
 [5684] PUSH_1
 [5685] STORE_LOCAL 3
-# for
-# var j = 0
 [5687] PUSH_0
 [5688] STORE_LOCAL 5
-# condition j < 5
 [5690] LOAD_LOCAL 5
 [5692] PUSH_5
 [5693] LESS_THAN
 [5694] JUMP_IF_FALSE [5713]
-# body
-# exponent = exponent * 3
 [5699] LOAD_LOCAL 3
 [5701] PUSH_3
 [5702] MULTIPLY
 [5703] STORE_LOCAL 3
-# inc j++
 [5705] INC_LOCAL_POST 5
 [5707] POP
 [5708] JUMP [5690]
-# expectEqual(ctx, exponent, 243, 'Repeated multiplication')
 [5713] LOAD_LOCAL 0
 [5715] LOAD_LOCAL 3
 [5717] PUSH_I16 243
@@ -2662,7 +2223,6 @@ module: UNIT_LIB unit.as
 [5725] GET_THIS_PROPERTY str(expectEqual)
 [5730] CALL 4
 [5732] POP
-# expectNearlyEqual(ctx, 22 / 7, 3.142857, 0.0005, 'Fraction approximates PI')
 [5733] LOAD_LOCAL 0
 [5735] PUSH_I8 22
 [5737] PUSH_7
@@ -2674,25 +2234,16 @@ module: UNIT_LIB unit.as
 [5767] CALL 5
 [5769] POP
 [5770] RETURN_NULL
-# end_func $lambda_348_29
 [5771] GET_THIS_PROPERTY str(defineTest)
 [5776] CALL 2
 [5778] POP
-# defineTest('math.bitwise', AuroraScript.Ast.Expressions.LambdaExpression)
 [5779] PUSH_STRING str(math.bitwise)
 [5784] PUSH_THIS
 [5785] CREATE_CLOSURE [5796] (0)
 [5791] JUMP [5942]
-
-
-
-
-# begin_func $lambda_365_26
-# Captured variables:
 [5796] ALLOC_LOCALS [1]
 [5801] LOAD_ARG 0
 [5803] STORE_LOCAL 0
-# expectEqual(ctx, 5 & 3, 1, 'Bitwise AND')
 [5805] LOAD_LOCAL 0
 [5807] PUSH_5
 [5808] PUSH_3
@@ -2702,7 +2253,6 @@ module: UNIT_LIB unit.as
 [5816] GET_THIS_PROPERTY str(expectEqual)
 [5821] CALL 4
 [5823] POP
-# expectEqual(ctx, 5 | 2, 7, 'Bitwise OR')
 [5824] LOAD_LOCAL 0
 [5826] PUSH_5
 [5827] PUSH_2
@@ -2712,7 +2262,6 @@ module: UNIT_LIB unit.as
 [5835] GET_THIS_PROPERTY str(expectEqual)
 [5840] CALL 4
 [5842] POP
-# expectEqual(ctx, 5 ^ 1, 4, 'Bitwise XOR')
 [5843] LOAD_LOCAL 0
 [5845] PUSH_5
 [5846] PUSH_1
@@ -2722,7 +2271,6 @@ module: UNIT_LIB unit.as
 [5854] GET_THIS_PROPERTY str(expectEqual)
 [5859] CALL 4
 [5861] POP
-# expectEqual(ctx, ~1, -2, 'Bitwise NOT')
 [5862] LOAD_LOCAL 0
 [5864] PUSH_1
 [5865] BIT_NOT
@@ -2731,7 +2279,6 @@ module: UNIT_LIB unit.as
 [5873] GET_THIS_PROPERTY str(expectEqual)
 [5878] CALL 4
 [5880] POP
-# expectEqual(ctx, 1 << 5, 32, 'Left shift')
 [5881] LOAD_LOCAL 0
 [5883] PUSH_1
 [5884] PUSH_5
@@ -2741,7 +2288,6 @@ module: UNIT_LIB unit.as
 [5893] GET_THIS_PROPERTY str(expectEqual)
 [5898] CALL 4
 [5900] POP
-# expectEqual(ctx, 32 >> 2, 8, 'Right shift')
 [5901] LOAD_LOCAL 0
 [5903] PUSH_I8 32
 [5905] PUSH_2
@@ -2751,7 +2297,6 @@ module: UNIT_LIB unit.as
 [5913] GET_THIS_PROPERTY str(expectEqual)
 [5918] CALL 4
 [5920] POP
-# expectEqual(ctx, 32 >>> 2, 8, 'Unsigned right shift')
 [5921] LOAD_LOCAL 0
 [5923] PUSH_I8 32
 [5925] PUSH_2
@@ -2762,28 +2307,18 @@ module: UNIT_LIB unit.as
 [5938] CALL 4
 [5940] POP
 [5941] RETURN_NULL
-# end_func $lambda_365_26
 [5942] GET_THIS_PROPERTY str(defineTest)
 [5947] CALL 2
 [5949] POP
-# defineTest('string.core', AuroraScript.Ast.Expressions.LambdaExpression)
 [5950] PUSH_STRING str(string.core)
 [5955] PUSH_THIS
 [5956] CREATE_CLOSURE [5967] (0)
 [5962] JUMP [6217]
-
-
-
-
-# begin_func $lambda_375_25
-# Captured variables:
 [5967] ALLOC_LOCALS [4]
 [5972] LOAD_ARG 0
 [5974] STORE_LOCAL 0
-# var text = 'Aurora'
 [5976] PUSH_STRING str(Aurora)
 [5981] STORE_LOCAL 1
-# expectEqual(ctx, text.length, 6, 'length property')
 [5983] LOAD_LOCAL 0
 [5985] LOAD_LOCAL 1
 [5987] GET_PROPERTY str(length)
@@ -2792,7 +2327,6 @@ module: UNIT_LIB unit.as
 [5998] GET_THIS_PROPERTY str(expectEqual)
 [6003] CALL 4
 [6005] POP
-# expectEqual(ctx, text.toUpperCase(), 'AURORA', 'toUpperCase')
 [6006] LOAD_LOCAL 0
 [6008] LOAD_LOCAL 1
 [6010] GET_PROPERTY str(toUpperCase)
@@ -2802,7 +2336,6 @@ module: UNIT_LIB unit.as
 [6027] GET_THIS_PROPERTY str(expectEqual)
 [6032] CALL 4
 [6034] POP
-# expectEqual(ctx, text.toLowerCase(), 'aurora', 'toLowerCase')
 [6035] LOAD_LOCAL 0
 [6037] LOAD_LOCAL 1
 [6039] GET_PROPERTY str(toLowerCase)
@@ -2812,7 +2345,6 @@ module: UNIT_LIB unit.as
 [6056] GET_THIS_PROPERTY str(expectEqual)
 [6061] CALL 4
 [6063] POP
-# expectEqual(ctx, text.substring(1, 3), 'ur', 'substring extracts range')
 [6064] LOAD_LOCAL 0
 [6066] PUSH_1
 [6067] PUSH_3
@@ -2824,7 +2356,6 @@ module: UNIT_LIB unit.as
 [6087] GET_THIS_PROPERTY str(expectEqual)
 [6092] CALL 4
 [6094] POP
-# expectEqual(ctx, text.indexOf('ro'), 2, 'indexOf finds substring')
 [6095] LOAD_LOCAL 0
 [6097] PUSH_STRING str(ro)
 [6102] LOAD_LOCAL 1
@@ -2835,14 +2366,12 @@ module: UNIT_LIB unit.as
 [6117] GET_THIS_PROPERTY str(expectEqual)
 [6122] CALL 4
 [6124] POP
-# var replaced = text.replace('Aur', 'St')
 [6125] PUSH_STRING str(Aur)
 [6130] PUSH_STRING str(St)
 [6135] LOAD_LOCAL 1
 [6137] GET_PROPERTY str(replace)
 [6142] CALL 2
 [6144] STORE_LOCAL 2
-# expectEqual(ctx, replaced, 'Stora', 'replace updates prefix')
 [6146] LOAD_LOCAL 0
 [6148] LOAD_LOCAL 2
 [6150] PUSH_STRING str(Stora)
@@ -2850,13 +2379,11 @@ module: UNIT_LIB unit.as
 [6160] GET_THIS_PROPERTY str(expectEqual)
 [6165] CALL 4
 [6167] POP
-# var splitResult = replaced.split('r')
 [6168] PUSH_STRING str(r)
 [6173] LOAD_LOCAL 2
 [6175] GET_PROPERTY str(split)
 [6180] CALL 1
 [6182] STORE_LOCAL 3
-# expectEqual(ctx, splitResult, ['Sto', 'a'], 'split produces expected parts')
 [6184] LOAD_LOCAL 0
 [6186] LOAD_LOCAL 3
 [6188] PUSH_STRING str(Sto)
@@ -2867,28 +2394,18 @@ module: UNIT_LIB unit.as
 [6213] CALL 4
 [6215] POP
 [6216] RETURN_NULL
-# end_func $lambda_375_25
 [6217] GET_THIS_PROPERTY str(defineTest)
 [6222] CALL 2
 [6224] POP
-# defineTest('array.manipulation', AuroraScript.Ast.Expressions.LambdaExpression)
 [6225] PUSH_STRING str(array.manipulation)
 [6230] PUSH_THIS
 [6231] CREATE_CLOSURE [6242] (0)
 [6237] JUMP [6564]
-
-
-
-
-# begin_func $lambda_388_32
-# Captured variables:
 [6242] ALLOC_LOCALS [6]
 [6247] LOAD_ARG 0
 [6249] STORE_LOCAL 0
-# var arr = []
 [6251] NEW_ARRAY 0
 [6256] STORE_LOCAL 1
-# expectEqual(ctx, arr.length, 0, 'Empty array length is zero')
 [6258] LOAD_LOCAL 0
 [6260] LOAD_LOCAL 1
 [6262] GET_PROPERTY str(length)
@@ -2897,25 +2414,21 @@ module: UNIT_LIB unit.as
 [6273] GET_THIS_PROPERTY str(expectEqual)
 [6278] CALL 4
 [6280] POP
-# arr.push(1)
 [6281] PUSH_1
 [6282] LOAD_LOCAL 1
 [6284] GET_PROPERTY str(push)
 [6289] CALL 1
 [6291] POP
-# arr.push(2)
 [6292] PUSH_2
 [6293] LOAD_LOCAL 1
 [6295] GET_PROPERTY str(push)
 [6300] CALL 1
 [6302] POP
-# arr.push(3)
 [6303] PUSH_3
 [6304] LOAD_LOCAL 1
 [6306] GET_PROPERTY str(push)
 [6311] CALL 1
 [6313] POP
-# expectEqual(ctx, arr.length, 3, 'Push updates length')
 [6314] LOAD_LOCAL 0
 [6316] LOAD_LOCAL 1
 [6318] GET_PROPERTY str(length)
@@ -2924,12 +2437,10 @@ module: UNIT_LIB unit.as
 [6329] GET_THIS_PROPERTY str(expectEqual)
 [6334] CALL 4
 [6336] POP
-# var popped = arr.pop()
 [6337] LOAD_LOCAL 1
 [6339] GET_PROPERTY str(pop)
 [6344] CALL 0
 [6346] STORE_LOCAL 2
-# expectEqual(ctx, popped, 3, 'Pop returns last element')
 [6348] LOAD_LOCAL 0
 [6350] LOAD_LOCAL 2
 [6352] PUSH_3
@@ -2937,7 +2448,6 @@ module: UNIT_LIB unit.as
 [6358] GET_THIS_PROPERTY str(expectEqual)
 [6363] CALL 4
 [6365] POP
-# expectEqual(ctx, arr.length, 2, 'Pop reduces length')
 [6366] LOAD_LOCAL 0
 [6368] LOAD_LOCAL 1
 [6370] GET_PROPERTY str(length)
@@ -2946,26 +2456,22 @@ module: UNIT_LIB unit.as
 [6381] GET_THIS_PROPERTY str(expectEqual)
 [6386] CALL 4
 [6388] POP
-# arr.push(3)
 [6389] PUSH_3
 [6390] LOAD_LOCAL 1
 [6392] GET_PROPERTY str(push)
 [6397] CALL 1
 [6399] POP
-# arr.push(4)
 [6400] PUSH_4
 [6401] LOAD_LOCAL 1
 [6403] GET_PROPERTY str(push)
 [6408] CALL 1
 [6410] POP
-# var slice = arr.slice(1, 4)
 [6411] PUSH_1
 [6412] PUSH_4
 [6413] LOAD_LOCAL 1
 [6415] GET_PROPERTY str(slice)
 [6420] CALL 2
 [6422] STORE_LOCAL 3
-# expectEqual(ctx, slice.length, 3, 'Slice returns correct length')
 [6424] LOAD_LOCAL 0
 [6426] LOAD_LOCAL 3
 [6428] GET_PROPERTY str(length)
@@ -2974,7 +2480,6 @@ module: UNIT_LIB unit.as
 [6439] GET_THIS_PROPERTY str(expectEqual)
 [6444] CALL 4
 [6446] POP
-# expectEqual(ctx, slice[0], 2, 'Slice first element')
 [6447] LOAD_LOCAL 0
 [6449] LOAD_LOCAL 3
 [6451] PUSH_0
@@ -2984,7 +2489,6 @@ module: UNIT_LIB unit.as
 [6459] GET_THIS_PROPERTY str(expectEqual)
 [6464] CALL 4
 [6466] POP
-# expectEqual(ctx, slice[2], 4, 'Slice last element')
 [6467] LOAD_LOCAL 0
 [6469] LOAD_LOCAL 3
 [6471] PUSH_2
@@ -2994,38 +2498,29 @@ module: UNIT_LIB unit.as
 [6479] GET_THIS_PROPERTY str(expectEqual)
 [6484] CALL 4
 [6486] POP
-# var sum = 0
 [6487] PUSH_0
 [6488] STORE_LOCAL 4
-# console.log(arr)
 [6490] LOAD_LOCAL 1
 [6492] GET_GLOBAL_PROPERTY str(console)
 [6497] GET_PROPERTY str(log)
 [6502] CALL 1
 [6504] POP
-# for
-# var i = 0
 [6505] PUSH_0
 [6506] STORE_LOCAL 5
-# condition i < slice.length
 [6508] LOAD_LOCAL 5
 [6510] LOAD_LOCAL 3
 [6512] GET_PROPERTY str(length)
 [6517] LESS_THAN
 [6518] JUMP_IF_FALSE [6541]
-# body
-# sum = sum + slice[i]
 [6523] LOAD_LOCAL 4
 [6525] LOAD_LOCAL 3
 [6527] LOAD_LOCAL 5
 [6529] GET_ELEMENT
 [6530] ADD
 [6531] STORE_LOCAL 4
-# inc i++
 [6533] INC_LOCAL_POST 5
 [6535] POP
 [6536] JUMP [6508]
-# expectEqual(ctx, sum, 2 + 3 + 4, 'Sum via indexed loop')
 [6541] LOAD_LOCAL 0
 [6543] LOAD_LOCAL 4
 [6545] PUSH_2
@@ -3038,25 +2533,16 @@ module: UNIT_LIB unit.as
 [6560] CALL 4
 [6562] POP
 [6563] RETURN_NULL
-# end_func $lambda_388_32
 [6564] GET_THIS_PROPERTY str(defineTest)
 [6569] CALL 2
 [6571] POP
-# defineTest('object.behavior', AuroraScript.Ast.Expressions.LambdaExpression)
 [6572] PUSH_STRING str(object.behavior)
 [6577] PUSH_THIS
 [6578] CREATE_CLOSURE [6589] (0)
 [6584] JUMP [6935]
-
-
-
-
-# begin_func $lambda_412_29
-# Captured variables:
 [6589] ALLOC_LOCALS [8]
 [6594] LOAD_ARG 0
 [6596] STORE_LOCAL 0
-# var obj = { id: 1, nested: { value: 2 } }
 [6598] NEW_MAP
 [6599] DUP
 [6600] PUSH_1
@@ -3068,16 +2554,13 @@ module: UNIT_LIB unit.as
 [6610] SET_PROPERTY str(value)
 [6615] SET_PROPERTY str(nested)
 [6620] STORE_LOCAL 1
-# obj.name = 'Aurora'
 [6622] LOAD_LOCAL 1
 [6624] PUSH_STRING str(Aurora)
 [6629] SET_PROPERTY str(name)
-# obj.nested.extra = 'script'
 [6634] LOAD_LOCAL 1
 [6636] GET_PROPERTY str(nested)
 [6641] PUSH_STRING str(script)
 [6646] SET_PROPERTY str(extra)
-# expectEqual(ctx, obj.id, 1, 'Direct property access')
 [6651] LOAD_LOCAL 0
 [6653] LOAD_LOCAL 1
 [6655] GET_PROPERTY str(id)
@@ -3086,7 +2569,6 @@ module: UNIT_LIB unit.as
 [6666] GET_THIS_PROPERTY str(expectEqual)
 [6671] CALL 4
 [6673] POP
-# expectEqual(ctx, obj.nested.value, 2, 'Nested property access')
 [6674] LOAD_LOCAL 0
 [6676] LOAD_LOCAL 1
 [6678] GET_PROPERTY str(nested)
@@ -3096,7 +2578,6 @@ module: UNIT_LIB unit.as
 [6694] GET_THIS_PROPERTY str(expectEqual)
 [6699] CALL 4
 [6701] POP
-# obj.nested.value = obj.nested.value + 3
 [6702] LOAD_LOCAL 1
 [6704] GET_PROPERTY str(nested)
 [6709] LOAD_LOCAL 1
@@ -3105,7 +2586,6 @@ module: UNIT_LIB unit.as
 [6721] PUSH_3
 [6722] ADD
 [6723] SET_PROPERTY str(value)
-# expectEqual(ctx, obj.nested.value, 5, 'Nested property reassignment')
 [6728] LOAD_LOCAL 0
 [6730] LOAD_LOCAL 1
 [6732] GET_PROPERTY str(nested)
@@ -3115,26 +2595,19 @@ module: UNIT_LIB unit.as
 [6748] GET_THIS_PROPERTY str(expectEqual)
 [6753] CALL 4
 [6755] POP
-# var keys = []
 [6756] NEW_ARRAY 0
 [6761] STORE_LOCAL 2
-# for in
-# var key =
 [6763] PUSH_NULL
 [6764] STORE_LOCAL 4
-# condition key in obj
 [6766] LOAD_LOCAL 1
 [6768] GET_ITERATOR
 [6769] STORE_LOCAL 5
 [6771] LOAD_LOCAL 5
 [6773] ITERATOR_HAS_VALUE
 [6774] JUMP_IF_FALSE [6804]
-# IteratorValue
 [6779] LOAD_LOCAL 5
 [6781] ITERATOR_VALUE
 [6782] STORE_LOCAL 4
-# body
-# keys.push(key)
 [6784] LOAD_LOCAL 4
 [6786] LOAD_LOCAL 2
 [6788] GET_PROPERTY str(push)
@@ -3143,12 +2616,10 @@ module: UNIT_LIB unit.as
 [6796] LOAD_LOCAL 5
 [6798] ITERATOR_NEXT
 [6799] JUMP [6771]
-# keys.sort()
 [6804] LOAD_LOCAL 2
 [6806] GET_PROPERTY str(sort)
 [6811] CALL 0
 [6813] POP
-# expectEqual(ctx, keys, ['id', 'name', 'nested'], 'for-in enumerates object keys')
 [6814] LOAD_LOCAL 0
 [6816] LOAD_LOCAL 2
 [6818] PUSH_STRING str(id)
@@ -3163,14 +2634,10 @@ module: UNIT_LIB unit.as
 [6853] GET_PROPERTY str(nested)
 [6858] PUSH_STRING str(value)
 [6863] DELETE_PROPERTY
-# var hasValue = false
 [6864] PUSH_FALSE
 [6865] STORE_LOCAL 3
-# for in
-# var nestedKey =
 [6867] PUSH_NULL
 [6868] STORE_LOCAL 6
-# condition nestedKey in obj.nested
 [6870] LOAD_LOCAL 1
 [6872] GET_PROPERTY str(nested)
 [6877] GET_ITERATOR
@@ -3178,22 +2645,18 @@ module: UNIT_LIB unit.as
 [6880] LOAD_LOCAL 7
 [6882] ITERATOR_HAS_VALUE
 [6883] JUMP_IF_FALSE [6917]
-# IteratorValue
 [6888] LOAD_LOCAL 7
 [6890] ITERATOR_VALUE
 [6891] STORE_LOCAL 6
-# body
 [6893] LOAD_LOCAL 6
 [6895] PUSH_STRING str(value)
 [6900] EQUAL
 [6901] JUMP_IF_FALSE [6909]
-# hasValue = true
 [6906] PUSH_TRUE
 [6907] STORE_LOCAL 3
 [6909] LOAD_LOCAL 7
 [6911] ITERATOR_NEXT
 [6912] JUMP [6880]
-# expectFalse(ctx, hasValue, 'delete removes nested property')
 [6917] LOAD_LOCAL 0
 [6919] LOAD_LOCAL 3
 [6921] PUSH_STRING str(delete removes nested property)
@@ -3201,33 +2664,23 @@ module: UNIT_LIB unit.as
 [6931] CALL 3
 [6933] POP
 [6934] RETURN_NULL
-# end_func $lambda_412_29
 [6935] GET_THIS_PROPERTY str(defineTest)
 [6940] CALL 2
 [6942] POP
-# defineTest('closure.state', AuroraScript.Ast.Expressions.LambdaExpression)
 [6943] PUSH_STRING str(closure.state)
 [6948] PUSH_THIS
 [6949] CREATE_CLOSURE [6960] (0)
 [6955] JUMP [7138]
-
-
-
-
-# begin_func $lambda_436_27
-# Captured variables:
 [6960] ALLOC_LOCALS [4]
 [6965] LOAD_ARG 0
 [6967] STORE_LOCAL 0
 [6969] PUSH_THIS
 [6970] CREATE_CLOSURE [7074] (0)
 [6976] STORE_LOCAL 3
-# var counter = makeCounter(0)
 [6978] PUSH_0
 [6979] LOAD_LOCAL 3
 [6981] CALL 1
 [6983] STORE_LOCAL 1
-# expectEqual(ctx, counter(), 1, 'Closure increments first call')
 [6985] LOAD_LOCAL 0
 [6987] LOAD_LOCAL 1
 [6989] CALL 0
@@ -3236,7 +2689,6 @@ module: UNIT_LIB unit.as
 [6997] GET_THIS_PROPERTY str(expectEqual)
 [7002] CALL 4
 [7004] POP
-# expectEqual(ctx, counter(), 2, 'Closure increments second call')
 [7005] LOAD_LOCAL 0
 [7007] LOAD_LOCAL 1
 [7009] CALL 0
@@ -3245,7 +2697,6 @@ module: UNIT_LIB unit.as
 [7017] GET_THIS_PROPERTY str(expectEqual)
 [7022] CALL 4
 [7024] POP
-# expectEqual(ctx, counter(), 3, 'Closure increments third call')
 [7025] LOAD_LOCAL 0
 [7027] LOAD_LOCAL 1
 [7029] CALL 0
@@ -3254,12 +2705,10 @@ module: UNIT_LIB unit.as
 [7037] GET_THIS_PROPERTY str(expectEqual)
 [7042] CALL 4
 [7044] POP
-# var second = makeCounter(10)
 [7045] PUSH_I8 10
 [7047] LOAD_LOCAL 3
 [7049] CALL 1
 [7051] STORE_LOCAL 2
-# expectEqual(ctx, second(), 11, 'Independent closure maintains own state')
 [7053] LOAD_LOCAL 0
 [7055] LOAD_LOCAL 2
 [7057] CALL 0
@@ -3268,65 +2717,38 @@ module: UNIT_LIB unit.as
 [7066] GET_THIS_PROPERTY str(expectEqual)
 [7071] CALL 4
 [7073] POP
-
-
-
-
-# begin_func makeCounter
-# Captured variables:
 [7074] ALLOC_LOCALS [2]
 [7079] LOAD_ARG 0
 [7081] STORE_LOCAL 0
-# var value = start
 [7083] LOAD_LOCAL 0
 [7085] STORE_LOCAL 1
-# return AuroraScript.Ast.Expressions.LambdaExpression
 [7087] CAPTURE_VAR 1
 [7092] PUSH_THIS
 [7093] CREATE_CLOSURE [7104] (1)
 [7099] JUMP [7135]
-
-
-
-
-# begin_func $lambda_439_15
-# Captured variables: value
 [7104] ALLOC_LOCALS [1]
 [7109] CAPTURE_VAR 1
 [7114] STORE_LOCAL 0
-# value = value + 1
 [7116] LOAD_CAPTURE 0
 [7121] PUSH_1
 [7122] ADD
 [7123] STORE_CAPTURE 0
-# return value
 [7128] LOAD_CAPTURE 0
 [7133] RETURN
 [7134] RETURN_NULL
-# end_func $lambda_439_15
 [7135] RETURN
 [7136] RETURN_NULL
-# end_func makeCounter
 [7137] RETURN_NULL
-# end_func $lambda_436_27
 [7138] GET_THIS_PROPERTY str(defineTest)
 [7143] CALL 2
 [7145] POP
-# defineTest('recursion.factorial', AuroraScript.Ast.Expressions.LambdaExpression)
 [7146] PUSH_STRING str(recursion.factorial)
 [7151] PUSH_THIS
 [7152] CREATE_CLOSURE [7163] (0)
 [7158] JUMP [7248]
-
-
-
-
-# begin_func $lambda_459_33
-# Captured variables:
 [7163] ALLOC_LOCALS [1]
 [7168] LOAD_ARG 0
 [7170] STORE_LOCAL 0
-# expectEqual(ctx, factorial(1), 1, 'Factorial 1')
 [7172] LOAD_LOCAL 0
 [7174] PUSH_1
 [7175] GET_THIS_PROPERTY str(factorial)
@@ -3336,7 +2758,6 @@ module: UNIT_LIB unit.as
 [7188] GET_THIS_PROPERTY str(expectEqual)
 [7193] CALL 4
 [7195] POP
-# expectEqual(ctx, factorial(5), 120, 'Factorial 5')
 [7196] LOAD_LOCAL 0
 [7198] PUSH_5
 [7199] GET_THIS_PROPERTY str(factorial)
@@ -3346,7 +2767,6 @@ module: UNIT_LIB unit.as
 [7213] GET_THIS_PROPERTY str(expectEqual)
 [7218] CALL 4
 [7220] POP
-# expectEqual(ctx, factorial(7), 5040, 'Factorial 7')
 [7221] LOAD_LOCAL 0
 [7223] PUSH_7
 [7224] GET_THIS_PROPERTY str(factorial)
@@ -3357,47 +2777,31 @@ module: UNIT_LIB unit.as
 [7244] CALL 4
 [7246] POP
 [7247] RETURN_NULL
-# end_func $lambda_459_33
 [7248] GET_THIS_PROPERTY str(defineTest)
 [7253] CALL 2
 [7255] POP
-# defineTest('iteration.patterns', AuroraScript.Ast.Expressions.LambdaExpression)
 [7256] PUSH_STRING str(iteration.patterns)
 [7261] PUSH_THIS
 [7262] CREATE_CLOSURE [7273] (0)
 [7268] JUMP [7589]
-
-
-
-
-# begin_func $lambda_466_32
-# Captured variables:
 [7273] ALLOC_LOCALS [13]
 [7278] LOAD_ARG 0
 [7280] STORE_LOCAL 0
-# var text = 'abc'
 [7282] PUSH_STRING str(abc)
 [7287] STORE_LOCAL 1
-# var characters = []
 [7289] NEW_ARRAY 0
 [7294] STORE_LOCAL 2
-# for in
-# var ch =
 [7296] PUSH_NULL
 [7297] STORE_LOCAL 7
-# condition ch in text
 [7299] LOAD_LOCAL 1
 [7301] GET_ITERATOR
 [7302] STORE_LOCAL 8
 [7304] LOAD_LOCAL 8
 [7306] ITERATOR_HAS_VALUE
 [7307] JUMP_IF_FALSE [7337]
-# IteratorValue
 [7312] LOAD_LOCAL 8
 [7314] ITERATOR_VALUE
 [7315] STORE_LOCAL 7
-# body
-# characters.push(ch)
 [7317] LOAD_LOCAL 7
 [7319] LOAD_LOCAL 2
 [7321] GET_PROPERTY str(push)
@@ -3406,7 +2810,6 @@ module: UNIT_LIB unit.as
 [7329] LOAD_LOCAL 8
 [7331] ITERATOR_NEXT
 [7332] JUMP [7304]
-# expectEqual(ctx, characters, ['a', 'b', 'c'], 'for-in iterates string characters')
 [7337] LOAD_LOCAL 0
 [7339] LOAD_LOCAL 2
 [7341] PUSH_STRING str(a)
@@ -3417,7 +2820,6 @@ module: UNIT_LIB unit.as
 [7366] GET_THIS_PROPERTY str(expectEqual)
 [7371] CALL 4
 [7373] POP
-# var obj = { a: 1, b: 2, c: 3 }
 [7374] NEW_MAP
 [7375] DUP
 [7376] PUSH_1
@@ -3429,26 +2831,19 @@ module: UNIT_LIB unit.as
 [7390] PUSH_3
 [7391] SET_PROPERTY str(c)
 [7396] STORE_LOCAL 3
-# var visited = []
 [7398] NEW_ARRAY 0
 [7403] STORE_LOCAL 4
-# for in
-# var key =
 [7405] PUSH_NULL
 [7406] STORE_LOCAL 9
-# condition key in obj
 [7408] LOAD_LOCAL 3
 [7410] GET_ITERATOR
 [7411] STORE_LOCAL 10
 [7413] LOAD_LOCAL 10
 [7415] ITERATOR_HAS_VALUE
 [7416] JUMP_IF_FALSE [7446]
-# IteratorValue
 [7421] LOAD_LOCAL 10
 [7423] ITERATOR_VALUE
 [7424] STORE_LOCAL 9
-# body
-# visited.push(key)
 [7426] LOAD_LOCAL 9
 [7428] LOAD_LOCAL 4
 [7430] GET_PROPERTY str(push)
@@ -3457,12 +2852,10 @@ module: UNIT_LIB unit.as
 [7438] LOAD_LOCAL 10
 [7440] ITERATOR_NEXT
 [7441] JUMP [7413]
-# visited.sort()
 [7446] LOAD_LOCAL 4
 [7448] GET_PROPERTY str(sort)
 [7453] CALL 0
 [7455] POP
-# expectEqual(ctx, visited, ['a', 'b', 'c'], 'for-in iterates object keys')
 [7456] LOAD_LOCAL 0
 [7458] LOAD_LOCAL 4
 [7460] PUSH_STRING str(a)
@@ -3473,32 +2866,24 @@ module: UNIT_LIB unit.as
 [7485] GET_THIS_PROPERTY str(expectEqual)
 [7490] CALL 4
 [7492] POP
-# var arr = [1, 2, 3]
 [7493] PUSH_1
 [7494] PUSH_2
 [7495] PUSH_3
 [7496] NEW_ARRAY 3
 [7501] STORE_LOCAL 5
-# var indexes = []
 [7503] NEW_ARRAY 0
 [7508] STORE_LOCAL 6
-# for in
-# var index =
 [7510] PUSH_NULL
 [7511] STORE_LOCAL 11
-# condition index in arr
 [7513] LOAD_LOCAL 5
 [7515] GET_ITERATOR
 [7516] STORE_LOCAL 12
 [7518] LOAD_LOCAL 12
 [7520] ITERATOR_HAS_VALUE
 [7521] JUMP_IF_FALSE [7551]
-# IteratorValue
 [7526] LOAD_LOCAL 12
 [7528] ITERATOR_VALUE
 [7529] STORE_LOCAL 11
-# body
-# indexes.push(index)
 [7531] LOAD_LOCAL 11
 [7533] LOAD_LOCAL 6
 [7535] GET_PROPERTY str(push)
@@ -3507,7 +2892,6 @@ module: UNIT_LIB unit.as
 [7543] LOAD_LOCAL 12
 [7545] ITERATOR_NEXT
 [7546] JUMP [7518]
-# expectEqual(ctx, indexes, ['1', '2', '3'], 'for-in iterates array indexes as strings')
 [7551] LOAD_LOCAL 0
 [7553] LOAD_LOCAL 6
 [7555] PUSH_STRING str(1)
@@ -3519,31 +2903,21 @@ module: UNIT_LIB unit.as
 [7585] CALL 4
 [7587] POP
 [7588] RETURN_NULL
-# end_func $lambda_466_32
 [7589] GET_THIS_PROPERTY str(defineTest)
 [7594] CALL 2
 [7596] POP
-# defineTest('module.md5', AuroraScript.Ast.Expressions.LambdaExpression)
 [7597] PUSH_STRING str(module.md5)
 [7602] PUSH_THIS
 [7603] CREATE_CLOSURE [7614] (0)
 [7609] JUMP [7706]
-
-
-
-
-# begin_func $lambda_488_24
-# Captured variables:
 [7614] ALLOC_LOCALS [3]
 [7619] LOAD_ARG 0
 [7621] STORE_LOCAL 0
-# var hash = md5.MD5('12345')
 [7623] PUSH_STRING str(12345)
 [7628] GET_THIS_PROPERTY str(md5)
 [7633] GET_PROPERTY str(MD5)
 [7638] CALL 1
 [7640] STORE_LOCAL 1
-# expectEqual(ctx, hash, '87c0ee87643a69f47', 'MD5 of 12345')
 [7642] LOAD_LOCAL 0
 [7644] LOAD_LOCAL 1
 [7646] PUSH_STRING str(87c0ee87643a69f47)
@@ -3551,13 +2925,11 @@ module: UNIT_LIB unit.as
 [7656] GET_THIS_PROPERTY str(expectEqual)
 [7661] CALL 4
 [7663] POP
-# var hash2 = md5.MD5('AuroraScript')
 [7664] PUSH_STRING str(AuroraScript)
 [7669] GET_THIS_PROPERTY str(md5)
 [7674] GET_PROPERTY str(MD5)
 [7679] CALL 1
 [7681] STORE_LOCAL 2
-# expectEqual(ctx, hash2, '6b30c036a3cb25f3db', 'MD5 of AuroraScript')
 [7683] LOAD_LOCAL 0
 [7685] LOAD_LOCAL 2
 [7687] PUSH_STRING str(6b30c036a3cb25f3db)
@@ -3566,32 +2938,22 @@ module: UNIT_LIB unit.as
 [7702] CALL 4
 [7704] POP
 [7705] RETURN_NULL
-# end_func $lambda_488_24
 [7706] GET_THIS_PROPERTY str(defineTest)
 [7711] CALL 2
 [7713] POP
-# defineTest('module.timer', AuroraScript.Ast.Expressions.LambdaExpression)
 [7714] PUSH_STRING str(module.timer)
 [7719] PUSH_THIS
 [7720] CREATE_CLOSURE [7731] (0)
 [7726] JUMP [7936]
-
-
-
-
-# begin_func $lambda_495_26
-# Captured variables:
 [7731] ALLOC_LOCALS [3]
 [7736] LOAD_ARG 0
 [7738] STORE_LOCAL 0
-# var timer = time.createTimer('unit.timer', 64)
 [7740] PUSH_STRING str(unit.timer)
 [7745] PUSH_I8 64
 [7747] GET_THIS_PROPERTY str(time)
 [7752] GET_PROPERTY str(createTimer)
 [7757] CALL 2
 [7759] STORE_LOCAL 1
-# expectEqual(ctx, timer.interval, 64, 'Timer keeps custom interval')
 [7761] LOAD_LOCAL 0
 [7763] LOAD_LOCAL 1
 [7765] GET_PROPERTY str(interval)
@@ -3600,7 +2962,6 @@ module: UNIT_LIB unit.as
 [7777] GET_THIS_PROPERTY str(expectEqual)
 [7782] CALL 4
 [7784] POP
-# expectTrue(ctx, typeoftimer.reset == 'function', 'Timer exposes reset function', typeoftimer.reset, 'function')
 [7785] LOAD_LOCAL 0
 [7787] LOAD_LOCAL 1
 [7789] GET_PROPERTY str(reset)
@@ -3615,12 +2976,10 @@ module: UNIT_LIB unit.as
 [7819] GET_THIS_PROPERTY str(expectTrue)
 [7824] CALL 5
 [7826] POP
-# timer.reset()
 [7827] LOAD_LOCAL 1
 [7829] GET_PROPERTY str(reset)
 [7834] CALL 0
 [7836] POP
-# expectEqual(ctx, timer.count, 0, 'Reset clears counter to zero')
 [7837] LOAD_LOCAL 0
 [7839] LOAD_LOCAL 1
 [7841] GET_PROPERTY str(count)
@@ -3629,12 +2988,10 @@ module: UNIT_LIB unit.as
 [7852] GET_THIS_PROPERTY str(expectEqual)
 [7857] CALL 4
 [7859] POP
-# var cancelResult = timer.cancel()
 [7860] LOAD_LOCAL 1
 [7862] GET_PROPERTY str(cancel)
 [7867] CALL 0
 [7869] STORE_LOCAL 2
-# expectEqual(ctx, cancelResult, true, 'Cancel returns true')
 [7871] LOAD_LOCAL 0
 [7873] LOAD_LOCAL 2
 [7875] PUSH_TRUE
@@ -3642,7 +2999,6 @@ module: UNIT_LIB unit.as
 [7881] GET_THIS_PROPERTY str(expectEqual)
 [7886] CALL 4
 [7888] POP
-# expectEqual(ctx, timer.cancel, null, 'Cancel clears cancel handler')
 [7889] LOAD_LOCAL 0
 [7891] LOAD_LOCAL 1
 [7893] GET_PROPERTY str(cancel)
@@ -3651,7 +3007,6 @@ module: UNIT_LIB unit.as
 [7904] GET_THIS_PROPERTY str(expectEqual)
 [7909] CALL 4
 [7911] POP
-# expectEqual(ctx, timer.reset, null, 'Cancel clears reset handler')
 [7912] LOAD_LOCAL 0
 [7914] LOAD_LOCAL 1
 [7916] GET_PROPERTY str(reset)
@@ -3661,25 +3016,16 @@ module: UNIT_LIB unit.as
 [7932] CALL 4
 [7934] POP
 [7935] RETURN_NULL
-# end_func $lambda_495_26
 [7936] GET_THIS_PROPERTY str(defineTest)
 [7941] CALL 2
 [7943] POP
-# defineTest('interop.hostConstants', AuroraScript.Ast.Expressions.LambdaExpression)
 [7944] PUSH_STRING str(interop.hostConstants)
 [7949] PUSH_THIS
 [7950] CREATE_CLOSURE [7961] (0)
 [7956] JUMP [8060]
-
-
-
-
-# begin_func $lambda_507_35
-# Captured variables:
 [7961] ALLOC_LOCALS [3]
 [7966] LOAD_ARG 0
 [7968] STORE_LOCAL 0
-# expectNearlyEqual(ctx, PI, 3.141592653589793, 0.0000000001, 'PI injected from host')
 [7970] LOAD_LOCAL 0
 [7972] GET_GLOBAL_PROPERTY str(PI)
 [7977] PUSH_F64 3.141592653589793
@@ -3688,17 +3034,14 @@ module: UNIT_LIB unit.as
 [8000] GET_THIS_PROPERTY str(expectNearlyEqual)
 [8005] CALL 5
 [8007] POP
-# var radius = 2
 [8008] PUSH_2
 [8009] STORE_LOCAL 1
-# var area = PI * radius * radius
 [8011] GET_GLOBAL_PROPERTY str(PI)
 [8016] LOAD_LOCAL 1
 [8018] MULTIPLY
 [8019] LOAD_LOCAL 1
 [8021] MULTIPLY
 [8022] STORE_LOCAL 2
-# expectNearlyEqual(ctx, area, 12.566370614359172, 0.0000001, 'Area uses host constant')
 [8024] LOAD_LOCAL 0
 [8026] LOAD_LOCAL 2
 [8028] PUSH_F64 12.566370614359172
@@ -3708,41 +3051,26 @@ module: UNIT_LIB unit.as
 [8056] CALL 5
 [8058] POP
 [8059] RETURN_NULL
-# end_func $lambda_507_35
 [8060] GET_THIS_PROPERTY str(defineTest)
 [8065] CALL 2
 [8067] POP
-# defineTest('performance.baseline', AuroraScript.Ast.Expressions.LambdaExpression)
 [8068] PUSH_STRING str(performance.baseline)
 [8073] PUSH_THIS
 [8074] CREATE_CLOSURE [8085] (0)
 [8080] JUMP [8352]
-
-
-
-
-# begin_func $lambda_514_34
-# Captured variables:
 [8085] ALLOC_LOCALS [6]
 [8090] LOAD_ARG 0
 [8092] STORE_LOCAL 0
-# var iterations = 1000
 [8094] PUSH_I16 1000
 [8097] STORE_LOCAL 1
-# var arr = []
 [8099] NEW_ARRAY 0
 [8104] STORE_LOCAL 2
-# for
-# var i = 0
 [8106] PUSH_0
 [8107] STORE_LOCAL 4
-# condition i < iterations
 [8109] LOAD_LOCAL 4
 [8111] LOAD_LOCAL 1
 [8113] LESS_THAN
 [8114] JUMP_IF_FALSE [8142]
-# body
-# arr.push(i % 10)
 [8119] LOAD_LOCAL 4
 [8121] PUSH_I8 10
 [8123] MOD
@@ -3750,11 +3078,9 @@ module: UNIT_LIB unit.as
 [8126] GET_PROPERTY str(push)
 [8131] CALL 1
 [8133] POP
-# inc i++
 [8134] INC_LOCAL_POST 4
 [8136] POP
 [8137] JUMP [8109]
-# expectEqual(ctx, arr.length, iterations, 'Prepared array length matches iterations')
 [8142] LOAD_LOCAL 0
 [8144] LOAD_LOCAL 2
 [8146] GET_PROPERTY str(length)
@@ -3763,32 +3089,24 @@ module: UNIT_LIB unit.as
 [8158] GET_THIS_PROPERTY str(expectEqual)
 [8163] CALL 4
 [8165] POP
-# var sum = 0
 [8166] PUSH_0
 [8167] STORE_LOCAL 3
-# for
-# var j = 0
 [8169] PUSH_0
 [8170] STORE_LOCAL 5
-# condition j < arr.length
 [8172] LOAD_LOCAL 5
 [8174] LOAD_LOCAL 2
 [8176] GET_PROPERTY str(length)
 [8181] LESS_THAN
 [8182] JUMP_IF_FALSE [8205]
-# body
-# sum = sum + arr[j]
 [8187] LOAD_LOCAL 3
 [8189] LOAD_LOCAL 2
 [8191] LOAD_LOCAL 5
 [8193] GET_ELEMENT
 [8194] ADD
 [8195] STORE_LOCAL 3
-# inc j++
 [8197] INC_LOCAL_POST 5
 [8199] POP
 [8200] JUMP [8172]
-# expectEqual(ctx, sum, 4500, 'Sum of modular sequence')
 [8205] LOAD_LOCAL 0
 [8207] LOAD_LOCAL 3
 [8209] PUSH_I16 4500
@@ -3796,7 +3114,6 @@ module: UNIT_LIB unit.as
 [8217] GET_THIS_PROPERTY str(expectEqual)
 [8222] CALL 4
 [8224] POP
-# expectEqual(ctx, benchmarkNumbers(10), 45, 'benchmarkNumbers deterministic check')
 [8225] LOAD_LOCAL 0
 [8227] PUSH_I8 10
 [8229] GET_THIS_PROPERTY str(benchmarkNumbers)
@@ -3806,7 +3123,6 @@ module: UNIT_LIB unit.as
 [8243] GET_THIS_PROPERTY str(expectEqual)
 [8248] CALL 4
 [8250] POP
-# expectEqual(ctx, benchmarkArrays(5), 10, 'benchmarkArrays deterministic check')
 [8251] LOAD_LOCAL 0
 [8253] PUSH_5
 [8254] GET_THIS_PROPERTY str(benchmarkArrays)
@@ -3816,7 +3132,6 @@ module: UNIT_LIB unit.as
 [8268] GET_THIS_PROPERTY str(expectEqual)
 [8273] CALL 4
 [8275] POP
-# expectEqual(ctx, benchmarkClosure(3), 3, 'benchmarkClosure deterministic check')
 [8276] LOAD_LOCAL 0
 [8278] PUSH_3
 [8279] GET_THIS_PROPERTY str(benchmarkClosure)
@@ -3826,7 +3141,6 @@ module: UNIT_LIB unit.as
 [8292] GET_THIS_PROPERTY str(expectEqual)
 [8297] CALL 4
 [8299] POP
-# expectEqual(ctx, benchmarkObjects(5), 20, 'benchmarkObjects deterministic check')
 [8300] LOAD_LOCAL 0
 [8302] PUSH_5
 [8303] GET_THIS_PROPERTY str(benchmarkObjects)
@@ -3836,7 +3150,6 @@ module: UNIT_LIB unit.as
 [8317] GET_THIS_PROPERTY str(expectEqual)
 [8322] CALL 4
 [8324] POP
-# expectEqual(ctx, benchmarkStrings(10), 10, 'benchmarkStrings deterministic check')
 [8325] LOAD_LOCAL 0
 [8327] PUSH_I8 10
 [8329] GET_THIS_PROPERTY str(benchmarkStrings)
@@ -3847,24 +3160,16 @@ module: UNIT_LIB unit.as
 [8348] CALL 4
 [8350] POP
 [8351] RETURN_NULL
-# end_func $lambda_514_34
 [8352] GET_THIS_PROPERTY str(defineTest)
 [8357] CALL 2
 [8359] POP
 [8360] PUSH_TRUE
 [8361] RETURN
-
-
-
-
-# begin_func defineTest
-# Captured variables:
 [8362] ALLOC_LOCALS [2]
 [8367] LOAD_ARG 0
 [8369] STORE_LOCAL 0
 [8371] LOAD_ARG 1
 [8373] STORE_LOCAL 1
-# __testCases.push({ name: name, run: run })
 [8375] NEW_MAP
 [8376] DUP
 [8377] LOAD_LOCAL 0
@@ -3877,108 +3182,69 @@ module: UNIT_LIB unit.as
 [8402] CALL 1
 [8404] POP
 [8405] RETURN_NULL
-# end_func defineTest
-
-
-
-
-# begin_func testInput
-# Captured variables:
 [8406] ALLOC_LOCALS [1]
-# INPUTNUMBER('π∫¬Ú ˝¡ø', ' ‰»Î“ª∏ˆ0-99µƒ÷µ', 'number', input_change)
-[8411] PUSH_STRING str(π∫¬Ú ˝¡ø)
-[8416] PUSH_STRING str( ‰»Î“ª∏ˆ0-99µƒ÷µ)
+[8411] PUSH_STRING str(Ë¥≠‰π∞Êï∞Èáè)
+[8416] PUSH_STRING str(ËæìÂÖ•‰∏Ä‰∏™0-99ÁöÑÂÄº)
 [8421] PUSH_STRING str(number)
 [8426] GET_THIS_PROPERTY str(input_change)
 [8431] GET_GLOBAL_PROPERTY str(INPUTNUMBER)
 [8436] CALL 4
 [8438] POP
-# INPUTNUMBER('π∫¬Ú ˝¡ø', ' ‰»Î“ª∏ˆ0-99µƒ÷µ', 'number', AuroraScript.Ast.Expressions.LambdaExpression)
-[8439] PUSH_STRING str(π∫¬Ú ˝¡ø)
-[8444] PUSH_STRING str( ‰»Î“ª∏ˆ0-99µƒ÷µ)
+[8439] PUSH_STRING str(Ë¥≠‰π∞Êï∞Èáè)
+[8444] PUSH_STRING str(ËæìÂÖ•‰∏Ä‰∏™0-99ÁöÑÂÄº)
 [8449] PUSH_STRING str(number)
 [8454] PUSH_THIS
 [8455] CREATE_CLOSURE [8466] (0)
 [8461] JUMP [8511]
-
-
-
-
-# begin_func $lambda_16_45
-# Captured variables:
 [8466] ALLOC_LOCALS [1]
 [8471] LOAD_ARG 0
 [8473] STORE_LOCAL 0
-# GIVE('esd', value)
 [8475] PUSH_STRING str(esd)
 [8480] LOAD_LOCAL 0
 [8482] GET_GLOBAL_PROPERTY str(GIVE)
 [8487] CALL 2
 [8489] POP
-# console.log(' ‰»Î÷µ=', value)
-[8490] PUSH_STRING str( ‰»Î÷µ=)
+[8490] PUSH_STRING str(ËæìÂÖ•ÂÄº=)
 [8495] LOAD_LOCAL 0
 [8497] GET_GLOBAL_PROPERTY str(console)
 [8502] GET_PROPERTY str(log)
 [8507] CALL 2
 [8509] POP
 [8510] RETURN_NULL
-# end_func $lambda_16_45
 [8511] GET_GLOBAL_PROPERTY str(INPUTNUMBER)
 [8516] CALL 4
 [8518] POP
 [8519] RETURN_NULL
-# end_func testInput
-
-
-
-
-# begin_func input_change
-# Captured variables:
 [8520] ALLOC_LOCALS [1]
 [8525] LOAD_ARG 0
 [8527] STORE_LOCAL 0
-# GIVE('esd', value)
 [8529] PUSH_STRING str(esd)
 [8534] LOAD_LOCAL 0
 [8536] GET_GLOBAL_PROPERTY str(GIVE)
 [8541] CALL 2
 [8543] POP
-# console.log(' ‰»Î÷µ=', value)
-[8544] PUSH_STRING str( ‰»Î÷µ=)
+[8544] PUSH_STRING str(ËæìÂÖ•ÂÄº=)
 [8549] LOAD_LOCAL 0
 [8551] GET_GLOBAL_PROPERTY str(console)
 [8556] GET_PROPERTY str(log)
 [8561] CALL 2
 [8563] POP
 [8564] RETURN_NULL
-# end_func input_change
-
-
-
-
-# begin_func testClrType
-# Captured variables:
 [8565] ALLOC_LOCALS [1]
-# var s = TestObject()
 [8570] GET_GLOBAL_PROPERTY str(TestObject)
 [8575] CALL 0
 [8577] STORE_LOCAL 0
-# s.fs = 'ffff'
 [8579] LOAD_LOCAL 0
 [8581] PUSH_STRING str(ffff)
 [8586] SET_PROPERTY str(fs)
-# s.Name = 'aaaa'
 [8591] LOAD_LOCAL 0
 [8593] PUSH_STRING str(aaaa)
 [8598] SET_PROPERTY str(Name)
-# console.log(s)
 [8603] LOAD_LOCAL 0
 [8605] GET_GLOBAL_PROPERTY str(console)
 [8610] GET_PROPERTY str(log)
 [8615] CALL 1
 [8617] POP
-# console.log(Math.Log10(5))
 [8618] PUSH_5
 [8619] GET_GLOBAL_PROPERTY str(Math)
 [8624] GET_PROPERTY str(Log10)
@@ -3987,29 +3253,19 @@ module: UNIT_LIB unit.as
 [8636] GET_PROPERTY str(log)
 [8641] CALL 1
 [8643] POP
-# $ctx.Test(123.45, 'abc')
 [8644] PUSH_F64 123.45
 [8653] PUSH_STRING str(abc)
 [8658] PUSH_CONTEXT
 [8659] GET_PROPERTY str(Test)
 [8664] CALL 2
 [8666] POP
-# console.log($args)
 [8667] PUSH_ARGUMENTS
 [8668] GET_GLOBAL_PROPERTY str(console)
 [8673] GET_PROPERTY str(log)
 [8678] CALL 1
 [8680] POP
 [8681] RETURN_NULL
-# end_func testClrType
-
-
-
-
-# begin_func testDatetime
-# Captured variables:
 [8682] ALLOC_LOCALS [0]
-# console.log('Current     Time', Date.now().toString())
 [8687] PUSH_STRING str(Current     Time)
 [8692] GET_GLOBAL_PROPERTY str(Date)
 [8697] GET_PROPERTY str(now)
@@ -4020,7 +3276,6 @@ module: UNIT_LIB unit.as
 [8716] GET_PROPERTY str(log)
 [8721] CALL 2
 [8723] POP
-# console.log('Current UTC Time', Date.utcNow().toString())
 [8724] PUSH_STRING str(Current UTC Time)
 [8729] GET_GLOBAL_PROPERTY str(Date)
 [8734] GET_PROPERTY str(utcNow)
@@ -4031,7 +3286,6 @@ module: UNIT_LIB unit.as
 [8753] GET_PROPERTY str(log)
 [8758] CALL 2
 [8760] POP
-# console.log('Current     Time', Date.now().toString('yyyy-MM-dd HH:mm:ss fff'))
 [8761] PUSH_STRING str(Current     Time)
 [8766] PUSH_STRING str(yyyy-MM-dd HH:mm:ss fff)
 [8771] GET_GLOBAL_PROPERTY str(Date)
@@ -4043,7 +3297,6 @@ module: UNIT_LIB unit.as
 [8795] GET_PROPERTY str(log)
 [8800] CALL 2
 [8802] POP
-# console.log('Current UTC Time', Date.utcNow().toString('yyyy-MM-dd HH:mm:ss fff'))
 [8803] PUSH_STRING str(Current UTC Time)
 [8808] PUSH_STRING str(yyyy-MM-dd HH:mm:ss fff)
 [8813] GET_GLOBAL_PROPERTY str(Date)
@@ -4056,33 +3309,22 @@ module: UNIT_LIB unit.as
 [8842] CALL 2
 [8844] POP
 [8845] RETURN_NULL
-# end_func testDatetime
-
-
-
-
-# begin_func testJson
-# Captured variables:
 [8846] ALLOC_LOCALS [2]
-# var obj = time.createTimer()
 [8851] GET_THIS_PROPERTY str(time)
 [8856] GET_PROPERTY str(createTimer)
 [8861] CALL 0
 [8863] STORE_LOCAL 0
-# var json = JSON.stringify(obj, true)
 [8865] LOAD_LOCAL 0
 [8867] PUSH_TRUE
 [8868] GET_GLOBAL_PROPERTY str(JSON)
 [8873] GET_PROPERTY str(stringify)
 [8878] CALL 2
 [8880] STORE_LOCAL 1
-# var obj = JSON.parse(json)
 [8882] LOAD_LOCAL 1
 [8884] GET_GLOBAL_PROPERTY str(JSON)
 [8889] GET_PROPERTY str(parse)
 [8894] CALL 1
 [8896] STORE_LOCAL 0
-# console.log(json, obj)
 [8898] LOAD_LOCAL 1
 [8900] LOAD_LOCAL 0
 [8902] GET_GLOBAL_PROPERTY str(console)
@@ -4090,13 +3332,6 @@ module: UNIT_LIB unit.as
 [8912] CALL 2
 [8914] POP
 [8915] RETURN_NULL
-# end_func testJson
-
-
-
-
-# begin_func replacer
-# Captured variables:
 [8916] ALLOC_LOCALS [6]
 [8921] LOAD_ARG 0
 [8923] STORE_LOCAL 0
@@ -4110,7 +3345,6 @@ module: UNIT_LIB unit.as
 [8939] STORE_LOCAL 4
 [8941] LOAD_ARG 5
 [8943] STORE_LOCAL 5
-# return [p1, p2, p3].join(' - ')
 [8945] PUSH_STRING str( - )
 [8950] LOAD_LOCAL 1
 [8952] LOAD_LOCAL 2
@@ -4120,21 +3354,12 @@ module: UNIT_LIB unit.as
 [8966] CALL 1
 [8968] RETURN
 [8969] RETURN_NULL
-# end_func replacer
-
-
-
-
-# begin_func testDeConstruct
-# Captured variables:
 [8970] ALLOC_LOCALS [4]
-# var a = [4, 5, 6]
 [8975] PUSH_4
 [8976] PUSH_5
 [8977] PUSH_6
 [8978] NEW_ARRAY 3
 [8983] STORE_LOCAL 0
-# var b = [1, 2, 3, AuroraScript.Ast.Expressions.DeconstructionExpression, 7, 8, 9]
 [8985] PUSH_1
 [8986] PUSH_2
 [8987] PUSH_3
@@ -4145,13 +3370,11 @@ module: UNIT_LIB unit.as
 [8993] PUSH_9
 [8994] NEW_ARRAY 7
 [8999] STORE_LOCAL 1
-# console.log(b)
 [9001] LOAD_LOCAL 1
 [9003] GET_GLOBAL_PROPERTY str(console)
 [9008] GET_PROPERTY str(log)
 [9013] CALL 1
 [9015] POP
-# var c = { d: 4, e: 5, f: 6 }
 [9016] NEW_MAP
 [9017] DUP
 [9018] PUSH_4
@@ -4163,7 +3386,6 @@ module: UNIT_LIB unit.as
 [9032] PUSH_6
 [9033] SET_PROPERTY str(f)
 [9038] STORE_LOCAL 2
-# var d = { a: 1, b: 2, c: 3, AuroraScript.Ast.Expressions.DeconstructionExpression, g: 7, h: 8, AuroraScript.Ast.Expressions.DeconstructionExpression }
 [9040] NEW_MAP
 [9041] DUP
 [9042] PUSH_1
@@ -4187,34 +3409,22 @@ module: UNIT_LIB unit.as
 [9081] LOAD_LOCAL 1
 [9083] DECONSTRUCT_MAP
 [9084] STORE_LOCAL 3
-# console.log(d)
 [9086] LOAD_LOCAL 3
 [9088] GET_GLOBAL_PROPERTY str(console)
 [9093] GET_PROPERTY str(log)
 [9098] CALL 1
 [9100] POP
 [9101] RETURN_NULL
-# end_func testDeConstruct
-
-
-
-
-# begin_func testRegex
-# Captured variables:
 [9102] ALLOC_LOCALS [11]
-# var regex = /(?<animal>fox|cat) jumps over/
 [9107] NEW_REGEX str((?<animal>fox|cat) jumps over) str()
 [9116] STORE_LOCAL 0
-# var paragraph = 'The quick brown fox jumps over the lazy dog. It barked.'
 [9118] PUSH_STRING str(The quick brown fox jumps over the lazy dog. It barked.)
 [9123] STORE_LOCAL 1
-# var found = paragraph.match(regex)
 [9125] LOAD_LOCAL 0
 [9127] LOAD_LOCAL 1
 [9129] GET_PROPERTY str(match)
 [9134] CALL 1
 [9136] STORE_LOCAL 2
-# console.log(found.groups, found)
 [9138] LOAD_LOCAL 2
 [9140] GET_PROPERTY str(groups)
 [9145] LOAD_LOCAL 2
@@ -4222,55 +3432,43 @@ module: UNIT_LIB unit.as
 [9152] GET_PROPERTY str(log)
 [9157] CALL 2
 [9159] POP
-# var paragraph2 = 'The quick brown fox jumps over the lazy dog. It barked.'
 [9160] PUSH_STRING str(The quick brown fox jumps over the lazy dog. It barked.)
 [9165] STORE_LOCAL 3
-# var regex2 = /[A-Z]/g
 [9167] NEW_REGEX str([A-Z]) str(g)
 [9176] STORE_LOCAL 4
-# var found = paragraph2.match(regex2)
 [9178] LOAD_LOCAL 4
 [9180] LOAD_LOCAL 3
 [9182] GET_PROPERTY str(match)
 [9187] CALL 1
 [9189] STORE_LOCAL 2
-# console.log(found)
 [9191] LOAD_LOCAL 2
 [9193] GET_GLOBAL_PROPERTY str(console)
 [9198] GET_PROPERTY str(log)
 [9203] CALL 1
 [9205] POP
-# var str = 'For more information, see Chapter 3.4.5.1'
 [9206] PUSH_STRING str(For more information, see Chapter 3.4.5.1)
 [9211] STORE_LOCAL 5
-# var re = /see (chapter \d+(\.\d)*)/i
 [9213] NEW_REGEX str(see (chapter \d+(\.\d)*)) str(i)
 [9222] STORE_LOCAL 6
-# var found = str.match(re)
 [9224] LOAD_LOCAL 6
 [9226] LOAD_LOCAL 5
 [9228] GET_PROPERTY str(match)
 [9233] CALL 1
 [9235] STORE_LOCAL 2
-# console.log(found)
 [9237] LOAD_LOCAL 2
 [9239] GET_GLOBAL_PROPERTY str(console)
 [9244] GET_PROPERTY str(log)
 [9249] CALL 1
 [9251] POP
-# var regexp = /t(e)(st(\d?))/g
 [9252] NEW_REGEX str(t(e)(st(\d?))) str(g)
 [9261] STORE_LOCAL 7
-# var str = 'test1test2'
 [9263] PUSH_STRING str(test1test2)
 [9268] STORE_LOCAL 5
-# var array = str.matchAll(regexp)
 [9270] LOAD_LOCAL 7
 [9272] LOAD_LOCAL 5
 [9274] GET_PROPERTY str(matchAll)
 [9279] CALL 1
 [9281] STORE_LOCAL 8
-# console.log(array[0])
 [9283] LOAD_LOCAL 8
 [9285] PUSH_0
 [9286] GET_ELEMENT
@@ -4278,7 +3476,6 @@ module: UNIT_LIB unit.as
 [9292] GET_PROPERTY str(log)
 [9297] CALL 1
 [9299] POP
-# console.log(array[1])
 [9300] LOAD_LOCAL 8
 [9302] PUSH_1
 [9303] GET_ELEMENT
@@ -4286,49 +3483,36 @@ module: UNIT_LIB unit.as
 [9309] GET_PROPERTY str(log)
 [9314] CALL 1
 [9316] POP
-# var newString = 'abc12345#$*%'.replace(/([^\d]*)(\d*)([^\w]*)/, replacer)
 [9317] NEW_REGEX str(([^\d]*)(\d*)([^\w]*)) str()
 [9326] GET_THIS_PROPERTY str(replacer)
 [9331] PUSH_STRING str(abc12345#$*%)
 [9336] GET_PROPERTY str(replace)
 [9341] CALL 2
 [9343] STORE_LOCAL 9
-# console.log(newString)
 [9345] LOAD_LOCAL 9
 [9347] GET_GLOBAL_PROPERTY str(console)
 [9352] GET_PROPERTY str(log)
 [9357] CALL 1
 [9359] POP
-# console.log(/profile\.json$/i)
 [9360] NEW_REGEX str(profile\.json$) str(i)
 [9369] GET_GLOBAL_PROPERTY str(console)
 [9374] GET_PROPERTY str(log)
 [9379] CALL 1
 [9381] POP
-# var s = /profile\.json$/i.test('profile.json')
 [9382] PUSH_STRING str(profile.json)
 [9387] NEW_REGEX str(profile\.json$) str(i)
 [9396] GET_PROPERTY str(test)
 [9401] CALL 1
 [9403] STORE_LOCAL 10
-# console.log(s)
 [9405] LOAD_LOCAL 10
 [9407] GET_GLOBAL_PROPERTY str(console)
 [9412] GET_PROPERTY str(log)
 [9417] CALL 1
 [9419] POP
 [9420] RETURN_NULL
-# end_func testRegex
-
-
-
-
-# begin_func createTestContext
-# Captured variables:
 [9421] ALLOC_LOCALS [1]
 [9426] LOAD_ARG 0
 [9428] STORE_LOCAL 0
-# return { name: name, passed: true, checks: 0, failures: [], notes: [] }
 [9430] NEW_MAP
 [9431] DUP
 [9432] LOAD_LOCAL 0
@@ -4347,13 +3531,6 @@ module: UNIT_LIB unit.as
 [9470] SET_PROPERTY str(notes)
 [9475] RETURN
 [9476] RETURN_NULL
-# end_func createTestContext
-
-
-
-
-# begin_func formatValue
-# Captured variables:
 [9477] ALLOC_LOCALS [8]
 [9482] LOAD_ARG 0
 [9484] STORE_LOCAL 0
@@ -4361,10 +3538,8 @@ module: UNIT_LIB unit.as
 [9488] PUSH_NULL
 [9489] EQUAL
 [9490] JUMP_IF_FALSE [9501]
-# return 'null'
 [9495] PUSH_STRING str(null)
 [9500] RETURN
-# var valueType = typeofvalue
 [9501] LOAD_LOCAL 0
 [9503] TYPEOF
 [9504] STORE_LOCAL 1
@@ -4380,7 +3555,6 @@ module: UNIT_LIB unit.as
 [9530] EQUAL
 [9531] LOGIC_OR
 [9532] JUMP_IF_FALSE [9546]
-# return '' + value
 [9537] PUSH_STRING str()
 [9542] LOAD_LOCAL 0
 [9544] ADD
@@ -4389,21 +3563,15 @@ module: UNIT_LIB unit.as
 [9548] GET_THIS_PROPERTY str(isArray)
 [9553] CALL 1
 [9555] JUMP_IF_FALSE [9642]
-# var buffer = []
 [9560] NEW_ARRAY 0
 [9565] STORE_LOCAL 2
-# for
-# var i = 0
 [9567] PUSH_0
 [9568] STORE_LOCAL 3
-# condition i < value.length
 [9570] LOAD_LOCAL 3
 [9572] LOAD_LOCAL 0
 [9574] GET_PROPERTY str(length)
 [9579] LESS_THAN
 [9580] JUMP_IF_FALSE [9615]
-# body
-# buffer.push(formatValue(value[i]))
 [9585] LOAD_LOCAL 0
 [9587] LOAD_LOCAL 3
 [9589] GET_ELEMENT
@@ -4413,11 +3581,9 @@ module: UNIT_LIB unit.as
 [9599] GET_PROPERTY str(push)
 [9604] CALL 1
 [9606] POP
-# inc i++
 [9607] INC_LOCAL_POST 3
 [9609] POP
 [9610] JUMP [9570]
-# return '[' + buffer.join(', ') + ']'
 [9615] PUSH_STRING str([)
 [9620] PUSH_STRING str(, )
 [9625] LOAD_LOCAL 2
@@ -4431,26 +3597,19 @@ module: UNIT_LIB unit.as
 [9644] PUSH_STRING str(object)
 [9649] EQUAL
 [9650] JUMP_IF_FALSE [9811]
-# var keys = []
 [9655] NEW_ARRAY 0
 [9660] STORE_LOCAL 2
-# for in
-# var key =
 [9662] PUSH_NULL
 [9663] STORE_LOCAL 4
-# condition key in value
 [9665] LOAD_LOCAL 0
 [9667] GET_ITERATOR
 [9668] STORE_LOCAL 5
 [9670] LOAD_LOCAL 5
 [9672] ITERATOR_HAS_VALUE
 [9673] JUMP_IF_FALSE [9703]
-# IteratorValue
 [9678] LOAD_LOCAL 5
 [9680] ITERATOR_VALUE
 [9681] STORE_LOCAL 4
-# body
-# keys.push(key)
 [9683] LOAD_LOCAL 4
 [9685] LOAD_LOCAL 2
 [9687] GET_PROPERTY str(push)
@@ -4459,31 +3618,23 @@ module: UNIT_LIB unit.as
 [9695] LOAD_LOCAL 5
 [9697] ITERATOR_NEXT
 [9698] JUMP [9670]
-# keys.sort()
 [9703] LOAD_LOCAL 2
 [9705] GET_PROPERTY str(sort)
 [9710] CALL 0
 [9712] POP
-# var parts = []
 [9713] NEW_ARRAY 0
 [9718] STORE_LOCAL 3
-# for
-# var j = 0
 [9720] PUSH_0
 [9721] STORE_LOCAL 6
-# condition j < keys.length
 [9723] LOAD_LOCAL 6
 [9725] LOAD_LOCAL 2
 [9727] GET_PROPERTY str(length)
 [9732] LESS_THAN
 [9733] JUMP_IF_FALSE [9784]
-# body
-# var currentKey = keys[j]
 [9738] LOAD_LOCAL 2
 [9740] LOAD_LOCAL 6
 [9742] GET_ELEMENT
 [9743] STORE_LOCAL 7
-# parts.push(currentKey + ': ' + formatValue(value[currentKey]))
 [9745] LOAD_LOCAL 7
 [9747] PUSH_STRING str(: )
 [9752] ADD
@@ -4497,11 +3648,9 @@ module: UNIT_LIB unit.as
 [9768] GET_PROPERTY str(push)
 [9773] CALL 1
 [9775] POP
-# inc j++
 [9776] INC_LOCAL_POST 6
 [9778] POP
 [9779] JUMP [9723]
-# return '{' + parts.join(', ') + '}'
 [9784] PUSH_STRING str({)
 [9789] PUSH_STRING str(, )
 [9794] LOAD_LOCAL 3
@@ -4515,22 +3664,13 @@ module: UNIT_LIB unit.as
 [9813] PUSH_STRING str(function)
 [9818] EQUAL
 [9819] JUMP_IF_FALSE [9830]
-# return '[function]'
 [9824] PUSH_STRING str([function])
 [9829] RETURN
-# return '' + value
 [9830] PUSH_STRING str()
 [9835] LOAD_LOCAL 0
 [9837] ADD
 [9838] RETURN
 [9839] RETURN_NULL
-# end_func formatValue
-
-
-
-
-# begin_func addFailure
-# Captured variables:
 [9840] ALLOC_LOCALS [4]
 [9845] LOAD_ARG 0
 [9847] STORE_LOCAL 0
@@ -4540,7 +3680,6 @@ module: UNIT_LIB unit.as
 [9855] STORE_LOCAL 2
 [9857] LOAD_ARG 3
 [9859] STORE_LOCAL 3
-# ctx.failures.push({ message: message, actual: formatValue(actual), expected: formatValue(expected) })
 [9861] NEW_MAP
 [9862] DUP
 [9863] LOAD_LOCAL 1
@@ -4561,13 +3700,6 @@ module: UNIT_LIB unit.as
 [9912] CALL 1
 [9914] POP
 [9915] RETURN_NULL
-# end_func addFailure
-
-
-
-
-# begin_func expectTrue
-# Captured variables:
 [9916] ALLOC_LOCALS [5]
 [9921] LOAD_ARG 0
 [9923] STORE_LOCAL 0
@@ -4579,7 +3711,6 @@ module: UNIT_LIB unit.as
 [9935] STORE_LOCAL 3
 [9937] LOAD_ARG 4
 [9939] STORE_LOCAL 4
-# ctx.checks = ctx.checks + 1
 [9941] LOAD_LOCAL 0
 [9943] LOAD_LOCAL 0
 [9945] GET_PROPERTY str(checks)
@@ -4589,11 +3720,9 @@ module: UNIT_LIB unit.as
 [9957] LOAD_LOCAL 1
 [9959] LOGIC_NOT
 [9960] JUMP_IF_FALSE [9989]
-# ctx.passed = false
 [9965] LOAD_LOCAL 0
 [9967] PUSH_FALSE
 [9968] SET_PROPERTY str(passed)
-# addFailure(ctx, message, actual, expected)
 [9973] LOAD_LOCAL 0
 [9975] LOAD_LOCAL 2
 [9977] LOAD_LOCAL 3
@@ -4602,13 +3731,6 @@ module: UNIT_LIB unit.as
 [9986] CALL 4
 [9988] POP
 [9989] RETURN_NULL
-# end_func expectTrue
-
-
-
-
-# begin_func expectFalse
-# Captured variables:
 [9990] ALLOC_LOCALS [3]
 [9995] LOAD_ARG 0
 [9997] STORE_LOCAL 0
@@ -4616,7 +3738,6 @@ module: UNIT_LIB unit.as
 [10001] STORE_LOCAL 1
 [10003] LOAD_ARG 2
 [10005] STORE_LOCAL 2
-# expectTrue(ctx, !condition, message, condition, false)
 [10007] LOAD_LOCAL 0
 [10009] LOAD_LOCAL 1
 [10011] LOGIC_NOT
@@ -4627,13 +3748,6 @@ module: UNIT_LIB unit.as
 [10022] CALL 5
 [10024] POP
 [10025] RETURN_NULL
-# end_func expectFalse
-
-
-
-
-# begin_func expectEqual
-# Captured variables:
 [10026] ALLOC_LOCALS [5]
 [10031] LOAD_ARG 0
 [10033] STORE_LOCAL 0
@@ -4643,13 +3757,11 @@ module: UNIT_LIB unit.as
 [10041] STORE_LOCAL 2
 [10043] LOAD_ARG 3
 [10045] STORE_LOCAL 3
-# var ok = deepEqual(actual, expected)
 [10047] LOAD_LOCAL 1
 [10049] LOAD_LOCAL 2
 [10051] GET_THIS_PROPERTY str(deepEqual)
 [10056] CALL 2
 [10058] STORE_LOCAL 4
-# expectTrue(ctx, ok, message, actual, expected)
 [10060] LOAD_LOCAL 0
 [10062] LOAD_LOCAL 4
 [10064] LOAD_LOCAL 3
@@ -4659,13 +3771,6 @@ module: UNIT_LIB unit.as
 [10075] CALL 5
 [10077] POP
 [10078] RETURN_NULL
-# end_func expectEqual
-
-
-
-
-# begin_func expectNearlyEqual
-# Captured variables:
 [10079] ALLOC_LOCALS [6]
 [10084] LOAD_ARG 0
 [10086] STORE_LOCAL 0
@@ -4677,20 +3782,18 @@ module: UNIT_LIB unit.as
 [10098] STORE_LOCAL 3
 [10100] LOAD_ARG 4
 [10102] STORE_LOCAL 4
-# var diff = absolute(actual - expected)
 [10104] LOAD_LOCAL 1
 [10106] LOAD_LOCAL 2
 [10108] SUBTRACT
 [10109] GET_THIS_PROPERTY str(absolute)
 [10114] CALL 1
 [10116] STORE_LOCAL 5
-# expectTrue(ctx, diff <= epsilon, message + ' (°¿' + epsilon + ')', actual, expected)
 [10118] LOAD_LOCAL 0
 [10120] LOAD_LOCAL 5
 [10122] LOAD_LOCAL 3
 [10124] LESS_EQUAL
 [10125] LOAD_LOCAL 4
-[10127] PUSH_STRING str( (°¿)
+[10127] PUSH_STRING str( (¬±)
 [10132] ADD
 [10133] LOAD_LOCAL 3
 [10135] ADD
@@ -4702,19 +3805,11 @@ module: UNIT_LIB unit.as
 [10151] CALL 5
 [10153] POP
 [10154] RETURN_NULL
-# end_func expectNearlyEqual
-
-
-
-
-# begin_func addNote
-# Captured variables:
 [10155] ALLOC_LOCALS [2]
 [10160] LOAD_ARG 0
 [10162] STORE_LOCAL 0
 [10164] LOAD_ARG 1
 [10166] STORE_LOCAL 1
-# ctx.notes.push(note)
 [10168] LOAD_LOCAL 1
 [10170] LOAD_LOCAL 0
 [10172] GET_PROPERTY str(notes)
@@ -4722,30 +3817,15 @@ module: UNIT_LIB unit.as
 [10182] CALL 1
 [10184] POP
 [10185] RETURN_NULL
-# end_func addNote
-
-
-
-
-# begin_func isArray
-# Captured variables:
 [10186] ALLOC_LOCALS [1]
 [10191] LOAD_ARG 0
 [10193] STORE_LOCAL 0
-# return typeofvalue == 'array'
 [10195] LOAD_LOCAL 0
 [10197] TYPEOF
 [10198] PUSH_STRING str(array)
 [10203] EQUAL
 [10204] RETURN
 [10205] RETURN_NULL
-# end_func isArray
-
-
-
-
-# begin_func deepEqual
-# Captured variables:
 [10206] ALLOC_LOCALS [12]
 [10211] LOAD_ARG 0
 [10213] STORE_LOCAL 0
@@ -4759,7 +3839,6 @@ module: UNIT_LIB unit.as
 [10231] PUSH_0
 [10232] EQUAL
 [10233] JUMP_IF_FALSE [10248]
-# return 1 / a == 1 / b
 [10238] PUSH_1
 [10239] LOAD_LOCAL 0
 [10241] DIVIDE
@@ -4768,14 +3847,11 @@ module: UNIT_LIB unit.as
 [10245] DIVIDE
 [10246] EQUAL
 [10247] RETURN
-# return true
 [10248] PUSH_TRUE
 [10249] RETURN
-# var typeA = typeofa
 [10250] LOAD_LOCAL 0
 [10252] TYPEOF
 [10253] STORE_LOCAL 2
-# var typeB = typeofb
 [10255] LOAD_LOCAL 1
 [10257] TYPEOF
 [10258] STORE_LOCAL 3
@@ -4783,7 +3859,6 @@ module: UNIT_LIB unit.as
 [10262] LOAD_LOCAL 3
 [10264] NOT_EQUAL
 [10265] JUMP_IF_FALSE [10272]
-# return false
 [10270] PUSH_FALSE
 [10271] RETURN
 [10272] LOAD_LOCAL 2
@@ -4798,7 +3873,6 @@ module: UNIT_LIB unit.as
 [10296] EQUAL
 [10297] LOGIC_OR
 [10298] JUMP_IF_FALSE [10309]
-# return a == b
 [10303] LOAD_LOCAL 0
 [10305] LOAD_LOCAL 1
 [10307] EQUAL
@@ -4811,7 +3885,6 @@ module: UNIT_LIB unit.as
 [10316] EQUAL
 [10317] LOGIC_OR
 [10318] JUMP_IF_FALSE [10329]
-# return a == b
 [10323] LOAD_LOCAL 0
 [10325] LOAD_LOCAL 1
 [10327] EQUAL
@@ -4830,20 +3903,15 @@ module: UNIT_LIB unit.as
 [10362] GET_PROPERTY str(length)
 [10367] NOT_EQUAL
 [10368] JUMP_IF_FALSE [10375]
-# return false
 [10373] PUSH_FALSE
 [10374] RETURN
-# for
-# var i = 0
 [10375] PUSH_0
 [10376] STORE_LOCAL 4
-# condition i < a.length
 [10378] LOAD_LOCAL 4
 [10380] LOAD_LOCAL 0
 [10382] GET_PROPERTY str(length)
 [10387] LESS_THAN
 [10388] JUMP_IF_FALSE [10426]
-# body
 [10393] LOAD_LOCAL 0
 [10395] LOAD_LOCAL 4
 [10397] GET_ELEMENT
@@ -4854,43 +3922,32 @@ module: UNIT_LIB unit.as
 [10408] CALL 2
 [10410] LOGIC_NOT
 [10411] JUMP_IF_FALSE [10418]
-# return false
 [10416] PUSH_FALSE
 [10417] RETURN
-# inc i++
 [10418] INC_LOCAL_POST 4
 [10420] POP
 [10421] JUMP [10378]
-# return true
 [10426] PUSH_TRUE
 [10427] RETURN
 [10428] LOAD_LOCAL 2
 [10430] PUSH_STRING str(object)
 [10435] EQUAL
 [10436] JUMP_IF_FALSE [10657]
-# var keysA = []
 [10441] NEW_ARRAY 0
 [10446] STORE_LOCAL 4
-# var keysB = []
 [10448] NEW_ARRAY 0
 [10453] STORE_LOCAL 5
-# for in
-# var keyA =
 [10455] PUSH_NULL
 [10456] STORE_LOCAL 6
-# condition keyA in a
 [10458] LOAD_LOCAL 0
 [10460] GET_ITERATOR
 [10461] STORE_LOCAL 7
 [10463] LOAD_LOCAL 7
 [10465] ITERATOR_HAS_VALUE
 [10466] JUMP_IF_FALSE [10496]
-# IteratorValue
 [10471] LOAD_LOCAL 7
 [10473] ITERATOR_VALUE
 [10474] STORE_LOCAL 6
-# body
-# keysA.push(keyA)
 [10476] LOAD_LOCAL 6
 [10478] LOAD_LOCAL 4
 [10480] GET_PROPERTY str(push)
@@ -4899,23 +3956,17 @@ module: UNIT_LIB unit.as
 [10488] LOAD_LOCAL 7
 [10490] ITERATOR_NEXT
 [10491] JUMP [10463]
-# for in
-# var keyB =
 [10496] PUSH_NULL
 [10497] STORE_LOCAL 8
-# condition keyB in b
 [10499] LOAD_LOCAL 1
 [10501] GET_ITERATOR
 [10502] STORE_LOCAL 9
 [10504] LOAD_LOCAL 9
 [10506] ITERATOR_HAS_VALUE
 [10507] JUMP_IF_FALSE [10537]
-# IteratorValue
 [10512] LOAD_LOCAL 9
 [10514] ITERATOR_VALUE
 [10515] STORE_LOCAL 8
-# body
-# keysB.push(keyB)
 [10517] LOAD_LOCAL 8
 [10519] LOAD_LOCAL 5
 [10521] GET_PROPERTY str(push)
@@ -4924,12 +3975,10 @@ module: UNIT_LIB unit.as
 [10529] LOAD_LOCAL 9
 [10531] ITERATOR_NEXT
 [10532] JUMP [10504]
-# keysA.sort()
 [10537] LOAD_LOCAL 4
 [10539] GET_PROPERTY str(sort)
 [10544] CALL 0
 [10546] POP
-# keysB.sort()
 [10547] LOAD_LOCAL 5
 [10549] GET_PROPERTY str(sort)
 [10554] CALL 0
@@ -4940,20 +3989,15 @@ module: UNIT_LIB unit.as
 [10566] GET_PROPERTY str(length)
 [10571] NOT_EQUAL
 [10572] JUMP_IF_FALSE [10579]
-# return false
 [10577] PUSH_FALSE
 [10578] RETURN
-# for
-# var k = 0
 [10579] PUSH_0
 [10580] STORE_LOCAL 10
-# condition k < keysA.length
 [10582] LOAD_LOCAL 10
 [10584] LOAD_LOCAL 4
 [10586] GET_PROPERTY str(length)
 [10591] LESS_THAN
 [10592] JUMP_IF_FALSE [10655]
-# body
 [10597] LOAD_LOCAL 4
 [10599] LOAD_LOCAL 10
 [10601] GET_ELEMENT
@@ -4962,10 +4006,8 @@ module: UNIT_LIB unit.as
 [10606] GET_ELEMENT
 [10607] NOT_EQUAL
 [10608] JUMP_IF_FALSE [10615]
-# return false
 [10613] PUSH_FALSE
 [10614] RETURN
-# var key = keysA[k]
 [10615] LOAD_LOCAL 4
 [10617] LOAD_LOCAL 10
 [10619] GET_ELEMENT
@@ -4980,27 +4022,16 @@ module: UNIT_LIB unit.as
 [10637] CALL 2
 [10639] LOGIC_NOT
 [10640] JUMP_IF_FALSE [10647]
-# return false
 [10645] PUSH_FALSE
 [10646] RETURN
-# inc k++
 [10647] INC_LOCAL_POST 10
 [10649] POP
 [10650] JUMP [10582]
-# return true
 [10655] PUSH_TRUE
 [10656] RETURN
-# return false
 [10657] PUSH_FALSE
 [10658] RETURN
 [10659] RETURN_NULL
-# end_func deepEqual
-
-
-
-
-# begin_func absolute
-# Captured variables:
 [10660] ALLOC_LOCALS [1]
 [10665] LOAD_ARG 0
 [10667] STORE_LOCAL 0
@@ -5008,49 +4039,35 @@ module: UNIT_LIB unit.as
 [10671] PUSH_0
 [10672] LESS_THAN
 [10673] JUMP_IF_FALSE [10682]
-# return -value
 [10678] LOAD_LOCAL 0
 [10680] NEGATE
 [10681] RETURN
-# return value
 [10682] LOAD_LOCAL 0
 [10684] RETURN
 [10685] RETURN_NULL
-# end_func absolute
-
-
-
-
-# begin_func executeTest
-# Captured variables:
 [10686] ALLOC_LOCALS [5]
 [10691] LOAD_ARG 0
 [10693] STORE_LOCAL 0
-# var ctx = createTestContext(testCase.name)
 [10695] LOAD_LOCAL 0
 [10697] GET_PROPERTY str(name)
 [10702] GET_THIS_PROPERTY str(createTestContext)
 [10707] CALL 1
 [10709] STORE_LOCAL 1
-# var label = 'test:' + testCase.name
 [10711] PUSH_STRING str(test:)
 [10716] LOAD_LOCAL 0
 [10718] GET_PROPERTY str(name)
 [10723] ADD
 [10724] STORE_LOCAL 2
-# console.time(label)
 [10726] LOAD_LOCAL 2
 [10728] GET_GLOBAL_PROPERTY str(console)
 [10733] GET_PROPERTY str(time)
 [10738] CALL 1
 [10740] POP
-# testCase.run(ctx)
 [10741] LOAD_LOCAL 1
 [10743] LOAD_LOCAL 0
 [10745] GET_PROPERTY str(run)
 [10750] CALL 1
 [10752] POP
-# console.timeEnd(label)
 [10753] LOAD_LOCAL 2
 [10755] GET_GLOBAL_PROPERTY str(console)
 [10760] GET_PROPERTY str(timeEnd)
@@ -5059,7 +4076,6 @@ module: UNIT_LIB unit.as
 [10768] LOAD_LOCAL 1
 [10770] GET_PROPERTY str(passed)
 [10775] JUMP_IF_FALSE [10831]
-# console.log('[PASS] ' + testCase.name + ' (' + ctx.checks + ' checks)')
 [10780] PUSH_STRING str([PASS] )
 [10785] LOAD_LOCAL 0
 [10787] GET_PROPERTY str(name)
@@ -5076,7 +4092,6 @@ module: UNIT_LIB unit.as
 [10823] CALL 1
 [10825] POP
 [10826] JUMP [10979]
-# console.log('[FAIL] ' + testCase.name + ' -> ' + ctx.failures.length + ' issue(s)')
 [10831] PUSH_STRING str([FAIL] )
 [10836] LOAD_LOCAL 0
 [10838] GET_PROPERTY str(name)
@@ -5093,25 +4108,19 @@ module: UNIT_LIB unit.as
 [10874] GET_PROPERTY str(log)
 [10879] CALL 1
 [10881] POP
-# for
-# var i = 0
 [10882] PUSH_0
 [10883] STORE_LOCAL 3
-# condition i < ctx.failures.length
 [10885] LOAD_LOCAL 3
 [10887] LOAD_LOCAL 1
 [10889] GET_PROPERTY str(failures)
 [10894] GET_PROPERTY str(length)
 [10899] LESS_THAN
 [10900] JUMP_IF_FALSE [10979]
-# body
-# var failure = ctx.failures[i]
 [10905] LOAD_LOCAL 1
 [10907] GET_PROPERTY str(failures)
 [10912] LOAD_LOCAL 3
 [10914] GET_ELEMENT
 [10915] STORE_LOCAL 4
-# console.log('    ' + failure.message + ' | actual=' + failure.actual + ' expected=' + failure.expected)
 [10917] PUSH_STRING str(    )
 [10922] LOAD_LOCAL 4
 [10924] GET_PROPERTY str(message)
@@ -5130,123 +4139,77 @@ module: UNIT_LIB unit.as
 [10963] GET_PROPERTY str(log)
 [10968] CALL 1
 [10970] POP
-# inc i++
 [10971] INC_LOCAL_POST 3
 [10973] POP
 [10974] JUMP [10885]
-# return ctx
 [10979] LOAD_LOCAL 1
 [10981] RETURN
 [10982] RETURN_NULL
-# end_func executeTest
-
-
-
-
-# begin_func benchmarkNumbers
-# Captured variables:
 [10983] ALLOC_LOCALS [3]
 [10988] PUSH_I32 1000000
 [10993] TRY_LOAD_ARG 0
 [10995] STORE_LOCAL 0
-# var acc = 0
 [10997] PUSH_0
 [10998] STORE_LOCAL 1
-# for
-# var i = 0
 [11000] PUSH_0
 [11001] STORE_LOCAL 2
-# condition i < iterations
 [11003] LOAD_LOCAL 2
 [11005] LOAD_LOCAL 0
 [11007] LESS_THAN
 [11008] JUMP_IF_FALSE [11031]
-# body
-# acc = (acc + i) % 97
 [11013] LOAD_LOCAL 1
 [11015] LOAD_LOCAL 2
 [11017] ADD
 [11018] PUSH_I8 97
 [11020] MOD
 [11021] STORE_LOCAL 1
-# inc i++
 [11023] INC_LOCAL_POST 2
 [11025] POP
 [11026] JUMP [11003]
-# return acc
 [11031] LOAD_LOCAL 1
 [11033] RETURN
 [11034] RETURN_NULL
-# end_func benchmarkNumbers
-
-
-
-
-# begin_func benchmarkArrays
-# Captured variables:
 [11035] ALLOC_LOCALS [5]
 [11040] PUSH_I32 200000
 [11045] TRY_LOAD_ARG 0
 [11047] STORE_LOCAL 0
-# var arr = []
 [11049] NEW_ARRAY 0
 [11054] STORE_LOCAL 1
-# for
-# var i = 0
 [11056] PUSH_0
 [11057] STORE_LOCAL 3
-# condition i < iterations
 [11059] LOAD_LOCAL 3
 [11061] LOAD_LOCAL 0
 [11063] LESS_THAN
 [11064] JUMP_IF_FALSE [11089]
-# body
-# arr.push(i)
 [11069] LOAD_LOCAL 3
 [11071] LOAD_LOCAL 1
 [11073] GET_PROPERTY str(push)
 [11078] CALL 1
 [11080] POP
-# inc i++
 [11081] INC_LOCAL_POST 3
 [11083] POP
 [11084] JUMP [11059]
-# var sum = 0
 [11089] PUSH_0
 [11090] STORE_LOCAL 2
-# for
-# var j = 0
 [11092] PUSH_0
 [11093] STORE_LOCAL 4
-# condition j < arr.length
 [11095] LOAD_LOCAL 4
 [11097] LOAD_LOCAL 1
 [11099] GET_PROPERTY str(length)
 [11104] LESS_THAN
 [11105] JUMP_IF_FALSE [11128]
-# body
-# sum = sum + arr[j]
 [11110] LOAD_LOCAL 2
 [11112] LOAD_LOCAL 1
 [11114] LOAD_LOCAL 4
 [11116] GET_ELEMENT
 [11117] ADD
 [11118] STORE_LOCAL 2
-# inc j++
 [11120] INC_LOCAL_POST 4
 [11122] POP
 [11123] JUMP [11095]
-# return sum
 [11128] LOAD_LOCAL 2
 [11130] RETURN
 [11131] RETURN_NULL
-# end_func benchmarkArrays
-
-
-
-
-# begin_func benchmarkClosure
-# Captured variables:
 [11132] ALLOC_LOCALS [5]
 [11137] PUSH_I32 500000
 [11142] TRY_LOAD_ARG 0
@@ -5254,97 +4217,57 @@ module: UNIT_LIB unit.as
 [11146] PUSH_THIS
 [11147] CREATE_CLOSURE [11194] (0)
 [11153] STORE_LOCAL 3
-# var counter = makeCounter()
 [11155] LOAD_LOCAL 3
 [11157] CALL 0
 [11159] STORE_LOCAL 1
-# var last = 0
 [11161] PUSH_0
 [11162] STORE_LOCAL 2
-# for
-# var i = 0
 [11164] PUSH_0
 [11165] STORE_LOCAL 4
-# condition i < iterations
 [11167] LOAD_LOCAL 4
 [11169] LOAD_LOCAL 0
 [11171] LESS_THAN
 [11172] JUMP_IF_FALSE [11191]
-# body
-# last = counter()
 [11177] LOAD_LOCAL 1
 [11179] CALL 0
 [11181] STORE_LOCAL 2
-# inc i++
 [11183] INC_LOCAL_POST 4
 [11185] POP
 [11186] JUMP [11167]
-# return last
 [11191] LOAD_LOCAL 2
 [11193] RETURN
-
-
-
-
-# begin_func makeCounter
-# Captured variables:
 [11194] ALLOC_LOCALS [1]
-# var count = 0
 [11199] PUSH_0
 [11200] STORE_LOCAL 0
-# return AuroraScript.Ast.Expressions.LambdaExpression
 [11202] CAPTURE_VAR 0
 [11207] PUSH_THIS
 [11208] CREATE_CLOSURE [11219] (1)
 [11214] JUMP [11250]
-
-
-
-
-# begin_func $lambda_314_15
-# Captured variables: count
 [11219] ALLOC_LOCALS [1]
 [11224] CAPTURE_VAR 0
 [11229] STORE_LOCAL 0
-# count = count + 1
 [11231] LOAD_CAPTURE 0
 [11236] PUSH_1
 [11237] ADD
 [11238] STORE_CAPTURE 0
-# return count
 [11243] LOAD_CAPTURE 0
 [11248] RETURN
 [11249] RETURN_NULL
-# end_func $lambda_314_15
 [11250] RETURN
 [11251] RETURN_NULL
-# end_func makeCounter
 [11252] RETURN_NULL
-# end_func benchmarkClosure
-
-
-
-
-# begin_func benchmarkObjects
-# Captured variables:
 [11253] ALLOC_LOCALS [4]
 [11258] PUSH_I32 150000
 [11263] TRY_LOAD_ARG 0
 [11265] STORE_LOCAL 0
-# var total = 0
 [11267] PUSH_0
 [11268] STORE_LOCAL 1
-# for
-# var i = 0
 [11270] PUSH_0
 [11271] STORE_LOCAL 2
-# condition i < iterations
 [11273] LOAD_LOCAL 2
 [11275] LOAD_LOCAL 0
 [11277] LESS_THAN
 [11278] JUMP_IF_FALSE [11346]
-# body
-# var obj = { index: i, value: i & 7 }
 [11283] NEW_MAP
 [11284] DUP
 [11285] LOAD_LOCAL 2
@@ -5355,7 +4278,6 @@ module: UNIT_LIB unit.as
 [11296] BIT_AND
 [11297] SET_PROPERTY str(value)
 [11302] STORE_LOCAL 3
-# obj.sum = obj.index + obj.value
 [11304] LOAD_LOCAL 3
 [11306] LOAD_LOCAL 3
 [11308] GET_PROPERTY str(index)
@@ -5363,45 +4285,29 @@ module: UNIT_LIB unit.as
 [11315] GET_PROPERTY str(value)
 [11320] ADD
 [11321] SET_PROPERTY str(sum)
-# total = total + obj.sum
 [11326] LOAD_LOCAL 1
 [11328] LOAD_LOCAL 3
 [11330] GET_PROPERTY str(sum)
 [11335] ADD
 [11336] STORE_LOCAL 1
-# inc i++
 [11338] INC_LOCAL_POST 2
 [11340] POP
 [11341] JUMP [11273]
-# return total
 [11346] LOAD_LOCAL 1
 [11348] RETURN
 [11349] RETURN_NULL
-# end_func benchmarkObjects
-
-
-
-
-# begin_func benchmarkStrings
-# Captured variables:
 [11350] ALLOC_LOCALS [3]
 [11355] PUSH_I32 80000
 [11360] TRY_LOAD_ARG 0
 [11362] STORE_LOCAL 0
-# var buffer = ''
 [11364] PUSH_STRING str()
 [11369] STORE_LOCAL 1
-# for
-# var i = 0
 [11371] PUSH_0
 [11372] STORE_LOCAL 2
-# condition i < iterations
 [11374] LOAD_LOCAL 2
 [11376] LOAD_LOCAL 0
 [11378] LESS_THAN
 [11379] JUMP_IF_FALSE [11438]
-# body
-# buffer = buffer + 'a'
 [11384] LOAD_LOCAL 1
 [11386] PUSH_STRING str(a)
 [11391] ADD
@@ -5411,7 +4317,6 @@ module: UNIT_LIB unit.as
 [11401] PUSH_I8 32
 [11403] GREATER_THAN
 [11404] JUMP_IF_FALSE [11430]
-# buffer = buffer.substring(buffer.length - 16)
 [11409] LOAD_LOCAL 1
 [11411] GET_PROPERTY str(length)
 [11416] PUSH_I8 16
@@ -5420,22 +4325,13 @@ module: UNIT_LIB unit.as
 [11421] GET_PROPERTY str(substring)
 [11426] CALL 1
 [11428] STORE_LOCAL 1
-# inc i++
 [11430] INC_LOCAL_POST 2
 [11432] POP
 [11433] JUMP [11374]
-# return buffer.length
 [11438] LOAD_LOCAL 1
 [11440] GET_PROPERTY str(length)
 [11445] RETURN
 [11446] RETURN_NULL
-# end_func benchmarkStrings
-
-
-
-
-# begin_func factorial
-# Captured variables:
 [11447] ALLOC_LOCALS [1]
 [11452] LOAD_ARG 0
 [11454] STORE_LOCAL 0
@@ -5443,10 +4339,8 @@ module: UNIT_LIB unit.as
 [11458] PUSH_1
 [11459] LESS_EQUAL
 [11460] JUMP_IF_FALSE [11467]
-# return 1
 [11465] PUSH_1
 [11466] RETURN
-# return n * factorial(n - 1)
 [11467] LOAD_LOCAL 0
 [11469] LOAD_LOCAL 0
 [11471] PUSH_1
@@ -5456,42 +4350,26 @@ module: UNIT_LIB unit.as
 [11480] MULTIPLY
 [11481] RETURN
 [11482] RETURN_NULL
-# end_func factorial
-
-
-
-
-# begin_func testAllUnits
-# Captured variables:
 [11483] ALLOC_LOCALS [6]
-# var results = []
 [11488] NEW_ARRAY 0
 [11493] STORE_LOCAL 0
-# var failedCases = []
 [11495] NEW_ARRAY 0
 [11500] STORE_LOCAL 1
-# var passedCount = 0
 [11502] PUSH_0
 [11503] STORE_LOCAL 2
-# for
-# var i = 0
 [11505] PUSH_0
 [11506] STORE_LOCAL 4
-# condition i < __testCases.length
 [11508] LOAD_LOCAL 4
 [11510] GET_THIS_PROPERTY str(__testCases)
 [11515] GET_PROPERTY str(length)
 [11520] LESS_THAN
 [11521] JUMP_IF_FALSE [11598]
-# body
-# var ctx = executeTest(__testCases[i])
 [11526] GET_THIS_PROPERTY str(__testCases)
 [11531] LOAD_LOCAL 4
 [11533] GET_ELEMENT
 [11534] GET_THIS_PROPERTY str(executeTest)
 [11539] CALL 1
 [11541] STORE_LOCAL 5
-# results.push(ctx)
 [11543] LOAD_LOCAL 5
 [11545] LOAD_LOCAL 0
 [11547] GET_PROPERTY str(push)
@@ -5500,23 +4378,19 @@ module: UNIT_LIB unit.as
 [11555] LOAD_LOCAL 5
 [11557] GET_PROPERTY str(passed)
 [11562] JUMP_IF_FALSE [11578]
-# passedCount = passedCount + 1
 [11567] LOAD_LOCAL 2
 [11569] PUSH_1
 [11570] ADD
 [11571] STORE_LOCAL 2
 [11573] JUMP [11590]
-# failedCases.push(ctx)
 [11578] LOAD_LOCAL 5
 [11580] LOAD_LOCAL 1
 [11582] GET_PROPERTY str(push)
 [11587] CALL 1
 [11589] POP
-# inc i++
 [11590] INC_LOCAL_POST 4
 [11592] POP
 [11593] JUMP [11508]
-# var summary = { total: __testCases.length, passed: passedCount, failed: __testCases.length - passedCount, cases: results, failedCases: failedCases, success: failedCases.length == 0 }
 [11598] NEW_MAP
 [11599] DUP
 [11600] GET_THIS_PROPERTY str(__testCases)
@@ -5544,13 +4418,11 @@ module: UNIT_LIB unit.as
 [11667] EQUAL
 [11668] SET_PROPERTY str(success)
 [11673] STORE_LOCAL 3
-# console.log('==== AuroraScript unit tests ====')
 [11675] PUSH_STRING str(==== AuroraScript unit tests ====)
 [11680] GET_GLOBAL_PROPERTY str(console)
 [11685] GET_PROPERTY str(log)
 [11690] CALL 1
 [11692] POP
-# console.log('Total: ' + summary.total + ', Passed: ' + summary.passed + ', Failed: ' + summary.failed)
 [11693] PUSH_STRING str(Total: )
 [11698] LOAD_LOCAL 3
 [11700] GET_PROPERTY str(total)
@@ -5569,84 +4441,52 @@ module: UNIT_LIB unit.as
 [11739] GET_PROPERTY str(log)
 [11744] CALL 1
 [11746] POP
-# return summary
 [11747] LOAD_LOCAL 3
 [11749] RETURN
 [11750] RETURN_NULL
-# end_func testAllUnits
-
-
-
-
-# begin_func test
-# Captured variables:
 [11751] ALLOC_LOCALS [1]
-# console.time('time.createTimer')
 [11756] PUSH_STRING str(time.createTimer)
 [11761] GET_GLOBAL_PROPERTY str(console)
 [11766] GET_PROPERTY str(time)
 [11771] CALL 1
 [11773] POP
-# var _time = time.createTimer('unit.timer', 128)
 [11774] PUSH_STRING str(unit.timer)
 [11779] PUSH_I16 128
 [11782] GET_THIS_PROPERTY str(time)
 [11787] GET_PROPERTY str(createTimer)
 [11792] CALL 2
 [11794] STORE_LOCAL 0
-# console.timeEnd('time.createTimer')
 [11796] PUSH_STRING str(time.createTimer)
 [11801] GET_GLOBAL_PROPERTY str(console)
 [11806] GET_PROPERTY str(timeEnd)
 [11811] CALL 1
 [11813] POP
-# _time.start = start_timer
 [11814] LOAD_LOCAL 0
 [11816] GET_THIS_PROPERTY str(start_timer)
 [11821] SET_PROPERTY str(start)
-# _time.start()
 [11826] LOAD_LOCAL 0
 [11828] GET_PROPERTY str(start)
 [11833] CALL 0
 [11835] POP
-# _time.reset()
 [11836] LOAD_LOCAL 0
 [11838] GET_PROPERTY str(reset)
 [11843] CALL 0
 [11845] POP
-# _time.cancel()
 [11846] LOAD_LOCAL 0
 [11848] GET_PROPERTY str(cancel)
 [11853] CALL 0
 [11855] POP
-# return _time
 [11856] LOAD_LOCAL 0
 [11858] RETURN
 [11859] RETURN_NULL
-# end_func test
-
-
-
-
-# begin_func start_timer
-# Captured variables:
 [11860] ALLOC_LOCALS [0]
-# console.log('timer start.')
 [11865] PUSH_STRING str(timer start.)
 [11870] GET_GLOBAL_PROPERTY str(console)
 [11875] GET_PROPERTY str(log)
 [11880] CALL 1
 [11882] POP
 [11883] RETURN_NULL
-# end_func start_timer
-
-
-
-
-# begin_func testIterator
-# Captured variables:
 [11884] ALLOC_LOCALS [5]
-# var node = { A: 1, B: 2, C: 3, D: 4, E: 'Hello', F: AuroraScript.Ast.Expressions.LambdaExpression }
 [11889] NEW_MAP
 [11890] DUP
 [11891] PUSH_1
@@ -5667,40 +4507,26 @@ module: UNIT_LIB unit.as
 [11930] PUSH_THIS
 [11931] CREATE_CLOSURE [11942] (0)
 [11937] JUMP [11966]
-
-
-
-
-# begin_func $lambda_582_11
-# Captured variables:
 [11942] ALLOC_LOCALS [0]
-# console.log('reset')
 [11947] PUSH_STRING str(reset)
 [11952] GET_GLOBAL_PROPERTY str(console)
 [11957] GET_PROPERTY str(log)
 [11962] CALL 1
 [11964] POP
 [11965] RETURN_NULL
-# end_func $lambda_582_11
 [11966] SET_PROPERTY str(F)
 [11971] STORE_LOCAL 0
-# for in
-# var key =
 [11973] PUSH_NULL
 [11974] STORE_LOCAL 1
-# condition key in node
 [11976] LOAD_LOCAL 0
 [11978] GET_ITERATOR
 [11979] STORE_LOCAL 2
 [11981] LOAD_LOCAL 2
 [11983] ITERATOR_HAS_VALUE
 [11984] JUMP_IF_FALSE [12029]
-# IteratorValue
 [11989] LOAD_LOCAL 2
 [11991] ITERATOR_VALUE
 [11992] STORE_LOCAL 1
-# body
-# console.log(key + ' = ' + node[key])
 [11994] LOAD_LOCAL 1
 [11996] PUSH_STRING str( = )
 [12001] ADD
@@ -5715,7 +4541,6 @@ module: UNIT_LIB unit.as
 [12021] LOAD_LOCAL 2
 [12023] ITERATOR_NEXT
 [12024] JUMP [11981]
-# console.log(Object.keys(node))
 [12029] LOAD_LOCAL 0
 [12031] GET_GLOBAL_PROPERTY str(Object)
 [12036] GET_PROPERTY str(keys)
@@ -5724,23 +4549,17 @@ module: UNIT_LIB unit.as
 [12048] GET_PROPERTY str(log)
 [12053] CALL 1
 [12055] POP
-# for in
-# var a =
 [12056] PUSH_NULL
 [12057] STORE_LOCAL 3
-# condition a in 'Hello World!'
 [12059] PUSH_STRING str(Hello World!)
 [12064] GET_ITERATOR
 [12065] STORE_LOCAL 4
 [12067] LOAD_LOCAL 4
 [12069] ITERATOR_HAS_VALUE
 [12070] JUMP_IF_FALSE [12103]
-# IteratorValue
 [12075] LOAD_LOCAL 4
 [12077] ITERATOR_VALUE
 [12078] STORE_LOCAL 3
-# body
-# console.log(a)
 [12080] LOAD_LOCAL 3
 [12082] GET_GLOBAL_PROPERTY str(console)
 [12087] GET_PROPERTY str(log)
@@ -5750,100 +4569,62 @@ module: UNIT_LIB unit.as
 [12097] ITERATOR_NEXT
 [12098] JUMP [12067]
 [12103] RETURN_NULL
-# end_func testIterator
-
-
-
-
-# begin_func testInterruption
-# Captured variables:
 [12104] ALLOC_LOCALS [0]
-# console.log('Start testInterruption')
 [12109] PUSH_STRING str(Start testInterruption)
 [12114] GET_GLOBAL_PROPERTY str(console)
 [12119] GET_PROPERTY str(log)
 [12124] CALL 1
 [12126] POP
-# md5.testError()
 [12127] GET_THIS_PROPERTY str(md5)
 [12132] GET_PROPERTY str(testError)
 [12137] CALL 0
 [12139] POP
-# console.log('End testInterruption')
 [12140] PUSH_STRING str(End testInterruption)
 [12145] GET_GLOBAL_PROPERTY str(console)
 [12150] GET_PROPERTY str(log)
 [12155] CALL 1
 [12157] POP
 [12158] RETURN_NULL
-# end_func testInterruption
-
-
-
-
-# begin_func testFor
-# Captured variables:
 [12159] ALLOC_LOCALS [2]
 [12164] PUSH_I16 1000
 [12167] TRY_LOAD_ARG 0
 [12169] STORE_LOCAL 0
-# for
-# var o = 0
 [12171] PUSH_0
 [12172] STORE_LOCAL 1
-# condition o < count
 [12174] LOAD_LOCAL 1
 [12176] LOAD_LOCAL 0
 [12178] LESS_THAN
 [12179] JUMP_IF_FALSE [12192]
-# body
-# inc o++
 [12184] INC_LOCAL_POST 1
 [12186] POP
 [12187] JUMP [12174]
 [12192] RETURN_NULL
-# end_func testFor
-
-
-
-
-# begin_func testClrFunc
-# Captured variables:
 [12193] ALLOC_LOCALS [4]
-# var num055 = Number('055')
 [12198] PUSH_STRING str(055)
 [12203] GET_GLOBAL_PROPERTY str(Number)
 [12208] CALL 1
 [12210] STORE_LOCAL 0
-# console.log(fo.Name)
 [12212] GET_GLOBAL_PROPERTY str(fo)
 [12217] GET_PROPERTY str(Name)
 [12222] GET_GLOBAL_PROPERTY str(console)
 [12227] GET_PROPERTY str(log)
 [12232] CALL 1
 [12234] POP
-# for
-# var o = 0
 [12235] PUSH_0
 [12236] STORE_LOCAL 2
-# condition o < 10000
 [12238] LOAD_LOCAL 2
 [12240] PUSH_I16 10000
 [12243] LESS_THAN
 [12244] JUMP_IF_FALSE [12326]
-# body
-# fo.Name = 'MK'
 [12249] GET_GLOBAL_PROPERTY str(fo)
 [12254] PUSH_STRING str(MK)
 [12259] SET_PROPERTY str(Name)
-# fo.Say(123, 'Hello')
 [12264] PUSH_I8 123
 [12266] PUSH_STRING str(Hello)
 [12271] GET_GLOBAL_PROPERTY str(fo)
 [12276] GET_PROPERTY str(Say)
 [12281] CALL 2
 [12283] POP
-# var str2 = TestObject.Cat(['[', '-', ']'])
 [12284] PUSH_STRING str([)
 [12289] PUSH_STRING str(-)
 [12294] PUSH_STRING str(])
@@ -5852,18 +4633,15 @@ module: UNIT_LIB unit.as
 [12309] GET_PROPERTY str(Cat)
 [12314] CALL 1
 [12316] STORE_LOCAL 3
-# inc o++
 [12318] INC_LOCAL_POST 2
 [12320] POP
 [12321] JUMP [12238]
-# console.log(fo.Name)
 [12326] GET_GLOBAL_PROPERTY str(fo)
 [12331] GET_PROPERTY str(Name)
 [12336] GET_GLOBAL_PROPERTY str(console)
 [12341] GET_PROPERTY str(log)
 [12346] CALL 1
 [12348] POP
-# var str = TestObject.Cat(['[', '-', ']'])
 [12349] PUSH_STRING str([)
 [12354] PUSH_STRING str(-)
 [12359] PUSH_STRING str(])
@@ -5872,24 +4650,15 @@ module: UNIT_LIB unit.as
 [12374] GET_PROPERTY str(Cat)
 [12379] CALL 1
 [12381] STORE_LOCAL 1
-# console.log('Eat', str)
 [12383] PUSH_STRING str(Eat)
 [12388] LOAD_LOCAL 1
 [12390] GET_GLOBAL_PROPERTY str(console)
 [12395] GET_PROPERTY str(log)
 [12400] CALL 2
 [12402] POP
-# return true
 [12403] PUSH_TRUE
 [12404] RETURN
 [12405] RETURN_NULL
-# end_func testClrFunc
-
-
-
-
-# begin_func closure1
-# Captured variables:
 [12406] ALLOC_LOCALS [4]
 [12411] CAPTURE_VAR 0
 [12416] CAPTURE_VAR 1
@@ -5901,13 +4670,10 @@ module: UNIT_LIB unit.as
 [12440] PUSH_THIS
 [12441] CREATE_CLOSURE [12590] (2)
 [12447] STORE_LOCAL 3
-# var title = '123'
 [12449] PUSH_STRING str(123)
 [12454] STORE_LOCAL 0
-# var count = 0
 [12456] PUSH_0
 [12457] STORE_LOCAL 1
-# return { a: makeCounter1(), b: makeCounter2() }
 [12459] NEW_MAP
 [12460] DUP
 [12461] LOAD_LOCAL 2
@@ -5918,43 +4684,27 @@ module: UNIT_LIB unit.as
 [12473] CALL 0
 [12475] SET_PROPERTY str(b)
 [12480] RETURN
-
-
-
-
-# begin_func makeCounter1
-# Captured variables: title, count
 [12481] ALLOC_LOCALS [2]
 [12486] CAPTURE_VAR 0
 [12491] STORE_LOCAL 0
 [12493] CAPTURE_VAR 1
 [12498] STORE_LOCAL 1
-# return AuroraScript.Ast.Expressions.LambdaExpression
 [12500] CAPTURE_VAR 0
 [12505] CAPTURE_VAR 1
 [12510] PUSH_THIS
 [12511] CREATE_CLOSURE [12522] (2)
 [12517] JUMP [12588]
-
-
-
-
-# begin_func $lambda_630_15
-# Captured variables: title, count
 [12522] ALLOC_LOCALS [2]
 [12527] CAPTURE_VAR 0
 [12532] STORE_LOCAL 0
 [12534] CAPTURE_VAR 1
 [12539] STORE_LOCAL 1
-# title = 'ABC'
 [12541] PUSH_STRING str(ABC)
 [12546] STORE_CAPTURE 0
-# count = count + 1
 [12551] LOAD_CAPTURE 1
 [12556] PUSH_1
 [12557] ADD
 [12558] STORE_CAPTURE 1
-# return { title: title, count: count }
 [12563] NEW_MAP
 [12564] DUP
 [12565] LOAD_CAPTURE 0
@@ -5964,47 +4714,29 @@ module: UNIT_LIB unit.as
 [12581] SET_PROPERTY str(count)
 [12586] RETURN
 [12587] RETURN_NULL
-# end_func $lambda_630_15
 [12588] RETURN
 [12589] RETURN_NULL
-# end_func makeCounter1
-
-
-
-
-# begin_func makeCounter2
-# Captured variables: title, count
 [12590] ALLOC_LOCALS [2]
 [12595] CAPTURE_VAR 0
 [12600] STORE_LOCAL 0
 [12602] CAPTURE_VAR 1
 [12607] STORE_LOCAL 1
-# return AuroraScript.Ast.Expressions.LambdaExpression
 [12609] CAPTURE_VAR 0
 [12614] CAPTURE_VAR 1
 [12619] PUSH_THIS
 [12620] CREATE_CLOSURE [12631] (2)
 [12626] JUMP [12697]
-
-
-
-
-# begin_func $lambda_637_15
-# Captured variables: title, count
 [12631] ALLOC_LOCALS [2]
 [12636] CAPTURE_VAR 0
 [12641] STORE_LOCAL 0
 [12643] CAPTURE_VAR 1
 [12648] STORE_LOCAL 1
-# title = 'XYZ'
 [12650] PUSH_STRING str(XYZ)
 [12655] STORE_CAPTURE 0
-# count = count + 1
 [12660] LOAD_CAPTURE 1
 [12665] PUSH_1
 [12666] ADD
 [12667] STORE_CAPTURE 1
-# return { title: title, count: count }
 [12672] NEW_MAP
 [12673] DUP
 [12674] LOAD_CAPTURE 0
@@ -6014,24 +4746,13 @@ module: UNIT_LIB unit.as
 [12690] SET_PROPERTY str(count)
 [12695] RETURN
 [12696] RETURN_NULL
-# end_func $lambda_637_15
 [12697] RETURN
 [12698] RETURN_NULL
-# end_func makeCounter2
 [12699] RETURN_NULL
-# end_func closure1
-
-
-
-
-# begin_func testClosure
-# Captured variables:
 [12700] ALLOC_LOCALS [1]
-# var funcs = closure1()
 [12705] GET_THIS_PROPERTY str(closure1)
 [12710] CALL 0
 [12712] STORE_LOCAL 0
-# console.log(JSON.stringify(funcs.a()))
 [12714] LOAD_LOCAL 0
 [12716] GET_PROPERTY str(a)
 [12721] CALL 0
@@ -6042,7 +4763,6 @@ module: UNIT_LIB unit.as
 [12740] GET_PROPERTY str(log)
 [12745] CALL 1
 [12747] POP
-# console.log(JSON.stringify(funcs.b()))
 [12748] LOAD_LOCAL 0
 [12750] GET_PROPERTY str(b)
 [12755] CALL 0
@@ -6053,7 +4773,6 @@ module: UNIT_LIB unit.as
 [12774] GET_PROPERTY str(log)
 [12779] CALL 1
 [12781] POP
-# console.log(JSON.stringify(funcs.a()))
 [12782] LOAD_LOCAL 0
 [12784] GET_PROPERTY str(a)
 [12789] CALL 0
@@ -6064,7 +4783,6 @@ module: UNIT_LIB unit.as
 [12808] GET_PROPERTY str(log)
 [12813] CALL 1
 [12815] POP
-# console.log(JSON.stringify(funcs.b()))
 [12816] LOAD_LOCAL 0
 [12818] GET_PROPERTY str(b)
 [12823] CALL 0
@@ -6076,33 +4794,22 @@ module: UNIT_LIB unit.as
 [12847] CALL 1
 [12849] POP
 [12850] RETURN_NULL
-# end_func testClosure
-
-
-
-
-# begin_func testMD5
-# Captured variables:
 [12851] ALLOC_LOCALS [1]
-# console.time('MD5_SUM')
 [12856] PUSH_STRING str(MD5_SUM)
 [12861] GET_GLOBAL_PROPERTY str(console)
 [12866] GET_PROPERTY str(time)
 [12871] CALL 1
 [12873] POP
-# var md5Code = md5.MD5('12345')
 [12874] PUSH_STRING str(12345)
 [12879] GET_THIS_PROPERTY str(md5)
 [12884] GET_PROPERTY str(MD5)
 [12889] CALL 1
 [12891] STORE_LOCAL 0
-# console.timeEnd('MD5_SUM')
 [12893] PUSH_STRING str(MD5_SUM)
 [12898] GET_GLOBAL_PROPERTY str(console)
 [12903] GET_PROPERTY str(timeEnd)
 [12908] CALL 1
 [12910] POP
-# console.log('"12345" md5 is ' + md5Code)
 [12911] PUSH_STRING str("12345" md5 is )
 [12916] LOAD_LOCAL 0
 [12918] ADD
@@ -6110,46 +4817,29 @@ module: UNIT_LIB unit.as
 [12924] GET_PROPERTY str(log)
 [12929] CALL 1
 [12931] POP
-# return md5Code
 [12932] LOAD_LOCAL 0
 [12934] RETURN
 [12935] RETURN_NULL
-# end_func testMD5
-
-
-
-
-# begin_func testMD5_1000
-# Captured variables:
 [12936] ALLOC_LOCALS [2]
-# var last = ''
 [12941] PUSH_STRING str()
 [12946] STORE_LOCAL 0
-# for
-# var i = 0
 [12948] PUSH_0
 [12949] STORE_LOCAL 1
-# condition i < 1000
 [12951] LOAD_LOCAL 1
 [12953] PUSH_I16 1000
 [12956] LESS_THAN
 [12957] JUMP_IF_FALSE [12989]
-# body
-# last = md5.MD5('12345')
 [12962] PUSH_STRING str(12345)
 [12967] GET_THIS_PROPERTY str(md5)
 [12972] GET_PROPERTY str(MD5)
 [12977] CALL 1
 [12979] STORE_LOCAL 0
-# inc i++
 [12981] INC_LOCAL_POST 1
 [12983] POP
 [12984] JUMP [12951]
-# return last
 [12989] LOAD_LOCAL 0
 [12991] RETURN
 [12992] RETURN_NULL
-# end_func testMD5_1000
 =====================================================================
 = End Code ==========================================================
 =====================================================================

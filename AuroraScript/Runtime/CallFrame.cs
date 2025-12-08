@@ -1,4 +1,4 @@
-using AuroraScript.Core;
+﻿using AuroraScript.Core;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Buffers;
@@ -7,13 +7,13 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime
 {
-    public sealed class CallFrame : IDisposable
+    internal sealed class CallFrame : IDisposable
     {
         private const Int32 DefaultLocalCapacity = 8;
         internal ScriptDatum[] _locals;
-        public Int32 EntryPointer;
-        public Int32 LastInstructionPointer;
-        public Int32 Pointer;
+        internal Int32 EntryPointer;
+        internal Int32 LastInstructionPointer;
+        internal Int32 Pointer;
         private Int32 _localsUsed;
         private Dictionary<Int32, Upvalue> _openUpvalues;
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();

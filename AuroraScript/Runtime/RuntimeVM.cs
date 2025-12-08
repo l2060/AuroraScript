@@ -20,7 +20,7 @@ namespace AuroraScript.Runtime
     /// AuroraScript 运行时虚拟机，负责执行字节码并管理运行时环境
     /// 作为脚本引擎的核心组件，实现了字节码的解释执行和运行时环境的管理
     /// </summary>
-    internal  unsafe partial class RuntimeVM
+    internal unsafe partial class RuntimeVM
     {
         private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void>[] _opDispatch;
         private static readonly IntPtr[] _handlerPtrTable;
@@ -28,10 +28,10 @@ namespace AuroraScript.Runtime
         static RuntimeVM()
         {
             var maxOp = Enum.GetValues(typeof(OpCode)).Cast<byte>().Max();
-            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void>[maxOp + 1];
+            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[maxOp + 1];
 
 
-                 
+
 
             RegisterHandler(OpCode.NOP, &NOP);
             RegisterHandler(OpCode.POP, &POP);
@@ -55,7 +55,7 @@ namespace AuroraScript.Runtime
 
 
 
-                
+
 
             RegisterHandler(OpCode.GET_ELEMENT, &GET_ELEMENT);
             RegisterHandler(OpCode.SET_ELEMENT, &SET_ELEMENT);
@@ -122,7 +122,7 @@ namespace AuroraScript.Runtime
             RegisterHandler(OpCode.DECONSTRUCT_MAP, &DECONSTRUCT_MAP);
 
 
-              
+
 
             RegisterHandler(OpCode.GET_ITERATOR, &GET_ITERATOR);
             RegisterHandler(OpCode.ITERATOR_VALUE, &ITERATOR_VALUE);
@@ -165,11 +165,16 @@ namespace AuroraScript.Runtime
             RegisterHandler(OpCode.PUSH_F32, &PUSH_F32);
             RegisterHandler(OpCode.PUSH_F64, &PUSH_F64);
             RegisterHandler(OpCode.PUSH_STRING, &PUSH_STRING);
-            _handlerPtrTable = BuildHandlerPtrTable();
+
+
+
+
+
+
 
         }
 
-        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void> handler)
+        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler)
         {
             _opDispatch[(Int32)opCode] = handler;
         }
@@ -301,30 +306,24 @@ namespace AuroraScript.Runtime
         private void ExecuteFrame(ExecuteContext exeContext)
         {
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
-
-            var frame = exeContext._callStack.Peek();
-            var stream = new InstructionStream(_instructions, frame.Pointer);
-
+            // 获取调用栈和操作数栈的引用，提高访问效率
+            var _callStack = exeContext._callStack;
+            // 获取当前调用帧
+            var frame = _callStack.Peek();
+            var opDispatch = _opDispatch;
+            // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
-                ref var instruction = ref stream.Current;
-                var handlerPtr = instruction.HandlerPtr;
-                if (handlerPtr == IntPtr.Zero)
-                {
-                    throw new Exception($"无效的 {instruction.OpCode}");
-                }
-
-                stream.NextIP = stream.IP + 1;
-                var opIndex = (int)instruction.OpCode;
+                // 从当前指令指针位置读取操作码
+                var opCode = _codeBuffer.ReadOpCode(frame);
+                var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
+                var start = Stopwatch.GetTimestamp();
+                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = opDispatch[opIndex];
+                handler(this, exeContext, ref frame);
 
-                var handler = (delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction ,ref InstructionStream, void>)handlerPtr;
-                //var start = Stopwatch.GetTimestamp();
-                handler(this, exeContext, ref frame, ref instruction,ref stream);
-                //var end = Stopwatch.GetTimestamp();
-
-                //_opTicks[opIndex] += end - start;
-                stream.Advance();
+                var end = Stopwatch.GetTimestamp();
+                _opTicks[opIndex] += (end - start);
             }
 
             frame.Pointer = stream.IP;
