@@ -15,56 +15,57 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static ScriptObject FROM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void FROM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.Length == 0)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             var iterator = ResolveIterator(args[0]);
             if (iterator == null)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
             var thisArg = args.Length > 2 ? args[2].ToObject() : ScriptObject.Null;
             thisArg ??= ScriptObject.Null;
-            var executeOptions = context?.ExecuteOptions ?? ExecuteOptions.Default;
-            var result = new ScriptArray();
+            var executeOptions = context.ExecuteOptions ?? ExecuteOptions.Default;
+            var array = new ScriptArray();
             var index = 0;
 
             while (iterator.HasValue())
             {
                 var current = iterator.Value();
-                result.PushDatum(current);
+                array.PushDatum(current);
                 iterator.Next();
                 index++;
             }
-
-            return result;
+            result = ScriptDatum.FromArray(array);
         }
 
-        public static ScriptObject OF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void OF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var array = new ScriptArray(args.Length);
             for (int i = 0; i < args.Length; i++)
             {
                 array.Set(i, args[i]);
             }
-            return array;
+            result = ScriptDatum.FromArray(array);
         }
 
 
-        public static ScriptObject IS_ARRAY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void IS_ARRAY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return BooleanValue.Of(args.Length > 0 && args[0].Kind == ValueKind.Array);
+            result = ScriptDatum.FromBoolean(args.Length > 0 && args[0].Kind == ValueKind.Array);
         }
 
 
 
 
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var capacity = 0;
             if (args.Length == 1)
@@ -75,8 +76,7 @@ namespace AuroraScript.Runtime.Types
                     capacity = (int)datum.Number;
                 }
             }
-
-            return new ScriptArray(capacity);
+            result = ScriptDatum.FromArray(new ScriptArray(capacity));
         }
 
         private static ItemIterator ResolveIterator(ScriptDatum datum)

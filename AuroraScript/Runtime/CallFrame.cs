@@ -19,9 +19,6 @@ namespace AuroraScript.Runtime
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
         internal readonly CallArguments Arguments = new CallArguments();
 
-        public Int32 ReturnIndex;
-
-
         public ScriptModule Module { get; private set; }
         public ScriptDomain Domain { get; private set; }
 
@@ -71,7 +68,7 @@ namespace AuroraScript.Runtime
             return Arguments[index];
         }
 
-        public  ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
+        public ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();
 
         internal Upvalue GetCapturedUpvalue(Int32 slot)
         {

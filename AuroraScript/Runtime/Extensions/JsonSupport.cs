@@ -22,18 +22,14 @@ namespace AuroraScript.Runtime.Extensions
             Define("stringify", new BondingFunction(STRINGIFY), writeable: false, enumerable: false);
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             try
             {
                 if (args.TryGetString(0, out var jsonText))
                 {
                     using var document = JsonDocument.Parse(jsonText);
-                    return ConvertElement(document.RootElement);
-                }
-                else
-                {
-                    return Null;
+                    result = ScriptDatum.FromObject(ConvertElement(document.RootElement));
                 }
             }
             catch (JsonException ex)
@@ -42,12 +38,13 @@ namespace AuroraScript.Runtime.Extensions
             }
         }
 
-        public static ScriptObject STRINGIFY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void STRINGIFY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             args.TryGetBoolean(1, out var indented);
             if (args.TryGet(0, out var datum))
             {
-                return Serialize(datum, indented);
+                result = ScriptDatum.FromObject(Serialize(datum, indented));
+                return;
             }
             throw new AuroraRuntimeException($"JSON.stringify error.");
         }
@@ -128,7 +125,7 @@ namespace AuroraScript.Runtime.Extensions
                     }
                     return;
                 case ValueKind.String:
-                    writer.WriteStringValue(datum.String?.Value ?? string.Empty);
+                    writer.WriteStringValue(datum.String.Value ?? string.Empty);
                     return;
                 case ValueKind.Regex:
                 case ValueKind.Array:
@@ -255,15 +252,6 @@ namespace AuroraScript.Runtime.Extensions
             visited.Remove(array);
         }
 
-        private static string ExtractJsonText(ScriptDatum datum)
-        {
-            return datum.Kind switch
-            {
-                ValueKind.String => datum.String?.Value,
-                ValueKind.Null => null,
-                _ => datum.ToObject()?.ToString()
-            };
-        }
 
         private sealed class ReferenceComparer : IEqualityComparer<ScriptObject>
         {

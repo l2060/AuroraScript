@@ -21,14 +21,14 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public BooleanValue Test(ScriptDatum value)
+        public Boolean Test(ScriptDatum value)
         {
             if (value.Kind == ValueKind.String)
             {
                 var result = _regex.Match(value.String.Value);
-                return BooleanValue.Of(result.Success);
+                return result.Success;
             }
-            return BooleanValue.False;
+            return false;
         }
 
 
@@ -119,14 +119,17 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject TEST(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TEST(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length >= 1)
+            if (args.TryGet(0, out var datum))
             {
                 var regex = thisObject as ScriptRegex;
-                return regex.Test(args[0]);
+                result = ScriptDatum.FromBoolean(regex.Test(datum));
             }
-            return BooleanValue.False;
+            else
+            {
+                result = ScriptDatum.FromBoolean(false);
+            }
         }
 
 

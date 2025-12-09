@@ -10,6 +10,7 @@ function defineTest(name, run) {
 }
 
 
+
 function testInput() {
     INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', input_change);
     
@@ -117,8 +118,6 @@ func testRegex(){
     console.log(/profile\.json$/i);
     var s = /profile\.json$/i.test("profile.json");
     console.log(s);
-
-
 }
 
 
@@ -505,9 +504,9 @@ defineTest("module.timer", (ctx) => {
 });
 
 defineTest("interop.hostConstants", (ctx) => {
-    expectNearlyEqual(ctx, PI, 3.141592653589793, 0.0000000001, "PI injected from host");
+    expectNearlyEqual(ctx, Math.PI, 3.141592653589793, 0.0000000001, "PI injected from host");
     var radius = 2;
-    var area = PI * radius * radius;
+    var area = Math.PI * radius * radius;
     expectNearlyEqual(ctx, area, 12.566370614359172, 0.0000001, "Area uses host constant");
 });
 

@@ -2,8 +2,6 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 
@@ -78,7 +76,20 @@ namespace AuroraScript
             return false;
         }
 
-
+        public static bool TryGetStrictNumber(this Span<ScriptDatum> source, Int32 index, out Double value)
+        {
+            if (index >= 0 && index < source.Length)
+            {
+                var datum = source[index];
+                if (datum.Kind == ValueKind.Number)
+                {
+                    value = datum.Number;
+                    return true;
+                }
+            }
+            value = 0;
+            return false;
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

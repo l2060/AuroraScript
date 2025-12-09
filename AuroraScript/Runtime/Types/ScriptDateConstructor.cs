@@ -17,9 +17,9 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return PARSE(context, thisObject, args);
+            PARSE(context, thisObject, args, ref result);
         }
 
 
@@ -41,48 +41,46 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static ScriptObject NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return new ScriptDate(DateTime.Now);
+            result = ScriptDatum.FromDate(new ScriptDate(DateTime.Now));
         }
 
 
-        public static ScriptObject UTC_NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void UTC_NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return new ScriptDate(DateTime.UtcNow);
+            result = ScriptDatum.FromDate(new ScriptDate(DateTime.UtcNow));
         }
 
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptDate date)
             {
                 if (args.TryGetString(0, out var value))
                 {
-                    return StringValue.Of(date.DateTime.ToString(value));
+                    result = ScriptDatum.FromString(date.DateTime.ToString(value));
                 }
                 else
                 {
-                    return StringValue.Of(date.DateTime.ToString());
+                    result = ScriptDatum.FromString(date.DateTime.ToString());
                 }
             }
-            return ScriptObject.Null;
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetInteger(0, out var value)) // ticks
             {
-                return new ScriptDate(value);
+                result = ScriptDatum.FromDate(new ScriptDate(value));
             }
             else if (args.TryGetString(0, out var strValue)) // yyyyMMdd ....
             {
                 if (DateTime.TryParseExact(strValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
                 {
-                    return new ScriptDate(dt);
+                    result = ScriptDatum.FromDate(new ScriptDate(dt));
                 }
             }
-            return ScriptObject.Null;
         }
 
     }

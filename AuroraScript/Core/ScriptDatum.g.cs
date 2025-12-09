@@ -20,10 +20,19 @@ namespace AuroraScript.Core
             return this.Object != null;
         }
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Boolean IsObject()
+        {
+            return this.Object != null;
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boolean TryGetObject(out ScriptObject value)
         {
-            if (this.Kind >= ValueKind.Object)
+            if (this.Kind == ValueKind.Object)
             {
                 value = this.Object;
                 return true;
@@ -31,6 +40,7 @@ namespace AuroraScript.Core
             value = null;
             return false;
         }
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

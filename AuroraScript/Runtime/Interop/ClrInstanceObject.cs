@@ -76,7 +76,7 @@ namespace AuroraScript.Runtime.Interop
 
         public override string ToString()
         {
-            return Instance?.ToString() ?? base.ToString();
+            return Instance.ToString() ?? base.ToString();
         }
     }
 }

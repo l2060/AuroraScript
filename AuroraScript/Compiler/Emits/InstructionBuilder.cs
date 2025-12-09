@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 
 namespace AuroraScript.Compiler.Emits
@@ -485,7 +485,7 @@ namespace AuroraScript.Compiler.Emits
             else
             {
                 Emit(OpCode.LOAD_LOCAL_L, index);
-            }         
+            }
         }
 
 
@@ -494,7 +494,7 @@ namespace AuroraScript.Compiler.Emits
 
         public void StoreLocal(int index)
         {
-       
+
             if (index <= 255)
             {
                 Emit(OpCode.STORE_LOCAL, (Byte)index);

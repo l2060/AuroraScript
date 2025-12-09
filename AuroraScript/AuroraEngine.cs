@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Compiler;
 using AuroraScript.Compiler.Emits;
-using AuroraScript.Core;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
@@ -64,6 +63,11 @@ namespace AuroraScript
 
             Global.Define("console", new ConsoleSupport(), writeable: false, enumerable: false);
             Global.Define("JSON", new JsonSupport(), writeable: false, enumerable: false);
+            Global.Define("Math", new MathSupport(), writeable: false, enumerable: false);
+
+
+
+
         }
 
 
@@ -129,7 +133,7 @@ namespace AuroraScript
 
         public void SetGlobal(string name, object value)
         {
-            Global.SetPropertyValue(name, value);
+            Global.SetValue(name, value);
         }
 
         /// <summary>
@@ -196,7 +200,7 @@ namespace AuroraScript
             return CreateDomain(domainGlobal, userState);
         }
 
- 
+
 
 
 

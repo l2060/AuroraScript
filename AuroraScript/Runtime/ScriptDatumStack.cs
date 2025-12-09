@@ -35,7 +35,7 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushRef( ref ScriptDatum datum)
+        public void PushRef(ref ScriptDatum datum)
         {
             var buffer = _buffer;
             var size = _size;
@@ -52,23 +52,6 @@ namespace AuroraScript.Runtime
         public void PushObject(ScriptObject value)
         {
             PushDatum(ScriptDatum.FromObject(value));
-        }
-
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ReplaceTop(ScriptDatum value)
-        {
-            if (_size == 0)
-            {
-                throw new InvalidOperationException("Stack is empty.");
-            }
-            _buffer[_size - 1] = value;
-        }
-
-        public void ReplaceTop(ScriptObject value)
-        {
-            ReplaceTop(ScriptDatum.FromObject(value));
         }
 
 

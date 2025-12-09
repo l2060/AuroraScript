@@ -28,11 +28,12 @@ namespace AuroraScript.Runtime.Base
         public static readonly NumberValue Num9 = new NumberValue(9);
 
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             if (thisObject is not NumberValue thisNumber)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             if (args != null && args.Length == 1)
@@ -42,13 +43,13 @@ namespace AuroraScript.Runtime.Base
                 {
                     if ((Int32)arg.Number == 16)
                     {
-                        return StringValue.Of(thisNumber.Int32Value.ToString("X"));
+                        result = ScriptDatum.FromString(thisNumber.Int32Value.ToString("X"));
+                        return ;
                     }
                     throw new AuroraVMException("未实现的");
                 }
             }
-
-            return StringValue.Of(thisNumber._value.ToString());
+            result = ScriptDatum.FromString(thisNumber._value.ToString());
         }
     }
 }

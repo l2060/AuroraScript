@@ -41,6 +41,13 @@ namespace AuroraScript.Runtime.Base
             _isFrozen = true;
         }
 
+        public ScriptObject GetPropertyValue(StringValue key)
+        {
+            return GetPropertyValue(key.Value);
+        }
+
+
+
         /// <summary>
         /// 获取对象属性
         /// </summary>
@@ -52,7 +59,9 @@ namespace AuroraScript.Runtime.Base
             var property = _resolveProperty(key);
             if (property is BondingGetter getter)
             {
-                return getter.Invoke(this);
+                ScriptDatum datum = ScriptDatum.Null;
+                getter.Invoke(this, ref datum);
+                return datum.ToObject();
             }
             if (property is BondingFunction clrFunc)
             {
@@ -64,9 +73,8 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        private ScriptObject _resolveProperty(String key, ScriptObject thisObject = null)
+        internal ScriptObject _resolveProperty(String key)
         {
-            ScriptObject own = thisObject != null ? thisObject : this;
             if (_properties != null)
             {
                 if (_properties.TryGetValue(key, out var value))
@@ -77,7 +85,7 @@ namespace AuroraScript.Runtime.Base
             }
             if (_prototype != null)
             {
-                return _prototype._resolveProperty(key, own);
+                return _prototype._resolveProperty(key);
             }
             return Null;
         }
@@ -115,7 +123,10 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-
+        public Boolean DeletePropertyValue(StringValue key)
+        {
+            return DeletePropertyValue(key.Value);
+        }
 
         public virtual Boolean DeletePropertyValue(String key)
         {
@@ -193,7 +204,7 @@ namespace AuroraScript.Runtime.Base
 
         public static StringValue operator +(ScriptObject a, ScriptObject b)
         {
-            return new StringValue(a?.ToString() + b?.ToString());
+            return new StringValue(a.ToString() + b.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

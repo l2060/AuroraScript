@@ -1,7 +1,6 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
-using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
@@ -49,7 +48,7 @@ namespace AuroraScript.Runtime
         internal ExecuteContext()
         {
             _operandStack = new ScriptDatumStack();
-            _callStack = new Stack<CallFrame>();
+            _callStack = new();
             _stopwatch = new Stopwatch();
             _released = true;
         }

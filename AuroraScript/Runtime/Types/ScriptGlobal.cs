@@ -29,7 +29,7 @@ namespace AuroraScript.Runtime.Types
             return ClrMarshaller.ToScript(value);
         }
 
-        public void SetPropertyValue(string key, object value)
+        public void SetValue(string key, object value)
         {
             base.SetPropertyValue(key, ConvertClrValue(value));
         }

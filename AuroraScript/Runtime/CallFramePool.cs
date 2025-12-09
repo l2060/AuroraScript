@@ -1,5 +1,3 @@
-using AuroraScript.Core;
-using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -44,7 +42,8 @@ namespace AuroraScript.Runtime
             }
         }
 
-        internal static Int32 Size {
+        internal static Int32 Size
+        {
             get { return _pool.Count; }
         }
 

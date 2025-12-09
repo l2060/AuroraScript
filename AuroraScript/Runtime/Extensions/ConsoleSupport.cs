@@ -4,7 +4,6 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace AuroraScript.Runtime.Extensions
 {
@@ -20,7 +19,7 @@ namespace AuroraScript.Runtime.Extensions
             Define("timeEnd", new BondingFunction(TIMEEND), writeable: false, enumerable: false);
         }
 
-        public static ScriptObject LOG(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void LOG(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.Length > 0)
             {
@@ -32,7 +31,6 @@ namespace AuroraScript.Runtime.Extensions
                 }
                 Console.WriteLine();
             }
-            return Null;
         }
 
 
@@ -48,16 +46,15 @@ namespace AuroraScript.Runtime.Extensions
         }
 
 
-        public static ScriptObject TIME(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TIME(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetString(0, out var label))
             {
                 _times[label] = _stopwatch.ElapsedMilliseconds;
             }
-            return Null;
         }
 
-        public static ScriptObject TIMEEND(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TIMEEND(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetString(0, out var label) && _times.TryGetValue(label, out var start))
             {
@@ -67,7 +64,6 @@ namespace AuroraScript.Runtime.Extensions
                 Console.WriteLine($"{label} Used {elapsed}ms");
                 Console.ResetColor();
             }
-            return Null;
         }
     }
 }

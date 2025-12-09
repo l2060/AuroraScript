@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace AuroraScript.Runtime.Types
 {
 
-    public delegate ScriptObject ClrDatumDelegate([NotNull] ExecuteContext context, ScriptObject module, [NotNull] Span<ScriptDatum> args);
+    public delegate void ClrDatumDelegate([NotNull] ExecuteContext context, ScriptObject module, [NotNull] Span<ScriptDatum> args, ref ScriptDatum result);
 
     public abstract class Callable : ScriptObject
     {
@@ -25,17 +25,17 @@ namespace AuroraScript.Runtime.Types
         {
             get
             {
-                var methodInfo = _metadataSource?.Method;
+                var methodInfo = _metadataSource.Method;
                 if (methodInfo == null)
                 {
                     return "<anonymous>";
                 }
-                var declaringType = methodInfo.DeclaringType?.Name ?? "<anonymous>";
+                var declaringType = methodInfo.DeclaringType.Name ?? "<anonymous>";
                 return $"{declaringType}.{methodInfo.Name}";
             }
         }
 
         public readonly ClrDatumDelegate DatumMethod;
-        public abstract ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args);
+        public abstract void Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result);
     }
 }

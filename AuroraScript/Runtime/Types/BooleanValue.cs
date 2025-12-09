@@ -20,9 +20,16 @@ namespace AuroraScript.Runtime.Types
             StrValue = valueString;
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is BooleanValue boolean ? boolean.StrValue : StringValue.Of("false");
+            if (thisObject is BooleanValue boolean)
+            {
+                result = ScriptDatum.FromString(boolean.StrValue);
+            }
+            else
+            {
+                result = ScriptDatum.FromString("false");
+            }
         }
 
         public override int GetHashCode()

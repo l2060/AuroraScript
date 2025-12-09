@@ -13,26 +13,29 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 1)
+            if (args.TryGetObject(0, out var scriptObject))
             {
-                return new ScriptObject(args[0].ToObject());
+                result = ScriptDatum.FromObject(new ScriptObject(scriptObject));
             }
-            return new ScriptObject();
+            else
+            {
+                result = ScriptDatum.FromObject(new ScriptObject());
+            }
         }
 
 
-        public static ScriptObject KEYS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void KEYS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 1)
+            if (args.TryGetObject(0, out var scriptObject))
             {
-                if (args[0].Object is ScriptObject scriptObject)
-                {
-                    return scriptObject.GetKeys();
-                }
+                result = ScriptDatum.FromArray(scriptObject.GetKeys());
             }
-            return new ScriptArray();
+            else
+            {
+                result = ScriptDatum.FromArray(new ScriptArray());
+            }
         }
 
     }

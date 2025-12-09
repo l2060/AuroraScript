@@ -14,24 +14,14 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.BooleanConstructorPrototype;
         }
 
-        public static ScriptObject PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
-            {
-                return BooleanValue.False;
-            }
-
-            return args[0].IsTrue() ? BooleanValue.True : BooleanValue.False;
+            result = ScriptDatum.FromBoolean(args.TryGet(0, out var scriptDatum) && scriptDatum.IsTrue());
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
-            {
-                return BooleanValue.False;
-            }
-
-            return args[0].IsTrue() ? BooleanValue.True : BooleanValue.False;
+            result = ScriptDatum.FromBoolean(args.TryGet(0, out var scriptDatum) && scriptDatum.IsTrue());
         }
     }
 }

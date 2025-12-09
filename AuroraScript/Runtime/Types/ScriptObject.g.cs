@@ -10,49 +10,88 @@ namespace AuroraScript.Runtime.Base
     {
         public static readonly ScriptObject Null = NullValue.Instance;
 
-        public static ScriptObject LENGTH(ScriptObject thisObject)
+        public static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
         {
             if (thisObject is ScriptObject obj && obj._properties != null)
             {
-                return NumberValue.Of(obj._properties.Count);
+                result = ScriptDatum.FromNumber(obj._properties.Count);
             }
-            return NumberValue.Zero;
+            else
+            {
+                result = ScriptDatum.FromNumber(0);
+            }
         }
 
-        public static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
-            return StringValue.Of(thisObject?.ToString() ?? StringValue.Empty.Value);
+            result = ScriptDatum.FromString(thisObject.ToString());
         }
 
 
-
-
-
-        public static ScriptObject EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void STRICT_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             if (args.TryGet(-10, out var var1) && args.TryGet(1, out var var2))
             {
-                if (var1.Kind != var2.Kind) return BooleanValue.False;
+                if (var1.Kind != var2.Kind)
+                {
+                    result = ScriptDatum.FromBoolean(false);
+                    return;
+                }
                 switch (var1.Kind)
                 {
                     case ValueKind.Null:
-                        return BooleanValue.True;
+                        result = ScriptDatum.FromBoolean(true);
+                        return;
                     case ValueKind.Boolean:
-                        return BooleanValue.Of(var1.Boolean == var2.Boolean);
+                        result = ScriptDatum.FromBoolean(var1.Boolean == var2.Boolean);
+                        return;
                     case ValueKind.Number:
-                        return BooleanValue.Of(var1.Number == var2.Number);
+                        result = ScriptDatum.FromBoolean(var1.Number == var2.Number);
+                        return;
                     case ValueKind.String:
-                        return BooleanValue.Of(var1.String.Value == var2.String.Value);
+                        result = ScriptDatum.FromBoolean(var1.String.Value == var2.String.Value);
+                        return;
                     case ValueKind.Date:
-                        return BooleanValue.Of(var1.TryGetDate(out var date1) && var2.TryGetDate(out var date2) && date1.DateTime.Equals(date2.DateTime));
+                        result = ScriptDatum.FromBoolean(var1.TryGetDate(out var date1) && var2.TryGetDate(out var date2) && date1.DateTime.Equals(date2.DateTime));
+                        return;
                     default:
-                        return BooleanValue.Of(var1.TryGetAnyObject(out var obj1) && var2.TryGetAnyObject(out var obj2) && ReferenceEquals(obj1, obj2));
+                        result = ScriptDatum.FromBoolean(var1.TryGetAnyObject(out var obj1) && var2.TryGetAnyObject(out var obj2) && ReferenceEquals(obj1, obj2));
+                        return;
                 }
             }
-            return BooleanValue.False;
         }
 
 
+        public static void VALUE_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        {
+            // TODO 待实现
+            result = ScriptDatum.FromBoolean(true);
+        }
+
+
+        public static void DEEP_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        {
+            // TODO 待实现
+            result = ScriptDatum.FromBoolean(true);
+        }
+
+        public static void ASSIGN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        {
+            if (args.TryGetObject(0, out var source))
+            {
+                var index = 1;
+                while (args.TryGetObject(index, out var obj))
+                {
+                    source.CopyPropertysFrom(obj, true);
+                    index++;
+                }
+                result = ScriptDatum.FromObject(source);
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
+        }
 
     }
 }

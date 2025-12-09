@@ -25,7 +25,7 @@ namespace AuroraScript.Runtime.Types
         {
             _kind = IteratorKind.ScriptArray;
             _array = array;
-            _length = array?.Length ?? 0;
+            _length = array.Length;
             _index = 0;
         }
 

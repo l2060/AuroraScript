@@ -13,34 +13,29 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.StringConstructorPrototype;
         }
 
-        public static ScriptObject FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
-            {
-                return StringValue.Empty;
-            }
 
-            var datum = args[0];
-            Int32 codePoint = 0;
-            if (datum.Kind == ValueKind.Number)
+            if (args.TryGetInteger(0, out var codePoint))
             {
-                codePoint = (Int32)datum.Number;
+                result = ScriptDatum.FromString(((Char)codePoint).ToString());
             }
-            return StringValue.Of(((Char)codePoint).ToString());
+            else
+            {
+                result = ScriptDatum.FromString(String.Empty);
+            }
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
+            if (args.TryGetString(0, out var str))
             {
-                return StringValue.Empty;
+                result = ScriptDatum.FromString(str);
             }
-            var datum = args[0];
-            if (datum.Kind == ValueKind.String && datum.String != null)
+            else
             {
-                return datum.String;
+                result = ScriptDatum.FromString(String.Empty);
             }
-            return StringValue.Of(datum.ToString());
         }
     }
 }

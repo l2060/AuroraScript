@@ -65,7 +65,7 @@ namespace AuroraScript.Runtime.Types
             ScriptDatum[] scriptArgs = Array.Empty<ScriptDatum>();
             if (args != null && args.Length > 0)
             {
-                var registry = Domain?.Engine?.ClrRegistry;
+                var registry = Domain.Engine.ClrRegistry;
                 scriptArgs = ClrMarshaller.ToDatums(args);
             }
             return Invoke(options, scriptArgs);

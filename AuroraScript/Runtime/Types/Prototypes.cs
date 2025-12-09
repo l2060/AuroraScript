@@ -32,12 +32,24 @@ namespace AuroraScript.Runtime.Types
         static Prototypes()
         {
 
+            // strict equal
+            ScriptObjectConstructorPrototype.Define("equal$", new BondingFunction(ScriptObject.STRICT_EQUAL), writeable: false, enumerable: false);
+            // content equal  
+            ScriptObjectConstructorPrototype.Define("equal", new BondingFunction(ScriptObject.VALUE_EQUAL), writeable: false, enumerable: false);
+            // deep content equal 
+            ScriptObjectConstructorPrototype.Define("deepEqual", new BondingFunction(ScriptObject.DEEP_EQUAL), writeable: false, enumerable: false);
+
+            ScriptObjectConstructorPrototype.Define("assign", new BondingFunction(ScriptObject.ASSIGN), writeable: false, enumerable: false);
+
+
+
+
+
             // ScriptObject
             ObjectPrototype.Define("toString", new BondingFunction(ScriptObject.TOSTRING), writeable: false, enumerable: false);
             ObjectPrototype.Define("keys", new BondingFunction(ScriptObjectConstructor.KEYS), writeable: false, enumerable: false);
             ObjectPrototype.Define("constructor", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             ObjectPrototype.Define("length", new BondingGetter(ScriptObject.LENGTH), writeable: false, enumerable: false);
-            ObjectPrototype.Define("equal", new BondingFunction(ScriptObject.EQUAL), writeable: false, enumerable: false);
             ObjectPrototype.Frozen();
 
 

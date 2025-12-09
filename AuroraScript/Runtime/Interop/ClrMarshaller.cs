@@ -142,7 +142,7 @@ namespace AuroraScript.Runtime.Interop
                 case ValueKind.String:
                     if (targetType == typeof(string))
                     {
-                        result = datum.String?.Value;
+                        result = datum.String.Value;
                         return true;
                     }
                     if (targetType == typeof(ScriptObject))
@@ -267,11 +267,10 @@ namespace AuroraScript.Runtime.Interop
                 return ScriptDatum.FromBonding(datumDelegate);
             }
 
-            return ScriptDatum.FromBonding((context, thisObject, args) =>
+            return ScriptDatum.FromBonding((context, thisObject, args, ref result) =>
             {
                 var prepared = PrepareDelegateArguments(handler, args);
-                var result = handler.DynamicInvoke(prepared);
-                return ToScript(result);
+                result = ToDatum(handler.DynamicInvoke(prepared));
             });
         }
 
@@ -280,7 +279,7 @@ namespace AuroraScript.Runtime.Interop
             var obj = new ScriptObject();
             foreach (DictionaryEntry entry in dictionary)
             {
-                var key = entry.Key?.ToString() ?? string.Empty;
+                var key = entry.Key.ToString() ?? string.Empty;
                 obj.SetPropertyValue(key, ToScript(entry.Value));
             }
             return ScriptDatum.FromObject(obj);

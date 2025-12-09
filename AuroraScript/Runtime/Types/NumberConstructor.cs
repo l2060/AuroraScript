@@ -22,104 +22,57 @@ namespace AuroraScript.Runtime
             _prototype = Prototypes.NumberConstructorPrototype;
         }
 
-        public static ScriptObject PARSE_FLOAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PARSE_FLOAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
+            if (args.TryGetNumber(0, out var number))
             {
-                return NumberValue.NaN;
+                result = ScriptDatum.FromNumber(number);
             }
-
-            if (TryGetDouble(args[0], out var value))
+            else
             {
-                return NumberValue.Of(value);
+                result = ScriptDatum.FromNumber(Double.NaN);
             }
-
-            return NumberValue.NaN;
         }
-        public static ScriptObject PARSE_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PARSE_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
+            if (args.TryGetInteger(0, out var number))
             {
-                return NumberValue.NaN;
+                result = ScriptDatum.FromNumber(number);
             }
-
-            if (TryGetInteger(args[0], out var value))
+            else
             {
-                return NumberValue.Of(value);
+                result = ScriptDatum.FromNumber(Double.NaN);
             }
-
-            return NumberValue.NaN;
         }
 
 
-        public static ScriptObject IS_NAN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void IS_NAN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsNaN(args[0].Number)));
+            result = ScriptDatum.FromBoolean(args.TryGetStrictNumber(0, out var num) && Double.IsNaN(num));
         }
 
-        public static ScriptObject IS_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void IS_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsInteger(args[0].Number)));
+            result = ScriptDatum.FromBoolean(args.TryGetStrictNumber(0, out var num) && Double.IsInteger(num));
         }
 
 
-        public static ScriptObject IS_INFINITY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void IS_INFINITY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return BooleanValue.Of((args.Length > 0 && args[0].Kind == ValueKind.Number && Double.IsInfinity(args[0].Number)));
+            result = ScriptDatum.FromBoolean(args.TryGetStrictNumber(0, out var num) && Double.IsInfinity(num));
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.Length == 0)
+            if (args.TryGetNumber(0, out var number))
             {
-                return NumberValue.Zero;
+                result = ScriptDatum.FromNumber(number);
             }
-
-            if (TryGetDouble(args[0], out var value))
+            else
             {
-                return NumberValue.Of(value);
+                result = ScriptDatum.FromNumber(Double.NaN);
             }
-
-            return NumberValue.NaN;
         }
-
-        private static Boolean TryGetDouble(ScriptDatum datum, out Double value)
-        {
-            switch (datum.Kind)
-            {
-                case ValueKind.Number:
-                    value = datum.Number;
-                    return true;
-                case ValueKind.Boolean:
-                    value = datum.Boolean ? 1d : 0d;
-                    return true;
-                case ValueKind.String:
-                    return Double.TryParse(datum.String.Value, out value);
-                case ValueKind.Object:
-                    break;
-            }
-            value = Double.NaN;
-            return false;
-        }
-        private static Boolean TryGetInteger(ScriptDatum datum, out Int64 value)
-        {
-            switch (datum.Kind)
-            {
-                case ValueKind.Number:
-                    value = (Int64)datum.Number;
-                    return true;
-                case ValueKind.Boolean:
-                    value = datum.Boolean ? 1L : 0L;
-                    return true;
-                case ValueKind.String:
-                    return Int64.TryParse(datum.String.Value, out value);
-                case ValueKind.Object:
-                    break;
-            }
-            value = 0;
-            return false;
-        }
-
 
     }
 }

@@ -15,7 +15,7 @@ namespace AuroraScript.Runtime.Types
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static ScriptObject CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.Length == 0)
             {
@@ -33,14 +33,15 @@ namespace AuroraScript.Runtime.Types
                 }
                 else if (args[0].Kind == ValueKind.Regex)
                 {
-                    return args[0].Object;
+                    result = args[0];
+                    return;
                 }
             }
             if (args.Length == 2 && args[1].Kind == ValueKind.String)
             {
                 flags = args[1].String.Value;
             }
-            return RegexManager.Resolve(pattern, flags);
+            result = ScriptDatum.FromRegex(RegexManager.Resolve(pattern, flags));
         }
 
     }

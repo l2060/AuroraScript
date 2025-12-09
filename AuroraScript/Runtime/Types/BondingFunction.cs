@@ -17,10 +17,10 @@ namespace AuroraScript.Runtime.Types
 
         }
 
-        public override ScriptObject Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public override void Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var target = (thisObject == null) ? Target : thisObject;
-            return DatumMethod(context, target, args);
+            DatumMethod(context, target, args, ref result);
         }
 
         public BondingFunction Bind(ScriptObject target)

@@ -1,9 +1,10 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Core;
+using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime.Types
 {
 
-    public delegate ScriptObject ClrGetterDelegate(ScriptObject @object);
+    public delegate void ClrGetterDelegate(ScriptObject @object, ref ScriptDatum result);
 
     /// <summary>
     /// 原型对象的clr粘合属性获取
@@ -22,9 +23,9 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public ScriptObject Invoke(ScriptObject @object)
+        public void Invoke(ScriptObject @object, ref ScriptDatum result)
         {
-            return _callback.Invoke(@object);
+            _callback.Invoke(@object, ref result);
         }
 
 

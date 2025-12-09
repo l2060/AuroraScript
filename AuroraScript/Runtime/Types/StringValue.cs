@@ -21,6 +21,17 @@ namespace AuroraScript.Runtime.Base
 
 
 
+        public override void SetPropertyValue(StringValue key, ScriptObject value)
+        {
+            // Ignore
+        }
+
+        public override void SetPropertyValue(String key, ScriptObject value)
+        {
+            // Ignore
+        }
+
+
         public override int GetHashCode()
         {
             return _value.GetHashCode();
@@ -53,25 +64,10 @@ namespace AuroraScript.Runtime.Base
             return new StringValue(ch.ToString());
         }
 
-        public static StringValue operator +(ScriptObject a, StringValue b)
-        {
-            return Of(a.ToString() + b._value);
-        }
-
-        public static StringValue operator +(StringValue a, ScriptObject b)
-        {
-            return Of(a._value + b.ToString());
-        }
-
-        public static StringValue operator +(StringValue a, StringValue b)
-        {
-            return Of(a._value + b._value);
-        }
-
 
         public override Boolean IsTrue()
         {
-            return _value != null && _value.Length > 0;
+            return !String.IsNullOrEmpty(_value);
         }
 
 
@@ -92,5 +88,7 @@ namespace AuroraScript.Runtime.Base
         {
             return ItemIterator.FromString(_value);
         }
+
+
     }
 }

@@ -23,7 +23,7 @@ namespace AuroraScript.Runtime
             {
                 _items[i] = datums[i];
             }
-    
+
         }
 
 

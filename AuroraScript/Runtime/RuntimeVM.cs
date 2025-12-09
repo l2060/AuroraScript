@@ -1,18 +1,13 @@
 ﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
-using AuroraScript.Runtime.Types;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.Arm;
 
 namespace AuroraScript.Runtime
 {
@@ -22,8 +17,7 @@ namespace AuroraScript.Runtime
     /// </summary>
     internal unsafe partial class RuntimeVM
     {
-        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, ref Instruction, ref InstructionStream, void>[] _opDispatch;
-        private static readonly IntPtr[] _handlerPtrTable;
+        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[] _opDispatch;
 
         static RuntimeVM()
         {
@@ -179,16 +173,6 @@ namespace AuroraScript.Runtime
             _opDispatch[(Int32)opCode] = handler;
         }
 
-        private static IntPtr[] BuildHandlerPtrTable()
-        {
-            var table = new IntPtr[_opDispatch.Length];
-            for (int i = 0; i < _opDispatch.Length; i++)
-            {
-                table[i] = (IntPtr)_opDispatch[i];
-            }
-            return table;
-        }
-
 
         /// <summary>
         /// 字符串常量池，存储脚本中使用的所有字符串常量
@@ -201,11 +185,6 @@ namespace AuroraScript.Runtime
         /// 包含编译后的指令序列，由虚拟机解释执行
         /// </summary>
         private readonly ByteCodeBuffer _codeBuffer;
-
-        /// <summary>
-        /// 解析后的指令序列，用于新执行引擎。
-        /// </summary>
-        private readonly Instruction[] _instructions;
 
         /// <summary>
         /// 调试符号信息，包含脚本的调试信息，如行号、函数名等
@@ -270,7 +249,6 @@ namespace AuroraScript.Runtime
             _engine = engine;
             // 创建字节码缓冲区，用于读取和解析字节码指令
             _codeBuffer = new ByteCodeBuffer(bytecode);
-            _instructions = InstructionDecoder.Decode(bytecode, _handlerPtrTable);
             // 将字符串常量转换为StringValue对象并存储在不可变数组中
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
             // 调试符号信息
@@ -305,6 +283,7 @@ namespace AuroraScript.Runtime
         /// <param name="exeContext">执行上下文，包含操作数栈、调用栈和全局环境</param>
         private void ExecuteFrame(ExecuteContext exeContext)
         {
+            // 设置执行状态为运行中
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
             // 获取调用栈和操作数栈的引用，提高访问效率
             var _callStack = exeContext._callStack;
@@ -318,15 +297,12 @@ namespace AuroraScript.Runtime
                 var opCode = _codeBuffer.ReadOpCode(frame);
                 var opIndex = (Int32)opCode;
                 _opCounts[opIndex]++;
-                var start = Stopwatch.GetTimestamp();
+                //var start = Stopwatch.GetTimestamp();
                 delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = opDispatch[opIndex];
                 handler(this, exeContext, ref frame);
-
-                var end = Stopwatch.GetTimestamp();
-                _opTicks[opIndex] += (end - start);
+                //var end = Stopwatch.GetTimestamp();
+                //_opTicks[opIndex] += (end - start);
             }
-
-            frame.Pointer = stream.IP;
         }
 
 
@@ -457,7 +433,7 @@ namespace AuroraScript.Runtime
                     case ValueKind.Number:
                         return leftDatum.Number == rightDatum.Number;
                     case ValueKind.String:
-                        return String.Equals(leftDatum.String?.Value, rightDatum.String?.Value, StringComparison.Ordinal);
+                        return String.Equals(leftDatum.String.Value, rightDatum.String.Value, StringComparison.Ordinal);
                     case ValueKind.Object:
                         return Equals(leftDatum.Object, rightDatum.Object);
                 }
@@ -470,7 +446,7 @@ namespace AuroraScript.Runtime
 
             var leftObj = leftDatum.ToObject();
             var rightObj = rightDatum.ToObject();
-            return leftObj?.Equals(rightObj) ?? rightObj == null;
+            return leftObj.Equals(rightObj);
         }
 
 
@@ -478,20 +454,20 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static String ExtractPropertyKey(ref ScriptDatum keyDatum)
+        private static StringValue ExtractPropertyKey(ref ScriptDatum keyDatum)
         {
             switch (keyDatum.Kind)
             {
                 case ValueKind.String:
-                    return keyDatum.String?.Value ?? String.Empty;
+                    return keyDatum.String;
                 case ValueKind.Number:
-                    return keyDatum.Number.ToString(CultureInfo.InvariantCulture);
+                    return StringValue.Of(keyDatum.Number.ToString(CultureInfo.InvariantCulture));
                 case ValueKind.Boolean:
-                    return keyDatum.Boolean ? "true" : "false";
+                    return keyDatum.Boolean ? StringValue.TRUE : StringValue.FALSE;
                 case ValueKind.Null:
-                    return ScriptObject.Null.ToString();
+                    return StringValue.NULL;
                 default:
-                    return keyDatum.ToString();
+                    return StringValue.OBJECT;
             }
         }
 

@@ -12,13 +12,13 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptArray
     {
-        public new static ScriptObject LENGTH(ScriptObject thisObject)
+        public new static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
         {
             var strValue = thisObject as ScriptArray;
-            return NumberValue.Of(strValue.Length);
+            result = ScriptDatum.FromNumber(strValue.Length);
         }
 
-        public static ScriptObject PUSH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PUSH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array && args != null)
             {
@@ -27,22 +27,22 @@ namespace AuroraScript.Runtime.Base
                     array.PushDatum(datum);
                 }
             }
-            return ScriptObject.Null;
         }
 
 
-        public static ScriptObject POP(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void POP(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
-                return array.PopDatum().ToObject();
+                result = array.PopDatum();
+                return;
             }
             throw new AuroraVMException("array is empty!");
         }
 
 
 
-        public static ScriptObject REVERSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void REVERSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
@@ -55,18 +55,18 @@ namespace AuroraScript.Runtime.Base
                         (items[left], items[right]) = (items[right], items[left]);
                     }
                 }
-                return array;
+                result = ScriptDatum.FromArray(array);
             }
-            return thisObject;
         }
 
-        public static ScriptObject UNSHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void UNSHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
                 if (args == null || args.Length == 0)
                 {
-                    return NumberValue.Of(array._count);
+                    result = ScriptDatum.FromNumber(array._count);
+                    return;
                 }
 
                 var insertCount = args.Length;
@@ -80,21 +80,18 @@ namespace AuroraScript.Runtime.Base
                     array._items[i] = args[i];
                 }
                 array._count += insertCount;
-                return NumberValue.Of(array._count);
+                result = ScriptDatum.FromNumber(array._count);
+                return;
             }
-            return NumberValue.Zero;
+            result = ScriptDatum.FromNumber(0);
         }
 
 
-        public static ScriptObject SHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void SHIFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
-                if (array._count == 0)
-                {
-                    return ScriptObject.Null;
-                }
-
+                if (array._count == 0) return;
                 var first = array._items[0];
                 for (int i = 1; i < array._count; i++)
                 {
@@ -102,61 +99,56 @@ namespace AuroraScript.Runtime.Base
                 }
                 array._count--;
                 array._items[array._count] = ScriptDatum.FromNull();
-                return first.ToObject();
+                result = first;
             }
-            return ScriptObject.Null;
         }
-        public static ScriptObject CONCAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONCAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
-                var result = new ScriptArray(array._count);
-                AppendArrayContents(result, array);
-
+                var newArray = new ScriptArray(array._count);
+                AppendArrayContents(newArray, array);
                 if (args != null)
                 {
                     foreach (var arg in args)
                     {
                         if (arg.TryGetArray(out var scriptArray))
                         {
-                            AppendArrayContents(result, scriptArray);
+                            AppendArrayContents(newArray, scriptArray);
                         }
                         else
                         {
-                            result.PushDatum(arg);
+                            newArray.PushDatum(arg);
                         }
                     }
                 }
-
-                return result;
+                result = ScriptDatum.FromArray(newArray);
             }
-            return ScriptObject.Null;
         }
 
 
 
 
 
-        public static ScriptObject SORT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void SORT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not ScriptArray array)
             {
-                return thisObject;
+                result = ScriptDatum.FromObject(thisObject);
+                return;
             }
 
             var count = array._count;
             if (count <= 1)
             {
-                return thisObject;
+                result = ScriptDatum.FromObject(thisObject);
+                return;
             }
-
             var buffer = new ScriptDatum[count];
             Array.Copy(array._items, buffer, count);
-
             Array.Sort(buffer, CompareDatumForSort);
-
             Array.Copy(buffer, 0, array._items, 0, count);
-            return thisObject;
+            result = ScriptDatum.FromArray(array);
         }
 
 
@@ -165,21 +157,15 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public static ScriptObject JOIN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void JOIN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptArray array)
             {
-                var separator = ",";
-                if (args != null && args.Length > 0)
-                {
-                    separator = args[0].ToString();
-                }
-
+                args.TryGetString(0, out var separator);
                 if (array.Length == 0)
                 {
-                    return StringValue.Empty;
+                    result = ScriptDatum.FromString(string.Empty);
                 }
-
                 var builder = new StringBuilder();
                 for (int i = 0; i < array.Length; i++)
                 {
@@ -190,9 +176,10 @@ namespace AuroraScript.Runtime.Base
                     var element = array.Get(i);
                     builder.Append(CoerceScriptValueToString(element));
                 }
-                return StringValue.Of(builder.ToString());
+                result = ScriptDatum.FromString(builder.ToString());
+                return;
             }
-            return thisObject;
+            result = ScriptDatum.FromString(string.Empty);
         }
 
 
@@ -216,35 +203,29 @@ namespace AuroraScript.Runtime.Base
             var rightString = CoerceScriptValueToString(right);
             return string.CompareOrdinal(leftString, rightString);
         }
-        public static ScriptObject SLICE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void SLICE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (thisObject is not ScriptArray strValue)
+            if (thisObject is not ScriptArray array)
             {
-                return thisObject;
+                result = ScriptDatum.Null;
+                return;
             }
 
             if (args == null || args.Length == 0)
             {
-                return thisObject;
+                result = ScriptDatum.FromArray(array);
+                return;
+            }
+            args.TryGetInteger(0, out var start);
+            if (args.TryGetInteger(1, out var end))
+            {
+                result = ScriptDatum.FromArray(array.Slice((int)start, (int)end));
+            }
+            else
+            {
+                result = ScriptDatum.FromArray(array.Slice((int)start));
             }
 
-            var start = 0;
-            var arg0 = args[0];
-            if (arg0.Kind == ValueKind.Number)
-            {
-                start = (Int32)arg0.Number;
-            }
-            if (args.Length > 1)
-            {
-                var arg1 = args[1];
-                if (arg1.Kind == ValueKind.Number)
-                {
-                    var end = (Int32)arg1.Number;
-                    return strValue.Slice(start, end);
-                }
-            }
-
-            return strValue.Slice(start);
         }
 
         private static void AppendArrayContents(ScriptArray target, ScriptArray source)

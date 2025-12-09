@@ -3,14 +3,20 @@ using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AuroraScript.Core
 {
-
+    [StructLayout(LayoutKind.Explicit)]
     public partial struct ScriptDatum
     {
+        [FieldOffset(0)]
         public ValueKind Kind;
+
+        [FieldOffset(8)]
         private UnionNumber _numeric;
+
+        [FieldOffset(16)]
         private ScriptObject _object;
 
         public double Number
@@ -21,8 +27,8 @@ namespace AuroraScript.Core
 
         public bool Boolean
         {
-            readonly get => _numeric.Int64Value != 0;
-            set => _numeric.Int64Value = value ? 1L : 0L;
+            readonly get => _numeric.BooleanValue;
+            set => _numeric.BooleanValue = value;
         }
 
         public ScriptObject Object
@@ -118,7 +124,7 @@ namespace AuroraScript.Core
                 case ValueKind.Number:
                     return Number != 0 && !double.IsNaN(Number);
                 case ValueKind.String:
-                    return !string.IsNullOrEmpty(String?.Value);
+                    return !string.IsNullOrEmpty(String.Value);
                 default:
                     return Object != null && Object.IsTrue();
             }

@@ -11,100 +11,148 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class StringValue
     {
-        public readonly static StringValue Empty = new StringValue("");
+        public readonly static StringValue EMPTY = new StringValue("");
+        public readonly static StringValue NULL = new StringValue("null");
+        public readonly static StringValue TRUE = new StringValue("true");
+        public readonly static StringValue FALSE = new StringValue("false");
+        public readonly static StringValue OBJECT = new StringValue("[object]");
 
-        public static ScriptObject TOLOWERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+
+
+        public static void TOLOWERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is StringValue strValue
-                ? StringValue.Of(strValue.Value.ToLowerInvariant())
-                : ScriptObject.Null;
+            if (thisObject is StringValue strValue)
+            {
+                result = ScriptDatum.FromString(strValue.Value.ToLowerInvariant());
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
         }
 
-        public static ScriptObject TOUPPERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TOUPPERCASE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is StringValue strValue
-                ? StringValue.Of(strValue.Value.ToUpperInvariant())
-                : ScriptObject.Null;
+            if (thisObject is StringValue strValue)
+            {
+                result = ScriptDatum.FromString(strValue.Value.ToUpperInvariant());
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
         }
 
-        public new static ScriptObject TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject;
+            if (thisObject is StringValue strValue)
+            {
+                result = ScriptDatum.FromString(strValue);
+            }
+            else
+            {
+                result = ScriptDatum.FromString(thisObject.ToString());
+            }
         }
 
-        public new static ScriptObject LENGTH(ScriptObject thisObject)
+        public new static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
         {
-            return thisObject is StringValue strValue
-                ? NumberValue.Of(strValue.Value.Length)
-                : NumberValue.Zero;
+            if (thisObject is StringValue strValue)
+            {
+                result = ScriptDatum.FromNumber(strValue.Value.Length);
+            }
+            else
+            {
+                result = ScriptDatum.FromNumber(0);
+            }
         }
 
-        public static ScriptObject CONTANINS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CONTANINS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
             if (str == null || search == null)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
             }
-            return BooleanValue.Of(str.Value.Contains(search));
+            else
+            {
+                result = ScriptDatum.FromBoolean(str.Value.Contains(search));
+            }
+
         }
 
-        public static ScriptObject INDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void INDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
             if (str == null || search == null)
             {
-                return NumberValue.Negative1;
+                result = ScriptDatum.FromNumber(-1);
             }
-            return NumberValue.Of(str.Value.IndexOf(search, StringComparison.Ordinal));
+            else
+            {
+                result = ScriptDatum.FromNumber(str.Value.IndexOf(search, StringComparison.Ordinal));
+            }
         }
 
-        public static ScriptObject LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void LASTINDEXOF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
             if (str == null || search == null)
             {
-                return NumberValue.Negative1;
+                result = ScriptDatum.FromNumber(-1);
             }
-            return NumberValue.Of(str.Value.LastIndexOf(search, StringComparison.Ordinal));
+            else
+            {
+                result = ScriptDatum.FromNumber(str.Value.LastIndexOf(search, StringComparison.Ordinal));
+            }
+
         }
 
-        public static ScriptObject STARTSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void STARTSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
             if (str == null || search == null)
             {
-                return BooleanValue.False;
+                result = ScriptDatum.FromBoolean(false);
             }
-            return BooleanValue.Of(str.Value.StartsWith(search, StringComparison.Ordinal));
+            else
+            {
+                result = ScriptDatum.FromBoolean(str.Value.StartsWith(search, StringComparison.Ordinal));
+            }
         }
 
-        public static ScriptObject ENDSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void ENDSWITH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var str = thisObject as StringValue;
             var search = GetStringArg(args, 0);
             if (str == null || search == null)
             {
-                return BooleanValue.False;
+                result = ScriptDatum.FromBoolean(false);
             }
-            return BooleanValue.Of(str.Value.EndsWith(search, StringComparison.Ordinal));
+            else
+            {
+                result = ScriptDatum.FromBoolean(str.Value.EndsWith(search, StringComparison.Ordinal));
+            }
+
         }
 
-        public static ScriptObject SUBSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void SUBSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             var startDatum = GetNumberArg(args, 0);
             if (startDatum == null)
             {
-                return thisObject;
+                result = ScriptDatum.FromString(str);
+                return;
             }
 
             var start = startDatum.Int32Value;
@@ -119,70 +167,74 @@ namespace AuroraScript.Runtime.Base
                         (start, end) = (end, start);
                     }
                     var length = Math.Clamp(end - start, 0, Math.Max(0, str.Value.Length - start));
-                    return StringValue.Of(str.Value.Substring(Math.Clamp(start, 0, str.Value.Length), length));
+                    result = ScriptDatum.FromString(str.Value.Substring(Math.Clamp(start, 0, str.Value.Length), length));
+                    return;
                 }
             }
-
             var safeStart = Math.Clamp(start, 0, Math.Max(0, str.Value.Length));
-            return StringValue.Of(str.Value.Substring(safeStart));
+            result = ScriptDatum.FromString(str.Value.Substring(safeStart));
         }
 
-        public static ScriptObject SPLIT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void SPLIT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             var separator = GetStringArg(args, 0);
             if (separator == null)
             {
-                return thisObject;
+                result = ScriptDatum.FromArray(new ScriptArray(new ScriptObject[] { thisObject }));
+                return;
             }
 
             var segments = str.Value.Split(new[] { separator }, StringSplitOptions.None)
                 .Select(StringValue.Of)
                 .Cast<ScriptObject>()
                 .ToArray();
-            return new ScriptArray(segments);
+            result = ScriptDatum.FromArray(new ScriptArray(segments));
         }
 
 
-        public static ScriptObject MATCH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void MATCH(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             var regex = ResolveRegexArgument(args, requireGlobal: false);
             if (regex == null)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
-            return regex.HasFlag("g")
-                ? regex.MatchOfGlobal(str)
-                : regex.Match(str);
+            result = ScriptDatum.FromObject(regex.HasFlag("g") ? regex.MatchOfGlobal(str) : regex.Match(str));
         }
 
-        public static ScriptObject MATCHALL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void MATCHALL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str)
             {
-                return ScriptObject.Null;
+                result = ScriptDatum.Null;
+                return;
             }
 
             var regex = ResolveRegexArgument(args, requireGlobal: true);
-            return regex?.MatchAll(str) ?? ScriptObject.Null;
+            result = ScriptDatum.FromObject(regex.MatchAll(str) ?? ScriptObject.Null);
         }
 
 
-        public static ScriptObject REPLACE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void REPLACE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
-                return thisObject;
+                result = ScriptDatum.FromObject(thisObject);
+                return;
             }
 
             var target = str.Value;
@@ -192,7 +244,8 @@ namespace AuroraScript.Runtime.Base
                 var replace = GetStringArg(args, 1);
                 if (search == null || replace == null)
                 {
-                    return thisObject;
+                    result = ScriptDatum.FromString(str);
+                    return;
                 }
                 target = target.Replace(search, replace);
             }
@@ -200,7 +253,8 @@ namespace AuroraScript.Runtime.Base
             {
                 if (args[0].Object is not ScriptRegex regex)
                 {
-                    return thisObject;
+                    result = ScriptDatum.FromString(str);
+                    return;
                 }
 
                 var input = target ?? String.Empty;
@@ -211,14 +265,15 @@ namespace AuroraScript.Runtime.Base
                     var replacement = GetStringArg(args, 1);
                     if (replacement == null)
                     {
-                        return thisObject;
+                        result = ScriptDatum.FromString(str);
+                        return;
                     }
 
                     target = regex.Replace(input, replacement, replaceAll);
                 }
                 else if (args[1].Kind == ValueKind.Function && args[1].Object is ClosureFunction callback) // replace(/regex/, (m,p1,p2,p3,offset,str)=>{ })
                 {
-                    var executeOptions = context?.ExecuteOptions ?? ExecuteOptions.Default;
+                    var executeOptions = context.ExecuteOptions ?? ExecuteOptions.Default;
                     var originalValue = StringValue.Of(input);
 
                     target = regex.Replace(input, match =>
@@ -239,85 +294,103 @@ namespace AuroraScript.Runtime.Base
                     }, replaceAll);
                 }
             }
-
-            return StringValue.Of(target);
+            result = ScriptDatum.FromString(target);
         }
 
-        public static ScriptObject PADLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PADLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
-                return thisObject;
+                result = ScriptDatum.FromObject(thisObject);
+                return;
             }
 
             var len = GetNumberArg(args, 0);
             var pad = GetStringArg(args, 1);
             if (len == null || pad == null || pad.Length == 0)
             {
-                return thisObject;
+                result = ScriptDatum.FromString(str);
+                return;
             }
-
-            return StringValue.Of(str.Value.PadLeft(len.Int32Value, pad[0]));
+            result = ScriptDatum.FromString(str.Value.PadLeft(len.Int32Value, pad[0]));
         }
 
-        public static ScriptObject PADRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void PADRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str || args == null || args.Length < 2)
             {
-                return thisObject;
+                result = ScriptDatum.FromObject(thisObject);
+                return;
             }
 
             var len = GetNumberArg(args, 0);
             var pad = GetStringArg(args, 1);
             if (len == null || pad == null || pad.Length == 0)
             {
-                return thisObject;
+                result = ScriptDatum.FromString(str);
+                return;
             }
-
-            return StringValue.Of(str.Value.PadRight(len.Int32Value, pad[0]));
+            result = ScriptDatum.FromString(str.Value.PadRight(len.Int32Value, pad[0]));
         }
 
-        public static ScriptObject TRIM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TRIM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is StringValue str
-                ? StringValue.Of(str.Value.Trim())
-                : ScriptObject.Null;
+            if (thisObject is StringValue str)
+            {
+                result = ScriptDatum.FromString(str.Value.Trim());
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
         }
 
-        public static ScriptObject TRIMLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TRIMLEFT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is StringValue str
-                ? StringValue.Of(str.Value.TrimStart())
-                : ScriptObject.Null;
+            if (thisObject is StringValue str)
+            {
+                result = ScriptDatum.FromString(str.Value.TrimStart());
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
         }
 
-        public static ScriptObject TRIMRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void TRIMRIGHT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return thisObject is StringValue str
-                ? StringValue.Of(str.Value.TrimEnd())
-                : ScriptObject.Null;
+            if (thisObject is StringValue str)
+            {
+                result = ScriptDatum.FromString(str.Value.TrimEnd());
+            }
+            else
+            {
+                result = ScriptDatum.Null;
+            }
         }
 
-        public static ScriptObject CHARCODEAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CHARCODEAT(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is not StringValue str)
             {
-                return NumberValue.NaN;
+                result = ScriptDatum.FromNumber(Double.NaN);
+                return;
             }
 
             var indexDatum = GetNumberArg(args, 0);
             if (indexDatum == null)
             {
-                return NumberValue.Negative1;
+                result = ScriptDatum.FromNumber(-1);
+                return;
             }
 
             var index = indexDatum.Int32Value;
             if (index < 0 || index >= str.Value.Length)
             {
-                return NumberValue.NaN;
+                result = ScriptDatum.FromNumber(Double.NaN);
+                return;
             }
-
-            return NumberValue.Of((Int32)str.Value[index]);
+            result = ScriptDatum.FromNumber((Int32)str.Value[index]);
         }
 
         private static String InvokeReplaceCallback(ClosureFunction callback, ExecuteOptions executeOptions, ScriptDatum[] parameters)

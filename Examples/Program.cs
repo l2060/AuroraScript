@@ -5,8 +5,6 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Examples
@@ -33,25 +31,23 @@ namespace Examples
                 return $"Static Eat: [{String.Join(",", strings)}]";
             }
         }
-        public static ScriptObject CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CREATE_TIMER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             Console.WriteLine(context.UserState);
             if (args.TryGetFunction(0, out var callback))
             {
                 callback.InvokeFromClr(context.ExecuteOptions, 123, Array.Empty<object>(), thisObject).Done();
             }
-            return ScriptObject.Null;
         }
 
-        public static ScriptObject GIVE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void GIVE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             Console.WriteLine(context.UserState);
             //Console.WriteLine($"GIVE {String.Join(" ", args)}");
-            return ScriptObject.Null;
         }
 
 
-        public static ScriptObject CLIENT_INPUT_NUMBER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public static void CLIENT_INPUT_NUMBER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             Console.WriteLine(context.UserState);
             //Console.WriteLine($"OPEN INPUT {String.Join(" ", args)}");
@@ -64,22 +60,16 @@ namespace Examples
                     callback.InvokeFromClr(context.ExecuteOptions, 123);
                 });
             }
-            return ScriptObject.Null;
         }
-
-
 
 
 
 
         public static async Task Main()
         {
-            Regex regex = new Regex("profile\\.json$", RegexOptions.IgnoreCase);
-
             engine.RegisterClrType<TestObject>();
             engine.RegisterClrType<UserState>();
             engine.RegisterClrType(typeof(Math));
-
             await engine.BuildAsync();
 
             try
@@ -110,13 +100,11 @@ namespace Examples
         private static void GlobalConfiguration(ScriptGlobal g)
         {
             g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
-
             g.Define("GIVE", new BondingFunction(GIVE), false, true, false);
             g.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
             g.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, true, false);
-
             var fo = new TestObject();
-            g.SetPropertyValue("fo", fo);
+            g.SetValue("fo", fo);
         }
 
 
@@ -160,7 +148,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
-     
+
 
 
         }

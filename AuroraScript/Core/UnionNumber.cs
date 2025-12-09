@@ -38,6 +38,7 @@ namespace AuroraScript.Core
         }
 
 
+
         [FieldOffset(0)] public Int64 Int64Value;
         [FieldOffset(0)] public Double DoubleValue;
 
@@ -64,6 +65,10 @@ namespace AuroraScript.Core
 
         [FieldOffset(6)] public Byte ByteValue7;
         [FieldOffset(7)] public Byte ByteValue8;
+
+
+
+        [FieldOffset(0)] public Boolean BooleanValue;
 
     }
 

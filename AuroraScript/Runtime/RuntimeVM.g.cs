@@ -13,37 +13,36 @@ namespace AuroraScript.Runtime
 {
     internal unsafe partial class RuntimeVM
     {
-        private static void NOP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NOP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
 
         }
 
-        private static void POP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void POP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PopDiscard();
-
         }
 
-        private static void DUP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DUP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.Duplicate();
         }
-        private static void SWAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void SWAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.Swap();
         }
 
-        private static void LOAD_ARG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOAD_ARG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var argIndex = vm._codeBuffer.ReadByte(frame);
-            var argDatum = frame.GetArgumentDatum(instruction.Operand0);
+            var argIndex = vm._codeBuffer.ReadByte(frame);
+            var argDatum = frame.GetArgumentDatum(argIndex);
             exeContext._operandStack.PushDatum(argDatum);
         }
 
-        private static void TRY_LOAD_ARG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void TRY_LOAD_ARG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var propNameIndex = vm._codeBuffer.ReadByte(frame);
-            if (frame.TryGetArgumentDatum(instruction.Operand0, out var tryArgDatum))
+            var propNameIndex = vm._codeBuffer.ReadByte(frame);
+            if (frame.TryGetArgumentDatum(propNameIndex, out var tryArgDatum))
             {
                 exeContext._operandStack.PopDiscard();
                 exeContext._operandStack.PushDatum(tryArgDatum);
@@ -53,19 +52,15 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void CREATE_CLOSURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void CREATE_CLOSURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            //var _codeBuffer = vm._codeBuffer;
+            var _codeBuffer = vm._codeBuffer;
             var _operandStack = exeContext._operandStack;
-            var closureOffset = instruction.Operand0;//_codeBuffer.ReadInt32(frame);
-            var captureCount = instruction.Operand1;
-            var entryPointer = closureOffset;
-
-            Console.WriteLine(stream.Buffer[entryPointer].SourceOffset);
-
-
-            var moduleObject = _operandStack.PopObject();
-            var moduleForClosure = moduleObject as ScriptModule;
+            var closureOffset = _codeBuffer.ReadInt32(frame);
+            var captureCount = _codeBuffer.ReadByte(frame);
+            var entryPointer = frame.Pointer + closureOffset;
+            var moduleObject = _operandStack.PopDatum();
+            var moduleForClosure = moduleObject.Object as ScriptModule;
 
             ClosureUpvalue[] capturedUpvalues;
             if (captureCount == 0)
@@ -75,10 +70,10 @@ namespace AuroraScript.Runtime
             else
             {
                 capturedUpvalues = new ClosureUpvalue[captureCount];
-                for (int i = (int)captureCount - 1; i >= 0; i--)
+                for (int i = captureCount - 1; i >= 0; i--)
                 {
-                    var upvalueObj = _operandStack.PopObject();
-                    if (upvalueObj is not Upvalue upvalue)
+                    var upvalueObj = _operandStack.PopDatum();
+                    if (upvalueObj.Object is not Upvalue upvalue)
                     {
                         throw new AuroraVMException("Invalid captured upvalue");
                     }
@@ -88,26 +83,26 @@ namespace AuroraScript.Runtime
             }
 
             var closure = new ClosureFunction(frame.Domain, moduleForClosure, entryPointer, capturedUpvalues);
-            _operandStack.PushObject(closure);
+            _operandStack.PushDatum(ScriptDatum.FromObject(closure));
         }
 
-        private static void INIT_MODULE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INIT_MODULE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
             var module = new ScriptModule(propName.Value);
             frame.Domain.Global.Define("@" + propName.Value, module, writeable: false, enumerable: true);
         }
 
-        private static void NEW_MAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NEW_MAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
-            _operandStack.PushObject(new ScriptObject());
+            _operandStack.PushDatum(ScriptDatum.FromObject(new ScriptObject()));
         }
 
-        private static void NEW_ARRAY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NEW_ARRAY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var count = instruction.Operand0; // vm._codeBuffer.ReadInt32(frame);
+            var count = vm._codeBuffer.ReadInt32(frame);
             var _operandStack = exeContext._operandStack;
             var newArray = new ScriptArray(count);
             var datumBuffer = new ScriptDatum[count];
@@ -118,7 +113,7 @@ namespace AuroraScript.Runtime
             int index = 0;
             for (int i = 0; i < count; i++)
             {
-                if (datumBuffer[i].Kind.Include(ValueKind.Object) && datumBuffer[i].Object is ScriptDeConstruct deConstruct)
+                if (datumBuffer[i].TryGetObject(out var obj) && obj is ScriptDeConstruct deConstruct)
                 {
                     if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
                     {
@@ -134,21 +129,20 @@ namespace AuroraScript.Runtime
                     newArray.Set(index, datumBuffer[i]);
                     index++;
                 }
-
             }
-            _operandStack.PushObject(newArray);
+            _operandStack.PushDatum(ScriptDatum.FromArray(newArray));
         }
 
 
 
 
-        private static void NEW_REGEX(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NEW_REGEX(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
-            // var _codeBuffer = vm._codeBuffer;
-            var _pattern = instruction.Operand0;// _codeBuffer.ReadInt32(frame);
-            var _flags = instruction.Operand1;// _codeBuffer.ReadInt32(frame);
-            var flags = vm._stringConstants[(int)_flags];
+            var _codeBuffer = vm._codeBuffer;
+            var _pattern = _codeBuffer.ReadInt32(frame);
+            var _flags = _codeBuffer.ReadInt32(frame);
+            var flags = vm._stringConstants[_flags];
             var pattern = vm._stringConstants[_pattern];
             var regex = RegexManager.Resolve(pattern.Value, flags.Value);
             _operandStack.PushDatum(ScriptDatum.FromRegex(regex));
@@ -157,33 +151,37 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void DECONSTRUCT_ARRAY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DECONSTRUCT_ARRAY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datumValue = _operandStack.PopDatum();
             if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
             {
                 var deConstruct = new ScriptDeConstruct(array, ValueKind.Array);
-                _operandStack.PushObject(deConstruct);
+                _operandStack.PushDatum(ScriptDatum.FromObject(deConstruct));
             }
         }
 
 
-        private static void DECONSTRUCT_MAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DECONSTRUCT_MAP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datumValue = _operandStack.PopDatum();
-            var value = _operandStack.PopObject();
-            if (datumValue.Kind.Include(ValueKind.Object))
+            var obj = _operandStack.PopDatum();
+
+            if (obj.TryGetObject(out var value))
             {
-                value.CopyPropertysFrom(datumValue.Object, true);
-            }
-            else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
-            {
-                for (int i = 0; i < array1.Length; i++)
+                if (datumValue.TryGetObject(out var scriptObject))
                 {
-                    var ele = array1.Get(i);
-                    value.SetPropertyValue(i.ToString(), ele.ToObject());
+                    value.CopyPropertysFrom(scriptObject, true);
+                }
+                else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
+                {
+                    for (int i = 0; i < array1.Length; i++)
+                    {
+                        var ele = array1.Get(i);
+                        value.SetPropertyValue(i.ToString(), ele.ToObject());
+                    }
                 }
             }
         }
@@ -193,24 +191,24 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void GET_ITERATOR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void GET_ITERATOR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datum = _operandStack.PopDatum();
             if (datum.TryGetAnyObject(out var obj) && obj is IEnumerator iterable)
             {
-                _operandStack.PushObject(iterable.GetIterator());
+                _operandStack.PushDatum(ScriptDatum.FromObject(iterable.GetIterator()));
             }
             else
             {
                 throw new AuroraVMException($"Object {obj} does not support iterators.");
             }
         }
-        private static void ITERATOR_VALUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ITERATOR_VALUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datum = _operandStack.PopDatum();
-            if (datum.TryGetObject(out var obj) && obj is ItemIterator iterator)
+            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
             {
                 _operandStack.PushDatum(iterator.Value());
             }
@@ -219,11 +217,11 @@ namespace AuroraScript.Runtime
                 throw new AuroraVMException($"Object {obj} not iterator.");
             }
         }
-        private static void ITERATOR_HAS_VALUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ITERATOR_HAS_VALUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datum = _operandStack.PopDatum();
-            if (datum.TryGetObject(out var obj) && obj is ItemIterator iterator)
+            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
             {
                 _operandStack.PushDatum(ScriptDatum.FromBoolean(iterator.HasValue()));
             }
@@ -232,11 +230,11 @@ namespace AuroraScript.Runtime
                 throw new AuroraVMException($"Object {obj} not iterator.");
             }
         }
-        private static void ITERATOR_NEXT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ITERATOR_NEXT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datum = _operandStack.PopDatum();
-            if (datum.TryGetObject(out var obj) && obj is ItemIterator iterator)
+            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
             {
                 iterator.Next();
             }
@@ -252,7 +250,7 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void TYPEOF(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void TYPEOF(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             ref var rightSlot = ref stack.PeekRef();
@@ -262,7 +260,7 @@ namespace AuroraScript.Runtime
         }
 
 
-        private static void ADD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ADD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             ref var rightSlot = ref stack.PeekRef();
@@ -284,55 +282,102 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void ALLOC_LOCALS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ALLOC_LOCALS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var localsRequested = vm._codeBuffer.ReadInt32(frame);
-            frame.EnsureLocalStorage(instruction.Operand0);
+            var localsRequested = vm._codeBuffer.ReadInt32(frame);
+            frame.EnsureLocalStorage(localsRequested);
         }
 
-        private static void LOAD_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOAD_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var localIndex = vm._codeBuffer.ReadByte(frame);
-            //ref var value = ref frame.GetLocalRef(localIndex);
-            //exeContext._operandStack.PushRef( ref value);
-            exeContext._operandStack.PushDatum(frame.GetLocalDatum(instruction.Operand0));
+            var localIndex = vm._codeBuffer.ReadByte(frame);
+            ref var value = ref frame.GetLocalRef(localIndex);
+            exeContext._operandStack.PushRef(ref value);
+
         }
 
-        private static void STORE_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void STORE_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var localIndex = vm._codeBuffer.ReadByte(frame);
-            ref var slot = ref frame.GetLocalRef(instruction.Operand0);
+            var localIndex = vm._codeBuffer.ReadByte(frame);
+            ref var slot = ref frame.GetLocalRef(localIndex);
             slot = exeContext._operandStack.PopDatum();
-            //frame.SetLocalDatum(localIndex, value);
         }
 
 
-        private static void LOAD_LOCAL_LONG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOAD_LOCAL_LONG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var localIndex = vm._codeBuffer.ReadInt32(frame);
-            exeContext._operandStack.PushDatum(frame.GetLocalDatum(instruction.Operand0));
+            var localIndex = vm._codeBuffer.ReadInt32(frame);
+            exeContext._operandStack.PushDatum(frame.GetLocalDatum(localIndex));
         }
 
-        private static void STORE_LOCAL_LONG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void STORE_LOCAL_LONG(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var value = exeContext._operandStack.PopDatum();
-            // var localIndex = vm._codeBuffer.ReadInt32(frame);
-            frame.SetLocalDatum(instruction.Operand0, value);
+            var localIndex = vm._codeBuffer.ReadInt32(frame);
+            frame.SetLocalDatum(localIndex, value);
         }
 
-        private static void SET_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+
+
+        private static void DELETE_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
-            var value = exeContext._operandStack.PopObject();
-            if (exeContext._operandStack.PopDatum().TryGetAnyObject(out var obj))
+            var _operandStack = exeContext._operandStack;
+            var key = _operandStack.PopDatum();
+            var obj = _operandStack.PeekDatum();
+            if (obj.TryGetAnyObject(out var scriptObject))
             {
-                obj.SetPropertyValue(propName, value);
+                var propName = ExtractPropertyKey(ref key);
+                scriptObject.DeletePropertyValue(propName);
             }
         }
 
+        private static void GET_THIS_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            var _operandStack = exeContext._operandStack;
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
+            var value = frame.Module.GetPropertyValue(propName);
+            _operandStack.PushObject(value);
+        }
+        private static void SET_THIS_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            var _operandStack = exeContext._operandStack;
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
+            var value = _operandStack.PopObject();
+            frame.Module.SetPropertyValue(propName, value);
+        }
 
-        private static void GET_ELEMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+
+        private static void GET_GLOBAL_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            var _operandStack = exeContext._operandStack;
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
+            if (vm._clrRegistry.TryGetClrType(propName.Value, out var clrType))
+            {
+                _operandStack.PushDatum(ScriptDatum.FromClrType(clrType));
+            }
+            else
+            {
+                var value = frame.Domain.Global.GetPropertyValue(propName);
+                _operandStack.PushObject(value);
+            }
+        }
+        private static void SET_GLOBAL_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            var _operandStack = exeContext._operandStack;
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
+            var value = _operandStack.PopObject();
+            frame.Domain.Global.SetPropertyValue(propName, value);
+        }
+
+
+
+
+
+        private static void GET_ELEMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datumValue = _operandStack.PopDatum();
@@ -341,10 +386,10 @@ namespace AuroraScript.Runtime
             {
                 _operandStack.PushDatum(scriptArray.Get((Int32)datumValue.Number));
             }
-            else if (datumObjValue.Kind.Include(ValueKind.Object))
+            else if (datumObjValue.TryGetAnyObject(out var datumObj))
             {
                 var key = ExtractPropertyKey(ref datumValue);
-                _operandStack.PushObject(datumObjValue.Object.GetPropertyValue(key));
+                _operandStack.PushObject(datumObj.GetPropertyValue(key));
             }
             else
             {
@@ -352,64 +397,7 @@ namespace AuroraScript.Runtime
             }
         }
 
-        private static void DELETE_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
-        {
-            var _operandStack = exeContext._operandStack;
-            var key = _operandStack.PopDatum();
-            var obj = _operandStack.PeekDatum();
-            if (obj.TryGetAnyObject(out var scriptObject))
-            {
-                scriptObject.DeletePropertyValue(ExtractPropertyKey(ref key));
-            }
-        }
-
-        private static void GET_THIS_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
-        {
-            var _operandStack = exeContext._operandStack;
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
-            var value = frame.Module.GetPropertyValue(propName.Value);
-            _operandStack.PushObject(value);
-        }
-        private static void SET_THIS_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
-        {
-            var _operandStack = exeContext._operandStack;
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
-            var value = _operandStack.PopObject();
-            frame.Module.SetPropertyValue(propName, value);
-        }
-
-
-        private static void GET_GLOBAL_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
-        {
-            var _operandStack = exeContext._operandStack;
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
-            if (vm._clrRegistry.TryGetClrType(propName.Value, out var clrType))
-            {
-                _operandStack.PushObject(clrType);
-            }
-            else
-            {
-                var value = frame.Domain.Global.GetPropertyValue(propName.Value);
-                _operandStack.PushObject(value);
-            }
-        }
-        private static void SET_GLOBAL_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
-        {
-            var _operandStack = exeContext._operandStack;
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
-            var value = _operandStack.PopObject();
-            frame.Domain.Global.SetPropertyValue(propName.Value, value);
-        }
-
-
-
-
-
-        private static void SET_ELEMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void SET_ELEMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var datumTargetObj = _operandStack.PopDatum();
@@ -419,42 +407,44 @@ namespace AuroraScript.Runtime
             {
                 scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
             }
-            else if (datumTargetObj.Kind.Include(ValueKind.Object))
+            else if (datumTargetObj.TryGetAnyObject(out var datumObj))
             {
                 var key = ExtractPropertyKey(ref datumValue);
-                datumTargetObj.Object.SetPropertyValue(key, datumAssignedValue.ToObject());
+                datumObj.SetPropertyValue(key, datumAssignedValue.ToObject());
             }
         }
 
 
 
 
-        private static void GET_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void GET_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            // var propNameIndex = vm._codeBuffer.ReadInt32(frame);
-            var propName = vm._stringConstants[instruction.Operand0];
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
             ref var topDatum = ref exeContext._operandStack.PeekRef();
             if (topDatum.TryGetAnyObject(out var obj))
             {
-                topDatum = ScriptDatum.FromObject(obj.GetPropertyValue(propName.Value));
+                topDatum = ScriptDatum.FromObject(obj.GetPropertyValue(propName));
             }
             else if (topDatum.Kind == ValueKind.Number || topDatum.Kind == ValueKind.Boolean)
             {
-                topDatum = ScriptDatum.FromObject(topDatum.ToObject().GetPropertyValue(propName.Value));
+                topDatum = ScriptDatum.FromObject(topDatum.ToObject().GetPropertyValue(propName));
             }
-            //var datum = PopDatum();
-            //if (datum.TryGetAnyObject(out obj))
-            //{
-            //    PushObject(obj.GetPropertyValue(propName.Value));
-            //}
-            //else if (datum.Kind == ValueKind.Number || datum.Kind == ValueKind.Boolean)
-            //{
-            //    PushObject(datum.ToObject().GetPropertyValue(propName.Value));
-            //}
+        }
+
+        private static void SET_PROPERTY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
+        {
+            var propNameIndex = vm._codeBuffer.ReadInt32(frame);
+            var propName = vm._stringConstants[propNameIndex];
+            var value = exeContext._operandStack.PopObject();
+            if (exeContext._operandStack.PopDatum().TryGetAnyObject(out var obj))
+            {
+                obj.SetPropertyValue(propName, value);
+            }
         }
 
 
-        private static void CALL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void CALL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
 
             var _callStack = exeContext._callStack;
@@ -469,7 +459,7 @@ namespace AuroraScript.Runtime
             // 从栈顶弹出可调用对象
             var callable = _operandStack.PopDatum();
             // 读取参数数量
-            var argCount = instruction.Operand0;// vm._codeBuffer.ReadByte(frame);
+            var argCount = vm._codeBuffer.ReadByte(frame);
             // 创建参数数组
             var callFrame = CallFramePool.Rent();
 
@@ -482,24 +472,22 @@ namespace AuroraScript.Runtime
 
             if (callable.TryGetFunction(out var closureFunc))
             {
-       
                 // 如果是脚本中定义的闭包函数
                 // 创建新的调用帧，包含环境、全局对象、模块和入口点
                 callFrame.Initialize(frame.Domain, closureFunc.Module, closureFunc.EntryPointer, closureFunc.CapturedUpvalues);
-                callFrame.ReturnIndex = stream.NextIP;
                 // 将新帧压入调用栈
                 _callStack.Push(callFrame);
                 // 更新当前帧引用
                 frame = callFrame;
-                stream.NextIP = closureFunc.EntryPointer;
                 return;
             }
             else if (callable.TryGetClrBonding(out var callableFunc))
             {
                 try
                 {
-                    var callResult = callableFunc.Invoke(exeContext, null, argDatums);
-                    _operandStack.PushObject(callResult);
+                    ScriptDatum result = ScriptDatum.Null;
+                    callableFunc.Invoke(exeContext, null, argDatums, ref result);
+                    _operandStack.PushDatum(result);
                 }
                 catch (Exception ex)
                 {
@@ -535,37 +523,34 @@ namespace AuroraScript.Runtime
             }
         }
 
-        private static void RETURN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void RETURN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _callStack = exeContext._callStack;
             var _operandStack = exeContext._operandStack;
             // 函数返回指令
             // 获取返回值（如果有）
             var datumValue = _operandStack.Count > 0 ? _operandStack.PopDatum() : ScriptDatum.FromNull();
-            var value = datumValue.ToObject();
             // 弹出当前调用帧
             var finishedFrame = _callStack.Pop();
             CallFramePool.Return(finishedFrame);
-            stream.NextIP = finishedFrame.ReturnIndex;
             // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
             if (_callStack.Count == 0)
             {
                 // 设置执行状态为完成，并返回最终结果
+                var value = datumValue.ToObject();
                 exeContext.SetStatus(ExecuteStatus.Complete, value, null);
                 return;
             }
-
             // 如果调用栈不为空，说明是从子函数返回到调用者
             // 将返回值压入操作数栈，供调用者使用
-            _operandStack.PushDatum(datumValue);
+            _operandStack.PushRef(ref datumValue);
             // 切换到调用者的帧继续执行
             frame = _callStack.Peek();
-
         }
 
 
 
-        private static void RETURN_NULL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void RETURN_NULL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var _operandStack = exeContext._operandStack;
             var _callStack = exeContext._callStack;
@@ -573,7 +558,6 @@ namespace AuroraScript.Runtime
             // 弹出当前调用帧
             var finishedFrame = _callStack.Pop();
             CallFramePool.Return(finishedFrame);
-            stream.NextIP = finishedFrame.ReturnIndex;
             // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
             if (_callStack.Count == 0)
             {
@@ -586,19 +570,20 @@ namespace AuroraScript.Runtime
             _operandStack.PushDatum(ScriptDatum.FromNull());
             // 切换到调用者的帧继续执行
             frame = _callStack.Peek();
+
         }
 
 
-        private static void CAPTURE_VAR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void CAPTURE_VAR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var slotIndex = instruction.Operand0;// vm._codeBuffer.ReadInt32(frame);
+            var slotIndex = vm._codeBuffer.ReadInt32(frame);
             var capturedUpvalue = frame.GetCapturedUpvalue(slotIndex) ?? frame.GetOrCreateUpvalue(slotIndex);
             capturedUpvalue.MarkAliasSlot(slotIndex);
-            exeContext._operandStack.PushObject(capturedUpvalue);
+            exeContext._operandStack.PushDatum(ScriptDatum.FromObject(capturedUpvalue));
         }
-        private static void LOAD_CAPTURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOAD_CAPTURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var localIndex =instruction.Operand0;// vm._codeBuffer.ReadInt32(frame);
+            var localIndex = vm._codeBuffer.ReadInt32(frame);
             var datumValue = frame.GetLocalDatum(localIndex);
             if (datumValue.Kind != ValueKind.Object || datumValue.Object is not Upvalue upvalueToRead)
             {
@@ -607,10 +592,10 @@ namespace AuroraScript.Runtime
             exeContext._operandStack.PushDatum(upvalueToRead.Get());
         }
 
-        private static void STORE_CAPTURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void STORE_CAPTURE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var datumValue = exeContext._operandStack.PopDatum();
-            var localIndex = instruction.Operand0;//vm._codeBuffer.ReadInt32(frame);
+            var localIndex = vm._codeBuffer.ReadInt32(frame);
             var upvalueDatum = frame.GetLocalDatum(localIndex);
             if (upvalueDatum.Kind != ValueKind.Object || upvalueDatum.Object is not Upvalue upvalueToWrite)
             {
@@ -619,51 +604,51 @@ namespace AuroraScript.Runtime
             upvalueToWrite.Set(datumValue);
         }
 
-        private static void SUBTRACT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void SUBTRACT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryNumberOp(exeContext, BinaryNumberOp.Subtract, double.NaN);
         }
 
-        private static void MULTIPLY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MULTIPLY(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryNumberOp(exeContext, BinaryNumberOp.Multiply, double.NaN);
         }
 
-        private static void DIVIDE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DIVIDE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryNumberOp(exeContext, BinaryNumberOp.Divide, double.NaN);
         }
 
-        private static void MOD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MOD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryNumberOp(exeContext, BinaryNumberOp.Mod, double.NaN);
 
         }
 
-        private static void NEGATE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NEGATE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteUnaryNumberOp(exeContext, UnaryNumberOp.Negate, double.NaN);
 
         }
 
-        private static void INCREMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INCREMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteUnaryNumberOp(exeContext, UnaryNumberOp.Increment, double.NaN);
 
         }
 
-        private static void DECREMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DECREMENT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteUnaryNumberOp(exeContext, UnaryNumberOp.Decrement, double.NaN);
 
         }
 
-        private static void BIT_NOT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_NOT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteUnaryNumberOp(exeContext, UnaryNumberOp.BitNot, -1);
         }
 
-        private static void BIT_SHIFT_LEFT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_SHIFT_LEFT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -680,7 +665,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void BIT_SHIFT_RIGHT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_SHIFT_RIGHT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -697,7 +682,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void BIT_UNSIGNED_SHIFT_RIGHT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_UNSIGNED_SHIFT_RIGHT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -714,7 +699,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void BIT_AND(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_AND(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -735,7 +720,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void BIT_OR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_OR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -756,7 +741,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void BIT_XOR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void BIT_XOR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var stack = exeContext._operandStack;
             var right = stack.PopDatum();
@@ -777,93 +762,89 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void LOGIC_NOT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOGIC_NOT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteLogicNot(exeContext);
 
         }
 
-        private static void LOGIC_AND(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOGIC_AND(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteLogicalBinary(exeContext, isAnd: true);
 
         }
 
-        private static void LOGIC_OR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LOGIC_OR(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteLogicalBinary(exeContext, isAnd: false);
 
         }
 
-        private static void EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteEquality(exeContext, negate: false);
 
         }
 
-        private static void NOT_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void NOT_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteEquality(exeContext, negate: true);
 
         }
 
-        private static void LESS_THAN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LESS_THAN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryPredicate(exeContext, BinaryPredicateOp.LessThan);
 
         }
 
-        private static void LESS_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void LESS_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryPredicate(exeContext, BinaryPredicateOp.LessEqual);
 
         }
 
-        private static void GREATER_THAN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void GREATER_THAN(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryPredicate(exeContext, BinaryPredicateOp.GreaterThan);
 
         }
 
-        private static void GREATER_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void GREATER_EQUAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             ExecuteBinaryPredicate(exeContext, BinaryPredicateOp.GreaterEqual);
 
         }
 
-        private static void JUMP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void JUMP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var offset = instruction.Operand0;//vm._codeBuffer.ReadInt32(frame);
-
-            stream.NextIP = offset;
-            //frame.Pointer += offset;
+            var offset = vm._codeBuffer.ReadInt32(frame);
+            frame.Pointer += offset;
 
         }
 
-        private static void JUMP_IF_FALSE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void JUMP_IF_FALSE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var offset = instruction.Operand0;//vm._codeBuffer.ReadInt32(frame);
+            var offset = vm._codeBuffer.ReadInt32(frame);
             var stack = exeContext._operandStack;
             var isTrue = stack.PeekRef().IsTrue();
             stack.PopDiscard();
             if (!isTrue)
             {
-                stream.NextIP = offset;
-                //frame.Pointer += offset;
+                frame.Pointer += offset;
             }
 
         }
 
-        private static void JUMP_IF_TRUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void JUMP_IF_TRUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var offset = instruction.Operand0;//vm._codeBuffer.ReadInt32(frame);
+            var offset = vm._codeBuffer.ReadInt32(frame);
             var stack = exeContext._operandStack;
             var isTrue = stack.PeekRef().IsTrue();
             stack.PopDiscard();
             if (isTrue)
             {
-                //frame.Pointer += offset;
-                stream.NextIP = offset;
+                frame.Pointer += offset;
             }
 
         }
@@ -871,7 +852,7 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void YIELD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void YIELD(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             // TODO
             if (exeContext.ExecuteOptions.EnabledYield)
@@ -888,87 +869,85 @@ namespace AuroraScript.Runtime
 
         #region const
 
-        private static void PUSH_0(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_0(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(0));
 
         }
-        private static void PUSH_1(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_1(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(1));
 
         }
-        private static void PUSH_2(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_2(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(2));
 
         }
-        private static void PUSH_3(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_3(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(3));
 
         }
-        private static void PUSH_4(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_4(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(4));
 
         }
-        private static void PUSH_5(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_5(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(5));
 
         }
-        private static void PUSH_6(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_6(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(6));
 
         }
-        private static void PUSH_7(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_7(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(7));
 
         }
-        private static void PUSH_8(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_8(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(8));
 
         }
-        private static void PUSH_9(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_9(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(9));
 
         }
-        private static void PUSH_NULL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_NULL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromNull());
 
         }
-        private static void PUSH_FALSE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_FALSE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromBoolean(false));
 
         }
-        private static void PUSH_TRUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_TRUE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromBoolean(true));
 
         }
-        private static void PUSH_THIS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_THIS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushObject(frame.Module);
-
+            exeContext._operandStack.PushDatum(ScriptDatum.FromObject(frame.Module));
         }
-        private static void PUSH_GLOBAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_GLOBAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushObject(exeContext.Domain.Global);
-
+            exeContext._operandStack.PushDatum(ScriptDatum.FromObject(exeContext.Domain.Global));
         }
-        private static void PUSH_CONTEXT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_CONTEXT(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             exeContext._operandStack.PushDatum(ScriptDatum.FromObject(exeContext.UserState));
 
         }
-        private static void PUSH_ARGUMENTS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_ARGUMENTS(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
             var argDatum = ScriptDatum.FromArray(new ScriptArray(frame.Arguments.ViewSpan()));
             exeContext._operandStack.PushDatum(argDatum);
@@ -979,132 +958,132 @@ namespace AuroraScript.Runtime
 
 
 
-        private static void PUSH_I8(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_I8(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.Operand0));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadSByte(frame)));
 
         }
-        private static void PUSH_I16(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_I16(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.Operand0));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadInt16(frame)));
 
         }
-        private static void PUSH_I32(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_I32(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.Operand0));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadInt32(frame)));
 
         }
-        private static void PUSH_I64(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_I64(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.Operand1));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadInt64(frame)));
 
         }
-        private static void PUSH_F32(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_F32(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.OperandNumber));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadFloat(frame)));
 
         }
-        private static void PUSH_F64(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_F64(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(instruction.OperandNumber));
+            exeContext._operandStack.PushDatum(ScriptDatum.FromNumber(vm._codeBuffer.ReadDouble(frame)));
 
         }
 
-        private static void PUSH_STRING(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void PUSH_STRING(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            var stringIndex = instruction.Operand0;// vm._codeBuffer.ReadInt32(frame);
+            var stringIndex = vm._codeBuffer.ReadInt32(frame);
             exeContext._operandStack.PushDatum(ScriptDatum.FromString(vm._stringConstants[stringIndex]));
 
         }
 
-        private static void INC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: 1d, isPostfix: false);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: 1d, isPostfix: false);
         }
 
-        private static void INC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: 1d, isPostfix: false);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: 1d, isPostfix: false);
         }
 
-        private static void DEC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DEC_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: -1d, isPostfix: false);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: -1d, isPostfix: false);
         }
 
-        private static void DEC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DEC_LOCAL_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: -1d, isPostfix: false);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: -1d, isPostfix: false);
         }
 
-        private static void INC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: 1d, isPostfix: true);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: 1d, isPostfix: true);
         }
 
-        private static void INC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void INC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: 1d, isPostfix: true);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: 1d, isPostfix: true);
         }
 
-        private static void DEC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DEC_LOCAL_POST(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: -1d, isPostfix: true);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: false, delta: -1d, isPostfix: true);
         }
 
-        private static void DEC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DEC_LOCAL_POST_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalIncrement(vm, exeContext, ref frame, instruction.Operand0, delta: -1d, isPostfix: true);
+            HandleLocalIncrement(vm, exeContext, ref frame, useLongIndex: true, delta: -1d, isPostfix: true);
         }
 
-        private static void ADD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ADD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Add);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Add);
         }
 
-        private static void ADD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void ADD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Add);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Add);
         }
 
-        private static void SUB_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void SUB_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Subtract);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Subtract);
         }
 
-        private static void SUB_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void SUB_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Subtract);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Subtract);
         }
 
-        private static void MUL_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MUL_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Multiply);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Multiply);
         }
 
-        private static void MUL_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MUL_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Multiply);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Multiply);
         }
 
-        private static void DIV_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DIV_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Divide);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Divide);
         }
 
-        private static void DIV_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void DIV_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Divide);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Divide);
         }
 
-        private static void MOD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MOD_LOCAL_STACK(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Mod);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: false, operation: LocalStackOp.Mod);
         }
 
-        private static void MOD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, ref Instruction instruction,ref InstructionStream stream)
+        private static void MOD_LOCAL_STACK_L(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            HandleLocalBinaryFromStack(vm, exeContext, ref frame, instruction.Operand0, operation: LocalStackOp.Mod);
+            HandleLocalBinaryFromStack(vm, exeContext, ref frame, useLongIndex: true, operation: LocalStackOp.Mod);
         }
 
         private enum LocalStackOp : byte
@@ -1116,9 +1095,10 @@ namespace AuroraScript.Runtime
             Mod
         }
 
-        private static void HandleLocalIncrement(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, int index, double delta, bool isPostfix)
+        private static void HandleLocalIncrement(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, bool useLongIndex, double delta, bool isPostfix)
         {
             var stack = exeContext._operandStack;
+            var index = useLongIndex ? vm._codeBuffer.ReadInt32(frame) : vm._codeBuffer.ReadByte(frame);
             ref var slot = ref frame.GetLocalRef(index);
             var original = slot;
             if (!TryGetNumber(in slot, out var current))
@@ -1131,9 +1111,10 @@ namespace AuroraScript.Runtime
             stack.PushDatum(result);
         }
 
-        private static void HandleLocalBinaryFromStack(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, int index, LocalStackOp operation)
+        private static void HandleLocalBinaryFromStack(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame, bool useLongIndex, LocalStackOp operation)
         {
             var stack = exeContext._operandStack;
+            var index = useLongIndex ? vm._codeBuffer.ReadInt32(frame) : vm._codeBuffer.ReadByte(frame);
             ref var leftSlot = ref frame.GetLocalRef(index);
             var rightSlot = stack.PopDatum();
             switch (operation)
