@@ -8,16 +8,16 @@ namespace AuroraScript.Runtime.Types
     internal class ScriptDateConstructor : BondingFunction
     {
 
-        public static ScriptDateConstructor INSTANCE = new ScriptDateConstructor();
+        internal static ScriptDateConstructor INSTANCE = new ScriptDateConstructor();
 
 
-        public ScriptDateConstructor() : base(CONSTRUCTOR)
+        internal ScriptDateConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.DateConstructorPrototype;
         }
 
 
-        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             PARSE(context, thisObject, args, ref result);
         }
@@ -41,19 +41,19 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static void NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             result = ScriptDatum.FromDate(new ScriptDate(DateTime.Now));
         }
 
 
-        public static void UTC_NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void UTC_NOW(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             result = ScriptDatum.FromDate(new ScriptDate(DateTime.UtcNow));
         }
 
 
-        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (thisObject is ScriptDate date)
             {
@@ -68,7 +68,7 @@ namespace AuroraScript.Runtime.Types
             }
         }
 
-        public static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetInteger(0, out var value)) // ticks
             {

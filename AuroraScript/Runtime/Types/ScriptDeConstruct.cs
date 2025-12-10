@@ -5,16 +5,16 @@ namespace AuroraScript.Runtime.Types
 {
     internal class ScriptDeConstruct : ScriptObject
     {
-        public ScriptDeConstruct(ScriptObject _object, ValueKind kind)
+        internal ScriptDeConstruct(ScriptObject _object, ValueKind kind)
         {
             Object = _object;
             Kind = kind;
         }
 
 
-        public readonly ValueKind Kind;
+        internal readonly ValueKind Kind;
 
-        public readonly ScriptObject Object;
+        internal readonly ScriptObject Object;
 
 
     }

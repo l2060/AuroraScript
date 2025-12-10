@@ -56,7 +56,7 @@ namespace AuroraScript
             Global.Define("console", new ConsoleSupport(), writeable: false, enumerable: false);
             //
             Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
-            Global.Define("String", StringConstructor.INSTANCE.Value, writeable: false, enumerable: false);
+            Global.Define("String", StringConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Number", NumberConstructor.INSTANCE, writeable: false, enumerable: false);

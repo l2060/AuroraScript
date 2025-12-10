@@ -9,7 +9,7 @@ namespace AuroraScript.Runtime.Types
     /// <summary>
     /// 原型对象的clr粘合属性获取
     /// </summary>
-    internal class BondingGetter : ScriptObject
+    public class BondingGetter : ScriptObject
     {
 
         private readonly ClrGetterDelegate _callback;

@@ -4,16 +4,16 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class StringConstructor : BondingFunction
+    internal class StringConstructor : BondingFunction
     {
-        public readonly static Lazy<StringConstructor> INSTANCE = new Lazy<StringConstructor>();
+        internal readonly static StringConstructor INSTANCE = new StringConstructor();
 
-        public StringConstructor() : base(CONSTRUCTOR)
+        internal StringConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.StringConstructorPrototype;
         }
 
-        public static void FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void FROMCHARCODE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
 
             if (args.TryGetInteger(0, out var codePoint))
@@ -26,7 +26,7 @@ namespace AuroraScript.Runtime.Types
             }
         }
 
-        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetString(0, out var str))
             {

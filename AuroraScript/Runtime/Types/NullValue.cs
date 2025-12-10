@@ -17,7 +17,7 @@ namespace AuroraScript.Runtime.Types
             Frozen();
         }
 
-        public new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal new static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             result = ScriptDatum.FromString(valueString);
         }

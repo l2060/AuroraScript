@@ -11,7 +11,7 @@ namespace AuroraScript.Runtime.Interop
         private readonly ClrTypeDescriptor _descriptor;
         private readonly Lazy<ConstructorInfo[]> _constructors;
 
-        public ClrType(Type type, ClrTypeDescriptor descriptor)
+        internal ClrType(Type type, ClrTypeDescriptor descriptor)
         {
             _constructors = new Lazy<ConstructorInfo[]>(() => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance));
             _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));

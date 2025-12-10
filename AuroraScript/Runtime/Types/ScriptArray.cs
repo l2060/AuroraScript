@@ -103,7 +103,7 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        internal void Set(Int32 index, ScriptDatum datum)
+        public void Set(Int32 index, ScriptDatum datum)
         {
             if (index < 0) return;
             EnsureCapacity(index + 1);

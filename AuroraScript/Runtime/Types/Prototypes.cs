@@ -23,7 +23,7 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static void Proload()
+        internal static void Proload()
         {
 
         }

@@ -8,14 +8,14 @@ namespace AuroraScript.Runtime.Types
     internal class ScriptRegexConstructor : BondingFunction
     {
 
-        public static ScriptRegexConstructor INSTANCE = new ScriptRegexConstructor();
+        internal static ScriptRegexConstructor INSTANCE = new ScriptRegexConstructor();
 
-        public ScriptRegexConstructor() : base(CONSTRUCTOR)
+        internal ScriptRegexConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.Length == 0)
             {

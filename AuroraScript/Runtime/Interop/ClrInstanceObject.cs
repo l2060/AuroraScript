@@ -1,4 +1,4 @@
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 using System;
 using System.Linq;
 
@@ -11,7 +11,7 @@ namespace AuroraScript.Runtime.Interop
         public readonly object Instance;
 
 
-        public ClrInstanceObject(ClrTypeDescriptor descriptor, object instance)
+        internal ClrInstanceObject(ClrTypeDescriptor descriptor, object instance)
         {
             Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Instance = instance;

@@ -6,14 +6,14 @@ namespace AuroraScript.Runtime.Types
 {
     internal class ScriptObjectConstructor : BondingFunction
     {
-        public static ScriptObjectConstructor INSTANCE = new ScriptObjectConstructor();
+        internal static ScriptObjectConstructor INSTANCE = new ScriptObjectConstructor();
 
-        public ScriptObjectConstructor() : base(CONSTRUCTOR)
+        internal ScriptObjectConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.ScriptObjectConstructorPrototype;
         }
 
-        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetObject(0, out var scriptObject))
             {
@@ -26,7 +26,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static void KEYS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void KEYS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetObject(0, out var scriptObject))
             {

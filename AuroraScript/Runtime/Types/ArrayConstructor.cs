@@ -4,18 +4,18 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class ArrayConstructor : BondingFunction
+    internal class ArrayConstructor : BondingFunction
     {
-        public readonly static ArrayConstructor INSTANCE = new ArrayConstructor();
+        internal readonly static ArrayConstructor INSTANCE = new ArrayConstructor();
 
-        public ArrayConstructor() : base(CONSTRUCTOR)
+        internal ArrayConstructor() : base(CONSTRUCTOR)
         {
             _prototype = Prototypes.ArrayConstructorPrototype;
         }
 
 
 
-        public static void FROM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void FROM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.Length == 0)
             {
@@ -45,7 +45,7 @@ namespace AuroraScript.Runtime.Types
             result = ScriptDatum.FromArray(array);
         }
 
-        public static void OF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void OF(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var array = new ScriptArray(args.Length);
             for (int i = 0; i < args.Length; i++)
@@ -56,7 +56,7 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        public static void IS_ARRAY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void IS_ARRAY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             result = ScriptDatum.FromBoolean(args.Length > 0 && args[0].Kind == ValueKind.Array);
         }
@@ -65,7 +65,7 @@ namespace AuroraScript.Runtime.Types
 
 
 
-        public static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
+        internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             var capacity = 0;
             if (args.Length == 1)

@@ -8,9 +8,9 @@ namespace AuroraScript.Runtime.Base
 {
     public partial class ScriptObject
     {
-        public static readonly ScriptObject Null = NullValue.Instance;
+        internal static readonly ScriptObject Null = NullValue.Instance;
 
-        public static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
+        internal static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
         {
             if (thisObject is ScriptObject obj && obj._properties != null)
             {
@@ -22,13 +22,13 @@ namespace AuroraScript.Runtime.Base
             }
         }
 
-        public static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        internal static void TOSTRING(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             result = ScriptDatum.FromString(thisObject.ToString());
         }
 
 
-        public static void STRICT_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        internal static void STRICT_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             if (args.TryGet(-10, out var var1) && args.TryGet(1, out var var2))
             {
@@ -62,20 +62,20 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        public static void VALUE_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        internal static void VALUE_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             // TODO 待实现
             result = ScriptDatum.FromBoolean(true);
         }
 
 
-        public static void DEEP_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        internal static void DEEP_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             // TODO 待实现
             result = ScriptDatum.FromBoolean(true);
         }
 
-        public static void ASSIGN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
+        internal static void ASSIGN(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args , ref ScriptDatum result)
         {
             if (args.TryGetObject(0, out var source))
             {
