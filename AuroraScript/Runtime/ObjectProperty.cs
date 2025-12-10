@@ -7,7 +7,7 @@ namespace AuroraScript.Runtime
 {
     [DebuggerDisplay("{DebuggerDisplayValue,nq}", Name = "{Key,nq}", Type = "{DebuggerDisplayType,nq}")]
 
-    internal class ObjectProperty
+    internal sealed class ObjectProperty
     {
         public StringValue Key;
 

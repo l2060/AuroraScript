@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Runtime.Types
 {
-    public class ScriptModule : ScriptObject
+    public sealed class ScriptModule : ScriptObject
     {
         public string Name;
 

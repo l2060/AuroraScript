@@ -14,7 +14,7 @@ namespace AuroraScript.Runtime.Interop
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         private bool _disposed;
 
-        public void RegisterType(Type type, string alias = null, ClrTypeOptions options = null)
+        public void RegisterType(Type type, string alias = null)
         {
             if (type == null)
             {
@@ -25,7 +25,6 @@ namespace AuroraScript.Runtime.Interop
                 alias = type.Name;
             }
             alias = alias.Trim();
-            options ??= ClrTypeOptions.Default;
             ClrTypeResolver.ResolveType(type, out var typeDescriptor);
             var clrType = new ClrType(type, typeDescriptor);
             _aliasMap.Add(alias, clrType);

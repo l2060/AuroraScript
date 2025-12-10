@@ -393,7 +393,7 @@ namespace AuroraScript.Runtime
             }
             else
             {
-                _operandStack.PushDatum(ScriptDatum.FromNull());
+                _operandStack.PushDatum(ScriptDatum.Null);
             }
         }
 
@@ -503,8 +503,9 @@ namespace AuroraScript.Runtime
             {
                 try
                 {
-                    var callResult = clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums);
-                    _operandStack.PushDatum(callResult);
+                    ScriptDatum result = ScriptDatum.Null;
+                    clrInvokable.Invoke(exeContext, callable.ToObject(), argDatums, ref result);
+                    _operandStack.PushDatum(result);
                 }
                 catch (Exception ex)
                 {
@@ -529,7 +530,7 @@ namespace AuroraScript.Runtime
             var _operandStack = exeContext._operandStack;
             // 函数返回指令
             // 获取返回值（如果有）
-            var datumValue = _operandStack.Count > 0 ? _operandStack.PopDatum() : ScriptDatum.FromNull();
+            var datumValue = _operandStack.Count > 0 ? _operandStack.PopDatum() : ScriptDatum.Null;
             // 弹出当前调用帧
             var finishedFrame = _callStack.Pop();
             CallFramePool.Return(finishedFrame);
@@ -567,7 +568,7 @@ namespace AuroraScript.Runtime
             }
             // 如果调用栈不为空，说明是从子函数返回到调用者
             // 将返回值压入操作数栈，供调用者使用
-            _operandStack.PushDatum(ScriptDatum.FromNull());
+            _operandStack.PushDatum(ScriptDatum.Null);
             // 切换到调用者的帧继续执行
             frame = _callStack.Peek();
 
@@ -921,7 +922,7 @@ namespace AuroraScript.Runtime
         }
         private static void PUSH_NULL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
-            exeContext._operandStack.PushDatum(ScriptDatum.FromNull());
+            exeContext._operandStack.PushDatum(ScriptDatum.Null);
 
         }
         private static void PUSH_FALSE(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)

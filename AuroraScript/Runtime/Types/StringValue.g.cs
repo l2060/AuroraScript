@@ -286,7 +286,7 @@ namespace AuroraScript.Runtime.Base
                         {
                             callbackArgs[i] = match.Groups[i].Success
                                 ? ScriptDatum.FromString(match.Groups[i].Value)
-                                : ScriptDatum.FromNull();
+                                : ScriptDatum.Null;
                         }
                         callbackArgs[groupCount] = ScriptDatum.FromNumber(match.Index);
                         callbackArgs[groupCount + 1] = ScriptDatum.FromString(originalValue);

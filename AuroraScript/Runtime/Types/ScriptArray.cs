@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Runtime.Base
 {
-    public partial class ScriptArray : ScriptObject, IEnumerator
+    public sealed partial class ScriptArray : ScriptObject, IEnumerator
     {
         private ScriptDatum[] _items;
         private Int32 _count;
@@ -24,7 +24,7 @@ namespace AuroraScript.Runtime.Base
                 _count = capacity;
                 for (int i = 0; i < _count; i++)
                 {
-                    _items[i] = ScriptDatum.FromNull();
+                    _items[i] = ScriptDatum.Null;
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace AuroraScript.Runtime.Base
 
         public ScriptDatum Get(Int32 index)
         {
-            if (index < 0 || index >= _count) return ScriptDatum.FromNull();
+            if (index < 0 || index >= _count) return ScriptDatum.Null;
             return _items[index];
         }
 
@@ -112,7 +112,7 @@ namespace AuroraScript.Runtime.Base
             {
                 for (int i = _count; i < index; i++)
                 {
-                    _items[i] = ScriptDatum.FromNull();
+                    _items[i] = ScriptDatum.Null;
                 }
                 _count = index + 1;
             }
@@ -188,10 +188,10 @@ namespace AuroraScript.Runtime.Base
             if (_count > 0)
             {
                 var datum = _items[--_count];
-                _items[_count] = ScriptDatum.FromNull();
+                _items[_count] = ScriptDatum.Null;
                 return datum;
             }
-            return ScriptDatum.FromNull();
+            return ScriptDatum.Null;
         }
 
         private void EnsureCapacity(Int32 min)

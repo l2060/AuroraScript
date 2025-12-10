@@ -47,51 +47,46 @@ namespace AuroraScript.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromObject(ScriptObject value)
         {
-            if (value == null || value == ScriptObject.Null)
+            switch (value)
             {
-                return FromNull();
+                case null:
+                case NullValue:
+                    return Null;
+
+                case NumberValue numberValue:
+                    return FromNumber(numberValue.DoubleValue);
+
+                case BooleanValue booleanValue:
+                    return FromBoolean(booleanValue.Value);
+
+                case StringValue stringValue:
+                    return FromString(stringValue);
+
+                case ScriptArray scriptArray:
+                    return FromArray(scriptArray);
+
+                case ScriptDate scriptDate:
+                    return FromDate(scriptDate);
+
+                case ScriptRegex scriptRegex:
+                    return FromRegex(scriptRegex);
+
+                case ClosureFunction closureFunction:
+                    return FromFunction(closureFunction);
+
+                case ClrMethodBinding clrMethodBinding:
+                    return FromClrFunction(clrMethodBinding);
+
+                case ClrType clrTypeObject:
+                    return FromClrType(clrTypeObject);
+
+                case BondingFunction bonding:
+                    return FromBonding(bonding);
+
+                default:
+                    return new ScriptDatum { Kind = ValueKind.Object, Object = value };
             }
-            if (value is NumberValue numberValue)
-            {
-                return FromNumber(numberValue.DoubleValue);
-            }
-            if (value is BooleanValue booleanValue)
-            {
-                return FromBoolean(booleanValue.Value);
-            }
-            if (value is StringValue stringValue)
-            {
-                return FromString(stringValue);
-            }
-            if (value is ScriptArray scriptArray)
-            {
-                return FromArray(scriptArray);
-            }
-            if (value is ScriptDate scriptDate)
-            {
-                return FromDate(scriptDate);
-            }
-            if (value is ScriptRegex scriptRegex)
-            {
-                return FromRegex(scriptRegex);
-            }
-            if (value is ClosureFunction closureFunction)
-            {
-                return FromFunction(closureFunction);
-            }
-            if (value is ClrMethodBinding clrMethodBinding)
-            {
-                return FromClrFunction(clrMethodBinding);
-            }
-            if (value is ClrType clrTypeObject)
-            {
-                return FromClrType(clrTypeObject);
-            }
-            if (value is BondingFunction bonding)
-            {
-                return FromBonding(bonding);
-            }
-            return new ScriptDatum { Kind = ValueKind.Object, Object = value };
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

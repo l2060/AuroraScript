@@ -7,7 +7,7 @@ namespace AuroraScript.Runtime.Interop
 {
     internal interface IClrInvokable
     {
-        ScriptDatum Invoke([NotNull] ExecuteContext context, ScriptObject thisObject, [NotNull] Span<ScriptDatum> args);
+        void Invoke([NotNull] ExecuteContext context, ScriptObject thisObject, [NotNull] Span<ScriptDatum> args, ref ScriptDatum result);
     }
 }
 

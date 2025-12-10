@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace AuroraScript.Runtime.Types
 {
-    public partial class ScriptRegex : ScriptObject
+    public sealed partial class ScriptRegex : ScriptObject
     {
         private readonly Regex _regex;
 

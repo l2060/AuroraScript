@@ -3,6 +3,7 @@ using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Threading.Tasks;
@@ -149,7 +150,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
 
-
+            
 
         }
 

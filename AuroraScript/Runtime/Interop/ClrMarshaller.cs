@@ -4,14 +4,16 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Buffers;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Interop
 {
-    internal static class ClrMarshaller
+    public static class ClrMarshaller
     {
         public static bool TryConvertArgument(ScriptObject scriptValue, Type targetType, out object result)
         {
@@ -167,11 +169,18 @@ namespace AuroraScript.Runtime.Interop
             return false;
         }
 
+        /// <summary>
+        /// Clr to Datum
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum ToDatum(object value)
         {
             if (value == null)
             {
-                return ScriptDatum.FromNull();
+                return ScriptDatum.Null;
             }
 
             if (value is ScriptDatum datum)
@@ -189,9 +198,14 @@ namespace AuroraScript.Runtime.Interop
                 return ScriptDatum.FromBoolean(boolean);
             }
 
-            if (value is StringValue stringValue)
+            if (value is DateTime dateTime)
             {
-                return ScriptDatum.FromString(stringValue);
+                return ScriptDatum.FromDate(dateTime);
+            }
+
+            if (value is DateTimeOffset dateTime2)
+            {
+                return ScriptDatum.FromDate(dateTime2);
             }
 
             if (value is string str)
@@ -243,38 +257,47 @@ namespace AuroraScript.Runtime.Interop
             throw new InvalidOperationException($"The return type '{value.GetType().FullName}' is not registered for CLR interop.");
         }
 
-
-        public static ScriptDatum[] ToDatums(IEnumerable<object> values)
+        /// <summary>
+        /// Object array to Datum array
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum[] ToDatums(object[] values)
         {
-            if (values == null)
+            if (values == null || values.Length == 0) return Array.Empty<ScriptDatum>();
+            var result = new ScriptDatum[values.Length];
+            for (int i = 0; i < values.Length; i++)
             {
-                return Array.Empty<ScriptDatum>();
+                result[i] = ToDatum(values[i]);
             }
-            return values.Select(v => ToDatum(v)).ToArray();
+            return result;
         }
 
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum[] ToDatums(ScriptObject[] arguments)
+        {
+            if (arguments == null || arguments.Length == 0) return Array.Empty<ScriptDatum>();
+            var result = new ScriptDatum[arguments.Length];
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                result[i] = ScriptDatum.FromObject(arguments[i]);
+            }
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptObject ToScript(object value)
         {
+            if (value is ScriptObject scriptObject)
+            {
+                return scriptObject;
+            }
             return ToDatum(value).ToObject();
         }
 
-
-        private static ScriptDatum WrapDelegate(Delegate handler)
-        {
-            if (handler is ClrDatumDelegate datumDelegate)
-            {
-                return ScriptDatum.FromBonding(datumDelegate);
-            }
-
-            return ScriptDatum.FromBonding((context, thisObject, args, ref result) =>
-            {
-                var prepared = PrepareDelegateArguments(handler, args);
-                result = ToDatum(handler.DynamicInvoke(prepared));
-            });
-        }
-
-        public static ScriptDatum ConvertDictionary(IDictionary dictionary)
+        private static ScriptDatum ConvertDictionary(IDictionary dictionary)
         {
             var obj = new ScriptObject();
             foreach (DictionaryEntry entry in dictionary)
@@ -285,7 +308,7 @@ namespace AuroraScript.Runtime.Interop
             return ScriptDatum.FromObject(obj);
         }
 
-        public static ScriptDatum ToDatumArray(IEnumerable values)
+        private static ScriptDatum ToDatumArray(IEnumerable values)
         {
             var array = new ScriptArray();
             if (values != null)
@@ -298,22 +321,23 @@ namespace AuroraScript.Runtime.Interop
             return ScriptDatum.FromArray(array);
         }
 
-        public static ScriptDatum[] ConvertArguments(ScriptObject[] arguments)
+
+
+
+        private static ScriptDatum WrapDelegate(Delegate handler)
         {
+            if (handler is ClrDatumDelegate datumDelegate)
+            {
+                return ScriptDatum.FromBonding(datumDelegate);
+            }
 
-            if (arguments == null || arguments.Length == 0)
+            return ScriptDatum.FromBonding((context, thisObject, args, ref result) =>
             {
-                return Array.Empty<ScriptDatum>();
-            }
-            var result = new ScriptDatum[arguments.Length];
-            for (int i = 0; i < arguments.Length; i++)
-            {
-                result[i] = ScriptDatum.FromObject(arguments[i]);
-            }
-            return result;
+                var prepared = PrepareDelegateArguments(handler, args);
+                var clrResult = handler.DynamicInvoke(prepared);
+                result = ToDatum(clrResult);
+            });
         }
-
-
 
         private static bool IsNumericType(Type type)
         {
@@ -564,6 +588,13 @@ namespace AuroraScript.Runtime.Interop
             return prepared;
         }
 
+
+
+        private static bool IsParamArray(ParameterInfo parameter)
+        {
+            return parameter.GetCustomAttribute<ParamArrayAttribute>() != null;
+        }
+
         private static object ConvertParamArray(ParameterInfo parameter, Span<ScriptDatum> args, int startIndex)
         {
             var elementType = parameter.ParameterType.GetElementType() ?? typeof(object);
@@ -581,15 +612,32 @@ namespace AuroraScript.Runtime.Interop
             return array;
         }
 
-        private static bool IsParamArray(ParameterInfo parameter)
+
+
+
+
+
+        internal static bool TryBuildArguments(MethodBase method, Span<ScriptDatum> args, out object[] invokeArgs)
         {
-            return parameter.GetCustomAttribute<ParamArrayAttribute>() != null;
+            var parameters = method.GetParameters();
+            if (parameters.Length != args.Length)
+            {
+                invokeArgs = null;
+                return false;
+            }
+
+            invokeArgs = new object[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, out var converted))
+                {
+                    invokeArgs = null;
+                    return false;
+                }
+                invokeArgs[i] = converted;
+            }
+            return true;
         }
-
-
-
-
-
 
 
 

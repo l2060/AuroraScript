@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace AuroraScript.Runtime.Base
 {
 
-    public partial class NumberValue : ScriptValue
+    public sealed partial class NumberValue : ScriptValue
     {
         private readonly Double _value;
 

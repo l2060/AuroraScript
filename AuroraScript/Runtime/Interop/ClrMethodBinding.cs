@@ -26,7 +26,7 @@ namespace AuroraScript.Runtime.Interop
             _compiledInvokers = CompileInvokers(methods);
         }
 
-        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public void Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             //args ??= Array.Empty<ScriptDatum>();
             var targetHolder = _instance ?? thisObject as ClrInstanceObject;
@@ -44,9 +44,9 @@ namespace AuroraScript.Runtime.Interop
                     continue;
                 }
 
-                if (invoker.TryInvoke(targetInstance, args, out var result))
+                if (invoker.TryInvoke(targetInstance, args, out result))
                 {
-                    return result;
+                    return;
                 }
             }
 
@@ -82,14 +82,14 @@ namespace AuroraScript.Runtime.Interop
             {
                 if (!IsStatic && target == null)
                 {
-                    result = ScriptDatum.FromNull();
+                    result = ScriptDatum.Null;
                     return false;
                 }
 
                 var effectiveArgs = args;
                 if (_expectedArgumentCount >= 0 && effectiveArgs.Length != _expectedArgumentCount)
                 {
-                    result = ScriptDatum.FromNull();
+                    result = ScriptDatum.Null;
                     return false;
                 }
 
@@ -140,7 +140,7 @@ namespace AuroraScript.Runtime.Interop
                         return (object target, Span<ScriptDatum> arguments, out ScriptDatum result) =>
                         {
                             method.Invoke(target, Array.Empty<object>());
-                            result = ScriptDatum.FromNull();
+                            result = ScriptDatum.Null;
                             return true;
                         };
                     }
@@ -162,12 +162,12 @@ namespace AuroraScript.Runtime.Interop
                         {
                             if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                             {
-                                result = ScriptDatum.FromNull();
+                                result = ScriptDatum.Null;
                                 return false;
                             }
 
                             method.Invoke(target, new[] { converted });
-                            result = ScriptDatum.FromNull();
+                            result = ScriptDatum.Null;
                             return true;
                         };
                     }
@@ -176,7 +176,7 @@ namespace AuroraScript.Runtime.Interop
                     {
                         if (!ClrMarshaller.TryConvertArgument(args[0], parameterType, out var converted))
                         {
-                            result = ScriptDatum.FromNull();
+                            result = ScriptDatum.Null;
                             return false;
                         }
 
@@ -204,7 +204,7 @@ namespace AuroraScript.Runtime.Interop
                         {
                             if (!ClrMarshaller.TryConvertArgument(args[i], _parameters[i].ParameterType, out var converted))
                             {
-                                result = ScriptDatum.FromNull();
+                                result = ScriptDatum.Null;
                                 return false;
                             }
                             invokeArgs[i] = converted;
@@ -213,7 +213,7 @@ namespace AuroraScript.Runtime.Interop
                         var invocationResult = _method.Invoke(target, invokeArgs);
                         if (_method.ReturnType == typeof(void))
                         {
-                            result = ScriptDatum.FromNull();
+                            result = ScriptDatum.Null;
                             return true;
                         }
 

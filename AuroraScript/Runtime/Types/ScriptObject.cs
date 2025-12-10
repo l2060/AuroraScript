@@ -65,8 +65,7 @@ namespace AuroraScript.Runtime.Base
             }
             if (property is BondingFunction clrFunc)
             {
-                property = clrFunc.Bind(this);
-                //if (!IsFrozen) SetPropertyValue(key, property);
+                return clrFunc.Bind(this);
             }
             return property;
         }

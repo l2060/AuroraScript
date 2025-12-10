@@ -6,41 +6,40 @@ namespace AuroraScript.Runtime.Interop
 {
     public sealed class ClrInstanceObject : ScriptObject
     {
-        private readonly ClrTypeDescriptor _descriptor;
+        public readonly ClrTypeDescriptor Descriptor;
 
-        public object Instance { get; }
+        public readonly object Instance;
 
-        internal ClrTypeDescriptor Descriptor => _descriptor;
 
         public ClrInstanceObject(ClrTypeDescriptor descriptor, object instance)
         {
-            _descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
+            Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Instance = instance;
         }
 
         public override ScriptObject GetPropertyValue(string key)
         {
-            var property = _descriptor.GetProperty(key);
+            var property = Descriptor.GetProperty(key);
             if (property != null && property.GetMethod != null && !property.GetMethod.IsStatic)
             {
                 var value = property.GetValue(Instance);
                 return ClrMarshaller.ToScript(value);
             }
 
-            var field = _descriptor.GetField(key);
+            var field = Descriptor.GetField(key);
             if (field != null && !field.IsStatic)
             {
                 var value = field.GetValue(Instance);
                 return ClrMarshaller.ToScript(value);
             }
 
-            var methods = _descriptor.GetMethods(key);
+            var methods = Descriptor.GetMethods(key);
             if (methods != null)
             {
                 var instanceMethods = methods.Where(m => !m.IsStatic).ToArray();
                 if (instanceMethods.Length > 0)
                 {
-                    return new ClrMethodBinding(_descriptor, instanceMethods, this, false);
+                    return new ClrMethodBinding(Descriptor, instanceMethods, this, false);
                 }
             }
 
@@ -49,7 +48,7 @@ namespace AuroraScript.Runtime.Interop
 
         public override void SetPropertyValue(string key, ScriptObject value)
         {
-            var property = _descriptor.GetProperty(key);
+            var property = Descriptor.GetProperty(key);
             if (property != null && property.SetMethod != null && !property.SetMethod.IsStatic)
             {
                 if (!ClrMarshaller.TryConvertArgument(value, property.PropertyType, out var converted))
@@ -60,7 +59,7 @@ namespace AuroraScript.Runtime.Interop
                 return;
             }
 
-            var field = _descriptor.GetField(key);
+            var field = Descriptor.GetField(key);
             if (field != null && !field.IsStatic)
             {
                 if (!ClrMarshaller.TryConvertArgument(value, field.FieldType, out var converted))

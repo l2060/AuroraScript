@@ -5,7 +5,7 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class NullValue : ScriptObject
+    public sealed class NullValue : ScriptObject
     {
         private static readonly StringValue valueString = new StringValue("null");
 

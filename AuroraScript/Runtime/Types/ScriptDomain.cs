@@ -7,13 +7,13 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public delegate ExecuteContext ScriptMethodDelegate(ExecuteOptions options = null, params ScriptObject[] arguments);
+    public delegate ExecuteContext ScriptMethodDelegate(ExecuteOptions options = null, params ScriptDatum[] arguments);
     /// <summary>
     /// 脚本域类，表示一个独立的脚本执行环境
     /// 每个脚本域都有自己的全局对象，但共享同一个虚拟机实例
     /// 用于隔离不同脚本的执行环境，避免全局变量冲突
     /// </summary>
-    public class ScriptDomain
+    public sealed class ScriptDomain
     {
 
         /// <summary>
@@ -31,8 +31,10 @@ namespace AuroraScript.Runtime.Types
         /// </summary>
         private readonly RuntimeVM _virtualMachine;
 
-
-        private readonly Object UserState;
+        /// <summary>
+        /// 用户State
+        /// </summary>
+        public readonly ScriptObject UserState;
 
         /// <summary>
         /// 创建新的脚本域
@@ -40,7 +42,7 @@ namespace AuroraScript.Runtime.Types
         /// <param name="engine">引擎实例</param>
         /// <param name="vm">虚拟机实例</param>
         /// <param name="domainGlobal">域全局对象</param>
-        internal ScriptDomain(AuroraEngine engine, RuntimeVM vm, ScriptGlobal domainGlobal, Object userState)
+        internal ScriptDomain(AuroraEngine engine, RuntimeVM vm, ScriptGlobal domainGlobal, ScriptObject userState)
         {
             UserState = userState;
             // 设置全局对象
@@ -64,7 +66,7 @@ namespace AuroraScript.Runtime.Types
         {
             // 获取模块对象，模块名称前面加@前缀
             var module = Global.GetPropertyValue("@" + moduleName);
-            if (module == null)
+            if (module == ScriptObject.Null)
             {
                 // 如果模块不存在，设置错误状态并返回
                 throw new AuroraException($"The module named {moduleName} was not found");
@@ -82,22 +84,22 @@ namespace AuroraScript.Runtime.Types
             if (method is not ClosureFunction closure)
             {
                 // 如果不是闭包函数，设置错误状态并返回
-                throw new AuroraException($"{methodName} is not a valid internal method");
+                throw new AuroraException($"{methodName} is not a valid script method");
             }
             if (options == null)
             {
                 options = ExecuteOptions.Default;
             }
-            if (options.UserState == null && this.UserState != null)
+            if (options.UserState == ScriptObject.Null && this.UserState != ScriptObject.Null)
             {
-                options = options.WithUserState(this.UserState);
+                options = options.WithUserState(UserState);
             }
             // 创建新的执行上下文
             ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options);
             // 创建调用帧并压入调用栈
             var callFrame = CallFramePool.Rent();
             callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
-            callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
+            callFrame.Arguments.Copy(ClrMarshaller.ToDatums(arguments));
             exeContext._callStack.Push(callFrame);
             // 执行函数
             _virtualMachine.Execute(exeContext);
@@ -134,13 +136,20 @@ namespace AuroraScript.Runtime.Types
             }
             ScriptMethodDelegate methodDelegate = (options, arguments) =>
             {
-                if (options == null) options = ExecuteOptions.Default;
+                if (options == null)
+                {
+                    options = ExecuteOptions.Default;
+                }
+                if (options.UserState == ScriptObject.Null && this.UserState != ScriptObject.Null)
+                {
+                    options = options.WithUserState(UserState);
+                }
                 // 创建新的执行上下文
-                ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
+                ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options);
                 // 创建调用帧并压入调用栈
                 var callFrame = CallFramePool.Rent();
                 callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
-                callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
+                callFrame.Arguments.Copy(arguments);
                 exeContext._callStack.Push(callFrame);
                 // 执行函数
                 _virtualMachine.Execute(exeContext);
@@ -166,41 +175,22 @@ namespace AuroraScript.Runtime.Types
         }
 
 
-        /// <summary>
-        /// 直接执行闭包函数
-        /// </summary>
-        /// <param name="closure">要执行的闭包函数</param>
-        /// <param name="options">执行选项，如最大调用栈深度等</param>
-        /// <param name="arguments">传递给函数的参数</param>
-        /// <returns>执行上下文，包含执行结果和状态</returns>
-        public ExecuteContext Execute(ClosureFunction closure, ExecuteOptions options, params ScriptObject[] arguments)
+        public ExecuteContext Execute(ClosureFunction closure, ExecuteOptions options, params ScriptDatum[] arguments)
         {
             if (closure == null)
             {
                 throw new AuroraException("The parameter ‘closure’ cannot be null");
             }
-            // 创建新的执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
-            // 创建调用帧并压入调用栈
-            var callFrame = CallFramePool.Rent();
-            callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
-            callFrame.Arguments.Copy(ClrMarshaller.ConvertArguments(arguments));
-            exeContext._callStack.Push(callFrame);
-            // 执行函数
-            _virtualMachine.Execute(exeContext);
-            return exeContext;
-        }
-
-
-
-        public ExecuteContext Execute2(ClosureFunction closure, ExecuteOptions options, params ScriptDatum[] arguments)
-        {
-            if (closure == null)
+            if (options == null)
             {
-                throw new AuroraException("The parameter ‘closure’ cannot be null");
+                options = ExecuteOptions.Default;
+            }
+            if (options.UserState == ScriptObject.Null && this.UserState != ScriptObject.Null)
+            {
+                options = options.WithUserState(UserState);
             }
             // 创建新的执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options ?? ExecuteOptions.Default);
+            ExecuteContext exeContext = ExecuteContextPool.Rent(this, _virtualMachine, options);
             // 创建调用帧并压入调用栈
             var callFrame = CallFramePool.Rent();
             callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
@@ -214,19 +204,18 @@ namespace AuroraScript.Runtime.Types
 
 
         /// <summary>
-        /// 获取全局变量的值
+        /// 获取Domain全局变量的值,如未取到从Engine.Global获取
         /// </summary>
         /// <param name="name">全局变量名称</param>
-        /// <returns>全局变量的值，如果不存在则返回Null</returns>
+        /// <returns>全局变量的值，如果不存在则返回ScriptObject.Null</returns>
         public ScriptObject GetGlobal(string name)
         {
             // 从全局对象中获取属性值
             return Global.GetPropertyValue(name);
         }
 
-
         /// <summary>
-        /// 设置全局变量的值
+        /// 设置Domain全局变量的值,不可以跨Domain
         /// </summary>
         /// <param name="name">全局变量名称</param>
         /// <param name="value">要设置的值</param>
@@ -236,13 +225,16 @@ namespace AuroraScript.Runtime.Types
             Global.SetPropertyValue(name, value);
         }
 
+
+        /// <summary>
+        /// 设置Domain全局变量的值,不可以跨Domain
+        /// </summary>
+        /// <param name="name">全局变量名称</param>
+        /// <param name="value">要设置的值</param>
         public void SetGlobal(string name, object value)
         {
             Global.SetValue(name, value);
         }
-
-
-
 
     }
 }

@@ -98,7 +98,7 @@ namespace AuroraScript.Runtime.Base
                     array._items[i - 1] = array._items[i];
                 }
                 array._count--;
-                array._items[array._count] = ScriptDatum.FromNull();
+                array._items[array._count] = ScriptDatum.Null;
                 result = first;
             }
         }

@@ -58,13 +58,18 @@ namespace AuroraScript.Runtime
 
         public ExecuteOptions WithUserState(Object value)
         {
-            if (ReferenceEquals(value, UserState)) return this;
-            ScriptObject clrInstance = ScriptObject.Null;
-            if (ClrTypeResolver.ResolveType(value.GetType(), out var descriptor))
+            ScriptObject state = ScriptObject.Null;
+
+            if (value is ScriptObject stateObject)
             {
-                clrInstance = new ClrInstanceObject(descriptor, value);
+                state = stateObject;
             }
-            return new ExecuteOptions(MaxCallStackDepth, clrInstance, AutoInterruption, EnabledYield);
+            else if (value != null)
+            {
+                state = ClrMarshaller.ToScript(value);
+            }
+            if (ReferenceEquals(value, UserState)) return this;
+            return new ExecuteOptions(MaxCallStackDepth, state, AutoInterruption, EnabledYield);
         }
 
         public ExecuteOptions WithAutoInterruption(Int32 value)

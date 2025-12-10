@@ -54,7 +54,7 @@ namespace AuroraScript.Runtime
         {
             if (index >= Arguments.Length)
             {
-                datum = ScriptDatum.FromNull();
+                datum = ScriptDatum.Null;
                 return false;
             }
             datum = Arguments[index];
@@ -64,7 +64,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum GetArgumentDatum(Int32 index)
         {
-            if (index >= Arguments.Length) return ScriptDatum.FromNull();
+            if (index >= Arguments.Length) return ScriptDatum.Null;
             return Arguments[index];
         }
 
@@ -111,7 +111,7 @@ namespace AuroraScript.Runtime
             var locals = _locals;
             if (locals == null || (uint)index >= (uint)locals.Length)
             {
-                return ScriptDatum.FromNull();
+                return ScriptDatum.Null;
             }
             return locals[index];
         }

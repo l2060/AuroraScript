@@ -82,6 +82,7 @@ namespace AuroraScript.Core
         {
             return new ScriptDatum { Kind = ValueKind.Function, Object = value };
         }
+       
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

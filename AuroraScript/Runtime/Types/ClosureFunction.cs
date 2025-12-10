@@ -10,7 +10,7 @@ namespace AuroraScript.Runtime.Types
     /// 闭包函数可以访问其定义时的环境变量，即使这些变量在定义范围外也可访问
     /// 是脚本中函数的运行时表示，用于实现函数的调用和闭包特性
     /// </summary>
-    public class ClosureFunction : ScriptObject
+    public sealed class ClosureFunction : ScriptObject
     {
         private readonly ScriptDomain Domain;
 
@@ -57,18 +57,20 @@ namespace AuroraScript.Runtime.Types
 
         public ExecuteContext Invoke(ExecuteOptions options, params ScriptDatum[] args)
         {
-            return Domain.Execute2(this, options, args);
+            if (options == null)
+            {
+                options = ExecuteOptions.Default;
+            }
+            if (options.UserState == ScriptObject.Null && Domain.UserState != ScriptObject.Null)
+            {
+                options = options.WithUserState(Domain.UserState);
+            }
+            return Domain.Execute(this, options, args);
         }
 
         public ExecuteContext InvokeFromClr(ExecuteOptions options, params object[] args)
         {
-            ScriptDatum[] scriptArgs = Array.Empty<ScriptDatum>();
-            if (args != null && args.Length > 0)
-            {
-                var registry = Domain.Engine.ClrRegistry;
-                scriptArgs = ClrMarshaller.ToDatums(args);
-            }
-            return Invoke(options, scriptArgs);
+            return Invoke(options, ClrMarshaller.ToDatums(args));
         }
 
         public ExecuteContext InvokeFromClr(params object[] args)

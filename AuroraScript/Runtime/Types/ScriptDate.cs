@@ -3,7 +3,7 @@ using System;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class ScriptDate : ScriptObject
+    public sealed class ScriptDate : ScriptObject
     {
         public DateTimeOffset DateTime { get; private set; }
 

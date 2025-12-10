@@ -53,21 +53,16 @@ namespace AuroraScript
             Global = new ScriptGlobal(this);
             // 在全局对象中注册构造函数和全局变量
 
+            Global.Define("console", new ConsoleSupport(), writeable: false, enumerable: false);
+            //
             Global.Define("Array", ArrayConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("String", StringConstructor.INSTANCE.Value, writeable: false, enumerable: false);
             Global.Define("Boolean", BooleanConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Object", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Number", NumberConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("Date", ScriptDateConstructor.INSTANCE, writeable: false, enumerable: false);
-
-
-            Global.Define("console", new ConsoleSupport(), writeable: false, enumerable: false);
             Global.Define("JSON", new JsonSupport(), writeable: false, enumerable: false);
             Global.Define("Math", new MathSupport(), writeable: false, enumerable: false);
-
-
-
-
         }
 
 
@@ -76,10 +71,35 @@ namespace AuroraScript
         public void PrintStatistics()
         {
             runtimeVM.PrintOpCounts();
-
             Console.WriteLine("==================================");
             Console.WriteLine("CallFramePool Size = " + CallFramePool.Size);
+        }
 
+        public void PrintDumpCode()
+        {
+
+        }
+
+
+
+        public void RegisterClrType<T>()
+        {
+            ClrRegistry.RegisterType(typeof(T));
+        }
+
+        public void RegisterClrType<T>(string alias)
+        {
+            ClrRegistry.RegisterType(typeof(T), alias);
+        }
+
+        public void RegisterClrType(Type type)
+        {
+            ClrRegistry.RegisterType(type);
+        }
+
+        public void RegisterClrType(Type type, string alias)
+        {
+            ClrRegistry.RegisterType(type, alias);
         }
 
 
@@ -93,33 +113,6 @@ namespace AuroraScript
             return Global.GetPropertyValue(name);
         }
 
-
-        public void RegisterClrType<T>(string alias, ClrTypeOptions options = null)
-        {
-            ClrRegistry.RegisterType(typeof(T), alias, options);
-        }
-
-        public void RegisterClrType<T>(ClrTypeOptions options = null)
-        {
-            var type = typeof(T);
-            ClrRegistry.RegisterType(type, type.Name, options);
-        }
-
-        public void RegisterClrType(Type type, ClrTypeOptions options = null)
-        {
-            ClrRegistry.RegisterType(type, type.Name, options);
-        }
-
-        public void RegisterClrType(Type type, string alias, ClrTypeOptions options = null)
-        {
-            ClrRegistry.RegisterType(type, alias, options);
-        }
-
-
-        public void RegisterClrType(string alias, Type type, ClrTypeOptions options = null)
-        {
-            ClrRegistry.RegisterType(type, alias, options);
-        }
 
         /// <summary>
         /// 设置全局对象
@@ -176,6 +169,7 @@ namespace AuroraScript
             var bytes = codeGenerator.Build();
             // 创建运行时虚拟机
             runtimeVM = new RuntimeVM(this, bytes, stringConstants, debugSymbols);
+
             // 输出字节码（调试用）
             codeGenerator.DumpCode();
             return;
@@ -217,9 +211,10 @@ namespace AuroraScript
             {
                 domainGlobal = ScriptGlobal.With(this, Global);
             }
-            var domain = new ScriptDomain(this, runtimeVM, domainGlobal, userState);
+            ScriptObject stateObject = ClrMarshaller.ToScript(userState);
+            var domain = new ScriptDomain(this, runtimeVM, domainGlobal, stateObject);
             // 创建执行上下文
-            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default.WithUserState(userState));
+            ExecuteContext exeContext = ExecuteContextPool.Rent(domain, runtimeVM, ExecuteOptions.Default.WithUserState(stateObject));
             // 创建初始调用帧并压入调用栈
             var callFrame = CallFramePool.Rent();
             callFrame.Initialize(domain, null, 0, Array.Empty<ClosureUpvalue>());

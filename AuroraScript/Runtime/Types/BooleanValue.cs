@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class BooleanValue : ScriptValue
+    public sealed class BooleanValue : ScriptValue
     {
         public readonly static BooleanValue True = new BooleanValue(true, 1, new StringValue("true"));
         public readonly static BooleanValue False = new BooleanValue(false, 0, new StringValue("false"));

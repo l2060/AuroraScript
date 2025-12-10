@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Base
 {
-    public partial class StringValue : ScriptValue, IEnumerator
+    public sealed partial class StringValue : ScriptValue, IEnumerator
     {
 
         private readonly String _value;

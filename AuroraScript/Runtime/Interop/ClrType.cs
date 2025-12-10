@@ -25,11 +25,9 @@ namespace AuroraScript.Runtime.Interop
             {
                 throw new InvalidOperationException($"CLR type '{_descriptor.Type.FullName}' does not expose public constructors.");
             }
-            //args ??= Array.Empty<ScriptDatum>();
-
             foreach (var ctor in constructors)
             {
-                if (!TryBuildArguments(ctor, args, out var invokeArgs))
+                if (!ClrMarshaller.TryBuildArguments(ctor, args, out var invokeArgs))
                 {
                     continue;
                 }
@@ -39,9 +37,9 @@ namespace AuroraScript.Runtime.Interop
             throw new InvalidOperationException($"No matching constructor found for '{_descriptor.Type.FullName}'.");
         }
 
-        public ScriptDatum Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args)
+        public void Invoke(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            return ScriptDatum.FromObject(Construct(args));
+            result = ScriptDatum.FromObject(Construct(args));
         }
 
         public override ScriptObject GetPropertyValue(string key)
@@ -100,27 +98,7 @@ namespace AuroraScript.Runtime.Interop
             base.SetPropertyValue(key, value);
         }
 
-        internal bool TryBuildArguments(MethodBase method, Span<ScriptDatum> args, out object[] invokeArgs)
-        {
-            var parameters = method.GetParameters();
-            if (parameters.Length != args.Length)
-            {
-                invokeArgs = null;
-                return false;
-            }
-
-            invokeArgs = new object[parameters.Length];
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (!ClrMarshaller.TryConvertArgument(args[i], parameters[i].ParameterType, out var converted))
-                {
-                    invokeArgs = null;
-                    return false;
-                }
-                invokeArgs[i] = converted;
-            }
-            return true;
-        }
+    
 
         public override string ToString()
         {

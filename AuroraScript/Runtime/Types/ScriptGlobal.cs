@@ -3,7 +3,7 @@ using AuroraScript.Runtime.Interop;
 
 namespace AuroraScript.Runtime.Types
 {
-    public class ScriptGlobal : ScriptObject
+    public sealed class ScriptGlobal : ScriptObject
     {
         public AuroraEngine Engine { get; private set; }
 
@@ -20,23 +20,14 @@ namespace AuroraScript.Runtime.Types
             return new ScriptGlobal(engine, prototype);
         }
 
-        private ScriptObject ConvertClrValue(object value)
-        {
-            if (value is ScriptObject scriptObject)
-            {
-                return scriptObject;
-            }
-            return ClrMarshaller.ToScript(value);
-        }
-
         public void SetValue(string key, object value)
         {
-            base.SetPropertyValue(key, ConvertClrValue(value));
+            base.SetPropertyValue(key, ClrMarshaller.ToScript(value));
         }
 
         public void Define(string key, object value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
-            base.Define(key, ConvertClrValue(value), writeable, readable, enumerable);
+            base.Define(key, ClrMarshaller.ToScript(value), writeable, readable, enumerable);
         }
 
         public override string ToString()
