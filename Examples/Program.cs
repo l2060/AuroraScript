@@ -3,7 +3,6 @@ using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace Examples
 {
     public class Program
     {
-        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
+        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./temp/" });
         private static UserState userState = new UserState();
         private static ExecuteOptions executeOptions = ExecuteOptions.Default.WithUserState(userState);
 
@@ -125,6 +124,15 @@ namespace Examples
             //}
             // script function test
             //BenchmarkScript(domain, "MAIN", "main");
+
+            for (int i = 0; i < 1000; i++)
+            {
+                BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
+            }
+
+
+            Console.ReadLine();
+
 
             RunAndReportUnitTests(domain);
             BenchmarkScript(domain, "UNIT_LIB", "testMD5");

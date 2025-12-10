@@ -15,7 +15,19 @@ namespace AuroraScript.Runtime
     {
         private static void NOP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
         {
+            // vm._codeBuffer
+            // vm._stringConstants
 
+            // exeContext._operandStack
+            // exeContext._callStack
+            // exeContext.Domain
+            // exeContext._callStack
+            // exeContext.SetStatus
+            // exeContext.ExecuteOptions
+
+
+            // frame.GetArgumentDatum
+            // frame.GetLocalDatum
         }
 
         private static void POP(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
@@ -293,7 +305,6 @@ namespace AuroraScript.Runtime
             var localIndex = vm._codeBuffer.ReadByte(frame);
             ref var value = ref frame.GetLocalRef(localIndex);
             exeContext._operandStack.PushRef(ref value);
-
         }
 
         private static void STORE_LOCAL(RuntimeVM vm, ExecuteContext exeContext, ref CallFrame frame)
@@ -862,7 +873,6 @@ namespace AuroraScript.Runtime
             }
 
         }
-
 
 
 
