@@ -101,6 +101,7 @@ namespace AuroraScript.Runtime.Types
             callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
             callFrame.Arguments.Copy(ClrMarshaller.ToDatums(arguments));
             exeContext._callStack.Push(callFrame);
+            
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;

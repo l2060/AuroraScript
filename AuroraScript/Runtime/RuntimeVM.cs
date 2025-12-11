@@ -298,11 +298,11 @@ namespace AuroraScript.Runtime
                 // 从当前指令指针位置读取操作码
                 var opCode = ctx.ReadOpCode();
                 _opCounts[opCode]++;
-                var start = Stopwatch.GetTimestamp();
+                //var start = Stopwatch.GetTimestamp();
                 delegate*<ExecuteFrameContext, void> handler = opDispatch[opCode];
                 handler(ctx);
-                var end = Stopwatch.GetTimestamp();
-                _opTicks[opCode] += (end - start);
+                //var end = Stopwatch.GetTimestamp();
+                //_opTicks[opCode] += (end - start);
             }
         }
 

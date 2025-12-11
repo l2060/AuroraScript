@@ -19,13 +19,14 @@ namespace AuroraScript.Runtime
         /// 虚拟机代码段基址指针
         /// </summary>
         internal readonly Byte* CodeBasePointer;
-
-        private readonly ByteCodeBuffer _codeBuffer;
-        internal readonly ImmutableArray<StringValue> Strings;
+        internal ScriptDatum[] Locals;
+        internal CallFrame CurrentFrame;
         internal readonly ScriptDatumStack OperandStack;
         internal readonly Stack<CallFrame> CallStack;
+        internal readonly ImmutableArray<StringValue> Strings;
 
-        internal CallFrame CurrentFrame;
+
+
         internal readonly ExecuteOptions ExecuteOptions;
         internal readonly ClrTypeRegistry ClrRegistry;
         internal readonly ExecuteContext ExecuteContext;
@@ -33,7 +34,7 @@ namespace AuroraScript.Runtime
         internal readonly ScriptDomain Domain;
         internal readonly ScriptGlobal Global;
         internal ScriptModule Module;
-        internal ScriptDatum[] Locals;
+        private readonly ByteCodeBuffer _codeBuffer;
 
 
         public ExecuteFrameContext(RuntimeVM vm, ExecuteContext executeContext)

@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 
 namespace AuroraScript.Core
 {
+
+
+
     [StructLayout(LayoutKind.Explicit)]
     public partial struct ScriptDatum
     {
@@ -14,34 +17,24 @@ namespace AuroraScript.Core
         public ValueKind Kind;
 
         [FieldOffset(8)]
-        private UnionNumber _numeric;
+        public Double Number;
+
+        [FieldOffset(8)]
+        public Boolean Boolean;
 
         [FieldOffset(16)]
-        private ScriptObject _object;
+        public ScriptObject Object;
 
-        public double Number
-        {
-            readonly get => _numeric.DoubleValue;
-            set => _numeric.DoubleValue = value;
-        }
 
-        public bool Boolean
-        {
-            readonly get => _numeric.BooleanValue;
-            set => _numeric.BooleanValue = value;
-        }
 
-        public ScriptObject Object
-        {
-            readonly get => _object;
-            set => _object = value;
-        }
 
         public StringValue String
         {
-            readonly get => _object as StringValue;
-            set => _object = value;
+            readonly get => Object as StringValue;
+            set => Object = value;
         }
+
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

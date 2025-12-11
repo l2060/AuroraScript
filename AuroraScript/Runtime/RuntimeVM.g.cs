@@ -46,16 +46,13 @@ namespace AuroraScript.Runtime
         {
             //var localIndex = ctx.ReadByte();
             //ctx.PushLocal(localIndex);
-
             ref var frame = ref ctx.CurrentFrame;
             byte index = *(ctx.CodeBasePointer + frame.Pointer++);
             ref ScriptDatum local = ref ctx.Locals[index];
             var stack = ctx.OperandStack;
-            int s = stack._size;
+            int s = stack._size++;
             var buf = stack._buffer;
-            if ((uint)s >= (uint)buf.Length) stack.Grow();
             buf[s] = local;
-            stack._size = s + 1;
         }
 
 
