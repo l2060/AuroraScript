@@ -150,5 +150,32 @@ namespace AuroraScript.Core
             return false;
         }
 
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetNumber(out double value)
+        {
+            if (Kind == ValueKind.Number)
+            {
+                value = Number;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetInteger(out long value)
+        {
+            if (Kind == ValueKind.Number)
+            {
+                value = (long)Number;
+                return true;
+            }
+            value = default;
+            return false;
+        }
     }
 }

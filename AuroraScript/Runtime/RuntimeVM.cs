@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -17,12 +18,12 @@ namespace AuroraScript.Runtime
     /// </summary>
     internal unsafe partial class RuntimeVM
     {
-        private static readonly delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[] _opDispatch;
+        private static readonly delegate*<ExecuteFrameContext, void>[] _opDispatch;
 
         static RuntimeVM()
         {
             var maxOp = Enum.GetValues(typeof(OpCode)).Cast<byte>().Max();
-            _opDispatch = new delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void>[maxOp + 1];
+            _opDispatch = new delegate*<ExecuteFrameContext, void>[maxOp + 1];
 
 
 
@@ -168,7 +169,7 @@ namespace AuroraScript.Runtime
 
         }
 
-        private static void RegisterHandler(OpCode opCode, delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler)
+        private static void RegisterHandler(OpCode opCode, delegate*<ExecuteFrameContext, void> handler)
         {
             _opDispatch[(Int32)opCode] = handler;
         }
@@ -178,20 +179,20 @@ namespace AuroraScript.Runtime
         /// 字符串常量池，存储脚本中使用的所有字符串常量
         /// 通过索引快速访问字符串值，避免重复创建相同的字符串对象
         /// </summary>
-        private readonly ImmutableArray<StringValue> _stringConstants;
+        internal readonly ImmutableArray<StringValue> _stringConstants;
 
         /// <summary>
         /// 当前执行的字节码缓冲区
         /// 包含编译后的指令序列，由虚拟机解释执行
         /// </summary>
-        private readonly ByteCodeBuffer _codeBuffer;
+        internal readonly ByteCodeBuffer _codeBuffer;
 
         /// <summary>
         /// 调试符号信息，包含脚本的调试信息，如行号、函数名等
         /// </summary>
         private readonly DebugSymbolInfo _debugSymbols;
 
-        private readonly ClrTypeRegistry _clrRegistry;
+        internal readonly ClrTypeRegistry _clrRegistry;
 
         private readonly AuroraEngine _engine;
 
@@ -286,22 +287,22 @@ namespace AuroraScript.Runtime
             // 设置执行状态为运行中
             exeContext.SetStatus(ExecuteStatus.Running, ScriptObject.Null, null);
             // 获取调用栈和操作数栈的引用，提高访问效率
-            var _callStack = exeContext._callStack;
+            //var _callStack = exeContext._callStack;
             // 获取当前调用帧
-            var frame = _callStack.Peek();
+            //var frame = _callStack.Peek();
             var opDispatch = _opDispatch;
+            var ctx = new ExecuteFrameContext(this, exeContext);
             // 主执行循环，不断读取并执行指令，直到遇到返回指令或发生异常
             while (exeContext.Status == ExecuteStatus.Running)
             {
                 // 从当前指令指针位置读取操作码
-                var opCode = _codeBuffer.ReadOpCode(frame);
-                var opIndex = (Int32)opCode;
-                _opCounts[opIndex]++;
-                //var start = Stopwatch.GetTimestamp();
-                delegate*<RuntimeVM, ExecuteContext, ref CallFrame, void> handler = opDispatch[opIndex];
-                handler(this, exeContext, ref frame);
-                //var end = Stopwatch.GetTimestamp();
-                //_opTicks[opIndex] += (end - start);
+                var opCode = ctx.ReadOpCode();
+                _opCounts[opCode]++;
+                var start = Stopwatch.GetTimestamp();
+                delegate*<ExecuteFrameContext, void> handler = opDispatch[opCode];
+                handler(ctx);
+                var end = Stopwatch.GetTimestamp();
+                _opTicks[opCode] += (end - start);
             }
         }
 
@@ -330,14 +331,6 @@ namespace AuroraScript.Runtime
             Multiply,
             Divide,
             Mod
-        }
-
-        private enum BinaryPredicateOp : byte
-        {
-            LessThan,
-            LessEqual,
-            GreaterThan,
-            GreaterEqual
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -376,35 +369,7 @@ namespace AuroraScript.Runtime
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool ApplyPredicate(BinaryPredicateOp op, double left, double right)
-        {
-            switch (op)
-            {
-                case BinaryPredicateOp.LessThan:
-                    return left < right;
-                case BinaryPredicateOp.LessEqual:
-                    return left <= right;
-                case BinaryPredicateOp.GreaterThan:
-                    return left > right;
-                case BinaryPredicateOp.GreaterEqual:
-                    return left >= right;
-                default:
-                    return false;
-            }
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryGetNumber(in ScriptDatum datum, out double value)
-        {
-            if (datum.Kind == ValueKind.Number)
-            {
-                value = datum.Number;
-                return true;
-            }
-            value = default;
-            return false;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryGetBinaryNumbers(in ScriptDatum left, in ScriptDatum right, out double leftNumber, out double rightNumber)
@@ -472,22 +437,6 @@ namespace AuroraScript.Runtime
         }
 
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteUnaryNumberOp(ExecuteContext exeContext, UnaryNumberOp operation, double defaultValue)
-        {
-            var stack = exeContext._operandStack;
-            ref var slot = ref stack.PeekRef();
-            if (TryGetNumber(in slot, out var value))
-            {
-                slot = ScriptDatum.FromNumber(ApplyUnaryOp(operation, value));
-            }
-            else
-            {
-                slot = ScriptDatum.FromNumber(defaultValue);
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ExecuteBinaryNumberOp(ExecuteContext exeContext, BinaryNumberOp operation, double defaultValue)
         {
@@ -505,51 +454,6 @@ namespace AuroraScript.Runtime
             }
             stack.PopDiscard();
             leftSlot = result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteBinaryPredicate(ExecuteContext exeContext, BinaryPredicateOp predicate)
-        {
-            var stack = exeContext._operandStack;
-            ref var rightSlot = ref stack.PeekRef();
-            ref var leftSlot = ref stack.PeekRef(1);
-            var result = TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber)
-                ? ApplyPredicate(predicate, leftNumber, rightNumber)
-                : false;
-            stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteLogicNot(ExecuteContext exeContext)
-        {
-            var stack = exeContext._operandStack;
-            ref var slot = ref stack.PeekRef();
-            slot = ScriptDatum.FromBoolean(!slot.IsTrue());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteLogicalBinary(ExecuteContext exeContext, Boolean isAnd)
-        {
-            var stack = exeContext._operandStack;
-            ref var rightSlot = ref stack.PeekRef();
-            ref var leftSlot = ref stack.PeekRef(1);
-            var result = isAnd
-                ? (leftSlot.IsTrue() && rightSlot.IsTrue())
-                : (leftSlot.IsTrue() || rightSlot.IsTrue());
-            stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteEquality(ExecuteContext exeContext, Boolean negate)
-        {
-            var stack = exeContext._operandStack;
-            ref var rightSlot = ref stack.PeekRef();
-            ref var leftSlot = ref stack.PeekRef(1);
-            var equals = DatumEquals(leftSlot, rightSlot);
-            stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(negate ? !equals : equals);
         }
 
         #endregion

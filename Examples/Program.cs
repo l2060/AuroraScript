@@ -67,6 +67,15 @@ namespace Examples
 
         public static async Task Main()
         {
+
+            var a = 1;
+
+            var b = ~(long)a;
+
+            Console.WriteLine(b);
+
+
+
             engine.RegisterClrType<TestObject>();
             engine.RegisterClrType<UserState>();
             engine.RegisterClrType(typeof(Math));
@@ -125,12 +134,12 @@ namespace Examples
             // script function test
             //BenchmarkScript(domain, "MAIN", "main");
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 10; i++)
             {
                 BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
             }
 
-
+            engine.PrintStatistics();
             Console.ReadLine();
 
 

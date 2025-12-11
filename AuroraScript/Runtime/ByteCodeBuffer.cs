@@ -7,7 +7,7 @@ namespace AuroraScript.Runtime
     internal class ByteCodeBuffer
     {
         private readonly Byte[] _byteCode;
-        private IntPtr _unmanagedPtr;
+        public IntPtr UnmanagedPtr;
         private int _length;
 
         public ByteCodeBuffer(Byte[] bytes)
@@ -16,9 +16,9 @@ namespace AuroraScript.Runtime
             _length = bytes.Length;
 
             // 1. 在非托管堆分配内存（大小 = 数组长度）
-            _unmanagedPtr = Marshal.AllocHGlobal(_length);
+            UnmanagedPtr = Marshal.AllocHGlobal(_length);
             // 2. 将托管数组内容拷贝到非托管堆
-            Marshal.Copy(bytes, 0, _unmanagedPtr, _length);
+            Marshal.Copy(bytes, 0, UnmanagedPtr, _length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,10 +94,10 @@ namespace AuroraScript.Runtime
         // 手动释放非托管内存（必须实现 IDisposable）
         public void Dispose()
         {
-            if (_unmanagedPtr != IntPtr.Zero)
+            if (UnmanagedPtr != IntPtr.Zero)
             {
-                Marshal.FreeHGlobal(_unmanagedPtr); // 释放非托管内存
-                _unmanagedPtr = IntPtr.Zero;
+                Marshal.FreeHGlobal(UnmanagedPtr); // 释放非托管内存
+                UnmanagedPtr = IntPtr.Zero;
                 _length = 0;
             }
             GC.SuppressFinalize(this);

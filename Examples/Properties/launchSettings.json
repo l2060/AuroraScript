@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Examples": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "COMPlus_JitTrace": "1"
+      }
+    }
+  }
+}
