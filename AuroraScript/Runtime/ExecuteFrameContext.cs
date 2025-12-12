@@ -19,13 +19,14 @@ namespace AuroraScript.Runtime
         /// 虚拟机代码段基址指针
         /// </summary>
         internal readonly Byte* CodeBasePointer;
-
-        private readonly ByteCodeBuffer _codeBuffer;
-        internal readonly ImmutableArray<StringValue> Strings;
+        internal ScriptDatum[] Locals;
+        internal CallFrame CurrentFrame;
         internal readonly ScriptDatumStack OperandStack;
         internal readonly Stack<CallFrame> CallStack;
+        internal readonly ImmutableArray<StringValue> Strings;
 
-        internal CallFrame CurrentFrame;
+
+
         internal readonly ExecuteOptions ExecuteOptions;
         internal readonly ClrTypeRegistry ClrRegistry;
         internal readonly ExecuteContext ExecuteContext;
@@ -33,7 +34,7 @@ namespace AuroraScript.Runtime
         internal readonly ScriptDomain Domain;
         internal readonly ScriptGlobal Global;
         internal ScriptModule Module;
-        internal ScriptDatum[] Locals;
+        private readonly ByteCodeBuffer _codeBuffer;
 
 
         public ExecuteFrameContext(RuntimeVM vm, ExecuteContext executeContext)
@@ -68,7 +69,7 @@ namespace AuroraScript.Runtime
         }
 
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int PopCallStack()
         {
             var finishedFrame = CallStack.Pop();
@@ -83,6 +84,7 @@ namespace AuroraScript.Runtime
             return length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushCallStack(CallFrame frame)
         {
             CallStack.Push(frame);
@@ -139,11 +141,15 @@ namespace AuroraScript.Runtime
             return value;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SByte ReadSByte()
         {
             ref var frame = ref CurrentFrame;
             return (*(SByte*)(CodeBasePointer + frame.Pointer++));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Int16 ReadInt16()
         {
             ref var frame = ref CurrentFrame;
@@ -152,6 +158,8 @@ namespace AuroraScript.Runtime
             return value;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Int64 ReadInt64()
         {
             ref var frame = ref CurrentFrame;
@@ -160,6 +168,8 @@ namespace AuroraScript.Runtime
             return value;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Single ReadFloat()
         {
             ref var frame = ref CurrentFrame;
@@ -168,6 +178,7 @@ namespace AuroraScript.Runtime
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Double ReadDouble()
         {
             ref var frame = ref CurrentFrame;

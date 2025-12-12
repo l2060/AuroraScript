@@ -5,13 +5,14 @@ using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Examples
 {
     public class Program
     {
-        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./temp/" });
+        private static AuroraEngine engine = new AuroraEngine(new EngineOptions() { BaseDirectory = "./tests/" });
         private static UserState userState = new UserState();
         private static ExecuteOptions executeOptions = ExecuteOptions.Default.WithUserState(userState);
 
@@ -68,14 +69,6 @@ namespace Examples
         public static async Task Main()
         {
 
-            var a = 1;
-
-            var b = ~(long)a;
-
-            Console.WriteLine(b);
-
-
-
             engine.RegisterClrType<TestObject>();
             engine.RegisterClrType<UserState>();
             engine.RegisterClrType(typeof(Math));
@@ -119,8 +112,9 @@ namespace Examples
 
 
 
-        public static void Test()
+        public unsafe static void Test()
         {
+
             var domain = engine.CreateDomain(GlobalConfiguration, userState);
 
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
@@ -134,13 +128,13 @@ namespace Examples
             // script function test
             //BenchmarkScript(domain, "MAIN", "main");
 
-            for (int i = 0; i < 10; i++)
-            {
-                BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
-            }
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
+            //}
 
-            engine.PrintStatistics();
-            Console.ReadLine();
+            //engine.PrintStatistics();
+            //Console.ReadLine();
 
 
             RunAndReportUnitTests(domain);

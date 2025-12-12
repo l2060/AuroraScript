@@ -9,16 +9,15 @@ namespace AuroraScript.Runtime
 {
     internal sealed class CallFrame : IDisposable
     {
-        private const Int32 DefaultLocalCapacity = 8;
+        internal Int32 Pointer;
+        internal Int32 LastInstructionPointer;
         internal ScriptDatum[] _locals;
         internal Int32 EntryPointer;
-        internal Int32 LastInstructionPointer;
-        internal Int32 Pointer;
         private Int32 _localsUsed;
         private Dictionary<Int32, Upvalue> _openUpvalues;
         private ClosureUpvalue[] _capturedUpvalues = Array.Empty<ClosureUpvalue>();
         internal readonly CallArguments Arguments = new CallArguments();
-
+        private const Int32 DefaultLocalCapacity = 8;
         public ScriptModule Module { get; private set; }
         public ScriptDomain Domain { get; private set; }
 
