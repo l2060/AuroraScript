@@ -9,34 +9,29 @@ namespace AuroraScript.Runtime
 
     internal sealed class ObjectProperty
     {
-        public Boolean Readable;
-        public Boolean Writable;
-        public ScriptObject Value;
-        public String Key;
+        internal ScriptObject Value;
+        internal Boolean Enumerable;
+        internal Boolean Writable;
+        internal String Key;
 
-        public Boolean Enumerable;
-
-
-        public ObjectProperty(String key, bool writeable, bool readable, bool enumerable)
+        internal ObjectProperty(String key, bool writeable, bool enumerable)
         {
             Key = key;
             Enumerable = enumerable;
-            Readable = readable;
             Writable = writeable;
         }
 
-        public ObjectProperty(String key, ScriptObject value, bool writeable, bool readable, bool enumerable)
+        internal ObjectProperty(String key, ScriptObject value, bool writeable, bool enumerable)
         {
             Key = key;
             Value = value;
-            Enumerable = readable;
-            Readable = readable;
             Writable = writeable;
+            Enumerable = enumerable;
         }
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public string DebuggerDisplayValue
+        internal string DebuggerDisplayValue
         {
             get
             {
@@ -44,9 +39,9 @@ namespace AuroraScript.Runtime
             }
         }
 
-        public ObjectProperty Clone()
+        internal ObjectProperty Clone()
         {
-            return new ObjectProperty(Key, Value, Writable, Readable, Enumerable);
+            return new ObjectProperty(Key, Value, Writable, Enumerable);
         }
 
 

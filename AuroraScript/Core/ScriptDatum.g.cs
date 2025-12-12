@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime;
+using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace AuroraScript.Core
 {
@@ -122,7 +124,7 @@ namespace AuroraScript.Core
         }
 
 
- 
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boolean TryGetDate(out ScriptDate value)
@@ -176,6 +178,22 @@ namespace AuroraScript.Core
             }
             value = default;
             return false;
+        }
+
+
+
+        public ScriptDatum Clone(bool deepth = false)
+        {
+            switch (Kind)
+            {
+                case ValueKind.Null:
+                case ValueKind.Number:
+                case ValueKind.Boolean:
+                case ValueKind.String:
+                    return this;
+                default:
+                    return RuntimeHelper.Clone(this, deepth);
+            }
         }
     }
 }

@@ -10,6 +10,18 @@ namespace AuroraScript.Runtime.Base
         private ScriptDatum[] _items;
         private Int32 _count;
 
+        public ScriptArray(ScriptArray array)
+        {
+            this._prototype = Prototypes.ScriptArrayPrototype;
+            var capacity = array._count;
+            _items = new ScriptDatum[Math.Max(4, capacity)];
+            if (capacity > 0)
+            {
+                Array.Copy(array._items, _items, capacity);
+            }
+        }
+
+
         public ScriptArray(Int32 capacity)
         {
             this._prototype = Prototypes.ScriptArrayPrototype;

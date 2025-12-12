@@ -580,6 +580,10 @@ export function testIterator() {
         E: "Hello",
         F: () => { console.log("reset"); }
     };
+
+    node = Object.assign(node, { 你好: 'Hello' });
+
+    node = Object.clone(node);
     for (var key in node) {
         console.log(key + " = " + node[key]);
     }

@@ -8,6 +8,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 
@@ -43,23 +44,25 @@ namespace AuroraScript.Runtime.Extensions
             args.TryGetBoolean(1, out var indented);
             if (args.TryGet(0, out var datum))
             {
-                result = ScriptDatum.FromObject(Serialize(datum, indented));
+                result = ScriptDatum.FromString(Serialize(datum, indented));
                 return;
             }
             throw new AuroraRuntimeException($"JSON.stringify error.");
         }
 
-        public static StringValue Serialize(ScriptDatum datum, Boolean indented = false)
+        public static String Serialize(ScriptDatum datum, Boolean indented = false)
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
-            using var jsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = indented });
+            using var jsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions
+            {
+                Indented = indented,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            });
             var visited = new HashSet<ScriptObject>(ReferenceComparer.Instance);
             WriteDatum(jsonWriter, datum, visited);
             jsonWriter.Flush();
-            return StringValue.Of(Encoding.UTF8.GetString(bufferWriter.WrittenSpan));
+            return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
         }
-
-
 
 
         private static ScriptObject ConvertElement(JsonElement element)

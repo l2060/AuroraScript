@@ -40,7 +40,7 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (datum.Kind.Include(ValueKind.Object))
             {
-                return JsonSupport.Serialize(datum, false).Value;
+                return JsonSupport.Serialize(datum, false);
             }
             return datum.ToString();
         }

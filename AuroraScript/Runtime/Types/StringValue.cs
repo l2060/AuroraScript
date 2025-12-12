@@ -6,19 +6,14 @@ namespace AuroraScript.Runtime.Base
 {
     public sealed partial class StringValue : ScriptValue, IEnumerator
     {
-
-        private readonly String _value;
+        public readonly String Value;
 
         private static readonly StringValue[] _charCache = new StringValue[256];
 
         public StringValue(String str) : base(Prototypes.StringValuePrototype)
         {
-            _value = str;
+            Value = str;
         }
-
-
-        public String Value => _value;
-
 
 
         public override void SetPropertyValue(String key, ScriptObject value)
@@ -29,13 +24,13 @@ namespace AuroraScript.Runtime.Base
 
         public override int GetHashCode()
         {
-            return _value.GetHashCode();
+            return Value.GetHashCode();
         }
 
 
         public override string ToString()
         {
-            return _value;
+            return Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,7 +57,7 @@ namespace AuroraScript.Runtime.Base
 
         public override Boolean IsTrue()
         {
-            return !String.IsNullOrEmpty(_value);
+            return !String.IsNullOrEmpty(Value);
         }
 
 
@@ -70,9 +65,9 @@ namespace AuroraScript.Runtime.Base
         {
             if (obj is StringValue str)
             {
-                return str._value == _value;
+                return str.Value == Value;
             }
-            else if (obj is NumberValue num && Double.TryParse(_value, out var dVal))
+            else if (obj is NumberValue num && Double.TryParse(Value, out var dVal))
             {
                 return num.DoubleValue == dVal;
             }
@@ -81,7 +76,7 @@ namespace AuroraScript.Runtime.Base
 
         ItemIterator IEnumerator.GetIterator()
         {
-            return ItemIterator.FromString(_value);
+            return ItemIterator.FromString(Value);
         }
 
 

@@ -99,6 +99,11 @@ namespace AuroraScript
             {
                 var datum = source[index];
 
+                if (datum.Kind == ValueKind.Null)
+                {
+                    value = "null";
+                    return true;
+                }
                 if (datum.Kind == ValueKind.Number)
                 {
                     value = datum.Number.ToString();
@@ -125,7 +130,7 @@ namespace AuroraScript
             if (index >= 0 && index < source.Length)
             {
                 var datum = source[index];
-                if (datum.Object != null)
+                if (datum.Kind.Include(ValueKind.Object))
                 {
                     value = datum.Object;
                     return true;

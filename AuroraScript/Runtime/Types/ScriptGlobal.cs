@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
+using System.Linq;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -22,12 +23,12 @@ namespace AuroraScript.Runtime.Types
 
         public void SetValue(string key, object value)
         {
-            SetPropertyValue(key, ClrMarshaller.ToScript(value));
+            base.Define(key, ClrMarshaller.ToScript(value), true, true);
         }
 
-        public void Define(string key, object value, bool writeable = true, bool readable = true, bool enumerable = true)
+        public void Define(string key, object value, bool writeable = true, bool enumerable = true)
         {
-            base.Define(key, ClrMarshaller.ToScript(value), writeable, readable, enumerable);
+            base.Define(key, ClrMarshaller.ToScript(value), writeable, enumerable);
         }
 
         public override string ToString()

@@ -33,21 +33,23 @@ namespace AuroraScript.Runtime.Types
         {
 
             // strict equal
-            ScriptObjectConstructorPrototype.Define("equal$", new BondingFunction(ScriptObject.STRICT_EQUAL), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("equal$", new BondingFunction(ScriptObjectConstructor.STRICT_EQUAL), writeable: false, enumerable: false);
             // content equal  
-            ScriptObjectConstructorPrototype.Define("equal", new BondingFunction(ScriptObject.VALUE_EQUAL), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("equal", new BondingFunction(ScriptObjectConstructor.VALUE_EQUAL), writeable: false, enumerable: false);
             // deep content equal 
-            ScriptObjectConstructorPrototype.Define("deepEqual", new BondingFunction(ScriptObject.DEEP_EQUAL), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("deepEqual", new BondingFunction(ScriptObjectConstructor.DEEP_EQUAL), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("assign", new BondingFunction(ScriptObjectConstructor.ASSIGN), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("keys", new BondingFunction(ScriptObjectConstructor.KEYS), writeable: false, enumerable: false);
+            
+            ScriptObjectConstructorPrototype.Define("clone", new BondingFunction(ScriptObjectConstructor.CLONE), writeable: false, enumerable: false);
+            ScriptObjectConstructorPrototype.Define("deepClone", new BondingFunction(ScriptObjectConstructor.DEEP_CLONE), writeable: false, enumerable: false);
 
-            ScriptObjectConstructorPrototype.Define("assign", new BondingFunction(ScriptObject.ASSIGN), writeable: false, enumerable: false);
-
-
-
+            ScriptObjectConstructorPrototype.Frozen();
 
 
             // ScriptObject
             ObjectPrototype.Define("toString", new BondingFunction(ScriptObject.TOSTRING), writeable: false, enumerable: false);
-            ObjectPrototype.Define("keys", new BondingFunction(ScriptObjectConstructor.KEYS), writeable: false, enumerable: false);
+
             ObjectPrototype.Define("constructor", ScriptObjectConstructor.INSTANCE, writeable: false, enumerable: false);
             ObjectPrototype.Define("length", new BondingGetter(ScriptObject.LENGTH), writeable: false, enumerable: false);
             ObjectPrototype.Frozen();
@@ -76,6 +78,7 @@ namespace AuroraScript.Runtime.Types
             DateConstructorPrototype.Define("now", new BondingFunction(ScriptDateConstructor.NOW), writeable: false, enumerable: false);
             DateConstructorPrototype.Define("utcNow", new BondingFunction(ScriptDateConstructor.UTC_NOW), writeable: false, enumerable: false);
             DateConstructorPrototype.Define("parse", new BondingFunction(ScriptDateConstructor.PARSE), writeable: false, enumerable: false);
+            DateConstructorPrototype.Frozen();
 
             DatePrototype.Define("constructor", ScriptDateConstructor.INSTANCE, writeable: false, enumerable: false);
             DatePrototype.Define("toString", new BondingFunction(ScriptDateConstructor.TOSTRING), writeable: false, enumerable: false);

@@ -101,10 +101,10 @@ namespace Examples
 
         private static void GlobalConfiguration(ScriptGlobal g)
         {
-            g.Define("PI", new NumberValue(Math.PI), readable: true, writeable: false, enumerable: false);
-            g.Define("GIVE", new BondingFunction(GIVE), false, true, false);
+            g.Define("PI", new NumberValue(Math.PI), writeable: false, enumerable: false);
+            g.Define("GIVE", new BondingFunction(GIVE), false, false);
             g.Define("CREATE_TIMER", new BondingFunction(CREATE_TIMER));
-            g.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, true, false);
+            g.Define("INPUTNUMBER", new BondingFunction(CLIENT_INPUT_NUMBER), false, false);
             var fo = new TestObject();
             g.SetValue("fo", fo);
         }
@@ -161,7 +161,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
 
-            
+
 
         }
 

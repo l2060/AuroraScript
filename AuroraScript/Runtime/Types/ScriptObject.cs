@@ -14,7 +14,7 @@ namespace AuroraScript.Runtime.Base
     public partial class ScriptObject : IEnumerator
     {
         //[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private Dictionary<String, ObjectProperty> _properties;
+        internal Dictionary<String, ObjectProperty> _properties;
 
         internal ScriptObject _prototype;
 
@@ -50,6 +50,11 @@ namespace AuroraScript.Runtime.Base
         {
             return GetPropertyValue(key.Value);
         }
+        internal void SetPropertyValue(StringValue key, ScriptObject value)
+        {
+            SetPropertyValue(key.Value, value);
+        }
+
 
         /// <summary>
         /// 获取对象属性
@@ -59,7 +64,22 @@ namespace AuroraScript.Runtime.Base
         /// <returns></returns>
         public virtual ScriptObject GetPropertyValue(String key)
         {
-            var property = _resolveProperty(key);
+            return GetPropertyInternal(key);
+        }
+
+        public virtual void SetPropertyValue(String key, ScriptObject value)
+        {
+            InternalDefine(key, value);
+        }
+
+        internal Boolean DeletePropertyValue(StringValue key)
+        {
+            return DeletePropertyValue(key.Value);
+        }
+
+        private ScriptObject GetPropertyInternal(String key)
+        {
+            var property = _resolvePropertyValue(key);
             if (property is BondingGetter getter)
             {
                 ScriptDatum datum = ScriptDatum.Null;
@@ -73,31 +93,6 @@ namespace AuroraScript.Runtime.Base
             return property;
         }
 
-        /// <summary>
-        /// 设置对象属性（可读、可写）
-        /// </summary>
-        /// <param name="key">属性名</param>
-        /// <param name="value">属性值</param>
-        /// <exception cref="AuroraRuntimeException"></exception>
-        internal void SetPropertyValue(StringValue key, ScriptObject value)
-        {
-            SetPropertyValue(key.Value, value);
-        }
-
-        public virtual void SetPropertyValue(String key, ScriptObject value)
-        {
-            InternalDefine(key, value);
-        }
-
-
-
-
-
-
-        internal Boolean DeletePropertyValue(StringValue key)
-        {
-            return DeletePropertyValue(key.Value);
-        }
 
         public virtual Boolean DeletePropertyValue(String key)
         {
@@ -115,31 +110,38 @@ namespace AuroraScript.Runtime.Base
         }
 
 
-        internal ScriptObject _resolveProperty(String key)
+        internal ScriptObject _resolvePropertyValue(String key)
         {
             if (_properties != null && _properties.TryGetValue(key, out var value))
             {
-                if (!value.Readable) throw new AuroraVMException("Property disables write");
                 return value.Value;
+            }
+            if (_prototype != null)
+            {
+                return _prototype._resolvePropertyValue(key);
+            }
+            return Null;
+        }
+
+        internal ObjectProperty _resolveProperty(String key)
+        {
+            if (_properties != null && _properties.TryGetValue(key, out var value))
+            {
+                return value;
             }
             if (_prototype != null)
             {
                 return _prototype._resolveProperty(key);
             }
-            return Null;
+            return null;
         }
+
+
 
 
         public void CopyPropertysFrom(ScriptObject scriptObject, Boolean force = false)
         {
-            // TODO prototype 
-            foreach (var item in scriptObject._properties)
-            {
-                if (!this._properties.ContainsKey(item.Key) || force)
-                {
-                    this._properties.Add(item.Key, item.Value.Clone());
-                }
-            }
+            RuntimeHelper.CopyProperties(scriptObject,this,force);
         }
 
 
@@ -153,20 +155,20 @@ namespace AuroraScript.Runtime.Base
         /// <param name="readable">属性是否可读</param>
         /// <param name="enumerable">属性是否可枚举</param>
         /// <exception cref="AuroraRuntimeException"></exception>
-        public void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
+        public virtual void Define(String key, ScriptObject value, bool writeable = true, bool enumerable = true)
         {
-            InternalDefine(key, value, writeable, readable, enumerable);
+            InternalDefine(key, value, writeable, enumerable);
         }
 
 
-        private void InternalDefine(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
+        private void InternalDefine(String key, ScriptObject value, bool writeable = true, bool enumerable = true)
         {
             //if (_properties == null) return;
             if (_isValueType) return;
             if (_isFrozen) ThrowFrozen();
             if (!_properties.TryGetValue(key, out var existValue))
             {
-                existValue = new ObjectProperty(key, writeable, readable, enumerable);
+                existValue = new ObjectProperty(key, writeable, enumerable);
                 _properties[key] = existValue;
             }
             else
@@ -245,6 +247,34 @@ namespace AuroraScript.Runtime.Base
             }
             return new ScriptArray(result);
         }
+
+
+
+
+        public List<string> EnumerationKeys()
+        {
+            var list = new List<string>();
+            if (_properties != null)
+            {
+                foreach (var item in _properties)
+                {
+                    if (item.Value.Enumerable)
+                    {
+                        list.Add(item.Key);
+                    }
+                }
+            }
+            if (_prototype != null)
+            {
+                var result = _prototype.EnumerationKeys();
+                if (result.Count > 0) list.AddRange(result);
+            }
+            return list;
+        }
+
+
+
+
     }
 
 

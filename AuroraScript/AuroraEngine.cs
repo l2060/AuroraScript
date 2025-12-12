@@ -136,14 +136,14 @@ namespace AuroraScript
         /// <param name="value">全局对象值</param>
         /// <param name="writeable">是否可写</param>
         /// <param name="readable">是否可读</param>
-        public void Define(string name, ScriptObject value, bool writeable = true, bool readable = true)
+        public void Define(string name, ScriptObject value, bool writeable = true, bool enumerable = true)
         {
-            Global.Define(name, value, writeable, readable);
+            Global.Define(name, value, writeable, enumerable);
         }
 
-        public void Define(string name, object value, bool writeable = true, bool readable = true, bool enumerable = true)
+        public void Define(string name, object value, bool writeable = true, bool enumerable = true)
         {
-            Global.Define(name, value, writeable, readable, enumerable);
+            Global.Define(name, value, writeable, enumerable);
         }
 
 

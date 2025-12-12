@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Exceptions;
+using AuroraScript.Runtime.Base;
 using System;
 
 namespace AuroraScript.Runtime
@@ -22,7 +23,9 @@ namespace AuroraScript.Runtime
             return false;
         }
 
-
+        public override void Define(string key, ScriptObject value, bool writeable = true, bool enumerable = true)
+        {
+        }
 
     }
 }
