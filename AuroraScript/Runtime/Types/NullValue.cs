@@ -32,7 +32,7 @@ namespace AuroraScript.Runtime.Types
             throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }
 
-        public override void Define(string key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
+        public new void Define(string key, ScriptObject value, bool readable = true, bool writeable = true, bool enumerable = true)
         {
             throw new AuroraVMException(string.Format("Cannot read properties of undefined (reading '{0}')", key));
         }

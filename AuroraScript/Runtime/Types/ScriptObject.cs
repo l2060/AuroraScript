@@ -21,13 +21,16 @@ namespace AuroraScript.Runtime.Base
         //[DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private Boolean _isFrozen = false;
 
-        internal ScriptObject(ScriptObject prototype, Boolean initProperties = true)
+        private Boolean _isValueType = false;
+
+        internal ScriptObject(ScriptObject prototype, Boolean isValueType = false)
         {
             _prototype = prototype;
-            if (initProperties)
+            if (!isValueType)
             {
                 _properties = new Dictionary<string, ObjectProperty>();
             }
+            _isValueType = isValueType;
         }
 
         public ScriptObject()
@@ -87,6 +90,10 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+
+
+
+
         internal Boolean DeletePropertyValue(StringValue key)
         {
             return DeletePropertyValue(key.Value);
@@ -94,7 +101,7 @@ namespace AuroraScript.Runtime.Base
 
         public virtual Boolean DeletePropertyValue(String key)
         {
-            if (_properties.TryGetValue(key, out var value))
+            if (_properties != null && _properties.TryGetValue(key, out var value))
             {
                 if (!value.Writable) ThrowDisableWritable();
                 _properties.Remove(key);
@@ -110,7 +117,7 @@ namespace AuroraScript.Runtime.Base
 
         internal ScriptObject _resolveProperty(String key)
         {
-            if (_properties.TryGetValue(key, out var value))
+            if (_properties != null && _properties.TryGetValue(key, out var value))
             {
                 if (!value.Readable) throw new AuroraVMException("Property disables write");
                 return value.Value;
@@ -125,6 +132,7 @@ namespace AuroraScript.Runtime.Base
 
         public void CopyPropertysFrom(ScriptObject scriptObject, Boolean force = false)
         {
+            // TODO prototype 
             foreach (var item in scriptObject._properties)
             {
                 if (!this._properties.ContainsKey(item.Key) || force)
@@ -145,16 +153,16 @@ namespace AuroraScript.Runtime.Base
         /// <param name="readable">属性是否可读</param>
         /// <param name="enumerable">属性是否可枚举</param>
         /// <exception cref="AuroraRuntimeException"></exception>
-        public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
+        public void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
             InternalDefine(key, value, writeable, readable, enumerable);
         }
 
 
-
         private void InternalDefine(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
             //if (_properties == null) return;
+            if (_isValueType) return;
             if (_isFrozen) ThrowFrozen();
             if (!_properties.TryGetValue(key, out var existValue))
             {
@@ -168,7 +176,6 @@ namespace AuroraScript.Runtime.Base
             existValue.Value = value;
         }
 
-
         protected void ThrowFrozen()
         {
             throw new AuroraVMException("You cannot modify this object");
@@ -177,15 +184,10 @@ namespace AuroraScript.Runtime.Base
         {
             throw new AuroraVMException("Property disables write");
         }
-
-
         public override string ToString()
         {
             return "[object]";
         }
-
-
-
 
         public static StringValue operator +(ScriptObject a, ScriptObject b)
         {
@@ -205,13 +207,17 @@ namespace AuroraScript.Runtime.Base
             var current = this;
             while (current != null)
             {
-                foreach (var item in current._properties)
+                if (!current._isValueType)
                 {
-                    if (item.Value.Enumerable)
+                    foreach (var item in current._properties)
                     {
-                        result.Add(ScriptDatum.FromString(item.Value.Key));
+                        if (item.Value.Enumerable)
+                        {
+                            result.Add(ScriptDatum.FromString(item.Value.Key));
+                        }
                     }
                 }
+
                 current = current._prototype;
             }
             return new ItemIterator(result.ToArray());
@@ -225,11 +231,14 @@ namespace AuroraScript.Runtime.Base
             var current = this;
             while (current != null)
             {
-                foreach (var item in current._properties)
+                if (!current._isValueType)
                 {
-                    if (item.Value.Enumerable)
+                    foreach (var item in current._properties)
                     {
-                        result.Add(StringValue.Of(item.Value.Key));
+                        if (item.Value.Enumerable)
+                        {
+                            result.Add(StringValue.Of(item.Value.Key));
+                        }
                     }
                 }
                 current = current._prototype;

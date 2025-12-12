@@ -1,7 +1,9 @@
 ﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Runtime.Interop
 {
@@ -43,7 +45,8 @@ namespace AuroraScript.Runtime.Interop
                     return new ClrMethodBinding(Descriptor, instanceMethods, this, false);
                 }
             }
-            ThrowHelper.ThrowNotfoundProperty(key);
+            //ThrowHelper.ThrowNotfoundProperty(key);
+            Trace.TraceWarning($"Object Clr Instance :{Descriptor.Type.Name}, Cannot Found Properties “{key}”");
             return ScriptObject.Null;
         }
 
@@ -70,7 +73,11 @@ namespace AuroraScript.Runtime.Interop
                 field.SetValue(Instance, converted);
                 return;
             }
-            ThrowHelper.ThrowNotfoundProperty(key);
+
+
+            Trace.TraceWarning($"Object Clr Instance :{Descriptor.Type.Name}, Cannot Found Properties “{key}”");
+
+            //ThrowHelper.ThrowNotfoundProperty(key);
             //base.SetPropertyValue(key, value);
         }
 

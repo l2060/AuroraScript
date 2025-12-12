@@ -20,7 +20,7 @@ namespace AuroraScript.Runtime
         public ObjectProperty(String key, bool writeable, bool readable, bool enumerable)
         {
             Key = key;
-            Enumerable = readable;
+            Enumerable = enumerable;
             Readable = readable;
             Writable = writeable;
         }

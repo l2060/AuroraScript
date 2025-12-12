@@ -22,7 +22,7 @@ namespace AuroraScript.Runtime.Types
 
         public void SetValue(string key, object value)
         {
-            base.SetPropertyValue(key, ClrMarshaller.ToScript(value));
+            SetPropertyValue(key, ClrMarshaller.ToScript(value));
         }
 
         public void Define(string key, object value, bool writeable = true, bool readable = true, bool enumerable = true)

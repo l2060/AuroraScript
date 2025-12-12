@@ -18,7 +18,7 @@ namespace AuroraScript.Runtime
         private readonly String _name;
 
         internal Upvalue(CallFrame ownerFrame, Int32 localIndex, String name = null)
-            : base(null, false)
+            : base(null, true)
         {
             _ownerFrame = ownerFrame ?? throw new ArgumentNullException(nameof(ownerFrame));
             _localIndex = localIndex;

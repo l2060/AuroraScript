@@ -12,7 +12,7 @@ namespace AuroraScript.Runtime.Base
 
         internal static void LENGTH(ScriptObject thisObject, ref ScriptDatum result)
         {
-            if (thisObject is ScriptObject obj)
+            if (thisObject is ScriptObject obj && obj._properties != null)
             {
                 result = ScriptDatum.FromNumber(obj._properties.Count);
             }

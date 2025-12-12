@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime
     public abstract class ScriptValue : ScriptObject
     {
 
-        internal ScriptValue(ScriptObject prototype) : base(prototype, false)
+        internal ScriptValue(ScriptObject prototype) : base(prototype, true)
         {
             Frozen();
         }
@@ -21,12 +21,6 @@ namespace AuroraScript.Runtime
         {
             return false;
         }
-
-        public override void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
-        {
-
-        }
-
 
 
 
