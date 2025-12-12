@@ -4,6 +4,7 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 
@@ -41,12 +42,11 @@ namespace AuroraScript.Runtime.Base
             _isFrozen = true;
         }
 
-        public ScriptObject GetPropertyValue(StringValue key)
+
+        internal ScriptObject GetPropertyValue(StringValue key)
         {
             return GetPropertyValue(key.Value);
         }
-
-
 
         /// <summary>
         /// 获取对象属性
@@ -70,68 +70,33 @@ namespace AuroraScript.Runtime.Base
             return property;
         }
 
-
-
-        internal ScriptObject _resolveProperty(String key)
-        {
-            if (_properties != null)
-            {
-                if (_properties.TryGetValue(key, out var value))
-                {
-                    if (!value.Readable) throw new AuroraVMException("Property disables write");
-                    return value.Value;
-                }
-            }
-            if (_prototype != null)
-            {
-                return _prototype._resolveProperty(key);
-            }
-            return Null;
-        }
-
         /// <summary>
         /// 设置对象属性（可读、可写）
         /// </summary>
         /// <param name="key">属性名</param>
         /// <param name="value">属性值</param>
         /// <exception cref="AuroraRuntimeException"></exception>
+        internal void SetPropertyValue(StringValue key, ScriptObject value)
+        {
+            SetPropertyValue(key.Value, value);
+        }
+
         public virtual void SetPropertyValue(String key, ScriptObject value)
         {
-            SetPropertyValue(StringValue.Of(key), value);
+            InternalDefine(key, value);
         }
 
 
-        public virtual void SetPropertyValue(StringValue key, ScriptObject value)
-        {
-            if (_properties == null) return;
-            if (_isFrozen)
-            {
-                throw new AuroraVMException("You cannot modify this object");
-            }
-            if (!_properties.TryGetValue(key.Value, out var existValue))
-            {
-                existValue = new ObjectProperty();
-                existValue.Key = key;
-                existValue.Readable = true;
-                existValue.Writable = true;
-                existValue.Enumerable = true;
-                _properties[key.Value] = existValue;
-            }
-            if (!existValue.Writable) throw new AuroraVMException("Property disables write");
-            existValue.Value = value;
-        }
-
-
-        public Boolean DeletePropertyValue(StringValue key)
+        internal Boolean DeletePropertyValue(StringValue key)
         {
             return DeletePropertyValue(key.Value);
         }
 
         public virtual Boolean DeletePropertyValue(String key)
         {
-            if (_properties != null && _properties.TryGetValue(key, out var value))
+            if (_properties.TryGetValue(key, out var value))
             {
-                if (!value.Writable) throw new AuroraVMException("Property disables write");
+                if (!value.Writable) ThrowDisableWritable();
                 _properties.Remove(key);
                 return true;
             }
@@ -143,6 +108,19 @@ namespace AuroraScript.Runtime.Base
         }
 
 
+        internal ScriptObject _resolveProperty(String key)
+        {
+            if (_properties.TryGetValue(key, out var value))
+            {
+                if (!value.Readable) throw new AuroraVMException("Property disables write");
+                return value.Value;
+            }
+            if (_prototype != null)
+            {
+                return _prototype._resolveProperty(key);
+            }
+            return Null;
+        }
 
 
         public void CopyPropertysFrom(ScriptObject scriptObject, Boolean force = false)
@@ -158,7 +136,6 @@ namespace AuroraScript.Runtime.Base
 
 
 
-
         /// <summary>
         /// 定义对象属性的高级实现
         /// </summary>
@@ -170,27 +147,36 @@ namespace AuroraScript.Runtime.Base
         /// <exception cref="AuroraRuntimeException"></exception>
         public virtual void Define(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
         {
-            if (_properties == null) return;
-            if (_isFrozen)
-            {
-                throw new AuroraVMException("You cannot modify this object");
-            }
+            InternalDefine(key, value, writeable, readable, enumerable);
+        }
+
+
+
+        private void InternalDefine(String key, ScriptObject value, bool writeable = true, bool readable = true, bool enumerable = true)
+        {
+            //if (_properties == null) return;
+            if (_isFrozen) ThrowFrozen();
             if (!_properties.TryGetValue(key, out var existValue))
             {
-                existValue = new ObjectProperty();
-                existValue.Key = StringValue.Of(key);
-                existValue.Readable = readable;
-                existValue.Writable = writeable;
-                existValue.Enumerable = enumerable;
+                existValue = new ObjectProperty(key, writeable, readable, enumerable);
                 _properties[key] = existValue;
             }
             else
             {
-                if (!existValue.Writable) throw new AuroraVMException("Property disables write");
+                if (!existValue.Writable) ThrowDisableWritable();
             }
             existValue.Value = value;
         }
 
+
+        protected void ThrowFrozen()
+        {
+            throw new AuroraVMException("You cannot modify this object");
+        }
+        protected void ThrowDisableWritable()
+        {
+            throw new AuroraVMException("Property disables write");
+        }
 
 
         public override string ToString()
@@ -219,14 +205,11 @@ namespace AuroraScript.Runtime.Base
             var current = this;
             while (current != null)
             {
-                if (current._properties != null)
+                foreach (var item in current._properties)
                 {
-                    foreach (var item in current._properties)
+                    if (item.Value.Enumerable)
                     {
-                        if (item.Value.Enumerable)
-                        {
-                            result.Add(ScriptDatum.FromString(item.Value.Key));
-                        }
+                        result.Add(ScriptDatum.FromString(item.Value.Key));
                     }
                 }
                 current = current._prototype;
@@ -242,14 +225,11 @@ namespace AuroraScript.Runtime.Base
             var current = this;
             while (current != null)
             {
-                if (current._properties != null)
+                foreach (var item in current._properties)
                 {
-                    foreach (var item in current._properties)
+                    if (item.Value.Enumerable)
                     {
-                        if (item.Value.Enumerable)
-                        {
-                            result.Add(item.Value.Key);
-                        }
+                        result.Add(StringValue.Of(item.Value.Key));
                     }
                 }
                 current = current._prototype;

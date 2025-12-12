@@ -67,8 +67,8 @@ namespace AuroraScript.Runtime.Interop
                     return new ClrMethodBinding(_descriptor, staticMethods, null, true);
                 }
             }
-
-            return base.GetPropertyValue(key);
+            ThrowHelper.ThrowNotfoundProperty(key);
+            return ScriptObject.Null;
         }
 
         public override void SetPropertyValue(string key, ScriptObject value)
@@ -94,8 +94,7 @@ namespace AuroraScript.Runtime.Interop
                 field.SetValue(null, converted);
                 return;
             }
-
-            base.SetPropertyValue(key, value);
+            ThrowHelper.ThrowNotfoundProperty(key);
         }
 
     

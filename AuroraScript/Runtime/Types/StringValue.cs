@@ -21,11 +21,6 @@ namespace AuroraScript.Runtime.Base
 
 
 
-        public override void SetPropertyValue(StringValue key, ScriptObject value)
-        {
-            // Ignore
-        }
-
         public override void SetPropertyValue(String key, ScriptObject value)
         {
             // Ignore

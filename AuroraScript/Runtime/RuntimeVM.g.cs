@@ -35,7 +35,7 @@ namespace AuroraScript.Runtime
 
             var stack = ctx.OperandStack;
             int newSize = stack._size - 1;
-            if ((uint)newSize >= (uint)stack._size) stack.ThrowEmpty();
+            if ((uint)newSize >= (uint)stack._size) ThrowHelper.ThrowEmptyStack();
             stack._size = newSize;
             stack._buffer[newSize] = default;
 

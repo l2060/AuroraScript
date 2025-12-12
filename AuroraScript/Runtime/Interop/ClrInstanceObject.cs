@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Exceptions;
+using AuroraScript.Runtime.Base;
 using System;
 using System.Linq;
 
@@ -42,8 +43,8 @@ namespace AuroraScript.Runtime.Interop
                     return new ClrMethodBinding(Descriptor, instanceMethods, this, false);
                 }
             }
-
-            return base.GetPropertyValue(key);
+            ThrowHelper.ThrowNotfoundProperty(key);
+            return ScriptObject.Null;
         }
 
         public override void SetPropertyValue(string key, ScriptObject value)
@@ -69,9 +70,14 @@ namespace AuroraScript.Runtime.Interop
                 field.SetValue(Instance, converted);
                 return;
             }
-
-            base.SetPropertyValue(key, value);
+            ThrowHelper.ThrowNotfoundProperty(key);
+            //base.SetPropertyValue(key, value);
         }
+
+
+
+
+
 
         public override string ToString()
         {

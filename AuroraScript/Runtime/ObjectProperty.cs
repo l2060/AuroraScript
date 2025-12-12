@@ -9,13 +9,30 @@ namespace AuroraScript.Runtime
 
     internal sealed class ObjectProperty
     {
-        public StringValue Key;
-
         public Boolean Readable;
         public Boolean Writable;
-        public Boolean Enumerable;
         public ScriptObject Value;
+        public String Key;
 
+        public Boolean Enumerable;
+
+
+        public ObjectProperty(String key, bool writeable, bool readable, bool enumerable)
+        {
+            Key = key;
+            Enumerable = readable;
+            Readable = readable;
+            Writable = writeable;
+        }
+
+        public ObjectProperty(String key, ScriptObject value, bool writeable, bool readable, bool enumerable)
+        {
+            Key = key;
+            Value = value;
+            Enumerable = readable;
+            Readable = readable;
+            Writable = writeable;
+        }
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -29,14 +46,7 @@ namespace AuroraScript.Runtime
 
         public ObjectProperty Clone()
         {
-            return new ObjectProperty()
-            {
-                Key = Key,
-                Readable = Readable,
-                Writable = Writable,
-                Enumerable = Enumerable,
-                Value = Value
-            };
+            return new ObjectProperty(Key, Value, Writable, Readable, Enumerable);
         }
 
 

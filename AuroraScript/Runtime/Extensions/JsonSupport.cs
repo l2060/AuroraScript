@@ -203,9 +203,9 @@ namespace AuroraScript.Runtime.Extensions
             var keys = value.GetKeys();
             for (int i = 0; i < keys.Length; i++)
             {
-                var propertyName = keys.Get(i).String.Value;
+                var propertyName = keys.Get(i).String;
                 var propertyValue = value.GetPropertyValue(propertyName);
-                writer.WritePropertyName(propertyName);
+                writer.WritePropertyName(propertyName.Value);
                 WriteDatum(writer, ScriptDatum.FromObject(propertyValue), visited);
             }
             writer.WriteEndObject();

@@ -58,44 +58,27 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum PopDatum()
         {
-            if (_size == 0) ThrowEmpty();
-            int idx = --_size;     // pre-decrement 性能更高
-            ref var elem = ref _buffer[idx];  // 直接 ref 获取
+            if (_size == 0) ThrowHelper.ThrowEmptyStack();
+            int idx = --_size;
+            ref var elem = ref _buffer[idx];
             var value = elem;
-            elem = default;        // 清空槽位
+            elem = default;
             return value;
-            //var buffer = _buffer;
-            //var index = _size - 1;
-            //var value = buffer[index];
-            //buffer[index] = default;
-            //_size = index;
-            //return value;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopToRef(ref ScriptDatum datum)
         {
-            if (_size == 0) ThrowEmpty();
+            if (_size == 0) ThrowHelper.ThrowEmptyStack();
             int idx = --_size;
             ref var src = ref _buffer[idx];
             datum = src;
             src = default;                   
-            //var buffer = _buffer;
-            //var index = _size - 1;
-            //datum = buffer[index];
-            //buffer[index] = default;
-            //_size = index;
         }
 
 
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal ScriptDatum ThrowEmpty()
-        {
-            throw new InvalidOperationException("Stack is empty.");
-        }
-
+ 
 
 
         public ScriptObject PopObject()
@@ -107,7 +90,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum PeekDatum()
         {
-            if (_size == 0) ThrowEmpty();
+            if (_size == 0) ThrowHelper.ThrowEmptyStack();
             return _buffer[_size - 1];
         }
 
@@ -157,7 +140,7 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopDiscard()
         {
-            if (_size == 0) ThrowEmpty();
+            if (_size == 0) ThrowHelper.ThrowEmptyStack();
             var index = --_size;
             _buffer[index] = default;
         }
