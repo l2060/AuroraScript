@@ -2,7 +2,7 @@ using AuroraScript.Runtime.Base;
 
 namespace AuroraScript.Runtime
 {
-    internal static class Datums
+    internal static class TypeNames
     {
 
         public static readonly ScriptDatum Object = ScriptDatum.FromString(new StringValue("object"));

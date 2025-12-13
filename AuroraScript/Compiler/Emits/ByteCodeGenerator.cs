@@ -664,7 +664,7 @@ namespace AuroraScript.Compiler.Emits
                 _instructionBuilder.PushGlobal();
                 return;
             }
-            if (node.Identifier.Value == "$ctx")
+            if (node.Identifier.Value == "$state")
             {
                 _instructionBuilder.PushUserContext();
                 return;

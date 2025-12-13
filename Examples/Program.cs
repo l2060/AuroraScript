@@ -149,12 +149,17 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "test");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
             BenchmarkScript(domain, "UNIT_LIB", "testClrFunc");
+
+
+       
+            BenchmarkScript(domain, "UNIT_LIB", "testPeculiarity", new NumberValue(1_000_000), BooleanValue.True);
+
             BenchmarkScript(domain, "UNIT_LIB", "testFor", new NumberValue(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkNumbers", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkArrays", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkClosure", NumberValue.Of(1_000_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
-            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
+            BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(1_000_000));
 
             BenchmarkScript(domain, "UNIT_LIB", "testDraw");
 

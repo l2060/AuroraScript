@@ -1,4 +1,5 @@
-﻿using AuroraScript.Runtime.Types;
+﻿using AuroraScript.Runtime.Pool;
+using AuroraScript.Runtime.Types;
 using AuroraScript.Runtime.Types.Internal;
 using System;
 using System.Runtime.CompilerServices;
@@ -39,6 +40,15 @@ namespace AuroraScript.Runtime.Base
         {
             return new StringValue(value);
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringValue Intern(String value)
+        {
+            return StringPool.Instance.Allocation(value);
+        }
+
+
 
         internal static StringValue FromChar(Char ch)
         {

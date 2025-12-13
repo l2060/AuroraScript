@@ -123,31 +123,31 @@ namespace AuroraScript.Runtime
             switch (Kind)
             {
                 case ValueKind.Null:
-                    return Datums.Null;
+                    return TypeNames.Null;
                 case ValueKind.Boolean:
-                    return Datums.Boolean;
+                    return TypeNames.Boolean;
                 case ValueKind.Number:
-                    return Datums.Number;
+                    return TypeNames.Number;
                 case ValueKind.String:
-                    return Datums.String;
+                    return TypeNames.String;
                 case ValueKind.Object:
-                    return Datums.Object;
+                    return TypeNames.Object;
                 case ValueKind.Date:
-                    return Datums.Date;
+                    return TypeNames.Date;
                 case ValueKind.Array:
-                    return Datums.Array;
+                    return TypeNames.Array;
                 case ValueKind.Regex:
-                    return Datums.Regex;
+                    return TypeNames.Regex;
                 case ValueKind.Function:
-                    return Datums.Function;
+                    return TypeNames.Function;
                 case ValueKind.ClrType:
-                    return Datums.ClrType;
+                    return TypeNames.ClrType;
                 case ValueKind.ClrFunction:
-                    return Datums.ClrFunction;
+                    return TypeNames.ClrFunction;
                 case ValueKind.ClrBonding:
-                    return Datums.ClrBonding;
+                    return TypeNames.ClrBonding;
                 default:
-                    return Datums.Object;
+                    return TypeNames.Object;
             }
         }
 

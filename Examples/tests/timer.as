@@ -18,7 +18,7 @@ function time_proc(timer,arrays,clrdata){
     for(var item in timers){
         timeCount++;
     }
-    console.log(timer,arrays,clrdata,$ctx);
+    console.log(timer,arrays,clrdata,$state);
 
 }
 

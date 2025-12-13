@@ -33,9 +33,9 @@ func testClrType() {
     // JSON.stringify
     console.log(s);
     console.log(Math2.Log10(5));
-    // 内置关键字 $ctx is UserState in ExecuteOptions
-    $ctx.Test(123.45,'abc');
-    console.log($args);
+    // 内置关键字 $state is UserState in ExecuteOptions
+    $state.Test(123.45,'abc');
+
 }
 
 
@@ -49,6 +49,21 @@ func testDatetime(){
 
 }
 
+
+
+func testPeculiarity() {
+
+    // key $state
+    console.log($state);
+
+    // key $ Dynamically obtain the existing module
+    var timerLib = $("TIMER_LIB");
+    console.log(timerLib.resetCount);
+
+    // key $args get func arguments
+    console.log($args);
+
+}
 
 
 
@@ -340,6 +355,10 @@ export function benchmarkStrings(iterations = 80000) {
         if (buffer.length > 32) {
             buffer = buffer.substring(buffer.length - 16);
         }
+    }
+    var ddd;
+    for (i = 0; i < iterations; i++) {
+        ddd = "Combined multiplication and subtraction" + "sss" ;
     }
     return buffer.length;
 }
