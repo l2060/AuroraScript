@@ -100,7 +100,7 @@ this 始终指向当前模块对象
 
 global 指向Domain的Global对象 
 
-$ 指向当前执行上下文 用户State
+$state 指向当前执行上下文 用户State
 
 $args 获取当前方法的参数数组
 
