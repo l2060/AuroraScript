@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime.Debugger
     /// 源代码位置信息，用于调试时定位代码位置
     /// 包含文件路径、行号和列号信息
     /// </summary>
-    public struct SourceLocation
+    internal struct SourceLocation
     {
         /// <summary>
         /// 源文件的完整路径

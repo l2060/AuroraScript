@@ -1,9 +1,7 @@
-﻿using AuroraScript.Exceptions;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AuroraScript.Runtime.Interop
 {

@@ -10,7 +10,7 @@ namespace AuroraScript.Compiler.Emits
     /// <summary>
     /// 变量捕获器，用于分析函数中使用的变量，特别是闭包中捕获的外部变量
     /// </summary>
-    public class VariableCatcher : IAstVisitor
+    internal class VariableCatcher : IAstVisitor
     {
         // 存储所有引用的变量名
         public HashSet<String> Variables { get; } = new HashSet<String>();

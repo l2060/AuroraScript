@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Core.Instruction
 {
-    public struct Instruction
+    internal struct Instruction
     {
         public OpCode Code;
 

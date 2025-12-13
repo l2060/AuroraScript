@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace AuroraScript.Tokens
 {
-    public class StringToken : ValueToken
+    internal class StringToken : ValueToken
     {
         public Boolean Blocked;
         internal StringToken(Boolean blocked)

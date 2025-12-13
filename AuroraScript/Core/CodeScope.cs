@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Core
 {
-    public enum DeclareType
+    internal enum DeclareType
     {
         /// <summary>
         /// 模块的属性或全局变量属性
@@ -26,7 +26,7 @@ namespace AuroraScript.Core
     }
 
 
-    public class ResolveValue
+    internal class ResolveValue
     {
         public DeclareType Type;
         public int Index;
@@ -34,7 +34,7 @@ namespace AuroraScript.Core
     }
 
 
-    public class DeclareObject
+    internal class DeclareObject
     {
         public DeclareObject(CodeScope scope, String name, String alias, DeclareType type, Int32 index, MemberAccess access, Int32 captureAlias = -1)
         {
@@ -57,7 +57,7 @@ namespace AuroraScript.Core
     }
 
 
-    public enum DomainType
+    internal enum DomainType
     {
         Global,
         Module,
@@ -66,7 +66,7 @@ namespace AuroraScript.Core
     }
 
 
-    public class CodeScope
+    internal class CodeScope
     {
 
         public CodeScope _parent { get; private set; }

@@ -10,7 +10,7 @@ using System.Text;
 
 namespace AuroraScript.Compiler.Emits
 {
-    public class InstructionBuilder
+    internal class InstructionBuilder
     {
         public int _position { get; private set; }
         private readonly List<Instruction> _instructions = new List<Instruction>();

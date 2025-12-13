@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime.Debugger
     /// 变量符号信息，用于调试时查询变量信息
     /// 包含变量名称、本地索引和作用域信息
     /// </summary>
-    public class VariableSymbol
+    internal class VariableSymbol
     {
         /// <summary>
         /// 变量名称

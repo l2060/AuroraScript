@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Runtime.Debugger
 {
-    public abstract class DebugSymbol
+    internal abstract class DebugSymbol
     {
 
         /// <summary>

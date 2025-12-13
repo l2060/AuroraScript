@@ -4,7 +4,7 @@ using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class IfStatement : Statement
+    internal class IfStatement : Statement
     {
         internal IfStatement(Expression condition, Statement body, Statement else1)
         {

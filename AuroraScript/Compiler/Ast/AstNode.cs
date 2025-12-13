@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace AuroraScript.Ast
 {
-    public abstract class AstNode
+    internal abstract class AstNode
     {
 
 

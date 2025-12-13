@@ -6,7 +6,7 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 解构运算符
     /// </summary>
-    public class DeconstructionExpression : PrefixUnaryExpression
+    internal class DeconstructionExpression : PrefixUnaryExpression
     {
         internal DeconstructionExpression() : base(Operator.PreSpread)
         {

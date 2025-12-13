@@ -8,7 +8,7 @@ namespace AuroraScript.Ast.Expressions
     /// <summary>
     /// 函数调用
     /// </summary>
-    public class FunctionCallExpression : OperatorExpression
+    internal class FunctionCallExpression : OperatorExpression
     {
         internal FunctionCallExpression(Operator @operator) : base(@operator)
         {

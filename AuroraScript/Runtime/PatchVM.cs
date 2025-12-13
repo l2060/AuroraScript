@@ -1,17 +1,16 @@
 ﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Types;
+using System;
 
 namespace AuroraScript.Runtime
 {
     internal class PatchVM
     {
         /// </summary>
-        private readonly ByteCodeBuffer _codeBuffer;
+        private readonly IntPtr ByteCodePtr;
 
-        public PatchVM(ByteCodeBuffer buffer)
+        public PatchVM(IntPtr byteCodePtr)
         {
-            _codeBuffer = buffer;
+            ByteCodePtr = byteCodePtr;
         }
 
 
@@ -20,18 +19,13 @@ namespace AuroraScript.Runtime
         /// 这是虚拟机的核心方法，实现了字节码的解释执行
         /// </summary>
         /// <param name="exeContext">执行上下文，包含操作数栈、调用栈和全局环境</param>
-        public void Patch(ExecuteContext exeContext)
+        public unsafe void Patch(ExecuteContext exeContext, int offset)
         {
-            var _callStack = exeContext._callStack;
-            var frame = _callStack.Peek();
-            ScriptGlobal domainGlobal = frame.Domain.Global;
-            var _operandStack = exeContext._operandStack;
 
+            var opCode = (OpCode)(*(Byte*)(ByteCodePtr + offset));
 
-            var popStack = _operandStack.PopDatum;
-            var pushStack = _operandStack.PushObject;
+            var stack = exeContext._operandStack;
 
-            var opCode = _codeBuffer.ReadOpCode(frame);
             switch (opCode)
             {
                 // 基本栈操作
@@ -74,12 +68,14 @@ namespace AuroraScript.Runtime
                     break;
 
                 case OpCode.LOAD_LOCAL:
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.STORE_LOCAL:
                     break;
 
                 case OpCode.LOAD_CAPTURE:
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.STORE_CAPTURE:
@@ -93,14 +89,7 @@ namespace AuroraScript.Runtime
                     break;
 
                 case OpCode.CREATE_CLOSURE:
-                    var addr = _codeBuffer.ReadInt32(frame);
-                    var captured = _codeBuffer.ReadByte(frame);
-                    popStack();
-                    for (int i = 0; i < captured; i++)
-                    {
-                        popStack();
-                    }
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.CAPTURE_VAR:
@@ -116,21 +105,21 @@ namespace AuroraScript.Runtime
                     break;
 
                 case OpCode.GET_ITERATOR:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.ITERATOR_VALUE:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.ITERATOR_HAS_VALUE:
-                    pushStack(BooleanValue.False);
+                    stack.PushDatum(ScriptDatum.FromBoolean(false));
                     break;
 
                 case OpCode.ITERATOR_NEXT:
                     break;
                 case OpCode.GET_PROPERTY:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.SET_PROPERTY:
@@ -139,110 +128,110 @@ namespace AuroraScript.Runtime
                 case OpCode.DELETE_PROPERTY:
                     break;
                 case OpCode.GET_THIS_PROPERTY:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.SET_THIS_PROPERTY:
                     break;
 
                 case OpCode.GET_GLOBAL_PROPERTY:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.SET_GLOBAL_PROPERTY:
                     break;
 
                 case OpCode.GET_ELEMENT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.SET_ELEMENT:
                     break;
 
                 case OpCode.LOGIC_NOT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
                 case OpCode.LOGIC_AND:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
                 case OpCode.LOGIC_OR:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.EQUAL:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.NOT_EQUAL:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.LESS_THAN:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.LESS_EQUAL:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.GREATER_THAN:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
                 case OpCode.GREATER_EQUAL:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.ADD:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
                 case OpCode.SUBTRACT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.MULTIPLY:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.DIVIDE:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.MOD:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.NEGATE:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.INCREMENT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
                 case OpCode.DECREMENT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_SHIFT_L:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_SHIFT_R:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_USHIFT_R:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_AND:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_OR:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_XOR:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.BIT_NOT:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.NaN);
                     break;
 
                 case OpCode.JUMP:
@@ -253,13 +242,11 @@ namespace AuroraScript.Runtime
                 case OpCode.JUMP_IF_TRUE:
                     break;
                 case OpCode.CALL:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.RETURN:
-                    pushStack(ScriptObject.Null);
-                    // 切换到调用者的帧继续执行
-                    frame = _callStack.Peek();
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
 
                 case OpCode.YIELD:
@@ -296,7 +283,7 @@ namespace AuroraScript.Runtime
                 case OpCode.PUSH_GLOBAL:
                     break;
                 case OpCode.NEW_REGEX:
-                    pushStack(ScriptObject.Null);
+                    stack.PushDatum(ScriptDatum.Null);
                     break;
             }
 

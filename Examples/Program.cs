@@ -1,11 +1,9 @@
 ﻿using AuroraScript;
-using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Examples
@@ -68,10 +66,9 @@ namespace Examples
 
         public static async Task Main()
         {
-
             engine.RegisterClrType<TestObject>();
             engine.RegisterClrType<UserState>();
-            engine.RegisterClrType(typeof(Math));
+            engine.RegisterClrType(typeof(Math), "Math2");
             await engine.BuildAsync();
 
             try
@@ -114,7 +111,6 @@ namespace Examples
 
         public unsafe static void Test()
         {
-
             var domain = engine.CreateDomain(GlobalConfiguration, userState);
 
             //var testInterruption = domain.Execute("UNIT_LIB", "testInterruption");
@@ -160,7 +156,7 @@ namespace Examples
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkObjects", NumberValue.Of(200_000));
             BenchmarkScript(domain, "UNIT_LIB", "benchmarkStrings", NumberValue.Of(100_000));
 
-
+            BenchmarkScript(domain, "UNIT_LIB", "testDraw");
 
 
         }

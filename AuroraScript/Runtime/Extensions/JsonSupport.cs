@@ -1,5 +1,4 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;

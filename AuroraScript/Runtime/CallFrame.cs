@@ -1,5 +1,4 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Types;
+﻿using AuroraScript.Runtime.Types.Internal;
 using System;
 using System.Buffers;
 using System.Collections.Generic;

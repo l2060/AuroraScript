@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Ast
 {
-    public class ModuleDeclaration : BlockStatement
+    internal class ModuleDeclaration : BlockStatement
     {
         public readonly String Directory;
 

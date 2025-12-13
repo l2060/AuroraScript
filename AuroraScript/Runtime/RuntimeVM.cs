@@ -5,10 +5,10 @@ using AuroraScript.Runtime.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AuroraScript.Runtime
 {
@@ -181,12 +181,9 @@ namespace AuroraScript.Runtime
         /// </summary>
         internal readonly ImmutableArray<StringValue> _stringConstants;
 
-        /// <summary>
-        /// 当前执行的字节码缓冲区
-        /// 包含编译后的指令序列，由虚拟机解释执行
-        /// </summary>
-        internal readonly ByteCodeBuffer _codeBuffer;
+        internal IntPtr ByteCodePtr;
 
+        internal readonly PatchVM VMPatcher;
         /// <summary>
         /// 调试符号信息，包含脚本的调试信息，如行号、函数名等
         /// </summary>
@@ -198,12 +195,6 @@ namespace AuroraScript.Runtime
 
         public readonly long[] _opCounts = new long[255];
         public readonly long[] _opTicks = new long[255];
-
-
-        public PatchVM PatchVM()
-        {
-            return new PatchVM(_codeBuffer);
-        }
 
 
         internal DebugSymbol ResolveSymbol(Int32 pointer)
@@ -248,13 +239,17 @@ namespace AuroraScript.Runtime
         public RuntimeVM(AuroraEngine engine, byte[] bytecode, ImmutableArray<String> stringConstants, DebugSymbolInfo debugSymbols)
         {
             _engine = engine;
-            // 创建字节码缓冲区，用于读取和解析字节码指令
-            _codeBuffer = new ByteCodeBuffer(bytecode);
             // 将字符串常量转换为StringValue对象并存储在不可变数组中
             _stringConstants = stringConstants.Select(e => StringValue.Of(e)).ToImmutableArray();
             // 调试符号信息
             _debugSymbols = debugSymbols;
             _clrRegistry = engine.ClrRegistry;
+
+            // 将托管数组内容拷贝到非托管堆
+            var length = bytecode.Length;
+            ByteCodePtr = Marshal.AllocHGlobal(length);
+            Marshal.Copy(bytecode, 0, ByteCodePtr, length);
+            VMPatcher = new PatchVM(ByteCodePtr);
         }
 
 
@@ -460,5 +455,25 @@ namespace AuroraScript.Runtime
 
 
 
+
+        public void Dispose()
+        {
+            if (ByteCodePtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(ByteCodePtr);
+                ByteCodePtr = IntPtr.Zero;
+            }
+            GC.SuppressFinalize(this);
+        }
+
+
+        ~RuntimeVM()
+        {
+            Dispose();
+        }
+
+
     }
+
+
 }

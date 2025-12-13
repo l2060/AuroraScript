@@ -5,7 +5,7 @@ namespace AuroraScript.Tokens
     /// <summary>
     /// end of file
     /// </summary>
-    public class EndOfFileToken : Token
+    internal class EndOfFileToken : Token
     {
         internal EndOfFileToken()
         {

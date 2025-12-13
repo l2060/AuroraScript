@@ -3,7 +3,7 @@
     /// <summary>
     /// null value token
     /// </summary>
-    public class NullToken : ValueToken
+    internal class NullToken : ValueToken
     {
         internal NullToken()
         {

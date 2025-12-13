@@ -1,5 +1,4 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 using System;
 
 namespace AuroraScript.Runtime.Types
@@ -106,7 +105,7 @@ namespace AuroraScript.Runtime.Types
 
         internal static void CLONE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.TryGet(0,out var datum))
+            if (args.TryGet(0, out var datum))
             {
                 result = datum.Clone(false);
             }

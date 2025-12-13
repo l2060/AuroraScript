@@ -1,9 +1,8 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Util
 {
     internal class RuntimeHelper
     {

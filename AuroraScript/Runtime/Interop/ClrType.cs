@@ -1,5 +1,5 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -97,7 +97,7 @@ namespace AuroraScript.Runtime.Interop
             ThrowHelper.ThrowNotfoundProperty(key);
         }
 
-    
+
 
         public override string ToString()
         {

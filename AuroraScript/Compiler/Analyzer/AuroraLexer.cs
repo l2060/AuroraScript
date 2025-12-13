@@ -12,7 +12,7 @@ using System.Text;
 
 namespace AuroraScript.Analyzer
 {
-    public class AuroraLexer
+    internal class AuroraLexer
     {
         public Int32 LineNumber { get; private set; } = 1;
         public Int32 ColumnNumber { get; private set; } = 1;

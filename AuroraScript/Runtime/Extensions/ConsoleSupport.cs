@@ -1,4 +1,3 @@
-using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;

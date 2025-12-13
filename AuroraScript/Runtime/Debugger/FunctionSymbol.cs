@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime.Debugger
     /// 函数符号信息，用于调试时查询函数信息
     /// 包含函数名称、入口点、变量表等信息
     /// </summary>
-    public class FunctionSymbol : DebugSymbol
+    internal class FunctionSymbol : DebugSymbol
     {
         /// <summary>
         /// 函数名称

@@ -3,7 +3,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class MapKeyValueExpression : BinaryExpression
+    internal class MapKeyValueExpression : BinaryExpression
     {
         internal MapKeyValueExpression(Token key, AstNode value) : base(Operator.SetMember)
         {

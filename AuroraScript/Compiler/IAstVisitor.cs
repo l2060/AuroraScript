@@ -7,7 +7,7 @@ using AuroraScript.Compiler.Ast.Statements;
 
 namespace AuroraScript.Compiler
 {
-    public abstract class IAstVisitor
+    internal abstract class IAstVisitor
     {
 
 

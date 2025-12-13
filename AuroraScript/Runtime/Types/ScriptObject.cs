@@ -1,10 +1,10 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Types.Internal;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 
@@ -141,7 +141,7 @@ namespace AuroraScript.Runtime.Base
 
         public void CopyPropertysFrom(ScriptObject scriptObject, Boolean force = false)
         {
-            RuntimeHelper.CopyProperties(scriptObject,this,force);
+            RuntimeHelper.CopyProperties(scriptObject, this, force);
         }
 
 

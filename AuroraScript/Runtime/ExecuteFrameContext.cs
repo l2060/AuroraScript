@@ -1,14 +1,11 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
-using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Pool;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Data.SqlTypes;
 using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
 
 
 namespace AuroraScript.Runtime
@@ -34,18 +31,16 @@ namespace AuroraScript.Runtime
         internal readonly ScriptDomain Domain;
         internal readonly ScriptGlobal Global;
         internal ScriptModule Module;
-        private readonly ByteCodeBuffer _codeBuffer;
 
 
         public ExecuteFrameContext(RuntimeVM vm, ExecuteContext executeContext)
         {
-            _codeBuffer = vm._codeBuffer;
             ExecuteContext = executeContext;
             Strings = vm._stringConstants;
             OperandStack = executeContext._operandStack;
             CallStack = executeContext._callStack;
             UserState = executeContext.UserState;
-            CodeBasePointer = (byte*)_codeBuffer.UnmanagedPtr;
+            CodeBasePointer = (byte*)vm.ByteCodePtr;
             ClrRegistry = vm._clrRegistry;
             ExecuteOptions = executeContext.ExecuteOptions;
             Domain = executeContext.Domain;

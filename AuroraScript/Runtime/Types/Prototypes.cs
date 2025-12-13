@@ -40,7 +40,7 @@ namespace AuroraScript.Runtime.Types
             ScriptObjectConstructorPrototype.Define("deepEqual", new BondingFunction(ScriptObjectConstructor.DEEP_EQUAL), writeable: false, enumerable: false);
             ScriptObjectConstructorPrototype.Define("assign", new BondingFunction(ScriptObjectConstructor.ASSIGN), writeable: false, enumerable: false);
             ScriptObjectConstructorPrototype.Define("keys", new BondingFunction(ScriptObjectConstructor.KEYS), writeable: false, enumerable: false);
-            
+
             ScriptObjectConstructorPrototype.Define("clone", new BondingFunction(ScriptObjectConstructor.CLONE), writeable: false, enumerable: false);
             ScriptObjectConstructorPrototype.Define("deepClone", new BondingFunction(ScriptObjectConstructor.DEEP_CLONE), writeable: false, enumerable: false);
 

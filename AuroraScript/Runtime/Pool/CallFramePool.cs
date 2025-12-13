@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Pool
 {
     internal static class CallFramePool
     {

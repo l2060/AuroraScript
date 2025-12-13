@@ -3,7 +3,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class LambdaExpression : Expression
+    internal class LambdaExpression : Expression
     {
         public FunctionDeclaration Function;
         public override void Accept(IAstVisitor visitor)

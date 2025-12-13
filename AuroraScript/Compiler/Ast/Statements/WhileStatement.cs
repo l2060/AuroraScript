@@ -4,7 +4,7 @@ using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class WhileStatement : Statement
+    internal class WhileStatement : Statement
     {
         internal WhileStatement(Expression condition, Statement body)
         {

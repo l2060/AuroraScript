@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Common
 {
-    public enum SymbolTypes
+    internal enum SymbolTypes
     {
         Typed,
         NullValue,

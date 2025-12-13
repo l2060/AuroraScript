@@ -1,7 +1,10 @@
 ﻿using AuroraScript.Core;
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Pool;
 using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Types.Internal;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Buffers;
 using System.Linq;

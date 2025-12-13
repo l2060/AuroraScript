@@ -3,7 +3,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class MapExpression : OperatorExpression
+    internal class MapExpression : OperatorExpression
     {
         internal MapExpression(Operator @operator) : base(@operator)
         {

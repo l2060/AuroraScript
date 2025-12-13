@@ -1,8 +1,7 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 
 namespace AuroraScript.Runtime
 {
@@ -74,11 +73,11 @@ namespace AuroraScript.Runtime
             int idx = --_size;
             ref var src = ref _buffer[idx];
             datum = src;
-            src = default;                   
+            src = default;
         }
 
 
- 
+
 
 
         public ScriptObject PopObject()

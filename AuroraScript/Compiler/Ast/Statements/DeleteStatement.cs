@@ -4,7 +4,7 @@ using AuroraScript.Ast.Statements;
 
 namespace AuroraScript.Compiler.Ast.Statements
 {
-    public class DeleteStatement : Statement
+    internal class DeleteStatement : Statement
     {
         internal DeleteStatement(Expression expression)
         {

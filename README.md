@@ -88,16 +88,23 @@
 
  ---
 
+ ## 扩展
+  - StringBuffer
+  - console
+  - JSON
+  - Math
+
+
 ## Script Internal Key Words
-this  `current Module key` [option]
+this 始终指向当前模块对象
 
-global domain global object 
+global 指向Domain的Global对象 
 
-$ctx get UserContext in execute
+$ctx 指向当前执行上下文 用户State
 
-$args get function call arguments
+$args 获取当前方法的参数数组
 
-$('modulename')  equal global['modulename']
+$('modulename')  动态获取模块名 TODO
 
 
 

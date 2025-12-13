@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Tokens
 {
-    public class BooleanToken : ValueToken
+    internal class BooleanToken : ValueToken
     {
         internal BooleanToken(String value)
         {

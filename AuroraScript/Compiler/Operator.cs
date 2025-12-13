@@ -6,7 +6,7 @@ using System.Reflection;
 namespace AuroraScript.Compiler
 {
     [Flags]
-    public enum OperatorPlacement
+    internal enum OperatorPlacement
     {
         /// <summary>
         /// The suffix expression means that the operand is on the left side of the token
@@ -29,7 +29,7 @@ namespace AuroraScript.Compiler
         //Ternary = 7,
     }
 
-    public sealed class Operator
+    internal sealed class Operator
     {
         // lambda operator.
         /// <summary>

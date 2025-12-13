@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace AuroraScript.Compiler.Emits
 {
-    public class ByteCodeGenerator : IAstVisitor
+    internal class ByteCodeGenerator : IAstVisitor
     {
         private Stack<DebugSymbol> _debugSymbolStacck = new Stack<DebugSymbol>();
 

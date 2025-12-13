@@ -1,7 +1,7 @@
 using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
-using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Pool;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -93,9 +93,8 @@ namespace AuroraScript.Runtime
                 if (_status == ExecuteStatus.Error)
                 {
                     var currentCallStack = _callStack.Peek();
-                    currentCallStack.Pointer = currentCallStack.LastInstructionPointer;
-                    var patchVM = _virtualMachine.PatchVM();
-                    patchVM.Patch(this);
+                    var patchVM = _virtualMachine.VMPatcher;
+                    patchVM.Patch(this, currentCallStack.LastInstructionPointer);
                 }
                 _virtualMachine.Execute(this);
             }

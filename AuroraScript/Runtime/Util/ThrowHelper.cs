@@ -1,13 +1,8 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Util
 {
     internal static class ThrowHelper
     {

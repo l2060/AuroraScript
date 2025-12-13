@@ -3,7 +3,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class CastTypeExpression : PrefixUnaryExpression
+    internal class CastTypeExpression : PrefixUnaryExpression
     {
         internal CastTypeExpression(Operator @operator) : base(@operator)
         {

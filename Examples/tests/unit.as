@@ -32,7 +32,7 @@ func testClrType() {
     s.Name = "aaaa";
     // JSON.stringify
     console.log(s);
-    console.log(Math.Log10(5));
+    console.log(Math2.Log10(5));
     // 内置关键字 $ctx is UserState in ExecuteOptions
     $ctx.Test(123.45,'abc');
     console.log($args);
@@ -673,3 +673,37 @@ export function testMD5_1000() {
     return last;
 }
 
+
+
+
+func testDraw() {
+    var buffer = StringBuffer('\n');
+    var i = 0; 
+    var j = 0;
+    var n = 21;
+    var r = Math.round(n / 2);
+    var l = r;
+    var k = 1;
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j <= l; j++)
+        {
+            buffer.append("*");
+        }
+        while (j < r)
+        {
+            buffer.append(" ");
+            j++;
+        }
+        while (j < n)
+        {
+            buffer.append("*");
+            j++;
+        }
+            buffer.appendLine();
+        if (l == 0) k = -k;
+        l -= k;
+        r += k;
+    }
+    console.log(buffer.toString());
+}

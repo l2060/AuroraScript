@@ -1,8 +1,7 @@
 ﻿using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
-using System.Linq;
 
-namespace AuroraScript.Runtime.Types
+namespace AuroraScript.Runtime
 {
     public sealed class ScriptGlobal : ScriptObject
     {

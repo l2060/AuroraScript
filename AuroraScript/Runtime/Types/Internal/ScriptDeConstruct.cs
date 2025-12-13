@@ -1,7 +1,6 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
 
-namespace AuroraScript.Runtime.Types
+namespace AuroraScript.Runtime.Types.Internal
 {
     internal class ScriptDeConstruct : ScriptObject
     {

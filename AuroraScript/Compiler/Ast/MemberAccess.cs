@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Ast
 {
-    public enum MemberAccess
+    internal enum MemberAccess
     {
         Internal = 0,
         Export = 1,

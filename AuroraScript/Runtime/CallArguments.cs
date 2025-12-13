@@ -1,5 +1,4 @@
-﻿using AuroraScript.Core;
-using System;
+﻿using System;
 
 
 namespace AuroraScript.Runtime

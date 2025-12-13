@@ -3,7 +3,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public abstract class OperatorExpression : Expression
+    internal abstract class OperatorExpression : Expression
     {
         internal OperatorExpression(Operator @operator)
         {

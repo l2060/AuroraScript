@@ -4,11 +4,14 @@ using AuroraScript.Runtime.Types;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace AuroraScript.Core
+namespace AuroraScript.Runtime
 {
     public partial struct ScriptDatum
     {
         public static readonly ScriptDatum Null = ScriptDatum.FromNull();
+        public static readonly ScriptDatum NaN = ScriptDatum.FromNumber(Double.NaN);
+        public static readonly ScriptDatum True = ScriptDatum.FromBoolean(true);
+        public static readonly ScriptDatum False = ScriptDatum.FromBoolean(false);
 
 
 
@@ -82,7 +85,7 @@ namespace AuroraScript.Core
         {
             return new ScriptDatum { Kind = ValueKind.Function, Object = value };
         }
-       
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

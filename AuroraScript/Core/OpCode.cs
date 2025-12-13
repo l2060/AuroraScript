@@ -3,7 +3,7 @@
     /// <summary>
     /// Bytecode operation codes for the virtual machine.
     /// </summary>
-    public enum OpCode : byte
+    internal enum OpCode : byte
     {
         // Stack Operations
         NOP = 0,         // No operation

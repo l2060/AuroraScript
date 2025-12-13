@@ -5,7 +5,7 @@ using AuroraScript.Compiler.Ast.Expressions;
 namespace AuroraScript.Compiler.Ast.Statements
 {
 
-    public class ForInStatement : Statement
+    internal class ForInStatement : Statement
     {
         internal ForInStatement(VariableDeclaration initializer, InExpression iterator, Statement body)
         {

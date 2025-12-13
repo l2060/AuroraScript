@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Compiler.Ast
 {
-    public interface INamedStatement
+    internal interface INamedStatement
     {
         public Token Name { get; }
     }

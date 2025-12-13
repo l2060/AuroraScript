@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Compiler.Ast.Expressions
 {
-    public class SetElementExpression : OperatorExpression
+    internal class SetElementExpression : OperatorExpression
     {
         public SetElementExpression() : base(Operator.Assignment)
         {

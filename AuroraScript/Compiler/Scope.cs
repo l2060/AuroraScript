@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace AuroraScript.Compiler
 {
-    public enum ScopeType
+    internal enum ScopeType
     {
         UNKNOWN,
         MODULE,
@@ -18,7 +18,7 @@ namespace AuroraScript.Compiler
     /// <summary>
     /// statemtnt scope
     /// </summary>
-    public class Scope
+    internal class Scope
     {
         [JsonIgnore]
         public Scope Parent { get; private set; }

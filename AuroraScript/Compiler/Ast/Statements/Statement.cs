@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Ast.Statements
 {
-    public abstract class Statement : AstNode
+    internal abstract class Statement : AstNode
     {
         internal Statement()
         {
@@ -10,7 +10,7 @@ namespace AuroraScript.Ast.Statements
 
     }
 
-    public class Statements : Statement
+    internal class Statements : Statement
     {
         public override void Accept(IAstVisitor visitor)
         {

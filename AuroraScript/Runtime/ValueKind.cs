@@ -1,6 +1,6 @@
 using System;
 
-namespace AuroraScript.Core
+namespace AuroraScript.Runtime
 {
     [Flags]
     public enum ValueKind : Int16

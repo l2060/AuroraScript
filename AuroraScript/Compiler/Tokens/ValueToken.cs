@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Tokens
 {
-    public enum ValueType
+    internal enum ValueType
     {
         String,
         Number,
@@ -14,7 +14,7 @@ namespace AuroraScript.Tokens
     /// <summary>
     /// value string boolean number null
     /// </summary>
-    public class ValueToken : Token
+    internal class ValueToken : Token
     {
         internal ValueToken()
         {

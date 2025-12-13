@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Common
 {
-    public enum TokenTyped
+    internal enum TokenTyped
     {
         Unknown,
         String,

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Ast
 {
-    public enum FunctionFlags
+    internal enum FunctionFlags
     {
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace AuroraScript.Ast
     /// <summary>
     /// 函数定义
     /// </summary>
-    public class FunctionDeclaration : Statement, INamedStatement
+    internal class FunctionDeclaration : Statement, INamedStatement
     {
 
         internal FunctionDeclaration(MemberAccess access, Token identifier, List<ParameterDeclaration> parameters, Statement body, FunctionFlags flags)

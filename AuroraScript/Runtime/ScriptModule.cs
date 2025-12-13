@@ -1,6 +1,6 @@
 ﻿using AuroraScript.Runtime.Base;
 
-namespace AuroraScript.Runtime.Types
+namespace AuroraScript.Runtime
 {
     public sealed class ScriptModule : ScriptObject
     {

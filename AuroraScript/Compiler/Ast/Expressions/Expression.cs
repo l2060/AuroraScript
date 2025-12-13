@@ -4,7 +4,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public abstract class Expression : AstNode
+    internal abstract class Expression : AstNode
     {
         internal Expression()
         {

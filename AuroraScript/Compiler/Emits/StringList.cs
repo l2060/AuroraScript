@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace AuroraScript.Compiler.Emits
 {
-    public class StringList
+    internal class StringList
     {
         private readonly List<string> _stringTable = new List<string>();
 

@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace AuroraScript.Analyzer
 {
-    public class AuroraParser
+    internal class AuroraParser
     {
         public ScriptCompiler Compiler { get; private set; }
         public AuroraLexer lexer { get; private set; }

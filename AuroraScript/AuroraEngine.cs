@@ -5,7 +5,9 @@ using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Extensions;
 using AuroraScript.Runtime.Interop;
+using AuroraScript.Runtime.Pool;
 using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Types.Internal;
 using System;
 using System.Threading.Tasks;
 
@@ -26,7 +28,7 @@ namespace AuroraScript
         /// <summary>
         /// 字符串常量池，存储脚本中使用的所有字符串常量
         /// </summary>
-        public readonly StringList _stringSet = new StringList();
+        internal readonly StringList _stringSet = new StringList();
 
         /// <summary>
         /// CLR 类型注册表，由宿主负责向脚本环境暴露可访问的别名。
@@ -63,6 +65,9 @@ namespace AuroraScript
             Global.Define("Date", ScriptDateConstructor.INSTANCE, writeable: false, enumerable: false);
             Global.Define("JSON", new JsonSupport(), writeable: false, enumerable: false);
             Global.Define("Math", new MathSupport(), writeable: false, enumerable: false);
+
+
+            Global.Define("StringBuffer", StringBufferConstructor.INSTANCE, writeable: false, enumerable: false);
         }
 
 

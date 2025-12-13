@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Compiler.Ast.Expressions
 {
-    public class CompoundExpression : OperatorExpression
+    internal class CompoundExpression : OperatorExpression
     {
         public CompoundExpression(Operator @operator) : base(@operator)
         {

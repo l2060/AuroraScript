@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class BlockStatement : Statement
+    internal class BlockStatement : Statement
     {
         /// <summary>
         /// statement scope

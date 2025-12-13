@@ -1,4 +1,6 @@
-﻿namespace AuroraScript.Runtime.Types
+﻿using AuroraScript.Runtime.Types.Internal;
+
+namespace AuroraScript.Runtime.Types
 {
     internal interface IEnumerator
     {

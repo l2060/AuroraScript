@@ -5,7 +5,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class LiteralExpression : Expression
+    internal class LiteralExpression : Expression
     {
         internal LiteralExpression(ValueToken token)
         {

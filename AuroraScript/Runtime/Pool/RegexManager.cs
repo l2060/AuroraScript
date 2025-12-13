@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Pool
 {
     internal class RegexManager
     {

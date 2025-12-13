@@ -1,4 +1,5 @@
 ﻿using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Types.Internal;
 using System;
 using System.Runtime.CompilerServices;
 

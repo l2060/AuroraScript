@@ -5,7 +5,7 @@ using System;
 
 namespace AuroraScript.Ast
 {
-    public class ImportDeclaration : Statement
+    internal class ImportDeclaration : Statement
     {
         internal ImportDeclaration()
         {

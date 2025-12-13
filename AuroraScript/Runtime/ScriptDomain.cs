@@ -1,11 +1,11 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Exceptions;
+﻿using AuroraScript.Exceptions;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
-using System;
+using AuroraScript.Runtime.Pool;
+using AuroraScript.Runtime.Types;
 
 
-namespace AuroraScript.Runtime.Types
+namespace AuroraScript.Runtime
 {
     public delegate ExecuteContext ScriptMethodDelegate(ExecuteOptions options = null, params ScriptDatum[] arguments);
     /// <summary>
@@ -101,7 +101,7 @@ namespace AuroraScript.Runtime.Types
             callFrame.Initialize(this, closure.Module, closure.EntryPointer, closure.CapturedUpvalues);
             callFrame.Arguments.Copy(ClrMarshaller.ToDatums(arguments));
             exeContext._callStack.Push(callFrame);
-            
+
             // 执行函数
             _virtualMachine.Execute(exeContext);
             return exeContext;

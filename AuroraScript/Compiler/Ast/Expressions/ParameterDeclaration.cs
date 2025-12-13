@@ -8,7 +8,7 @@ namespace AuroraScript.Ast
     /// <summary>
     /// function parameter declaration
     /// </summary>
-    public class ParameterDeclaration : VariableDeclaration
+    internal class ParameterDeclaration : VariableDeclaration
     {
         internal ParameterDeclaration(Byte index, Token name, Expression defaultValue) : base(MemberAccess.Internal, false, name)
         {

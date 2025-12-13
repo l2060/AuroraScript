@@ -3,7 +3,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public enum UnaryType
+    internal enum UnaryType
     {
         Prefix,
         Post
@@ -16,7 +16,7 @@ namespace AuroraScript.Ast.Expressions
     /// i++
     /// i--
     /// </summary>
-    public class UnaryExpression : OperatorExpression
+    internal class UnaryExpression : OperatorExpression
     {
         public UnaryType Type { get; private set; }
 

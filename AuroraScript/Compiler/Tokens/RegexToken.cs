@@ -2,7 +2,7 @@ using System;
 
 namespace AuroraScript.Tokens
 {
-    public class RegexToken : StringToken
+    internal class RegexToken : StringToken
     {
         internal RegexToken(String literal) : base(false)
         {

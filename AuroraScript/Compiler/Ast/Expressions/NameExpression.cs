@@ -4,7 +4,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class NameExpression : Expression
+    internal class NameExpression : Expression
     {
         /// <summary>
         /// member name

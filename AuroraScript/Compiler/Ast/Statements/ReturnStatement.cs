@@ -4,7 +4,7 @@ using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class ReturnStatement : Statement
+    internal class ReturnStatement : Statement
     {
         internal ReturnStatement(Expression expression)
         {

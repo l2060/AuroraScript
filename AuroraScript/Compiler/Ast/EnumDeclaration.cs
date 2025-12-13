@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace AuroraScript.Ast
 {
-    public class EnumElement
+    internal class EnumElement
     {
         public Token Name;
         public Int32 Value;
     }
 
-    public class EnumDeclaration : Statement
+    internal class EnumDeclaration : Statement
     {
         internal EnumDeclaration()
         {

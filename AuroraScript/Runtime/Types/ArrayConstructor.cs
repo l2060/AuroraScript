@@ -1,5 +1,5 @@
-﻿using AuroraScript.Core;
-using AuroraScript.Runtime.Base;
+﻿using AuroraScript.Runtime.Base;
+using AuroraScript.Runtime.Types.Internal;
 using System;
 
 namespace AuroraScript.Runtime.Types

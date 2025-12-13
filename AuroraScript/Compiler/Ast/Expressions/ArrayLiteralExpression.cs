@@ -3,7 +3,7 @@ using System;
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class ArrayLiteralExpression : OperatorExpression
+    internal class ArrayLiteralExpression : OperatorExpression
     {
         internal ArrayLiteralExpression() : base(Operator.ArrayLiteral)
         {

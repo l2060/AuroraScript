@@ -1,8 +1,7 @@
-using AuroraScript.Core;
 using AuroraScript.Runtime.Base;
 using System;
 
-namespace AuroraScript.Runtime
+namespace AuroraScript.Runtime.Types.Internal
 {
     /// <summary>
     /// 表示一个闭包捕获到的变量。Upvalue 会在引用的调用帧仍然存在时直接访问该帧的局部槽位；

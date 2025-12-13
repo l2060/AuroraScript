@@ -6,7 +6,7 @@ using System.IO;
 
 namespace AuroraScript.Compiler.Emits
 {
-    public abstract class Instruction
+    internal abstract class Instruction
     {
         /// <summary>
         /// The operation code.
@@ -51,7 +51,7 @@ namespace AuroraScript.Compiler.Emits
 
     }
 
-    public class Instruction1 : Instruction
+    internal class Instruction1 : Instruction
     {
         public override int Length => 1;
 
@@ -69,7 +69,7 @@ namespace AuroraScript.Compiler.Emits
             writer.Write((Byte)OpCode);
         }
     }
-    public class Instruction2U : Instruction
+    internal class Instruction2U : Instruction
     {
         public Byte Value;
         public override int Length => 2;
@@ -90,7 +90,7 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
-    public class Instruction2S : Instruction
+    internal class Instruction2S : Instruction
     {
         public SByte Value;
         public override int Length => 2;
@@ -111,7 +111,7 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
-    public class Instruction3 : Instruction
+    internal class Instruction3 : Instruction
     {
         public Int16 Value;
         public override int Length => 3;
@@ -132,7 +132,7 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
-    public class Instruction5 : Instruction
+    internal class Instruction5 : Instruction
     {
         public int Value;
         public override int Length => 5;
@@ -159,7 +159,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class InstructionStr : Instruction
+    internal class InstructionStr : Instruction
     {
         public int Value;
         public String String;
@@ -181,7 +181,7 @@ namespace AuroraScript.Compiler.Emits
         }
     }
 
-    public class InstructionStr2 : Instruction
+    internal class InstructionStr2 : Instruction
     {
         public int Value1;
         public int Value2;
@@ -208,7 +208,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class InstructionDouble : Instruction
+    internal class InstructionDouble : Instruction
     {
 
         public UnionNumber Value;
@@ -233,7 +233,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class InstructionInt64 : Instruction
+    internal class InstructionInt64 : Instruction
     {
 
         public UnionNumber Value;
@@ -258,7 +258,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class JumpInstruction : Instruction5
+    internal class JumpInstruction : Instruction5
     {
         internal JumpInstruction(OpCode opCode, int offset, int addOffset = 0) : base(opCode, offset, addOffset)
         {
@@ -271,7 +271,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class ClosureCaptured
+    internal class ClosureCaptured
     {
         public readonly Int32 SourceIndex;
         public readonly Int32 AliasSlot;
@@ -294,7 +294,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-    public class ClosureInstruction : Instruction
+    internal class ClosureInstruction : Instruction
     {
         public override Int32 Length => 6;
 
@@ -320,7 +320,7 @@ namespace AuroraScript.Compiler.Emits
     }
 
 
-    public class AllocLocalsInstruction : Instruction
+    internal class AllocLocalsInstruction : Instruction
     {
         public override Int32 Length => 5;
 
@@ -350,7 +350,7 @@ namespace AuroraScript.Compiler.Emits
 
 
 
-    public class PositionInstruction : Instruction
+    internal class PositionInstruction : Instruction
     {
         internal PositionInstruction(int offset) : base(OpCode.NOP, offset)
         {

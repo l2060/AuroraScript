@@ -6,7 +6,7 @@ namespace AuroraScript.Runtime.Debugger
     /// 模块符号信息，用于调试时查询模块信息
     /// 包含模块名称、路径和函数表等信息
     /// </summary>
-    public class ModuleSymbol : DebugSymbol
+    internal class ModuleSymbol : DebugSymbol
     {
         /// <summary>
         /// 模块名称

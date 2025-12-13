@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace AuroraScript.Compiler
 {
-    public class ModuleResolver
+    internal class ModuleResolver
     {
 
     }
 
-    public class ModuleSyntaxRef
+    internal class ModuleSyntaxRef
     {
         public String ModulePath { get; set; }
 
@@ -24,7 +24,7 @@ namespace AuroraScript.Compiler
 
 
 
-    public class ScriptCompiler
+    internal class ScriptCompiler
     {
         private readonly String _baseDirectory;
         public string FileExtension { get; set; } = ".as";

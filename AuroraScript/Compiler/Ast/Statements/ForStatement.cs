@@ -4,7 +4,7 @@ using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class ForStatement : Statement
+    internal class ForStatement : Statement
     {
         internal ForStatement(Expression condition, AstNode initializer, Expression incrementor, Statement body)
         {

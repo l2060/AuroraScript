@@ -3,7 +3,7 @@
 namespace AuroraScript.Compiler.Ast.Statements
 {
 
-    public class YieldStatement : Statement
+    internal class YieldStatement : Statement
     {
         internal YieldStatement()
         {

@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Interop;
 using AuroraScript.Runtime.Types;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace AuroraScript.Core
+namespace AuroraScript.Runtime
 {
     public partial struct ScriptDatum
     {

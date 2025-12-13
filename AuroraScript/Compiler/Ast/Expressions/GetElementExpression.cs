@@ -2,7 +2,7 @@
 
 namespace AuroraScript.Ast.Expressions
 {
-    public class GetElementExpression : OperatorExpression
+    internal class GetElementExpression : OperatorExpression
     {
         internal GetElementExpression(Operator @operator) : base(@operator)
         {

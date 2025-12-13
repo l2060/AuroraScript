@@ -4,7 +4,7 @@ using AuroraScript.Compiler;
 
 namespace AuroraScript.Ast.Statements
 {
-    public class ExpressionStatement : Statement
+    internal class ExpressionStatement : Statement
     {
         public Expression Expression { get; private set; }
 

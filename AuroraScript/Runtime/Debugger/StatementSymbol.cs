@@ -1,6 +1,6 @@
 ﻿namespace AuroraScript.Runtime.Debugger
 {
-    public class StatementSymbol : DebugSymbol
+    internal class StatementSymbol : DebugSymbol
     {
 
 

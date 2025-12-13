@@ -1,8 +1,8 @@
 using AuroraScript.Runtime.Base;
 
-namespace AuroraScript.Core
+namespace AuroraScript.Runtime
 {
-    public static class Datums
+    internal static class Datums
     {
 
         public static readonly ScriptDatum Object = ScriptDatum.FromString(new StringValue("object"));

@@ -3,7 +3,7 @@ using AuroraScript.Tokens;
 
 namespace AuroraScript.Compiler.Ast.Statements
 {
-    public class ModuleMetaStatement : Statement
+    internal class ModuleMetaStatement : Statement
     {
         public IdentifierToken Name { get; private set; }
         public Token Value { get; private set; }
