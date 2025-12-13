@@ -5,6 +5,7 @@ using AuroraScript.Runtime.Types;
 using AuroraScript.Runtime.Util;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -17,27 +18,19 @@ namespace AuroraScript.Runtime
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetAnyObject(out ScriptObject value)
+        public static Boolean TryGetAnyObject(in ScriptDatum d, out ScriptObject value)
         {
-            value = this.Object;
-            return this.Object != null;
-        }
-
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean IsObject()
-        {
-            return this.Object != null;
+            value = d.Object;
+            return value != null;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetObject(out ScriptObject value)
+        public static Boolean TryGetObject(in ScriptDatum d, out ScriptObject value)
         {
-            if (this.Kind == ValueKind.Object)
+            if (d.Kind == ValueKind.Object)
             {
-                value = this.Object;
+                value = d.Object;
                 return true;
             }
             value = null;
@@ -47,11 +40,11 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetArray(out ScriptArray value)
+        public static Boolean TryGetArray(in ScriptDatum d, out ScriptArray value)
         {
-            if (this.Kind == ValueKind.Array)
+            if (d.Kind == ValueKind.Array)
             {
-                value = (ScriptArray)this.Object;
+                value = (ScriptArray)d.Object;
                 return true;
             }
             value = null;
@@ -59,11 +52,11 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetRegex(out ScriptRegex value)
+        public static Boolean TryGetRegex(in ScriptDatum d, out ScriptRegex value)
         {
-            if (this.Kind == ValueKind.Regex)
+            if (d.Kind == ValueKind.Regex)
             {
-                value = (ScriptRegex)this.Object;
+                value = (ScriptRegex)d.Object;
                 return true;
             }
             value = null;
@@ -71,24 +64,11 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetClrType(out ClrType value)
+        public static Boolean TryGetClrType(in ScriptDatum d, out ClrType value)
         {
-            if (this.Kind == ValueKind.ClrType)
+            if (d.Kind == ValueKind.ClrType)
             {
-                value = (ClrType)this.Object;
-                return true;
-            }
-            value = null;
-            return false;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetClrBonding(out BondingFunction value)
-        {
-            if (this.Kind == ValueKind.ClrBonding)
-            {
-                value = (BondingFunction)this.Object;
+                value = (ClrType)d.Object;
                 return true;
             }
             value = null;
@@ -97,11 +77,11 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetClrFunction(out ClrMethodBinding value)
+        public static Boolean TryGetClrBonding(in ScriptDatum d, out BondingFunction value)
         {
-            if (this.Kind == ValueKind.ClrFunction)
+            if (d.Kind == ValueKind.ClrBonding)
             {
-                value = (ClrMethodBinding)this.Object;
+                value = (BondingFunction)d.Object;
                 return true;
             }
             value = null;
@@ -109,15 +89,12 @@ namespace AuroraScript.Runtime
         }
 
 
-
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Boolean TryGetClrInvokable(out IClrInvokable value)
+        public static Boolean TryGetClrFunction(in ScriptDatum d, out ClrMethodBinding value)
         {
-            if (this.Kind == ValueKind.ClrFunction || Kind == ValueKind.ClrType)
+            if (d.Kind == ValueKind.ClrFunction)
             {
-                value = (IClrInvokable)Object;
+                value = (ClrMethodBinding)d.Object;
                 return true;
             }
             value = null;
@@ -125,14 +102,26 @@ namespace AuroraScript.Runtime
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Boolean TryGetClrInvokable(in ScriptDatum d, out IClrInvokable value)
+        {
+            var k = d.Kind;
+            if (k == ValueKind.ClrFunction || k == ValueKind.ClrType)
+            {
+                value = (IClrInvokable)d.Object;
+                return true;
+            }
+            value = null;
+            return false;
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetDate(out ScriptDate value)
+        public static Boolean TryGetDate(in ScriptDatum d, out ScriptDate value)
         {
-            if (this.Kind == ValueKind.Date)
+            if (d.Kind == ValueKind.Date)
             {
-                value = (ScriptDate)this.Object;
+                value = (ScriptDate)d.Object;
                 return true;
             }
             value = null;
@@ -142,11 +131,11 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Boolean TryGetFunction(out ClosureFunction value)
+        public static Boolean TryGetFunction(in ScriptDatum d, out ClosureFunction value)
         {
-            if (this.Kind == ValueKind.Function)
+            if (d.Kind == ValueKind.Function)
             {
-                value = (ClosureFunction)this.Object;
+                value = (ClosureFunction)d.Object;
                 return true;
             }
             value = null;
@@ -154,15 +143,26 @@ namespace AuroraScript.Runtime
         }
 
 
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetNumber(out double value)
+        public static bool TryToNumber(in ScriptDatum d, out double value)
         {
-            if (Kind == ValueKind.Number)
+            switch (d.Kind)
             {
-                value = Number;
-                return true;
+                case ValueKind.Number:
+                    value = d.Number;
+                    return true;
+
+                case ValueKind.Boolean:
+                    value = d.Boolean ? 1.0 : 0.0;
+                    return true;
+
+                case ValueKind.String:
+                    return double.TryParse(
+                        d.String.Value,
+                        NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                        CultureInfo.InvariantCulture,
+                        out value
+                    );
             }
             value = default;
             return false;
@@ -170,12 +170,25 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetInteger(out long value)
+        public static bool TryToInteger(in ScriptDatum d, out long value)
         {
-            if (Kind == ValueKind.Number)
+            switch (d.Kind)
             {
-                value = (long)Number;
-                return true;
+                case ValueKind.Number:
+                    value = (long)d.Number;
+                    return true;
+
+                case ValueKind.Boolean:
+                    value = d.Boolean ? 1 : 0;
+                    return true;
+
+                case ValueKind.String:
+                    return long.TryParse(
+                        d.String.Value,
+                        NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                        CultureInfo.InvariantCulture,
+                        out value
+                    );
             }
             value = default;
             return false;
@@ -183,17 +196,17 @@ namespace AuroraScript.Runtime
 
 
 
-        public ScriptDatum Clone(bool deepth = false)
+        public static ScriptDatum Clone(in ScriptDatum d, bool deepth = false)
         {
-            switch (Kind)
+            switch (d.Kind)
             {
                 case ValueKind.Null:
                 case ValueKind.Number:
                 case ValueKind.Boolean:
                 case ValueKind.String:
-                    return this;
+                    return d;
                 default:
-                    return RuntimeHelper.Clone(this, deepth);
+                    return RuntimeHelper.Clone(d, deepth);
             }
         }
     }

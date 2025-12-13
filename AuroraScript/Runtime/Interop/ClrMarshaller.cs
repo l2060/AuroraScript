@@ -290,7 +290,7 @@ namespace AuroraScript.Runtime.Interop
             {
                 return scriptObject;
             }
-            return ToDatum(value).ToObject();
+            return ScriptDatum.ToObject(ToDatum(value));
         }
 
         private static ScriptDatum ConvertDictionary(IDictionary dictionary)
@@ -422,8 +422,8 @@ namespace AuroraScript.Runtime.Interop
 
                 for (int i = 0; i < scriptArray.Length; i++)
                 {
-                    var datum = scriptArray.Get(i);
-                    listInstance.Add(datum.ToObject());
+                    scriptArray.Get(i,out var datum);
+                    listInstance.Add(ScriptDatum.ToObject(in datum));
                 }
 
                 result = listInstance;
@@ -435,7 +435,8 @@ namespace AuroraScript.Runtime.Interop
                 var arrayList = new ArrayList();
                 for (int i = 0; i < scriptArray.Length; i++)
                 {
-                    arrayList.Add(scriptArray.Get(i).ToObject());
+                    scriptArray.Get(i, out var datum);
+                    arrayList.Add(ScriptDatum.ToObject(in datum));
                 }
                 result = arrayList;
                 return true;
@@ -495,7 +496,7 @@ namespace AuroraScript.Runtime.Interop
         {
             if (elementType == typeof(object) || elementType == typeof(ScriptObject))
             {
-                converted = datum.ToObject();
+                converted = ScriptDatum.ToObject(in datum);
                 return true;
             }
 

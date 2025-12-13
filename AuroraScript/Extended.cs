@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Types;
 using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 
@@ -24,66 +25,74 @@ namespace AuroraScript
         }
 
 
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetNumber(this Span<ScriptDatum> source, Int32 index, out double value)
+        public static bool TryGetNumber(this Span<ScriptDatum> source, int index, out double value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
-                if (datum.Kind == ValueKind.Number)
+                ref readonly var d = ref source[index];
+                switch (d.Kind)
                 {
-                    value = datum.Number;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.Boolean)
-                {
-                    value = datum.Boolean ? 1 : 0;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.String)
-                {
-                    return Double.TryParse(datum.String.Value, out value);
+                    case ValueKind.Number:
+                        value = d.Number;
+                        return true;
+
+                    case ValueKind.Boolean:
+                        value = d.Boolean ? 1.0 : 0.0;
+                        return true;
+
+                    case ValueKind.String:
+                        return double.TryParse(
+                            d.String.Value,
+                            NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                            CultureInfo.InvariantCulture,
+                            out value);
                 }
             }
-            value = Double.NaN;
+            value = double.NaN;
             return false;
         }
+
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetInteger(this Span<ScriptDatum> source, Int32 index, out Int64 value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
-                if (datum.Kind == ValueKind.Number)
+                ref readonly var d = ref source[index];
+                switch (d.Kind)
                 {
-                    value = (Int64)datum.Number;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.Boolean)
-                {
-                    value = datum.Boolean ? 1 : 0;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.String)
-                {
-                    return Int64.TryParse(datum.String.Value, out value);
+                    case ValueKind.Number:
+                        value = (Int64)d.Number;
+                        return true;
+
+                    case ValueKind.Boolean:
+                        value = d.Boolean ? 1 : 0;
+                        return true;
+
+                    case ValueKind.String:
+                        return Int64.TryParse(
+                            d.String.Value,
+                            NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                            CultureInfo.InvariantCulture,
+                            out value);
                 }
             }
             value = 0;
             return false;
         }
 
-        public static bool TryGetStrictNumber(this Span<ScriptDatum> source, Int32 index, out Double value)
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetStrictNumber(this Span<ScriptDatum> source, int index, out double value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
-                if (datum.Kind == ValueKind.Number)
+                ref readonly var d = ref source[index];
+                if (d.Kind == ValueKind.Number)
                 {
-                    value = datum.Number;
+                    value = d.Number;
                     return true;
                 }
             }
@@ -93,46 +102,44 @@ namespace AuroraScript
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetString(this Span<ScriptDatum> source, Int32 index, out String value)
+        public static bool TryGetString(this Span<ScriptDatum> source, int index, out string value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
+                ref readonly var d = ref source[index];
+                switch (d.Kind)
+                {
+                    case ValueKind.String:
+                        value = d.String.Value;
+                        return true;
 
-                if (datum.Kind == ValueKind.Null)
-                {
-                    value = "null";
-                    return true;
-                }
-                if (datum.Kind == ValueKind.Number)
-                {
-                    value = datum.Number.ToString();
-                    return true;
-                }
-                if (datum.Kind == ValueKind.Boolean)
-                {
-                    value = datum.Boolean.ToString();
-                    return true;
-                }
-                if (datum.Kind == ValueKind.String)
-                {
-                    value = datum.String.Value;
-                    return true;
+                    case ValueKind.Null:
+                        value = "null";
+                        return true;
+
+                    case ValueKind.Number:
+                        value = d.Number.ToString(CultureInfo.InvariantCulture);
+                        return true;
+
+                    case ValueKind.Boolean:
+                        value = d.Boolean ? "true" : "false";
+                        return true;
                 }
             }
-            value = String.Empty;
+            value = string.Empty;
             return false;
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetObject(this Span<ScriptDatum> source, Int32 index, out ScriptObject value)
+        public static bool TryGetObject(this Span<ScriptDatum> source, int index, out ScriptObject value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
-                if (datum.Kind.Include(ValueKind.Object))
+                ref readonly var d = ref source[index];
+                if (d.Kind >= ValueKind.Object)
                 {
-                    value = datum.Object;
+                    value = d.Object;
                     return true;
                 }
             }
@@ -140,10 +147,19 @@ namespace AuroraScript
             return false;
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(this Span<ScriptDatum> source, Int32 index, out ScriptDatum value)
+        public static ref readonly ScriptDatum GetRefUnchecked(this Span<ScriptDatum> source, int index)
         {
-            if (index >= 0 && index < source.Length)
+            return ref source[index];
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetRef(this Span<ScriptDatum> source, int index, out ScriptDatum value)
+        {
+            if ((uint)index < (uint)source.Length)
             {
                 value = source[index];
                 return true;
@@ -153,56 +169,51 @@ namespace AuroraScript
         }
 
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetFunction(this Span<ScriptDatum> source, Int32 index, out ClosureFunction value)
+        public static bool TryGetFunction(this Span<ScriptDatum> source, int index, out ClosureFunction value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
-                if (datum.Kind == ValueKind.Number)
+                ref readonly var d = ref source[index];
+                if (d.Kind == ValueKind.Function)
                 {
-                    value = datum.Object as ClosureFunction;
-                    return true;
+                    value = d.Object as ClosureFunction;
+                    return value != null;
                 }
             }
-            value = default;
+            value = null;
             return false;
         }
 
 
 
-
-
-
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetBoolean(this Span<ScriptDatum> source, Int32 index, out Boolean value)
+        public static bool TryGetBoolean(this Span<ScriptDatum> source, int index, out bool value)
         {
-            if (index >= 0 && index < source.Length)
+            if ((uint)index < (uint)source.Length)
             {
-                var datum = source[index];
+                ref readonly var d = ref source[index];
+                switch (d.Kind)
+                {
+                    case ValueKind.Boolean:
+                        value = d.Boolean;
+                        return true;
 
-                if (datum.Kind == ValueKind.Number)
-                {
-                    value = datum.Number != 0;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.Boolean)
-                {
-                    value = datum.Boolean;
-                    return true;
-                }
-                if (datum.Kind == ValueKind.String)
-                {
-                    value = !String.IsNullOrWhiteSpace(datum.String.Value);
-                    return true;
-                }
-                if (datum.Object != null)
-                {
-                    value = datum.Object != ScriptObject.Null;
-                    return true;
+                    case ValueKind.Number:
+                        value = d.Number != 0;
+                        return true;
+
+                    case ValueKind.String:
+                        value = d.String.Value.Length != 0;
+                        return true;
+
+                    default:
+                        if (d.Object != null)
+                        {
+                            value = d.Object != ScriptObject.Null;
+                            return true;
+                        }
+                        break;
                 }
             }
             value = false;

@@ -21,13 +21,14 @@ namespace AuroraScript.Ast
         /// <summary>
         /// Function Access
         /// </summary>
-        public Symbols Access { get; set; }
+        public MemberAccess Access { get; set; }
 
         public Token Identifier { get; set; }
         public List<EnumElement> Elements { get; set; }
 
         public override void Accept(IAstVisitor visitor)
         {
+
         }
     }
 }

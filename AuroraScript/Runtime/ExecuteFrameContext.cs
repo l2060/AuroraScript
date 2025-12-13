@@ -95,11 +95,12 @@ namespace AuroraScript.Runtime
             OperandStack.PushRef(ref local);
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopToLocal(int localIndex)
         {
             ref ScriptDatum local = ref Locals[localIndex];
-            OperandStack.PopToRef(ref local);
+            local = OperandStack.PopDatum();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

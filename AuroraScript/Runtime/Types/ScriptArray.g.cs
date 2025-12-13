@@ -111,7 +111,7 @@ namespace AuroraScript.Runtime.Base
                 {
                     foreach (var arg in args)
                     {
-                        if (arg.TryGetArray(out var scriptArray))
+                        if (ScriptDatum.TryGetArray(in arg, out var scriptArray))
                         {
                             AppendArrayContents(newArray, scriptArray);
                         }
@@ -189,7 +189,7 @@ namespace AuroraScript.Runtime.Base
             {
                 return string.Empty;
             }
-            return value.ToString();
+            return ScriptDatum.ToString(in value);
         }
 
         private static int CompareDatumForSort(ScriptDatum left, ScriptDatum right)

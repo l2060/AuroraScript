@@ -15,12 +15,12 @@ namespace AuroraScript.Runtime.Types
 
         internal static void PARSE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            result = ScriptDatum.FromBoolean(args.TryGet(0, out var scriptDatum) && scriptDatum.IsTrue());
+            result = ScriptDatum.FromBoolean(args.TryGetRef(0, out var scriptDatum) && ScriptDatum.IsTrue(in scriptDatum));
         }
 
         internal static void CONSTRUCTOR(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            result = ScriptDatum.FromBoolean(args.TryGet(0, out var scriptDatum) && scriptDatum.IsTrue());
+            result = ScriptDatum.FromBoolean(args.TryGetRef(0, out var scriptDatum) && ScriptDatum.IsTrue(in scriptDatum));
         }
     }
 }

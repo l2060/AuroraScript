@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Runtime.Base;
 using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -40,7 +41,7 @@ namespace AuroraScript.Runtime.Types
 
         internal static void STRICT_EQUAL(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.TryGet(-10, out var var1) && args.TryGet(1, out var var2))
+            if (args.TryGetRef(-10, out var var1) && args.TryGetRef(1, out var var2))
             {
                 if (var1.Kind != var2.Kind)
                 {
@@ -62,10 +63,10 @@ namespace AuroraScript.Runtime.Types
                         result = ScriptDatum.FromBoolean(var1.String.Value == var2.String.Value);
                         return;
                     case ValueKind.Date:
-                        result = ScriptDatum.FromBoolean(var1.TryGetDate(out var date1) && var2.TryGetDate(out var date2) && date1.DateTime.Equals(date2.DateTime));
+                        result = ScriptDatum.FromBoolean(ScriptDatum.TryGetDate(in var1, out var date1) && ScriptDatum.TryGetDate(in var2, out var date2) && date1.DateTime.Equals(date2.DateTime));
                         return;
                     default:
-                        result = ScriptDatum.FromBoolean(var1.TryGetAnyObject(out var obj1) && var2.TryGetAnyObject(out var obj2) && ReferenceEquals(obj1, obj2));
+                        result = ScriptDatum.FromBoolean(ScriptDatum.TryGetAnyObject(in var1, out var obj1) && ScriptDatum.TryGetAnyObject(in var2, out var obj2) && ReferenceEquals(obj1, obj2));
                         return;
                 }
             }
@@ -105,17 +106,17 @@ namespace AuroraScript.Runtime.Types
 
         internal static void CLONE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.TryGet(0, out var datum))
+            if (args.TryGetRef(0, out var datum))
             {
-                result = datum.Clone(false);
+                result = ScriptDatum.Clone(in datum, false);
             }
         }
 
         internal static void DEEP_CLONE(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.TryGet(0, out var datum))
+            if (args.TryGetRef(0, out var datum))
             {
-                result = datum.Clone(true);
+                result = ScriptDatum.Clone(in datum, true);
             }
         }
 

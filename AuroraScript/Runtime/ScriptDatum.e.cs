@@ -135,5 +135,156 @@ namespace AuroraScript.Runtime
 
 
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptDatum FromObject(ScriptObject value)
+        {
+            switch (value)
+            {
+                case null:
+                case NullValue:
+                    return Null;
+
+                case NumberValue numberValue:
+                    return FromNumber(numberValue.DoubleValue);
+
+                case BooleanValue booleanValue:
+                    return FromBoolean(booleanValue.Value);
+
+                case StringValue stringValue:
+                    return FromString(stringValue);
+
+                case ScriptArray scriptArray:
+                    return FromArray(scriptArray);
+
+                case ScriptDate scriptDate:
+                    return FromDate(scriptDate);
+
+                case ScriptRegex scriptRegex:
+                    return FromRegex(scriptRegex);
+
+                case ClosureFunction closureFunction:
+                    return FromFunction(closureFunction);
+
+                case ClrMethodBinding clrMethodBinding:
+                    return FromClrFunction(clrMethodBinding);
+
+                case ClrType clrTypeObject:
+                    return FromClrType(clrTypeObject);
+
+                case BondingFunction bonding:
+                    return FromBonding(bonding);
+
+                default:
+                    return new ScriptDatum { Kind = ValueKind.Object, Object = value };
+            }
+
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptObject ToObject(in ScriptDatum d)
+        {
+            switch (d.Kind)
+            {
+                case ValueKind.Null:
+                    return ScriptObject.Null;
+                case ValueKind.Boolean:
+                    return BooleanValue.Of(d.Boolean);
+                case ValueKind.Number:
+                    return NumberValue.Of(d.Number);
+                case ValueKind.String:
+                    return d.String;
+                default:
+                    return d.Object;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsTrue(in ScriptDatum d)
+        {
+            switch (d.Kind)
+            {
+                case ValueKind.Null:
+                    return false;
+                case ValueKind.Boolean:
+                    return d.Boolean;
+                case ValueKind.Number:
+                    var num = d.Number;
+                    return num != 0 && !double.IsNaN(num);
+                case ValueKind.String:
+                    return !string.IsNullOrEmpty(d.String.Value);
+                default:
+                    return d.Object != ScriptObject.Null;
+            }
+        }
+
+        public static void TypeOf(in ScriptDatum d, out ScriptDatum result)
+        {
+            switch (d.Kind)
+            {
+                case ValueKind.Null:
+                    result = TypeNames.Null;
+                    break;
+                case ValueKind.Boolean:
+                    result = TypeNames.Boolean;
+                    break;
+                case ValueKind.Number:
+                    result = TypeNames.Number;
+                    break;
+                case ValueKind.String:
+                    result = TypeNames.String;
+                    break;
+                case ValueKind.Object:
+                    result = TypeNames.Object;
+                    break;
+                case ValueKind.Date:
+                    result = TypeNames.Date;
+                    break;
+                case ValueKind.Array:
+                    result = TypeNames.Array;
+                    break;
+                case ValueKind.Regex:
+                    result = TypeNames.Regex;
+                    break;
+                case ValueKind.Function:
+                    result = TypeNames.Function;
+                    break;
+                case ValueKind.ClrType:
+                    result = TypeNames.ClrType;
+                    break;
+                case ValueKind.ClrFunction:
+                    result = TypeNames.ClrFunction;
+                    break;
+                case ValueKind.ClrBonding:
+                    result = TypeNames.ClrBonding;
+                    break;
+                default:
+                    result = TypeNames.Object;
+                    break;
+            }
+        }
+
+
+        public static string ToString(in ScriptDatum d)
+        {
+            switch (d.Kind)
+            {
+                case ValueKind.Null:
+                    return "null";
+                case ValueKind.Boolean:
+                    return d.Boolean.ToString();
+                case ValueKind.Number:
+                    return d.Number.ToString();
+                case ValueKind.String:
+                    return d.String.Value;
+                default:
+                    return d.Object.ToString();
+            }
+        }
+
+
+
+
     }
 }

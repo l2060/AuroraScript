@@ -35,112 +35,24 @@ namespace AuroraScript.Runtime.Base
             return _value != 0;
         }
 
-        public static NumberValue operator -(NumberValue a)
+        /// <summary>
+        /// TODO 数值计算脚本性能较差
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static NumberValue Of(Double value)
         {
-            return NumberValue.Of(-a._value);
+            if (Double.IsNaN(value))
+            {
+                return NaN;
+            }
+            if (value == 0d)
+            {
+                return Zero;
+            }
+            return new NumberValue(value);
         }
-
-
-        public static BooleanValue operator <(NumberValue a, NumberValue b)
-        {
-            return BooleanValue.Of(a._value < b._value);
-        }
-        public static BooleanValue operator <=(NumberValue a, NumberValue b)
-        {
-            return BooleanValue.Of(a._value <= b._value);
-        }
-
-        public static BooleanValue operator >(NumberValue a, NumberValue b)
-        {
-            return BooleanValue.Of(a._value > b._value);
-        }
-        public static BooleanValue operator >=(NumberValue a, NumberValue b)
-        {
-            return BooleanValue.Of(a._value >= b._value);
-        }
-
-        public static NumberValue operator +(NumberValue a, Int32 b)
-        {
-            return NumberValue.Of(a._value + b);
-        }
-
-        public static NumberValue operator -(NumberValue a, Int32 b)
-        {
-            return NumberValue.Of(a._value - b);
-        }
-
-        public static NumberValue operator %(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value % b._value);
-        }
-
-
-        public static NumberValue operator +(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value + b._value);
-        }
-
-
-        public static NumberValue operator -(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value - b._value);
-        }
-
-        public static NumberValue operator *(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value * b._value);
-        }
-
-        public static NumberValue operator /(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of(a._value / b._value);
-        }
-
-
-
-        public static NumberValue operator <<(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of((Int32)a.Int32Value << (Int32)b.Int32Value);
-        }
-
-        public static NumberValue operator >>(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of((Int32)a.Int32Value >> (Int32)b._value);
-        }
-
-
-        public static NumberValue operator >>>(NumberValue a, NumberValue b)
-        {
-            return NumberValue.Of((Int32)a.Int32Value >>> (Int32)b._value);
-        }
-
-        public static NumberValue operator ~(NumberValue a)
-        {
-            return NumberValue.Of(~(Int64)a._value);
-        }
-
-
-        public static NumberValue operator &(NumberValue a, NumberValue b)
-        {
-            var c = unchecked((Int32)a.Int64Value);
-            var d = unchecked((Int32)b.Int64Value);
-            return NumberValue.Of(c & d);
-        }
-
-        public static NumberValue operator |(NumberValue a, NumberValue b)
-        {
-            var c = unchecked((Int32)a.Int64Value);
-            var d = unchecked((Int32)b.Int64Value);
-            return NumberValue.Of(c | d);
-        }
-
-        public static NumberValue operator ^(NumberValue a, NumberValue b)
-        {
-            var c = unchecked((Int32)a.Int64Value);
-            var d = unchecked((Int32)b.Int64Value);
-            return NumberValue.Of(c ^ d);
-        }
-
 
         public override int GetHashCode()
         {
@@ -164,26 +76,5 @@ namespace AuroraScript.Runtime.Base
             }
             return false;
         }
-
-        /// <summary>
-        /// TODO 数值计算脚本性能较差
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NumberValue Of(Double value)
-        {
-            if (Double.IsNaN(value))
-            {
-                return NaN;
-            }
-            if (value == 0d)
-            {
-                return Zero;
-            }
-            return new NumberValue(value);
-        }
-
-
     }
 }

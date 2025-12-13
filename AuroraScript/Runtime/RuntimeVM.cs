@@ -379,8 +379,6 @@ namespace AuroraScript.Runtime
         {
             var ak = a.Kind;
             var bk = b.Kind;
-
-            // 1️⃣ 最快路径：Kind 相同
             if (ak == bk)
             {
                 switch (ak)
@@ -406,43 +404,21 @@ namespace AuroraScript.Runtime
             }
 
             // 2️⃣ Null 快速失败
-            if (ak == ValueKind.Null || bk == ValueKind.Null)  return false;
+            if (ak == ValueKind.Null || bk == ValueKind.Null) return false;
 
             // 3️⃣ 双 Number / Bool 跨类型比较（可选）
-            //if (ak <= ValueKind.Number && bk <= ValueKind.Number)
-            //{
-            //    return a.Number == b.Number;
-            //}
+            if ((ak <= ValueKind.String) && (bk <= ValueKind.String))
+            {
+                if (ScriptDatum.TryToNumber(in a, out var na) && ScriptDatum.TryToNumber(in b, out var nb))
+                {
+                    return na == nb;
+                }
+                return false;
+            }
             // 4️⃣ 最慢路径：真实对象
             var ao = a.Object;
             var bo = b.Object;
             return ao.Equals(bo);
-
-            //if (leftDatum.Kind == rightDatum.Kind)
-            //{
-            //    switch (leftDatum.Kind)
-            //    {
-            //        case ValueKind.Null:
-            //            return true;
-            //        case ValueKind.Boolean:
-            //            return leftDatum.Boolean == rightDatum.Boolean;
-            //        case ValueKind.Number:
-            //            return leftDatum.Number == rightDatum.Number;
-            //        case ValueKind.String:
-            //            return String.Equals(leftDatum.String.Value, rightDatum.String.Value, StringComparison.Ordinal);
-            //        case ValueKind.Object:
-            //            return Equals(leftDatum.Object, rightDatum.Object);
-            //    }
-            //}
-
-            //if (leftDatum.Kind == ValueKind.Null || rightDatum.Kind == ValueKind.Null)
-            //{
-            //    return leftDatum.Kind == ValueKind.Null && rightDatum.Kind == ValueKind.Null;
-            //}
-
-            //var leftObj = leftDatum.ToObject();
-            //var rightObj = rightDatum.ToObject();
-            //return leftObj.Equals(rightObj);
         }
 
 
@@ -450,7 +426,7 @@ namespace AuroraScript.Runtime
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static StringValue ExtractPropertyKey(ref ScriptDatum keyDatum)
+        private static StringValue ExtractPropertyKey(in ScriptDatum keyDatum)
         {
             switch (keyDatum.Kind)
             {

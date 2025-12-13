@@ -185,7 +185,7 @@ namespace AuroraScript.Runtime.Base
             var parts = new string[_count];
             for (int i = 0; i < _count; i++)
             {
-                parts[i] = _items[i].ToString();
+                parts[i] = ScriptDatum.ToString(in _items[i]);
             }
             return "[" + String.Join(", ", parts) + "]";
         }

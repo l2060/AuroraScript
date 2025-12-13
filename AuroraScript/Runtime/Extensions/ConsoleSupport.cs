@@ -41,7 +41,7 @@ namespace AuroraScript.Runtime.Extensions
             {
                 return JsonSupport.Serialize(datum, false);
             }
-            return datum.ToString();
+            return ScriptDatum.ToString(in datum);
         }
 
 

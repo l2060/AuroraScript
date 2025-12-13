@@ -58,11 +58,11 @@ namespace AuroraScript.Runtime.Types
             {
                 if (args.TryGetString(0, out var value))
                 {
-                    result = ScriptDatum.FromString(date.DateTime.ToString(value));
+                    result = ScriptDatum.FromString(date.Format(value));
                 }
                 else
                 {
-                    result = ScriptDatum.FromString(date.DateTime.ToString());
+                    result = ScriptDatum.FromString(date.Format());
                 }
             }
         }

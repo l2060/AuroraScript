@@ -84,7 +84,7 @@ namespace AuroraScript.Runtime.Base
             {
                 ScriptDatum datum = ScriptDatum.Null;
                 getter.Invoke(this, ref datum);
-                return datum.ToObject();
+                return ScriptDatum.ToObject(in datum);
             }
             if (property is BondingFunction clrFunc)
             {

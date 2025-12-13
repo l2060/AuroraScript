@@ -86,7 +86,7 @@ namespace AuroraScript.Runtime.Extensions
             {
                 for (int i = 0; i < args.Length; i++)
                 {
-                    builder._builder.Append(args[i].ToString());
+                    builder._builder.Append(ScriptDatum.ToString(in args[i]));
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace AuroraScript.Runtime.Extensions
             {
                 for (int i = 0; i < args.Length; i++)
                 {
-                    builder._builder.Append(args[i].ToString());
+                    builder._builder.Append(ScriptDatum.ToString(in args[i]));
                 }
                 builder._builder.AppendLine();
             }

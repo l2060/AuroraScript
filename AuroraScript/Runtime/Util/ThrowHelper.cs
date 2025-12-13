@@ -9,19 +9,16 @@ namespace AuroraScript.Runtime.Util
 
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowNotfoundProperty(String key)
-        {
-            throw new AuroraVMException("Cannot found property");
-        }
+        internal static void ThrowNotfoundProperty(String key) => throw new AuroraVMException("Cannot found property");
 
 
 
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowEmptyStack()
-        {
-            throw new InvalidOperationException("Stack is empty.");
-        }
+        internal static void ThrowEmptyStack() => throw new InvalidOperationException("Stack is empty.");
 
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowSwapUnderflow() => throw new InvalidOperationException("Stack has fewer than two elements.");
     }
 }

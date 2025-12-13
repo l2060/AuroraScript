@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Util;
 using System;
 using System.Runtime.CompilerServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime
 {
@@ -106,50 +107,38 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptDatum PopDatum()
         {
-            if (_size == 0) ThrowHelper.ThrowEmptyStack();
-            int idx = --_size;
-            ref var elem = ref _buffer[idx];
-            var value = elem;
-            elem = default;
-            return value;
+            int idx = _size - 1;
+            if ((uint)idx >= (uint)_buffer.Length) ThrowHelper.ThrowEmptyStack();
+            _size = idx;
+            return _buffer[idx];
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref readonly ScriptDatum PopRef()
+        {
+            int idx = _size - 1;
+            if ((uint)idx >= (uint)_buffer.Length) ThrowHelper.ThrowEmptyStack();
+            _size = idx;
+            return ref _buffer[idx];
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopToRef(ref ScriptDatum datum)
         {
-            if (_size == 0) ThrowHelper.ThrowEmptyStack();
-            int idx = --_size;
-            ref var src = ref _buffer[idx];
-            datum = src;
-            src = default;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PopDatum(out ScriptDatum datum)
-        {
-            if (_size == 0) ThrowHelper.ThrowEmptyStack();
-            int idx = --_size;
-            ref var src = ref _buffer[idx];
-            datum = src;
-            src = default;
+            int idx = _size - 1;
+            if ((uint)idx >= (uint)_buffer.Length) ThrowHelper.ThrowEmptyStack();
+            _size = idx;
+            datum = _buffer[idx];
         }
 
 
         public ScriptObject PopObject()
         {
-            return PopDatum().ToObject();
+            ref readonly var datum = ref PopRef();
+            return ScriptDatum.ToObject(in datum);
         }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptDatum PeekDatum()
-        {
-            if (_size == 0) ThrowHelper.ThrowEmptyStack();
-            return _buffer[_size - 1];
-        }
-
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,18 +152,15 @@ namespace AuroraScript.Runtime
         public bool PeekIsTrue(int offset = 0)
         {
             var index = _size - 1 - offset;
-            return _buffer[index].IsTrue();
+            return ScriptDatum.IsTrue(in _buffer[index]);
         }
-
-
-
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool PopTopDatumIsTrue()
         {
             var index = _size-- - 1;
-            return _buffer[index].IsTrue();
+            return ScriptDatum.IsTrue(in _buffer[index]);
         }
 
 
@@ -184,23 +170,22 @@ namespace AuroraScript.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Duplicate()
         {
-            PushDatum(PeekDatum());
+            var buffer = _buffer;
+            int i = _size;
+            if ((uint)i >= (uint)buffer.Length) Grow();
+            buffer[i] = buffer[i - 1];
+            _size = i + 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Swap()
         {
-            if (_size < 2)
-            {
-                throw new InvalidOperationException("Stack has fewer than two elements.");
-            }
+            if (_size < 2) ThrowHelper.ThrowSwapUnderflow();
             var buffer = _buffer;
-            var topIndex = _size - 1;
-            var belowIndex = topIndex - 1;
-            ref var top = ref buffer[topIndex];
-            var temp = top;
-            top = buffer[belowIndex];
-            buffer[belowIndex] = temp;
+            int topIndex = _size - 1;
+            var temp = buffer[topIndex];
+            buffer[topIndex] = buffer[topIndex - 1];
+            buffer[topIndex - 1] = temp;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -208,7 +193,6 @@ namespace AuroraScript.Runtime
         {
             if (_size == 0) ThrowHelper.ThrowEmptyStack();
             var index = --_size;
-            _buffer[index] = default;
         }
 
 

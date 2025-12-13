@@ -1,5 +1,6 @@
 ﻿using AuroraScript.Runtime.Base;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace AuroraScript.Runtime.Types
 {
@@ -26,5 +27,12 @@ namespace AuroraScript.Runtime.Types
         {
             this.DateTime = new DateTime(ticks);
         }
+
+        public String Format(String format = null)
+        {
+            if (format == null) format = AuroraEngine.DateTimeFormat;
+            return DateTime.ToString(format);
+        }
+
     }
 }

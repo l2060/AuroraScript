@@ -29,7 +29,7 @@ namespace AuroraScript.Runtime.Types
                 result = ScriptDatum.Null;
                 return;
             }
-            var thisArg = args.Length > 2 ? args[2].ToObject() : ScriptObject.Null;
+            var thisArg = args.Length > 2 ? ScriptDatum.ToObject(in args[2]) : ScriptObject.Null;
             thisArg ??= ScriptObject.Null;
             var executeOptions = context.ExecuteOptions ?? ExecuteOptions.Default;
             var array = new ScriptArray();
@@ -90,7 +90,7 @@ namespace AuroraScript.Runtime.Types
                 return enumerator.GetIterator();
             }
 
-            if (datum.TryGetAnyObject(out var candidate) && candidate is IEnumerator iterator)
+            if (ScriptDatum.TryGetAnyObject(in datum, out var candidate) && candidate is IEnumerator iterator)
             {
                 return iterator.GetIterator();
             }

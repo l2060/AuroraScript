@@ -25,7 +25,7 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_BREAK = new Symbols("break", SymbolTypes.KeyWord);
         public static readonly Symbols KW_YIELD = new Symbols("yield", SymbolTypes.KeyWord);
         public static readonly Symbols KW_CONTINUE = new Symbols("continue", SymbolTypes.KeyWord);
-        //public static readonly Symbols KW_ENUM = new Symbols("enum", SymbolTypes.KeyWord);
+        public static readonly Symbols KW_ENUM = new Symbols("enum", SymbolTypes.KeyWord);
         public static readonly Symbols KW_FOR = new Symbols("for", SymbolTypes.KeyWord);
         public static readonly Symbols KW_NEW = new Symbols("new", SymbolTypes.KeyWord);
         public static readonly Symbols KW_DELETE = new Symbols("delete", SymbolTypes.KeyWord);
@@ -42,7 +42,7 @@ namespace AuroraScript.Compiler
         public static readonly Symbols KW_FROM = new Symbols("from", SymbolTypes.KeyWord);
         public static readonly Symbols KW_EXPORT = new Symbols("export", SymbolTypes.KeyWord);
         //public static readonly Symbols KW_SEALED = new Symbols("sealed", SymbolTypes.KeyWord);
-        //public static readonly Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord);
+        public static readonly Symbols KW_INTERNAL = new Symbols("internal", SymbolTypes.KeyWord);
 
         //public static readonly Symbols KW_EXTENDS = new Symbols("extends", SymbolTypes.KeyWord);
         //public static readonly Symbols KW_IMPLEMENTS = new Symbols("implements", SymbolTypes.KeyWord);

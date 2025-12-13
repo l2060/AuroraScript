@@ -9,7 +9,11 @@ function defineTest(name, run) {
     __testCases.push({ name: name, run: run });
 }
 
-
+enum EnumTest {
+    Alpha = 1,
+    Beta = 2,
+    Gamma = 3
+}
 
 function testInput() {
     INPUTNUMBER('购买数量', '输入一个0-99的值', 'number', input_change);

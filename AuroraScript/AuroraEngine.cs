@@ -42,6 +42,10 @@ namespace AuroraScript
         /// </summary>
         private RuntimeVM runtimeVM;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static String DateTimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
 
         private readonly EngineOptions _options;

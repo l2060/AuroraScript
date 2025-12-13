@@ -41,7 +41,7 @@ namespace AuroraScript.Runtime.Extensions
         public static void STRINGIFY(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             args.TryGetBoolean(1, out var indented);
-            if (args.TryGet(0, out var datum))
+            if (args.TryGetRef(0, out var datum))
             {
                 result = ScriptDatum.FromString(Serialize(datum, indented));
                 return;
@@ -58,7 +58,7 @@ namespace AuroraScript.Runtime.Extensions
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             var visited = new HashSet<ScriptObject>(ReferenceComparer.Instance);
-            WriteDatum(jsonWriter, datum, visited);
+            WriteDatum(jsonWriter,in datum, visited);
             jsonWriter.Flush();
             return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
         }
@@ -106,7 +106,7 @@ namespace AuroraScript.Runtime.Extensions
             }
         }
 
-        private static void WriteDatum(Utf8JsonWriter writer, ScriptDatum datum, HashSet<ScriptObject> visited)
+        private static void WriteDatum(Utf8JsonWriter writer, in ScriptDatum datum, HashSet<ScriptObject> visited)
         {
             switch (datum.Kind)
             {
@@ -129,6 +129,9 @@ namespace AuroraScript.Runtime.Extensions
                 case ValueKind.String:
                     writer.WriteStringValue(datum.String.Value ?? string.Empty);
                     return;
+                case ValueKind.Date:
+                    writer.WriteStringValue(((ScriptDate)datum.Object).Format());
+                    return;
                 case ValueKind.Regex:
                 case ValueKind.Array:
                 case ValueKind.Object:
@@ -136,13 +139,18 @@ namespace AuroraScript.Runtime.Extensions
                 case ValueKind.ClrType:
                 case ValueKind.ClrFunction:
                 case ValueKind.ClrBonding:
-                    WriteScriptObject(writer, datum.ToObject(), visited);
+                    WriteScriptObject(writer, datum.Object, visited);
                     return;
                 default:
-                    writer.WriteStringValue(datum.ToString());
+                    writer.WriteStringValue(ScriptDatum.ToString(in datum));
                     return;
             }
         }
+
+
+
+
+
 
         private static void WriteScriptObject(Utf8JsonWriter writer, ScriptObject value, HashSet<ScriptObject> visited)
         {

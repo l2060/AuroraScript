@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 
 namespace AuroraScript.Runtime
 {
     internal class CallArguments
     {
-        private ScriptDatum[] _items = new ScriptDatum[16];
+        internal ScriptDatum[] _items = new ScriptDatum[16];
         private int viewSize;
 
-        public ScriptDatum this[int index]
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref ScriptDatum GetRef(int index)
         {
-            get => _items[index];
-            set => _items[index] = value;
+            return ref _items[index];
         }
 
         public void Copy(ScriptDatum[] datums)
@@ -22,7 +24,6 @@ namespace AuroraScript.Runtime
             {
                 _items[i] = datums[i];
             }
-
         }
 
 

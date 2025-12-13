@@ -48,22 +48,27 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetArgumentDatum(Int32 index, out ScriptDatum datum)
+        public bool TryGetArgumentDatum(int index, out ScriptDatum datum)
+        {
+            if ((uint)index < (uint)Arguments.Length)
+            {
+                datum = Arguments._items[index];
+                return true;
+            }
+            datum = ScriptDatum.Null;
+            return false;
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref readonly ScriptDatum GetArgumentRef(Int32 index)
         {
             if (index >= Arguments.Length)
             {
-                datum = ScriptDatum.Null;
-                return false;
+                return ref ScriptDatum.Null;
             }
-            datum = Arguments[index];
-            return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptDatum GetArgumentDatum(Int32 index)
-        {
-            if (index >= Arguments.Length) return ScriptDatum.Null;
-            return Arguments[index];
+            return ref Arguments.GetRef(index);
         }
 
         public ScriptDatum[] Locals => _locals ?? Array.Empty<ScriptDatum>();

@@ -120,7 +120,7 @@ namespace AuroraScript.Runtime.Types
 
         public static void TEST(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            if (args.TryGet(0, out var datum))
+            if (args.TryGetRef(0, out var datum))
             {
                 var regex = thisObject as ScriptRegex;
                 result = ScriptDatum.FromBoolean(regex.Test(datum));

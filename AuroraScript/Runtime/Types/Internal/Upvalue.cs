@@ -14,25 +14,19 @@ namespace AuroraScript.Runtime.Types.Internal
         private readonly Int32 _originalSlot;
         private Int32 _aliasSlot = -1;
         private ScriptDatum _closedValue;
-        private readonly String _name;
 
-        internal Upvalue(CallFrame ownerFrame, Int32 localIndex, String name = null)
+        internal Upvalue(CallFrame ownerFrame, Int32 localIndex)
             : base(null, true)
         {
             _ownerFrame = ownerFrame ?? throw new ArgumentNullException(nameof(ownerFrame));
             _localIndex = localIndex;
             _originalSlot = localIndex;
-            _name = name;
         }
 
         internal Int32 Slot => _localIndex;
 
         public override string ToString()
         {
-            if (_name != null)
-            {
-                return $"<upvalue {_name}>";
-            }
             if (_ownerFrame != null)
             {
                 return $"<upvalue @{_localIndex} (open)>";

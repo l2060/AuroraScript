@@ -99,6 +99,7 @@ namespace AuroraScript.Analyzer
             if (token.Symbol == Symbols.KW_DECLARE) return this.ParseDeclare(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_CONST) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_VAR) return this.ParseVariableDeclaration(currentScope, MemberAccess.Internal);
+            if (token.Symbol == Symbols.KW_ENUM) return this.ParseEnumDeclaration(currentScope, MemberAccess.Internal);
             if (token.Symbol == Symbols.KW_FOR) return this.ParseForBlock(currentScope);
             if (token.Symbol == Symbols.KW_WHILE) return this.ParseWhileBlock(currentScope);
             if (token.Symbol == Symbols.KW_IF) return this.ParseIfBlock(currentScope);
@@ -261,6 +262,53 @@ namespace AuroraScript.Analyzer
             // Consume the end brace.
             this.lexer.NextOfKind(Symbols.PT_RIGHTBRACE);
             return this.opaimizeStatement(result);
+        }
+
+
+
+
+
+        /// <summary>
+        /// parse enum type
+        /// </summary>
+        /// <param name="currentScope"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        private Statement ParseEnumDeclaration(Scope currentScope, MemberAccess access)
+        {
+            this.lexer.NextOfKind(Symbols.KW_ENUM);
+            var enumName = this.lexer.NextOfKind<IdentifierToken>();
+            var elements = this.ParseEnumBody();
+            var declaration = new EnumDeclaration() { Elements = elements, Identifier = enumName, Access = access };
+            return declaration;
+        }
+
+
+        /// <summary>
+        /// parse enum declare list
+        /// </summary>
+        /// <returns></returns>
+        private List<EnumElement> ParseEnumBody()
+        {
+            this.lexer.NextOfKind(Symbols.PT_LEFTBRACE);
+            var result = new List<EnumElement>();
+
+            var elementValue = 0;
+            while (true)
+            {
+                if (this.lexer.TestNext(Symbols.PT_RIGHTBRACE)) break;
+                var elementName = this.lexer.NextOfKind<IdentifierToken>();
+                if (this.lexer.TestNext(Symbols.OP_ASSIGNMENT))
+                {
+                    var token = this.lexer.NextOfKind<ValueToken>();
+                    if (token.Type != Tokens.ValueType.Number) throw this.InitParseException("Enumeration types only apply to integers", token);
+                    elementValue = Int32.Parse(token.Value);
+                }
+                result.Add(new EnumElement() { Name = elementName, Value = elementValue });
+                elementValue++;
+                this.lexer.TestNext(Symbols.PT_COMMA);
+            }
+            return result;
         }
 
         /// <summary>

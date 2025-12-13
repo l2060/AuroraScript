@@ -63,7 +63,7 @@ namespace AuroraScript.Runtime
         private static void LESS_THAN(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            ref var rightSlot = ref stack.PeekRef();
+            ref readonly var rightSlot = ref stack.PeekRef();
             ref var leftSlot = ref stack.PeekRef(1);
             if (leftSlot.Kind == ValueKind.Number && rightSlot.Kind == ValueKind.Number)
             {
@@ -101,13 +101,9 @@ namespace AuroraScript.Runtime
 
         private static void JUMP(ExecuteFrameContext ctx)
         {
-            //var offset = ctx.ReadInt32();
-            //ctx.CurrentFrame.Pointer += offset;
-
-            ref var frame = ref ctx.CurrentFrame;
+            var frame = ctx.CurrentFrame;
             int offset = *(int*)(ctx.CodeBasePointer + frame.Pointer);
-            frame.Pointer += 4;  // 读取 4 字节
-            frame.Pointer += offset;
+            frame.Pointer += (offset + 4);
         }
 
 
@@ -129,8 +125,8 @@ namespace AuroraScript.Runtime
         private static void LOAD_ARG(ExecuteFrameContext ctx)
         {
             var argIndex = ctx.ReadByte();
-            var argDatum = ctx.CurrentFrame.GetArgumentDatum(argIndex);
-            ctx.OperandStack.PushDatum(argDatum);
+            var argDatum = ctx.CurrentFrame.GetArgumentRef(argIndex);
+            ctx.OperandStack.PushRef(ref argDatum);
         }
 
         private static void TRY_LOAD_ARG(ExecuteFrameContext ctx)
@@ -139,7 +135,7 @@ namespace AuroraScript.Runtime
             if (ctx.CurrentFrame.TryGetArgumentDatum(propNameIndex, out var tryArgDatum))
             {
                 ctx.OperandStack.PopDiscard();
-                ctx.OperandStack.PushDatum(tryArgDatum);
+                ctx.OperandStack.PushRef(ref tryArgDatum);
             }
         }
 
@@ -153,7 +149,7 @@ namespace AuroraScript.Runtime
             var closureOffset = ctx.ReadInt32();
             var captureCount = ctx.ReadByte();
             var entryPointer = ctx.CurrentFrame.Pointer + closureOffset;
-            var moduleObject = _operandStack.PopDatum();
+            ref readonly var moduleObject = ref _operandStack.PopRef();
             var moduleForClosure = moduleObject.Object as ScriptModule;
 
             ClosureUpvalue[] capturedUpvalues;
@@ -166,7 +162,7 @@ namespace AuroraScript.Runtime
                 capturedUpvalues = new ClosureUpvalue[captureCount];
                 for (int i = captureCount - 1; i >= 0; i--)
                 {
-                    var upvalueObj = _operandStack.PopDatum();
+                    ref readonly var upvalueObj = ref _operandStack.PopRef();
                     if (upvalueObj.Object is not Upvalue upvalue)
                     {
                         throw new AuroraVMException("Invalid captured upvalue");
@@ -207,7 +203,7 @@ namespace AuroraScript.Runtime
             int index = 0;
             for (int i = 0; i < count; i++)
             {
-                if (datumBuffer[i].TryGetObject(out var obj) && obj is ScriptDeConstruct deConstruct)
+                if (ScriptDatum.TryGetObject(in datumBuffer[i], out var obj) && obj is ScriptDeConstruct deConstruct)
                 {
                     if (deConstruct.Kind == ValueKind.Array && deConstruct.Object is ScriptArray array1)
                     {
@@ -247,7 +243,7 @@ namespace AuroraScript.Runtime
         private static void DECONSTRUCT_ARRAY(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datumValue = _operandStack.PopDatum();
+            ref readonly var datumValue = ref _operandStack.PopRef();
             if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array)
             {
                 var deConstruct = new ScriptDeConstruct(array, ValueKind.Array);
@@ -259,21 +255,21 @@ namespace AuroraScript.Runtime
         private static void DECONSTRUCT_MAP(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datumValue = _operandStack.PopDatum();
-            var obj = _operandStack.PopDatum();
-
-            if (obj.TryGetObject(out var value))
+            ref readonly var source = ref _operandStack.PopRef();
+            ref readonly var target = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetObject(in target, out var targetObject))
             {
-                if (datumValue.TryGetObject(out var scriptObject))
+                if (ScriptDatum.TryGetObject(in source, out var sourceObject))
                 {
-                    value.CopyPropertysFrom(scriptObject, true);
+                    RuntimeHelper.CopyProperties(sourceObject, targetObject, true);
                 }
-                else if (datumValue.Kind == ValueKind.Array && datumValue.Object is ScriptArray array1)
+                else if (ScriptDatum.TryGetArray(in source, out var array))
                 {
-                    for (int i = 0; i < array1.Length; i++)
+                    var n = array.Length;
+                    for (int i = 0; i < n; i++)
                     {
-                        var ele = array1.Get(i);
-                        value.SetPropertyValue(i.ToString(), ele.ToObject());
+                        var ele = array.Get(i);
+                        targetObject.SetPropertyValue(i.ToString(), ScriptDatum.ToObject(in ele));
                     }
                 }
             }
@@ -287,8 +283,8 @@ namespace AuroraScript.Runtime
         private static void GET_ITERATOR(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datum = _operandStack.PopDatum();
-            if (datum.TryGetAnyObject(out var obj) && obj is IEnumerator iterable)
+            ref readonly var datum = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in datum, out var obj) && obj is IEnumerator iterable)
             {
                 _operandStack.PushDatum(ScriptDatum.FromObject(iterable.GetIterator()));
             }
@@ -300,8 +296,8 @@ namespace AuroraScript.Runtime
         private static void ITERATOR_VALUE(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datum = _operandStack.PopDatum();
-            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
+            ref readonly var datum = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in datum, out var obj) && obj is ItemIterator iterator)
             {
                 _operandStack.PushDatum(iterator.Value());
             }
@@ -313,8 +309,8 @@ namespace AuroraScript.Runtime
         private static void ITERATOR_HAS_VALUE(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datum = _operandStack.PopDatum();
-            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
+            ref readonly var datum = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in datum, out var obj) && obj is ItemIterator iterator)
             {
                 _operandStack.PushDatum(ScriptDatum.FromBoolean(iterator.HasValue()));
             }
@@ -326,8 +322,8 @@ namespace AuroraScript.Runtime
         private static void ITERATOR_NEXT(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datum = _operandStack.PopDatum();
-            if (datum.TryGetAnyObject(out var obj) && obj is ItemIterator iterator)
+            ref readonly var datum = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in datum, out var obj) && obj is ItemIterator iterator)
             {
                 iterator.Next();
             }
@@ -347,9 +343,7 @@ namespace AuroraScript.Runtime
         {
             var stack = ctx.OperandStack;
             ref var rightSlot = ref stack.PeekRef();
-            rightSlot = rightSlot.TypeOf();
-            //datumRight = PopDatum();
-            //PushDatum(datumRight.TypeOf());
+            ScriptDatum.TypeOf(in rightSlot, out rightSlot);
         }
 
 
@@ -365,7 +359,7 @@ namespace AuroraScript.Runtime
             }
             else
             {
-                leftSlot = ScriptDatum.FromString(leftSlot.ToString() + rightSlot.ToString());
+                leftSlot = ScriptDatum.FromString(ScriptDatum.ToString(in leftSlot) + ScriptDatum.ToString(in rightSlot));
                 stack.PopDiscard();
             }
         }
@@ -409,11 +403,11 @@ namespace AuroraScript.Runtime
         private static void DELETE_PROPERTY(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var key = _operandStack.PopDatum();
-            var obj = _operandStack.PeekDatum();
-            if (obj.TryGetAnyObject(out var scriptObject))
+            ref readonly var key = ref _operandStack.PopRef();
+            ref readonly var obj = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in obj, out var scriptObject))
             {
-                var propName = ExtractPropertyKey(ref key);
+                var propName = ExtractPropertyKey(in key);
                 scriptObject.DeletePropertyValue(propName);
             }
         }
@@ -467,18 +461,16 @@ namespace AuroraScript.Runtime
         private static void GET_ELEMENT(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            ScriptDatum datumValue, datumObjValue, value;
-            _operandStack.PopDatum(out datumValue);
-            _operandStack.PopDatum(out datumObjValue);
-            if (datumObjValue.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
+            ref readonly var datumValue = ref _operandStack.PopRef();
+            ref readonly var datumObjValue = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetArray(in datumObjValue, out var scriptArray) && datumValue.Kind == ValueKind.Number)
             {
-                scriptArray.Get((Int32)datumValue.Number, out value);
+                scriptArray.Get((Int32)datumValue.Number, out var value);
                 _operandStack.PushRef(ref value);
-                //_operandStack.PushDatum(scriptArray.Get((Int32)datumValue.Number));
             }
-            else if (datumObjValue.TryGetAnyObject(out var datumObj))
+            else if (ScriptDatum.TryGetAnyObject(in datumObjValue, out var datumObj))
             {
-                var key = ExtractPropertyKey(ref datumValue);
+                var key = ExtractPropertyKey(in datumValue);
                 _operandStack.PushObject(datumObj.GetPropertyValue(key));
             }
             else
@@ -490,18 +482,17 @@ namespace AuroraScript.Runtime
         private static void SET_ELEMENT(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            ScriptDatum datumTargetObj, datumValue, datumAssignedValue;
-            _operandStack.PopDatum(out datumTargetObj);
-            _operandStack.PopDatum(out datumValue);
-            _operandStack.PopDatum(out datumAssignedValue);
-            if (datumTargetObj.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
+            ref readonly var datumTargetObj = ref _operandStack.PopRef();
+            ref readonly var datumValue = ref _operandStack.PopRef();
+            ref readonly var datumAssignedValue = ref _operandStack.PopRef();
+            if (ScriptDatum.TryGetArray(in datumTargetObj, out var scriptArray) && datumValue.Kind == ValueKind.Number)
             {
-                scriptArray.SetRef((Int32)datumValue.Number, ref datumAssignedValue);
+                scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
             }
-            else if (datumTargetObj.TryGetAnyObject(out var datumObj))
+            else if (ScriptDatum.TryGetAnyObject(in datumTargetObj, out var datumObj))
             {
-                var key = ExtractPropertyKey(ref datumValue);
-                datumObj.SetPropertyValue(key, datumAssignedValue.ToObject());
+                var key = ExtractPropertyKey(in datumValue);
+                datumObj.SetPropertyValue(key, ScriptDatum.ToObject(in datumAssignedValue));
             }
         }
 
@@ -513,13 +504,13 @@ namespace AuroraScript.Runtime
             var propNameIndex = ctx.ReadInt32();
             var propName = ctx.Strings[propNameIndex];
             ref var topDatum = ref ctx.OperandStack.PeekRef();
-            if (topDatum.TryGetAnyObject(out var obj))
+            if (ScriptDatum.TryGetAnyObject(in topDatum, out var obj))
             {
                 topDatum = ScriptDatum.FromObject(obj.GetPropertyValue(propName));
             }
             else if (topDatum.Kind == ValueKind.Number || topDatum.Kind == ValueKind.Boolean)
             {
-                topDatum = ScriptDatum.FromObject(topDatum.ToObject().GetPropertyValue(propName));
+                topDatum = ScriptDatum.FromObject(ScriptDatum.ToObject(in topDatum).GetPropertyValue(propName));
             }
         }
 
@@ -528,7 +519,8 @@ namespace AuroraScript.Runtime
             var propNameIndex = ctx.ReadInt32();
             var propName = ctx.Strings[propNameIndex];
             var value = ctx.OperandStack.PopObject();
-            if (ctx.OperandStack.PopDatum().TryGetAnyObject(out var obj))
+            ref readonly var datum = ref ctx.OperandStack.PopRef();
+            if (ScriptDatum.TryGetAnyObject(in datum, out var obj))
             {
                 obj.SetPropertyValue(propName, value);
             }
@@ -542,7 +534,7 @@ namespace AuroraScript.Runtime
             ctx.EnsureCallDepth();
             // 函数调用指令
             // 从栈顶弹出可调用对象
-            var callable = _operandStack.PopDatum();
+            ref readonly var callable = ref _operandStack.PopRef();
             // 读取参数数量
             var argCount = ctx.ReadByte();
             // 创建参数数组
@@ -555,7 +547,7 @@ namespace AuroraScript.Runtime
                 _operandStack.PopToRef(ref argDatums[i]);
             }
 
-            if (callable.TryGetFunction(out var closureFunc))
+            if (ScriptDatum.TryGetFunction(in callable, out var closureFunc))
             {
                 // 如果是脚本中定义的闭包函数
                 // 创建新的调用帧，包含环境、全局对象、模块和入口点
@@ -567,7 +559,7 @@ namespace AuroraScript.Runtime
                 //frame = callFrame;
                 return;
             }
-            else if (callable.TryGetClrBonding(out var callableFunc))
+            else if (ScriptDatum.TryGetClrBonding(in callable, out var callableFunc))
             {
                 try
                 {
@@ -577,30 +569,28 @@ namespace AuroraScript.Runtime
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    throw ex;
                 }
                 finally
                 {
                     CallFramePool.Return(callFrame);
-                    //ArrayPool<ScriptDatum>.Shared.Return(argDatums);
                 }
             }
-            else if (callable.TryGetClrInvokable(out var clrInvokable))
+            else if (ScriptDatum.TryGetClrInvokable(in callable, out var clrInvokable))
             {
                 try
                 {
                     ScriptDatum result = ScriptDatum.Null;
-                    clrInvokable.Invoke(ctx.ExecuteContext, callable.ToObject(), argDatums, ref result);
+                    clrInvokable.Invoke(ctx.ExecuteContext, ScriptDatum.ToObject(in callable), argDatums, ref result);
                     _operandStack.PushDatum(result);
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    throw ex;
                 }
                 finally
                 {
                     CallFramePool.Return(callFrame);
-                    //ArrayPool<ScriptDatum>.Shared.Return(argDatums);
                 }
             }
             else
@@ -621,7 +611,7 @@ namespace AuroraScript.Runtime
             if (callDeep == 0)
             {
                 // 设置执行状态为完成，并返回最终结果
-                var value = datumValue.ToObject();
+                var value = ScriptDatum.ToObject(in datumValue);
                 ctx.SetStatus(ExecuteStatus.Complete, value, null);
                 return;
             }
@@ -766,7 +756,7 @@ namespace AuroraScript.Runtime
         {
             var stack = ctx.OperandStack;
             ref var slot = ref stack.PeekRef();
-            if (slot.TryGetNumber(out var value))
+            if (ScriptDatum.TryToNumber(in slot, out var value))
             {
                 ScriptDatum.NumberOf(-value, out slot);
             }
@@ -780,7 +770,7 @@ namespace AuroraScript.Runtime
         {
             var stack = ctx.OperandStack;
             ref var slot = ref stack.PeekRef();
-            if (slot.TryGetNumber(out var value))
+            if (ScriptDatum.TryToNumber(in slot, out var value))
             {
                 ScriptDatum.NumberOf(value + 1, out slot);
             }
@@ -794,7 +784,7 @@ namespace AuroraScript.Runtime
         {
             var stack = ctx.OperandStack;
             ref var slot = ref stack.PeekRef();
-            if (slot.TryGetNumber(out var value))
+            if (ScriptDatum.TryToNumber(in slot, out var value))
             {
                 ScriptDatum.NumberOf(value - 1, out slot);
             }
@@ -808,7 +798,7 @@ namespace AuroraScript.Runtime
         {
             var stack = ctx.OperandStack;
             ref var slot = ref stack.PeekRef();
-            if (slot.TryGetInteger(out var value))
+            if (ScriptDatum.TryToInteger(in slot, out var value))
             {
                 ScriptDatum.NumberOf(~value, out slot);
             }
@@ -943,7 +933,7 @@ namespace AuroraScript.Runtime
         private static void LOGIC_NOT(ExecuteFrameContext ctx)
         {
             ref var slot = ref ctx.OperandStack.PeekRef();
-            ScriptDatum.BooleanOf(!slot.IsTrue(), out slot);
+            ScriptDatum.BooleanOf(!ScriptDatum.IsTrue(in slot), out slot);
         }
 
         private static void LOGIC_AND(ExecuteFrameContext ctx)
@@ -951,7 +941,7 @@ namespace AuroraScript.Runtime
             var stack = ctx.OperandStack;
             ref var rightSlot = ref stack.PeekRef();
             ref var leftSlot = ref stack.PeekRef(1);
-            var result = (leftSlot.IsTrue() && rightSlot.IsTrue());
+            var result = (ScriptDatum.IsTrue(in leftSlot) && ScriptDatum.IsTrue(in rightSlot));
             stack.PopDiscard();
             ScriptDatum.BooleanOf(result, out leftSlot);
         }
@@ -961,7 +951,7 @@ namespace AuroraScript.Runtime
             var stack = ctx.OperandStack;
             ref var rightSlot = ref stack.PeekRef();
             ref var leftSlot = ref stack.PeekRef(1);
-            var result = (leftSlot.IsTrue() || rightSlot.IsTrue());
+            var result = (ScriptDatum.IsTrue(in leftSlot) || ScriptDatum.IsTrue(in rightSlot));
             stack.PopDiscard();
             ScriptDatum.BooleanOf(result, out leftSlot);
         }
@@ -1216,7 +1206,7 @@ namespace AuroraScript.Runtime
             var index = ctx.ReadByte();
             ref var slot = ref ctx.CurrentFrame.GetLocalRef(index);
             var original = slot;
-            if (!slot.TryGetNumber(out var current))
+            if (!ScriptDatum.TryToNumber(in slot, out var current))
             {
                 current = double.NaN;
             }
@@ -1321,7 +1311,7 @@ namespace AuroraScript.Runtime
             var index = useLongIndex ? ctx.ReadInt32() : ctx.ReadByte();
             ref var slot = ref ctx.CurrentFrame.GetLocalRef(index);
             var original = slot;
-            if (!slot.TryGetNumber(out var current))
+            if (!ScriptDatum.TryToNumber(in slot, out var current))
             {
                 current = double.NaN;
             }
@@ -1336,7 +1326,7 @@ namespace AuroraScript.Runtime
             var stack = ctx.OperandStack;
             var index = useLongIndex ? ctx.ReadInt32() : ctx.ReadByte();
             ref var leftSlot = ref ctx.CurrentFrame.GetLocalRef(index);
-            var rightSlot = stack.PopDatum();
+            ref readonly var rightSlot = ref stack.PopRef();
             switch (operation)
             {
                 case LocalStackOp.Add:
@@ -1346,7 +1336,7 @@ namespace AuroraScript.Runtime
                     }
                     else
                     {
-                        leftSlot = ScriptDatum.FromString(leftSlot.ToString() + rightSlot.ToString());
+                        leftSlot = ScriptDatum.FromString(ScriptDatum.ToString(in leftSlot) + ScriptDatum.ToString(in rightSlot));
                     }
                     break;
                 case LocalStackOp.Subtract:
