@@ -623,6 +623,12 @@ export function testFor(count = 1000) {
 }
 
 
+export function testArray(count = 1000000) {
+    var arr = [];
+    for (var o = 0; o < count; o++) {
+        arr[22] =  o;
+    }
+}
 
 
 

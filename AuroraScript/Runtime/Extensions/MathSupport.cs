@@ -45,11 +45,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Floor(num));
+                ScriptDatum.NumberOf(Math.Floor(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -57,11 +57,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Round(num));
+                ScriptDatum.NumberOf(Math.Round(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -74,22 +74,22 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Cos(num));
+                ScriptDatum.NumberOf(Math.Cos(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
         public static void ACOS(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Acos(num));
+                ScriptDatum.NumberOf(Math.Acos(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -97,11 +97,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Sin(num));
+                ScriptDatum.NumberOf(Math.Sin(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -109,11 +109,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Asin(num));
+                ScriptDatum.NumberOf(Math.Asin(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -121,11 +121,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Tan(num));
+                ScriptDatum.NumberOf(Math.Tan(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -133,11 +133,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Atan(num));
+                ScriptDatum.NumberOf(Math.Atan(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -154,7 +154,7 @@ namespace AuroraScript.Runtime.Extensions
 
         public static void RANDOM(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
-            result = ScriptDatum.FromNumber(Random.Shared.NextDouble());
+            ScriptDatum.NumberOf(Random.Shared.NextDouble(), out result);
         }
 
 
@@ -162,11 +162,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num1) && args.TryGetNumber(1, out var num2))
             {
-                result = ScriptDatum.FromNumber(Math.Pow(num1, num2));
+                ScriptDatum.NumberOf(Math.Pow(num1, num2), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -174,11 +174,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Exp(num));
+                ScriptDatum.NumberOf(Math.Exp(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -186,11 +186,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(Math.Log(num));
+                ScriptDatum.NumberOf(Math.Log(num), out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -198,11 +198,11 @@ namespace AuroraScript.Runtime.Extensions
         {
             if (args.TryGetNumber(0, out var num))
             {
-                result = ScriptDatum.FromNumber(num < 0 ? -num : num);
+                ScriptDatum.NumberOf(num < 0 ? -num : num, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -216,11 +216,11 @@ namespace AuroraScript.Runtime.Extensions
                 {
                     if (num2 > num) num = num2;
                 }
-                result = ScriptDatum.FromNumber(num);
+                ScriptDatum.NumberOf(num, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 
@@ -233,11 +233,11 @@ namespace AuroraScript.Runtime.Extensions
                 {
                     if (num2 < num) num = num2;
                 }
-                result = ScriptDatum.FromNumber(num);
+                ScriptDatum.NumberOf(num, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(Double.NaN, out result);
             }
         }
 

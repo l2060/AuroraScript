@@ -25,22 +25,22 @@ namespace AuroraScript.Runtime
         {
             if (args.TryGetNumber(0, out var number))
             {
-                result = ScriptDatum.FromNumber(number);
+                ScriptDatum.NumberOf(number, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
         }
         internal static void PARSE_INTEGER(ExecuteContext context, ScriptObject thisObject, Span<ScriptDatum> args, ref ScriptDatum result)
         {
             if (args.TryGetInteger(0, out var number))
             {
-                result = ScriptDatum.FromNumber(number);
+                ScriptDatum.NumberOf(number, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
         }
 
@@ -65,11 +65,11 @@ namespace AuroraScript.Runtime
         {
             if (args.TryGetNumber(0, out var number))
             {
-                result = ScriptDatum.FromNumber(number);
+                ScriptDatum.NumberOf(number, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(Double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
         }
 

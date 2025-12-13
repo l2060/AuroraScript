@@ -113,25 +113,36 @@ namespace AuroraScript.Runtime.Base
             return _items[index];
         }
 
+        public void Get(Int32 index, out ScriptDatum scriptDatum)
+        {
+            if (index < 0 || index >= _count)
+            {
+                scriptDatum = ScriptDatum.Null;
+            }
+            scriptDatum = _items[index];
+        }
 
 
         public void Set(Int32 index, ScriptDatum datum)
         {
             if (index < 0) return;
-            EnsureCapacity(index + 1);
-
+            if (index >= _items.Length) EnsureCapacity(index + 1);
             if (index >= _count)
             {
-                for (int i = _count; i < index; i++)
-                {
-                    _items[i] = ScriptDatum.Null;
-                }
                 _count = index + 1;
             }
-
             _items[index] = datum;
         }
-
+        public void SetRef(Int32 index, ref ScriptDatum datum)
+        {
+            if (index < 0) return;
+            if (index >= _items.Length) EnsureCapacity(index + 1);
+            if (index >= _count)
+            {
+                _count = index + 1;
+            }
+            _items[index] = datum;
+        }
 
         public void PushDatum(ScriptDatum datum)
         {

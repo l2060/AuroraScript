@@ -201,7 +201,7 @@ namespace AuroraScript
                 }
                 if (datum.Object != null)
                 {
-                    value = datum.Object.IsTrue();
+                    value = datum.Object != ScriptObject.Null;
                     return true;
                 }
             }

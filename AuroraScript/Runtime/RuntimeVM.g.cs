@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime
 {
@@ -33,8 +34,8 @@ namespace AuroraScript.Runtime
         }
 
         private static void POP(ExecuteFrameContext ctx)
-        {            
-             //ctx.OperandStack.PopDiscard();
+        {
+            //ctx.OperandStack.PopDiscard();
 
             var stack = ctx.OperandStack;
             int newSize = stack._size - 1;
@@ -66,12 +67,12 @@ namespace AuroraScript.Runtime
             ref var leftSlot = ref stack.PeekRef(1);
             if (leftSlot.Kind == ValueKind.Number && rightSlot.Kind == ValueKind.Number)
             {
-                leftSlot = ScriptDatum.FromBoolean(leftSlot.Number < rightSlot.Number);
+                ScriptDatum.BooleanOf(leftSlot.Number < rightSlot.Number, out leftSlot);
                 stack.PopDiscard();
             }
             else
             {
-                leftSlot = ScriptDatum.FromBoolean(false);
+                ScriptDatum.BooleanOf(false, out leftSlot);
                 stack.PopDiscard();
             }
         }
@@ -466,11 +467,14 @@ namespace AuroraScript.Runtime
         private static void GET_ELEMENT(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datumValue = _operandStack.PopDatum();
-            var datumObjValue = _operandStack.PopDatum();
+            ScriptDatum datumValue, datumObjValue, value;
+            _operandStack.PopDatum(out datumValue);
+            _operandStack.PopDatum(out datumObjValue);
             if (datumObjValue.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
             {
-                _operandStack.PushDatum(scriptArray.Get((Int32)datumValue.Number));
+                scriptArray.Get((Int32)datumValue.Number, out value);
+                _operandStack.PushRef(ref value);
+                //_operandStack.PushDatum(scriptArray.Get((Int32)datumValue.Number));
             }
             else if (datumObjValue.TryGetAnyObject(out var datumObj))
             {
@@ -479,19 +483,20 @@ namespace AuroraScript.Runtime
             }
             else
             {
-                _operandStack.PushDatum(ScriptDatum.Null);
+                _operandStack.PushNull();
             }
         }
 
         private static void SET_ELEMENT(ExecuteFrameContext ctx)
         {
             var _operandStack = ctx.OperandStack;
-            var datumTargetObj = _operandStack.PopDatum();
-            var datumValue = _operandStack.PopDatum();
-            var datumAssignedValue = _operandStack.PopDatum();
+            ScriptDatum datumTargetObj, datumValue, datumAssignedValue;
+            _operandStack.PopDatum(out datumTargetObj);
+            _operandStack.PopDatum(out datumValue);
+            _operandStack.PopDatum(out datumAssignedValue);
             if (datumTargetObj.TryGetArray(out var scriptArray) && datumValue.Kind == ValueKind.Number)
             {
-                scriptArray.Set((Int32)datumValue.Number, datumAssignedValue);
+                scriptArray.SetRef((Int32)datumValue.Number, ref datumAssignedValue);
             }
             else if (datumTargetObj.TryGetAnyObject(out var datumObj))
             {
@@ -547,7 +552,7 @@ namespace AuroraScript.Runtime
             // 从栈中弹出参数，注意参数顺序是从右到左
             for (int i = argCount - 1; i >= 0; i--)
             {
-                argDatums[i] = _operandStack.PopDatum();
+                _operandStack.PopToRef(ref argDatums[i]);
             }
 
             if (callable.TryGetFunction(out var closureFunc))
@@ -568,7 +573,7 @@ namespace AuroraScript.Runtime
                 {
                     ScriptDatum result = ScriptDatum.Null;
                     callableFunc.Invoke(ctx.ExecuteContext, null, argDatums, ref result);
-                    _operandStack.PushDatum(result);
+                    _operandStack.PushRef(ref result);
                 }
                 catch (Exception ex)
                 {
@@ -607,16 +612,11 @@ namespace AuroraScript.Runtime
 
         private static void RETURN(ExecuteFrameContext ctx)
         {
-            //var _callStack = ctx.OperandStack;
             var _operandStack = ctx.OperandStack;
             // 函数返回指令
-            // 获取返回值（如果有）
             var datumValue = _operandStack.Count > 0 ? _operandStack.PopDatum() : ScriptDatum.Null;
             // 弹出当前调用帧
             var callDeep = ctx.PopCallStack();
-
-            //var finishedFrame = _callStack.Pop();
-            //CallFramePool.Return(finishedFrame);
             // 如果调用栈为空，说明已经执行到最外层，整个脚本执行完毕
             if (callDeep == 0)
             {
@@ -628,8 +628,6 @@ namespace AuroraScript.Runtime
             // 如果调用栈不为空，说明是从子函数返回到调用者
             // 将返回值压入操作数栈，供调用者使用
             ctx.OperandStack.PushRef(ref datumValue);
-            // 切换到调用者的帧继续执行
-            //frame = _callStack.Peek();
         }
 
 
@@ -650,7 +648,7 @@ namespace AuroraScript.Runtime
             }
             // 如果调用栈不为空，说明是从子函数返回到调用者
             // 将返回值压入操作数栈，供调用者使用
-            ctx.OperandStack.PushDatum(ScriptDatum.Null);
+            ctx.OperandStack.PushNull();
             // 切换到调用者的帧继续执行
             //ctx.SwitchFrame();
             //frame = _callStack.Peek();
@@ -697,11 +695,11 @@ namespace AuroraScript.Runtime
             ScriptDatum result;
             if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                result = ScriptDatum.FromNumber(leftNumber - rightNumber);
+                ScriptDatum.NumberOf(leftNumber - rightNumber, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
             stack.PopDiscard();
             leftSlot = result;
@@ -716,11 +714,11 @@ namespace AuroraScript.Runtime
             ScriptDatum result;
             if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                result = ScriptDatum.FromNumber(leftNumber * rightNumber);
+                ScriptDatum.NumberOf(leftNumber * rightNumber, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
             stack.PopDiscard();
             leftSlot = result;
@@ -735,11 +733,11 @@ namespace AuroraScript.Runtime
             ScriptDatum result;
             if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                result = ScriptDatum.FromNumber(leftNumber / rightNumber);
+                ScriptDatum.NumberOf(leftNumber / rightNumber, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
             stack.PopDiscard();
             leftSlot = result;
@@ -754,11 +752,11 @@ namespace AuroraScript.Runtime
             ScriptDatum result;
             if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                result = ScriptDatum.FromNumber(leftNumber % rightNumber);
+                ScriptDatum.NumberOf(leftNumber % rightNumber, out result);
             }
             else
             {
-                result = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
             stack.PopDiscard();
             leftSlot = result;
@@ -770,11 +768,11 @@ namespace AuroraScript.Runtime
             ref var slot = ref stack.PeekRef();
             if (slot.TryGetNumber(out var value))
             {
-                slot = ScriptDatum.FromNumber(ApplyUnaryOp(UnaryNumberOp.Negate, value));
+                ScriptDatum.NumberOf(-value, out slot);
             }
             else
             {
-                slot = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out slot);
             }
         }
 
@@ -784,11 +782,11 @@ namespace AuroraScript.Runtime
             ref var slot = ref stack.PeekRef();
             if (slot.TryGetNumber(out var value))
             {
-                slot = ScriptDatum.FromNumber(ApplyUnaryOp(UnaryNumberOp.Increment, value));
+                ScriptDatum.NumberOf(value + 1, out slot);
             }
             else
             {
-                slot = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out slot);
             }
         }
 
@@ -798,11 +796,11 @@ namespace AuroraScript.Runtime
             ref var slot = ref stack.PeekRef();
             if (slot.TryGetNumber(out var value))
             {
-                slot = ScriptDatum.FromNumber(ApplyUnaryOp(UnaryNumberOp.Decrement, value));
+                ScriptDatum.NumberOf(value - 1, out slot);
             }
             else
             {
-                slot = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out slot);
             }
         }
 
@@ -812,132 +810,140 @@ namespace AuroraScript.Runtime
             ref var slot = ref stack.PeekRef();
             if (slot.TryGetInteger(out var value))
             {
-                slot = ScriptDatum.FromNumber(~value);
+                ScriptDatum.NumberOf(~value, out slot);
             }
             else
             {
-                slot = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out slot);
             }
         }
 
         private static void BIT_SHIFT_LEFT(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var result = (double)((int)left.Number << (int)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber(result));
+                var value = (double)((int)leftNumber << (int)rightNumber);
+                ScriptDatum.NumberOf(value, out result);
             }
             else
             {
-                stack.PushDatum(ScriptDatum.FromNumber(double.NaN));
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void BIT_SHIFT_RIGHT(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var result = (double)((int)left.Number >> (int)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber(result));
+                var value = (double)((int)leftNumber >> (int)rightNumber);
+                ScriptDatum.NumberOf(value, out result);
             }
             else
             {
-                stack.PushDatum(ScriptDatum.FromNumber(double.NaN));
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void BIT_UNSIGNED_SHIFT_RIGHT(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var result = (double)((int)left.Number >>> (int)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber(result));
+                var value = (double)((int)leftNumber >>> (int)rightNumber);
+                ScriptDatum.NumberOf(value, out result);
             }
             else
             {
-                stack.PushDatum(ScriptDatum.FromNumber(double.NaN));
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void BIT_AND(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var v = unchecked((Int32)(Int64)left.Number) & unchecked((Int32)(Int64)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber((double)v));
+                var v = unchecked((Int32)(Int64)leftNumber) & unchecked((Int32)(Int64)rightNumber);
+                ScriptDatum.NumberOf(v, out result);
             }
-            else if (left.Kind == ValueKind.Null || right.Kind == ValueKind.Null)
+            else if (leftSlot.Kind == ValueKind.Null || rightSlot.Kind == ValueKind.Null)
             {
-                stack.PushDatum(ScriptDatum.FromNumber(0));
+                ScriptDatum.NumberOf(0, out result);
             }
             else
             {
-                stack.PushDatum(ScriptDatum.FromNumber(double.NaN));
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void BIT_OR(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var v = unchecked((Int32)(Int64)left.Number) | unchecked((Int32)(Int64)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber((double)v));
+                var v = unchecked((Int32)(Int64)leftNumber) | unchecked((Int32)(Int64)rightNumber);
+                ScriptDatum.NumberOf(v, out result);
             }
-            else if (left.Kind == ValueKind.Null)
+            else if (leftSlot.Kind == ValueKind.Null)
             {
-                stack.PushDatum(right);
+                result = rightSlot;
             }
             else
             {
-                stack.PushDatum(left);
+                result = leftSlot;
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void BIT_XOR(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var right = stack.PopDatum();
-            var left = stack.PopDatum();
-            if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
+            ref var rightSlot = ref stack.PeekRef();
+            ref var leftSlot = ref stack.PeekRef(1);
+            ScriptDatum result;
+            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                var v = unchecked((Int32)(Int64)left.Number) ^ unchecked((Int32)(Int64)right.Number);
-                stack.PushDatum(ScriptDatum.FromNumber((double)v));
-            }
-            else if (left.Kind == ValueKind.Null)
-            {
-                stack.PushDatum(right);
+                var v = unchecked((Int32)(Int64)leftNumber) ^ unchecked((Int32)(Int64)rightNumber);
+                ScriptDatum.NumberOf(v, out result);
             }
             else
             {
-                stack.PushDatum(left);
+                ScriptDatum.NumberOf(double.NaN, out result);
             }
-
+            stack.PopDiscard();
+            leftSlot = result;
         }
 
         private static void LOGIC_NOT(ExecuteFrameContext ctx)
         {
             ref var slot = ref ctx.OperandStack.PeekRef();
-            slot = ScriptDatum.FromBoolean(!slot.IsTrue());
+            ScriptDatum.BooleanOf(!slot.IsTrue(), out slot);
         }
 
         private static void LOGIC_AND(ExecuteFrameContext ctx)
@@ -947,8 +953,7 @@ namespace AuroraScript.Runtime
             ref var leftSlot = ref stack.PeekRef(1);
             var result = (leftSlot.IsTrue() && rightSlot.IsTrue());
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
-
+            ScriptDatum.BooleanOf(result, out leftSlot);
         }
 
         private static void LOGIC_OR(ExecuteFrameContext ctx)
@@ -958,8 +963,7 @@ namespace AuroraScript.Runtime
             ref var leftSlot = ref stack.PeekRef(1);
             var result = (leftSlot.IsTrue() || rightSlot.IsTrue());
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
-
+            ScriptDatum.BooleanOf(result, out leftSlot);
         }
 
         private static void EQUAL(ExecuteFrameContext ctx)
@@ -969,7 +973,7 @@ namespace AuroraScript.Runtime
             ref var leftSlot = ref stack.PeekRef(1);
             var equals = DatumEquals(leftSlot, rightSlot);
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(equals);
+            ScriptDatum.BooleanOf(equals, out leftSlot);
 
         }
 
@@ -980,14 +984,28 @@ namespace AuroraScript.Runtime
             ref var leftSlot = ref stack.PeekRef(1);
             var equals = DatumEquals(leftSlot, rightSlot);
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(!equals);
-
+            ScriptDatum.BooleanOf(!equals, out leftSlot);
         }
 
 
 
         private static void LESS_EQUAL(ExecuteFrameContext ctx)
         {
+            //var stack = ctx.OperandStack;
+            //ref var rightSlot = ref stack.PeekRef();
+            //ref var leftSlot = ref stack.PeekRef(1);
+            //if (leftSlot.Kind == rightSlot.Kind && leftSlot.Kind == ValueKind.Number)
+            //{
+            //    stack.PopDiscard();
+            //    leftSlot = ScriptDatum.FromBoolean(leftSlot.Number <= rightSlot.Number);
+            //}
+            //else
+            //{
+            //    stack.PopDiscard();
+            //    leftSlot = ScriptDatum.False;
+            //}
+
+
             var stack = ctx.OperandStack;
             ref var rightSlot = ref stack.PeekRef();
             ref var leftSlot = ref stack.PeekRef(1);
@@ -995,7 +1013,7 @@ namespace AuroraScript.Runtime
                 ? leftNumber <= rightNumber
                 : false;
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
+            ScriptDatum.BooleanOf(result, out leftSlot);
         }
 
         private static void GREATER_THAN(ExecuteFrameContext ctx)
@@ -1007,7 +1025,7 @@ namespace AuroraScript.Runtime
                 ? leftNumber > rightNumber
                 : false;
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
+            ScriptDatum.BooleanOf(result, out leftSlot);
         }
 
         private static void GREATER_EQUAL(ExecuteFrameContext ctx)
@@ -1019,7 +1037,7 @@ namespace AuroraScript.Runtime
                 ? leftNumber >= rightNumber
                 : false;
             stack.PopDiscard();
-            leftSlot = ScriptDatum.FromBoolean(result);
+            ScriptDatum.BooleanOf(result, out leftSlot);
 
         }
 
@@ -1038,7 +1056,7 @@ namespace AuroraScript.Runtime
         {
             var offset = ctx.ReadInt32();
             var stack = ctx.OperandStack;
-            var isTrue = stack.PeekRef().IsTrue();
+            var isTrue = stack.PeekIsTrue();
             stack.PopDiscard();
             if (isTrue)
             {
@@ -1067,67 +1085,67 @@ namespace AuroraScript.Runtime
 
         private static void PUSH_0(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(0));
+            ctx.OperandStack.PushNumber(0);
 
         }
         private static void PUSH_1(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(1));
+            ctx.OperandStack.PushNumber(1);
 
         }
         private static void PUSH_2(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(2));
+            ctx.OperandStack.PushNumber(2);
 
         }
         private static void PUSH_3(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(3));
+            ctx.OperandStack.PushNumber(3);
 
         }
         private static void PUSH_4(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(4));
+            ctx.OperandStack.PushNumber(4);
 
         }
         private static void PUSH_5(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(5));
+            ctx.OperandStack.PushNumber(5);
 
         }
         private static void PUSH_6(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(6));
+            ctx.OperandStack.PushNumber(6);
 
         }
         private static void PUSH_7(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(7));
+            ctx.OperandStack.PushNumber(7);
 
         }
         private static void PUSH_8(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(8));
+            ctx.OperandStack.PushNumber(8);
 
         }
         private static void PUSH_9(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(9));
+            ctx.OperandStack.PushNumber(9);
 
         }
         private static void PUSH_NULL(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.Null);
+            ctx.OperandStack.PushNull();
 
         }
         private static void PUSH_FALSE(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromBoolean(false));
+            ctx.OperandStack.PushFalse();
 
         }
         private static void PUSH_TRUE(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromBoolean(true));
+            ctx.OperandStack.PushTrue();
 
         }
         private static void PUSH_THIS(ExecuteFrameContext ctx)
@@ -1146,7 +1164,7 @@ namespace AuroraScript.Runtime
         private static void PUSH_ARGUMENTS(ExecuteFrameContext ctx)
         {
             var argDatum = ScriptDatum.FromArray(new ScriptArray(ctx.CurrentFrame.Arguments.ViewSpan()));
-            ctx.OperandStack.PushDatum(argDatum);
+            ctx.OperandStack.PushRef(ref argDatum);
 
         }
 
@@ -1156,46 +1174,46 @@ namespace AuroraScript.Runtime
 
         private static void PUSH_I8(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadSByte()));
-
+            ScriptDatum.NumberOf(ctx.ReadSByte(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
         private static void PUSH_I16(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadInt16()));
-
+            ScriptDatum.NumberOf(ctx.ReadInt16(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
         private static void PUSH_I32(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadInt32()));
-
+            ScriptDatum.NumberOf(ctx.ReadInt32(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
         private static void PUSH_I64(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadInt64()));
-
+            ScriptDatum.NumberOf(ctx.ReadInt64(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
         private static void PUSH_F32(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadFloat()));
-
+            ScriptDatum.NumberOf(ctx.ReadFloat(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
         private static void PUSH_F64(ExecuteFrameContext ctx)
         {
-            ctx.OperandStack.PushDatum(ScriptDatum.FromNumber(ctx.ReadDouble()));
-
+            ScriptDatum.NumberOf(ctx.ReadDouble(), out var num);
+            ctx.OperandStack.PushRef(ref num);
         }
 
         private static void PUSH_STRING(ExecuteFrameContext ctx)
         {
             var stringIndex = ctx.ReadInt32();
-            ctx.OperandStack.PushDatum(ScriptDatum.FromString(ctx.Strings[stringIndex]));
-
+            ScriptDatum num = new ScriptDatum() { Kind = ValueKind.String, String = ctx.Strings[stringIndex] };
+            ctx.OperandStack.PushRef(ref num);
         }
 
         private static void INC_LOCAL(ExecuteFrameContext ctx)
         {
             var stack = ctx.OperandStack;
-            var index =  ctx.ReadByte();
+            var index = ctx.ReadByte();
             ref var slot = ref ctx.CurrentFrame.GetLocalRef(index);
             var original = slot;
             if (!slot.TryGetNumber(out var current))
@@ -1203,7 +1221,7 @@ namespace AuroraScript.Runtime
                 current = double.NaN;
             }
             var newValue = current + 1;
-            stack.PushDatum(ScriptDatum.FromNumber(newValue));
+            stack.PushNumber(newValue);
         }
 
         private static void INC_LOCAL_L(ExecuteFrameContext ctx)
@@ -1308,7 +1326,7 @@ namespace AuroraScript.Runtime
                 current = double.NaN;
             }
             var newValue = current + delta;
-            slot = ScriptDatum.FromNumber(newValue);
+            ScriptDatum.NumberOf(newValue, out slot);
             var result = isPostfix ? original : slot;
             stack.PushDatum(result);
         }
@@ -1350,11 +1368,11 @@ namespace AuroraScript.Runtime
         {
             if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
             {
-                leftSlot = ScriptDatum.FromNumber(ApplyBinaryOp(operation, leftNumber, rightNumber));
+                ScriptDatum.NumberOf(ApplyBinaryOp(operation, leftNumber, rightNumber), out leftSlot);
             }
             else
             {
-                leftSlot = ScriptDatum.FromNumber(double.NaN);
+                ScriptDatum.NumberOf(double.NaN, out leftSlot);
             }
         }
 

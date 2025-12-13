@@ -28,6 +28,23 @@ namespace AuroraScript.Runtime
             return new ScriptDatum { Kind = ValueKind.Boolean, Boolean = value };
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void BooleanOf(bool value, out ScriptDatum dst)
+        {
+            dst = new ScriptDatum { Kind = ValueKind.Boolean, Boolean = value };
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void NumberOf(double value, out ScriptDatum dst)
+        {
+            dst = new ScriptDatum { Kind = ValueKind.Number, Number = value };
+        }
+
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDatum FromNumber(double value)
         {

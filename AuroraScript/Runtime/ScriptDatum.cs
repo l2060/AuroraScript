@@ -114,7 +114,7 @@ namespace AuroraScript.Runtime
                 case ValueKind.String:
                     return !string.IsNullOrEmpty(String.Value);
                 default:
-                    return Object != null && Object.IsTrue();
+                    return Object != ScriptObject.Null;
             }
         }
 

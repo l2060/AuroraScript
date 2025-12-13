@@ -40,6 +40,55 @@ namespace AuroraScript.Runtime
             _size = i + 1;
         }
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushNumber(Double value)
+        {
+            ScriptDatum.NumberOf(value, out var result);
+            var buffer = _buffer;
+            int i = _size;
+            if ((uint)i >= (uint)buffer.Length) Grow();
+            buffer[i] = result;
+            _size = i + 1;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushNull()
+        {
+            var result = ScriptDatum.Null;
+            var buffer = _buffer;
+            int i = _size;
+            if ((uint)i >= (uint)buffer.Length) Grow();
+            buffer[i] = result;
+            _size = i + 1;
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushTrue()
+        {
+            var buffer = _buffer;
+            int i = _size;
+            if ((uint)i >= (uint)buffer.Length) Grow();
+            ScriptDatum.BooleanOf(true, out buffer[i]);
+            _size = i + 1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFalse()
+        {
+            var buffer = _buffer;
+            int i = _size;
+            if ((uint)i >= (uint)buffer.Length) Grow();
+            ScriptDatum.BooleanOf(false, out buffer[i]);
+            _size = i + 1;
+        }
+
+
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal void Grow()
         {
@@ -77,7 +126,15 @@ namespace AuroraScript.Runtime
         }
 
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PopDatum(out ScriptDatum datum)
+        {
+            if (_size == 0) ThrowHelper.ThrowEmptyStack();
+            int idx = --_size;
+            ref var src = ref _buffer[idx];
+            datum = src;
+            src = default;
+        }
 
 
         public ScriptObject PopObject()
@@ -101,6 +158,16 @@ namespace AuroraScript.Runtime
             var index = _size - 1 - offset;
             return ref _buffer[index];
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool PeekIsTrue(int offset = 0)
+        {
+            var index = _size - 1 - offset;
+            return _buffer[index].IsTrue();
+        }
+
+
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

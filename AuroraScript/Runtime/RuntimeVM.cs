@@ -2,13 +2,16 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 
 namespace AuroraScript.Runtime
 {
@@ -194,7 +197,7 @@ namespace AuroraScript.Runtime
         private readonly AuroraEngine _engine;
 
         public readonly long[] _opCounts = new long[255];
-        public readonly long[] _opTicks = new long[255];
+        public readonly ulong[] _opTicks = new ulong[255];
 
 
         internal DebugSymbol ResolveSymbol(Int32 pointer)
@@ -210,21 +213,33 @@ namespace AuroraScript.Runtime
 
         public void PrintOpCounts(int maxEntries = 0)
         {
-            var length = Math.Min(_opCounts.Length, _opDispatch.Length);
-            IEnumerable<(int Index, long Count)> ordered = Enumerable.Range(0, length)
-                .Select(i => (Index: i, Count: _opCounts[i]))
-                .Where(item => item.Count > 0)
-                .OrderByDescending(item => item.Count);
+            int length = Math.Min(_opCounts.Length, _opDispatch.Length);
+            if (maxEntries == 0) maxEntries = length;
 
-            if (maxEntries > 0)
+            ulong totalTicks = 0;
+            for (int i = 0; i < length; i++)
             {
-                ordered = ordered.Take(maxEntries);
+                totalTicks += _opTicks[i];
             }
 
-            foreach (var (index, count) in ordered)
+            var ordered = Enumerable.Range(0, length)
+                .Select(i => (Index: i, Count: _opCounts[i], Ticks: _opTicks[i], Avg: _opTicks[i] / (Double)_opCounts[i], Percent: _opTicks[i] * 100.0f / totalTicks))
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Percent);
+
+            const string HeaderFormat = "{0,-20} {1,-20} {2,-15} {3,-18} {4,-12} {5,6}";
+            const string RowFormat = "[{0,-18}] {1,-20} {2,-15} {3,-18} {4,-12:F0} {5,6:F2}";
+
+            Console.WriteLine(new string('-', 18 + 1 + 20 + 1 + 15 + 1 + 18 + 1 + 12 + 1 + 6));
+            Console.WriteLine(string.Format(HeaderFormat, "RANK", "OPCODE", "COUNT", "TICKS", "AVG", "%"));
+            Console.WriteLine(new string('-', 18 + 1 + 20 + 1 + 15 + 1 + 18 + 1 + 12 + 1 + 6));
+
+            var rank = 1;
+            foreach (var item in ordered.Take(maxEntries))
             {
-                var code = (OpCode)index;
-                Console.WriteLine($"OPCODE {code,-20} COUNT: {count,-20}   TICKS: {_opTicks[index],-20}");
+                var code = (OpCode)item.Index;
+                Console.WriteLine(string.Format(RowFormat, rank, code, item.Count, item.Ticks, item.Avg, item.Percent));
+                rank++;
             }
         }
 
@@ -293,11 +308,16 @@ namespace AuroraScript.Runtime
                 // 从当前指令指针位置读取操作码
                 var opCode = ctx.ReadOpCode();
                 _opCounts[opCode]++;
-                //var start = Stopwatch.GetTimestamp();
+#if DEBUG
+                var start = CpuTimer.Ticks();
+#endif
                 delegate*<ExecuteFrameContext, void> handler = opDispatch[opCode];
                 handler(ctx);
-                //var end = Stopwatch.GetTimestamp();
-                //_opTicks[opCode] += (end - start);
+#if DEBUG
+                var end = CpuTimer.Ticks();
+                _opTicks[opCode] += (end - start);
+#endif
+
             }
         }
 
@@ -311,15 +331,6 @@ namespace AuroraScript.Runtime
 
 
 
-
-        private enum UnaryNumberOp : byte
-        {
-            Negate,
-            Increment,
-            Decrement,
-            BitNot
-        }
-
         private enum BinaryNumberOp : byte
         {
             Subtract,
@@ -328,23 +339,7 @@ namespace AuroraScript.Runtime
             Mod
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static double ApplyUnaryOp(UnaryNumberOp op, double value)
-        {
-            switch (op)
-            {
-                case UnaryNumberOp.Negate:
-                    return -value;
-                case UnaryNumberOp.Increment:
-                    return value + 1d;
-                case UnaryNumberOp.Decrement:
-                    return value - 1d;
-                case UnaryNumberOp.BitNot:
-                    return ~(long)value;
-                default:
-                    return value;
-            }
-        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static double ApplyBinaryOp(BinaryNumberOp op, double left, double right)
@@ -380,33 +375,74 @@ namespace AuroraScript.Runtime
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Boolean DatumEquals(ScriptDatum leftDatum, ScriptDatum rightDatum)
+        private static Boolean DatumEquals(ScriptDatum a, ScriptDatum b)
         {
-            if (leftDatum.Kind == rightDatum.Kind)
+            var ak = a.Kind;
+            var bk = b.Kind;
+
+            // 1️⃣ 最快路径：Kind 相同
+            if (ak == bk)
             {
-                switch (leftDatum.Kind)
+                switch (ak)
                 {
                     case ValueKind.Null:
                         return true;
+
                     case ValueKind.Boolean:
-                        return leftDatum.Boolean == rightDatum.Boolean;
+                        return a.Boolean == b.Boolean;
+
                     case ValueKind.Number:
-                        return leftDatum.Number == rightDatum.Number;
+                        return a.Number == b.Number;
+
                     case ValueKind.String:
-                        return String.Equals(leftDatum.String.Value, rightDatum.String.Value, StringComparison.Ordinal);
+                        // 直接引用或 Ordinal
+                        return ReferenceEquals(a.String, b.String)
+                            || a.String.Value == b.String.Value;
+
                     case ValueKind.Object:
-                        return Equals(leftDatum.Object, rightDatum.Object);
+                        return ReferenceEquals(a.Object, b.Object)
+                            || a.Object.Equals(b.Object);
                 }
             }
 
-            if (leftDatum.Kind == ValueKind.Null || rightDatum.Kind == ValueKind.Null)
-            {
-                return leftDatum.Kind == ValueKind.Null && rightDatum.Kind == ValueKind.Null;
-            }
+            // 2️⃣ Null 快速失败
+            if (ak == ValueKind.Null || bk == ValueKind.Null)  return false;
 
-            var leftObj = leftDatum.ToObject();
-            var rightObj = rightDatum.ToObject();
-            return leftObj.Equals(rightObj);
+            // 3️⃣ 双 Number / Bool 跨类型比较（可选）
+            //if (ak <= ValueKind.Number && bk <= ValueKind.Number)
+            //{
+            //    return a.Number == b.Number;
+            //}
+            // 4️⃣ 最慢路径：真实对象
+            var ao = a.Object;
+            var bo = b.Object;
+            return ao.Equals(bo);
+
+            //if (leftDatum.Kind == rightDatum.Kind)
+            //{
+            //    switch (leftDatum.Kind)
+            //    {
+            //        case ValueKind.Null:
+            //            return true;
+            //        case ValueKind.Boolean:
+            //            return leftDatum.Boolean == rightDatum.Boolean;
+            //        case ValueKind.Number:
+            //            return leftDatum.Number == rightDatum.Number;
+            //        case ValueKind.String:
+            //            return String.Equals(leftDatum.String.Value, rightDatum.String.Value, StringComparison.Ordinal);
+            //        case ValueKind.Object:
+            //            return Equals(leftDatum.Object, rightDatum.Object);
+            //    }
+            //}
+
+            //if (leftDatum.Kind == ValueKind.Null || rightDatum.Kind == ValueKind.Null)
+            //{
+            //    return leftDatum.Kind == ValueKind.Null && rightDatum.Kind == ValueKind.Null;
+            //}
+
+            //var leftObj = leftDatum.ToObject();
+            //var rightObj = rightDatum.ToObject();
+            //return leftObj.Equals(rightObj);
         }
 
 
@@ -431,25 +467,6 @@ namespace AuroraScript.Runtime
             }
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ExecuteBinaryNumberOp(ExecuteContext exeContext, BinaryNumberOp operation, double defaultValue)
-        {
-            var stack = exeContext._operandStack;
-            ref var rightSlot = ref stack.PeekRef();
-            ref var leftSlot = ref stack.PeekRef(1);
-            ScriptDatum result;
-            if (TryGetBinaryNumbers(in leftSlot, in rightSlot, out var leftNumber, out var rightNumber))
-            {
-                result = ScriptDatum.FromNumber(ApplyBinaryOp(operation, leftNumber, rightNumber));
-            }
-            else
-            {
-                result = ScriptDatum.FromNumber(defaultValue);
-            }
-            stack.PopDiscard();
-            leftSlot = result;
-        }
 
         #endregion
 
