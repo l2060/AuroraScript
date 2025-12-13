@@ -2,6 +2,7 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
+using AuroraScript.Runtime.Util;
 using System;
 using System.Collections.Immutable;
 using System.Globalization;

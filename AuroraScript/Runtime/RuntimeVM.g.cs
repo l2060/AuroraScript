@@ -8,6 +8,8 @@ using AuroraScript.Runtime.Util;
 using System;
 using System.Buffers;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,8 +37,6 @@ namespace AuroraScript.Runtime
 
         private static void POP(ExecuteFrameContext ctx)
         {
-            //ctx.OperandStack.PopDiscard();
-
             var stack = ctx.OperandStack;
             int newSize = stack._size - 1;
             if ((uint)newSize >= (uint)stack._size) ThrowHelper.ThrowEmptyStack();
@@ -48,8 +48,6 @@ namespace AuroraScript.Runtime
 
         private static void LOAD_LOCAL(ExecuteFrameContext ctx)
         {
-            //var localIndex = ctx.ReadByte();
-            //ctx.PushLocal(localIndex);
             ref var frame = ref ctx.CurrentFrame;
             byte index = *(ctx.CodeBasePointer + frame.Pointer++);
             ref ScriptDatum local = ref ctx.Locals[index];
@@ -79,9 +77,6 @@ namespace AuroraScript.Runtime
 
         private static void INC_LOCAL_POST(ExecuteFrameContext ctx)
         {
-            //var index = ctx.ReadByte();
-            //ctx.IncLocal(index);
-
             ref var frame = ref ctx.CurrentFrame;
             byte index = *(ctx.CodeBasePointer + frame.Pointer++);
             ref var local = ref ctx.Locals[index];
