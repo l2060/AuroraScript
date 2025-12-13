@@ -58,7 +58,7 @@ namespace AuroraScript.Runtime.Extensions
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             var visited = new HashSet<ScriptObject>(ReferenceComparer.Instance);
-            WriteDatum(jsonWriter,in datum, visited);
+            WriteDatum(jsonWriter, in datum, visited);
             jsonWriter.Flush();
             return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
         }

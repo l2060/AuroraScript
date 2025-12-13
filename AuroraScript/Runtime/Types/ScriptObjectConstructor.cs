@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
 using System;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuroraScript.Runtime.Types
 {

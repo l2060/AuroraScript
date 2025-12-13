@@ -1,8 +1,5 @@
 ﻿using AuroraScript.Runtime.Base;
-using AuroraScript.Runtime.Interop;
-using AuroraScript.Runtime.Types;
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace AuroraScript.Runtime

@@ -1,6 +1,5 @@
 ﻿using AuroraScript.Compiler;
 using AuroraScript.Compiler.Emits;
-using AuroraScript.Exceptions;
 using AuroraScript.Runtime;
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
@@ -10,7 +9,6 @@ using AuroraScript.Runtime.Pool;
 using AuroraScript.Runtime.Types;
 using AuroraScript.Runtime.Types.Internal;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AuroraScript
@@ -84,7 +82,7 @@ namespace AuroraScript
         {
             if (args.TryGetString(0, out var moduleName))
             {
-                var module =context.Domain.GetGlobal("@" + moduleName);
+                var module = context.Domain.GetGlobal("@" + moduleName);
                 if (module is ScriptModule)
                 {
                     result = ScriptDatum.FromObject(module);

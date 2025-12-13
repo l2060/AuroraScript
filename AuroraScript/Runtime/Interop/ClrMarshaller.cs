@@ -422,7 +422,7 @@ namespace AuroraScript.Runtime.Interop
 
                 for (int i = 0; i < scriptArray.Length; i++)
                 {
-                    scriptArray.Get(i,out var datum);
+                    scriptArray.Get(i, out var datum);
                     listInstance.Add(ScriptDatum.ToObject(in datum));
                 }
 

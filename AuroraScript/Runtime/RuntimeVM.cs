@@ -2,16 +2,12 @@
 using AuroraScript.Runtime.Base;
 using AuroraScript.Runtime.Debugger;
 using AuroraScript.Runtime.Interop;
-using AuroraScript.Runtime.Util;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.X86;
 
 namespace AuroraScript.Runtime
 {
